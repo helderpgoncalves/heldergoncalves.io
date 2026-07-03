@@ -1,0 +1,29 @@
+---
+// Layout base — <head> de SEO + slot de conteúdo + CSS global.
+// Repassa todas as props de SEO ao componente <SEO> (title, description,
+// type, image, publishedTime, noHreflang, jsonLd) para páginas com SEO próprio.
+import SEO from '../components/SEO.astro';
+import { SITE, type Lang } from '../siteConfig';
+import '../styles/global.css';
+
+interface Props {
+  lang?: Lang;
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  publishedTime?: string;
+  noHreflang?: boolean;
+  jsonLd?: Record<string, unknown>;
+}
+const { lang = SITE.defaultLang, ...seo } = Astro.props;
+---
+<!doctype html>
+<html lang={lang === 'pt' ? 'pt-PT' : 'en'}>
+  <head>
+    <SEO lang={lang} {...seo} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

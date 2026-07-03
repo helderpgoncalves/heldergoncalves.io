@@ -1,0 +1,13 @@
+# Não enviar para o contexto de build (mais rápido, imagem limpa)
+node_modules
+dist
+.astro
+.git
+.gitignore
+.DS_Store
+.env
+.env.*
+npm-debug.log*
+Dockerfile
+.dockerignore
+README.md

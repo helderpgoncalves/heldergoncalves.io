@@ -1,0 +1,18 @@
+---
+// Barra de navegação simples para as páginas de blog.
+// back = destino do link "voltar" (default: home).
+interface Props { back?: string; backLabel?: string; }
+const { back = '/', backLabel = 'Início' } = Astro.props;
+---
+<nav class="blognav">
+  <div class="blognav-inner liquid-glass">
+    <a href="/" class="brand" aria-label="Hélder Gonçalves">
+      <span class="mark" aria-hidden="true">H</span>
+      <span>Hélder Gonçalves</span>
+    </a>
+    <a href={back} class="blognav-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      {backLabel}
+    </a>
+  </div>
+</nav>

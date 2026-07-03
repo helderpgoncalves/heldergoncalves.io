@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import BlogNav from '../../components/BlogNav.astro';
+import { SITE } from '../../siteConfig';
+import { getSubstackPosts } from '../../lib/substack';
+
+// Lista os posts vindos do feed do Substack (gerado no build).
+const posts = await getSubstackPosts();
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' });
+---
+<Base
+  title="Blog — Hélder Gonçalves"
+  description="Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo."
+>
+  <BlogNav back="/" backLabel="Início" />
+
+  <main class="blogindex">
+    <header class="blogindex-head">
+      <h1 class="blogindex-h1 serif">Blog</h1>
+      <p class="blogindex-sub">
+        Notas sobre desenvolvimento, IA e as coisas que vou construindo. Escrevo no
+        <a href={SITE.social.substack} target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;text-underline-offset:3px">Substack</a>
+        e os posts aparecem aqui automaticamente.
+      </p>
+    </header>
+
+    {posts.length === 0 ? (
+      <div class="blogindex-empty">
+        <p>Ainda não há posts publicados.</p>
+        <p style="margin-top:14px">
+          Assim que publicares o primeiro texto no
+          <a href={SITE.social.substack} target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;text-underline-offset:3px">Substack</a>,
+          ele aparece aqui no próximo build do site.
+        </p>
+      </div>
+    ) : (
+      <ul class="post-list">
+        {posts.map((post) => (
+          <li class="post-item">
+            <a href={`/blog/${post.slug}/`}>
+              <div class="post-meta">
+                <time datetime={post.pubDate.toISOString()}>{fmt(post.pubDate)}</time>
+              </div>
+              <h2 class="serif">{post.title}</h2>
+              <p>{post.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </main>
+</Base>
