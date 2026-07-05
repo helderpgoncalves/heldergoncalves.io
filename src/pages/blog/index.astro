@@ -1,11 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
 import BlogNav from '../../components/BlogNav.astro';
+import Newsletter from '../../components/Newsletter.astro';
 import { SITE } from '../../siteConfig';
 import { getSubstackPosts } from '../../lib/substack';
 
 // Lista os posts vindos do feed do Substack (gerado no build).
 const posts = await getSubstackPosts();
+const [featured, ...rest] = posts;
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -18,11 +20,12 @@ const fmt = (d: Date) =>
 
   <main class="blogindex">
     <header class="blogindex-head">
+      <p class="blogindex-eyebrow">Arquivo</p>
       <h1 class="blogindex-h1 serif">Blog</h1>
       <p class="blogindex-sub">
         Notas sobre desenvolvimento, IA e as coisas que vou construindo. Escrevo no
         <a href={SITE.social.substack} target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;text-underline-offset:3px">Substack</a>
-        e os posts aparecem aqui automaticamente.
+        e os posts aparecem aqui automaticamente. Fica à vontade para vasculhar.
       </p>
     </header>
 
@@ -36,19 +39,60 @@ const fmt = (d: Date) =>
         </p>
       </div>
     ) : (
-      <ul class="post-list">
-        {posts.map((post) => (
-          <li class="post-item">
-            <a href={`/blog/${post.slug}/`}>
-              <div class="post-meta">
-                <time datetime={post.pubDate.toISOString()}>{fmt(post.pubDate)}</time>
+      <>
+        {/* Post em destaque — o mais recente, com capa grande */}
+        {featured && (
+          <a href={`/blog/${featured.slug}/`} class="feat liquid-glass">
+            {featured.cover && (
+              <div class="feat-cover">
+                <img src={featured.cover} alt="" loading="lazy" decoding="async" />
               </div>
-              <h2 class="serif">{post.title}</h2>
-              <p>{post.description}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
+            )}
+            <div class="feat-body">
+              <div class="feat-meta">
+                <span class="feat-badge">Mais recente</span>
+                <time datetime={featured.pubDate.toISOString()}>{fmt(featured.pubDate)}</time>
+                <span class="recent-dot" aria-hidden="true"></span>
+                <span>{featured.readingMinutes} min de leitura</span>
+              </div>
+              <h2 class="feat-title serif">{featured.title}</h2>
+              <p class="feat-desc">{featured.description}</p>
+              <span class="feat-read">Ler o texto
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </span>
+            </div>
+          </a>
+        )}
+
+        {/* Restante arquivo */}
+        {rest.length > 0 && (
+          <ul class="post-list">
+            {rest.map((post) => (
+              <li class="post-item">
+                <a href={`/blog/${post.slug}/`}>
+                  <div class="post-meta">
+                    <time datetime={post.pubDate.toISOString()}>{fmt(post.pubDate)}</time>
+                    <span class="recent-dot" aria-hidden="true"></span>
+                    <span>{post.readingMinutes} min</span>
+                  </div>
+                  <h2 class="serif">{post.title}</h2>
+                  <p>{post.description}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
     )}
+
+    {/* Adesão à newsletter no fim do arquivo */}
+    <div class="blog-news">
+      <div class="blog-news-copy">
+        <p class="news-eyebrow">Newsletter</p>
+        <h3 class="news-h3 serif">Não percas o próximo.</h3>
+        <p class="news-text">Deixa o email e recebes cada texto novo diretamente, mal seja publicado.</p>
+      </div>
+      <Newsletter variant="panel" />
+    </div>
   </main>
 </Base>

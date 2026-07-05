@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../siteConfig';
+import RecentPosts from '../components/RecentPosts.astro';
+import Newsletter from '../components/Newsletter.astro';
 
 const V = {
   hero: 'https://plugin-assets.open-design.ai/plugins/innovation/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a-6993b9.mp4',
@@ -46,7 +48,7 @@ const V = {
         <em class="serif-i" data-pt="curiosidade" data-en="curiosity">curiosidade</em>.
       </h1>
       <div class="email-row">
-        <p class="email-label" data-pt="Escreve na minha newsletter — notas sobre código, IA e o que ando a construir." data-en="Join my newsletter — notes on code, AI and what I'm building.">Escreve na minha newsletter — notas sobre código, IA e o que ando a construir.</p>
+        <p class="email-label" data-pt="Junta-te à newsletter. Notas sobre código, IA e o que ando a construir." data-en="Join the newsletter. Notes on code, AI and what I'm building.">Junta-te à newsletter. Notas sobre código, IA e o que ando a construir.</p>
         <form class="email-pill liquid-glass" id="news-form">
           <label for="news-email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email</label>
           <input id="news-email" type="email" required placeholder="o-teu@email.com" data-pt-ph="o-teu@email.com" data-en-ph="your@email.com" />
@@ -55,7 +57,7 @@ const V = {
           </button>
         </form>
       </div>
-      <p class="hero-sub" data-pt="Gosto de desenvolver, aprender e criar. Este é o meu canto na web — trabalho, ideias e escrita." data-en="I love to build, learn and create. This is my corner of the web — work, ideas and writing.">Gosto de desenvolver, aprender e criar. Este é o meu canto na web — trabalho, ideias e escrita.</p>
+      <p class="hero-sub" data-pt="Gosto de desenvolver, aprender e criar. Este é o meu canto na web, onde partilho trabalho, ideias e escrita." data-en="I love to build, learn and create. This is my corner of the web, where I share work, ideas and writing.">Gosto de desenvolver, aprender e criar. Este é o meu canto na web, onde partilho trabalho, ideias e escrita.</p>
     </div>
 
     <div class="socials">
@@ -77,9 +79,9 @@ const V = {
     <div class="about-inner">
       <p class="eyebrow reveal-sm" data-pt="Sobre mim" data-en="About me">Sobre mim</p>
       <h2 class="about-h2 reveal"
-        data-pt-html='Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span> — a construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.'
-        data-en-html='I spend my days <span class="serif-i" style="color:rgba(255,255,255,0.6)">building, learning and creating</span> — making things with technology and <span class="serif-i" style="color:rgba(255,255,255,0.6)">artificial intelligence</span>.'>
-        Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span> — a construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.
+        data-pt-html='Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span>. A construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.'
+        data-en-html='I spend my days <span class="serif-i" style="color:rgba(255,255,255,0.6)">building, learning and creating</span>. Making things with technology and <span class="serif-i" style="color:rgba(255,255,255,0.6)">artificial intelligence</span>.'>
+        Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span>. A construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.
       </h2>
     </div>
   </section>
@@ -93,7 +95,7 @@ const V = {
         <div class="featured-overlay">
           <div class="approach-card liquid-glass">
             <p class="approach-label" data-pt="A minha abordagem" data-en="My approach">A minha abordagem</p>
-            <p class="approach-body" data-pt="Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta — e a resposta abre sempre a porta seguinte." data-en="I learn by building and build to learn. Every project starts with a question — and the answer always opens the next door.">Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta — e a resposta abre sempre a porta seguinte.</p>
+            <p class="approach-body" data-pt="Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta, e a resposta abre sempre a porta seguinte." data-en="I learn by building and build to learn. Every project starts with a question, and the answer always opens the next door.">Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta, e a resposta abre sempre a porta seguinte.</p>
           </div>
           <a href="#work" class="explore-btn liquid-glass" data-pt="Ver trabalho" data-en="See work">Ver trabalho</a>
         </div>
@@ -167,7 +169,7 @@ const V = {
               </span>
             </div>
             <h3 class="scard-title serif" data-pt="Interfaces &amp; produto" data-en="Interfaces &amp; product">Interfaces &amp; produto</h3>
-            <p class="scard-desc" data-pt="Do conceito ao lançamento — interfaces cuidadas, rápidas e com atenção ao detalhe." data-en="From concept to launch — interfaces that are careful, fast and detail-obsessed.">Do conceito ao lançamento — interfaces cuidadas, rápidas e com atenção ao detalhe.</p>
+            <p class="scard-desc" data-pt="Do conceito ao lançamento. Interfaces cuidadas, rápidas e com atenção ao detalhe." data-en="From concept to launch. Interfaces that are careful, fast and detail-obsessed.">Do conceito ao lançamento. Interfaces cuidadas, rápidas e com atenção ao detalhe.</p>
             <p class="scard-note" data-pt="Caso de estudo em breve" data-en="Case study soon">Caso de estudo em breve</p>
           </div>
         </div>
@@ -184,7 +186,7 @@ const V = {
           <span data-pt="Escrevo sobre o que" data-en="I write about what">Escrevo sobre o que</span>
           <em class="serif-i" style="color:rgba(255,255,255,0.55)" data-pt="ando a aprender" data-en="I'm learning">ando a aprender</em>.
         </h2>
-        <p class="blog-text" data-pt="Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido — só quando tenho algo que vale a pena partilhar." data-en="Notes on development, artificial intelligence and the things I build. No rigid schedule — only when I have something worth sharing.">Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido — só quando tenho algo que vale a pena partilhar.</p>
+        <p class="blog-text" data-pt="Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido, só quando tenho algo que vale a pena partilhar." data-en="Notes on development, artificial intelligence and the things I build. No rigid schedule, only when I have something worth sharing.">Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido, só quando tenho algo que vale a pena partilhar.</p>
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;z-index:1">
           <a href="/blog" class="blog-btn liquid-glass">
             <span data-pt="Ler o blog" data-en="Read the blog">Ler o blog</span>
@@ -192,6 +194,22 @@ const V = {
           </a>
           <a href={SITE.social.substack} target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);font-size:0.85rem;display:inline-flex;align-items:center;gap:8px" data-pt="também no Substack" data-en="also on Substack">também no Substack</a>
         </div>
+      </div>
+
+      <!-- Últimos posts reais do Substack (só aparece quando há posts) -->
+      <RecentPosts limit={3} />
+
+      <!-- Adesão à newsletter: embed real do Substack, sem sair do site -->
+      <div class="news-block reveal-up" id="subscribe">
+        <div class="news-copy">
+          <p class="news-eyebrow" data-pt="Newsletter" data-en="Newsletter">Newsletter</p>
+          <h3 class="news-h3 serif">
+            <span data-pt="Recebe o próximo" data-en="Get the next one">Recebe o próximo</span>
+            <em class="serif-i" style="color:rgba(255,255,255,0.55)" data-pt="antes de todos" data-en="before anyone">antes de todos</em>.
+          </h3>
+          <p class="news-text" data-pt="Escrevo em código, IA e o que ando a construir. Deixa o email e recebes cada texto novo diretamente, sem ruído." data-en="I write about code, AI and what I'm building. Drop your email and get each new piece straight to your inbox, no noise.">Escrevo em código, IA e o que ando a construir. Deixa o email e recebes cada texto novo diretamente, sem ruído.</p>
+        </div>
+        <Newsletter variant="panel" />
       </div>
     </div>
   </section>
@@ -316,17 +334,21 @@ const V = {
       apply(saved === 'en' ? 'en' : 'pt');
     })();
 
-    // ── Newsletter → Substack ──
+    // ── Newsletter (hero) → leva ao embed real, sem sair do site ──
+    // O email cross-origin para o Substack não é fiável (sem CORS,
+    // Cloudflare, captcha). Em vez de abrir uma aba, o input do hero
+    // faz scroll suave até ao embed oficial na secção #subscribe.
     (function () {
       var form = document.getElementById('news-form') as HTMLFormElement | null;
+      var target = document.getElementById('subscribe');
       if (!form) return;
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        var input = form!.querySelector('input');
-        var email = ((input && input.value) || '').trim();
-        var base = 'https://helderpgoncalves.substack.com/subscribe';
-        var url = email ? base + '?email=' + encodeURIComponent(email) : base;
-        window.open(url, '_blank', 'noopener');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          var frame = target.querySelector('iframe') as HTMLIFrameElement | null;
+          if (frame) setTimeout(function () { try { frame!.focus(); } catch (_) {} }, 600);
+        }
       });
     })();
 

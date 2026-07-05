@@ -1,0 +1,65 @@
+name: Rebuild on new Substack post
+
+# Refaz o site quando há escrita nova no Substack.
+# Corre a cada 30 min e também pode ser disparado à mão.
+# Só chama o Deploy Webhook do Coolify se o feed mudou desde a última corrida,
+# para não refazer o site sem necessidade.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # a cada 30 minutos
+  workflow_dispatch: {} # botão "Run workflow" no GitHub
+
+concurrency:
+  group: substack-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restaurar hash do último post visto
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .substack-hash
+          key: substack-hash-${{ github.run_id }}
+          restore-keys: |
+            substack-hash-
+
+      - name: Verificar feed e disparar rebuild se mudou
+        env:
+          HOOK: ${{ secrets.COOLIFY_DEPLOY_HOOK }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HOOK:-}" ]; then
+            echo "::error::Falta o secret COOLIFY_DEPLOY_HOOK (Deploy Webhook do Coolify)."
+            exit 1
+          fi
+
+          FEED="https://helderpgoncalves.substack.com/feed"
+          # Assinatura do estado atual do feed: links + datas dos <item>.
+          CURRENT=$(curl -fsSL --max-time 30 -A "Mozilla/5.0 (rebuild-bot)" "$FEED" \
+            | grep -oE '<(link|pubDate)>[^<]*</(link|pubDate)>' \
+            | sha256sum | awk '{print $1}')
+
+          PREV=""
+          [ -f .substack-hash ] && PREV=$(cat .substack-hash)
+
+          echo "atual:  $CURRENT"
+          echo "anterior: ${PREV:-<nenhum>}"
+
+          if [ "$CURRENT" != "$PREV" ]; then
+            echo "Feed mudou -> a disparar rebuild no Coolify."
+            curl -fsSL --max-time 30 "$HOOK" && echo "Rebuild disparado."
+            echo "$CURRENT" > .substack-hash
+          else
+            echo "Sem alterações no feed -> nada a fazer."
+          fi
+
+      - name: Guardar hash para a próxima corrida
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .substack-hash
+          key: substack-hash-${{ github.run_id }}

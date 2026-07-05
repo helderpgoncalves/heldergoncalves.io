@@ -20,14 +20,14 @@ export const SITE = {
 // Metadados por idioma (title + description) — usados no <head> e OG.
 export const META = {
   pt: {
-    title: 'Hélder Gonçalves — Developer, criador e IA',
+    title: 'Hélder Gonçalves · Developer, criador e IA',
     description:
-      'O canto na web do Hélder Gonçalves — developer que gosta de construir, aprender e criar com tecnologia e inteligência artificial. Trabalho, ideias e escrita.',
+      'O canto na web do Hélder Gonçalves. Developer que gosta de construir, aprender e criar com tecnologia e inteligência artificial. Trabalho, ideias e escrita.',
   },
   en: {
-    title: 'Hélder Gonçalves — Developer, maker & AI',
+    title: 'Hélder Gonçalves · Developer, maker & AI',
     description:
-      "Hélder Gonçalves's corner of the web — a developer who loves building, learning and creating with technology and artificial intelligence. Work, ideas and writing.",
+      "Hélder Gonçalves's corner of the web. A developer who loves building, learning and creating with technology and artificial intelligence. Work, ideas and writing.",
   },
 } as const;
 

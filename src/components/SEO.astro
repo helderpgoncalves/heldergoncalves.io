@@ -72,7 +72,7 @@ const siteLd = {
 <meta name="theme-color" content="#000000" />
 <link rel="canonical" href={canonical} />
 
-<!-- hreflang — só nas páginas com par de idioma PT/EN -->
+<!-- hreflang: só nas páginas com par de idioma PT/EN -->
 {!noHreflang && (
   <>
     <link rel="alternate" hreflang="pt-PT" href={SITE.url + '/'} />
@@ -111,7 +111,7 @@ const siteLd = {
 <link rel="manifest" href="/site.webmanifest" />
 
 <!-- RSS -->
-<link rel="alternate" type="application/rss+xml" title={SITE.name + ' — Blog'} href={SITE.url + '/rss.xml'} />
+<link rel="alternate" type="application/rss+xml" title={SITE.name + ' · Blog'} href={SITE.url + '/rss.xml'} />
 
 <!-- Fonts: preconnect + Instrument Serif -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />

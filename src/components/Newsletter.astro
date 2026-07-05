@@ -1,0 +1,39 @@
+---
+// ─────────────────────────────────────────────────────────────
+// Newsletter — subscrição real do Substack, sem sair do site.
+//
+// O Substack não permite POST cross-origin fiável (sem CORS,
+// Cloudflare + reCAPTCHA). A via robusta é o iframe oficial /embed,
+// que trata de captcha e validação. Aqui ele vive dentro de um
+// invólucro liquid-glass a condizer com o dark theme, com cores
+// passadas por query params. Fica premium e continua fiável.
+//
+// variant="pill"  -> versão compacta para o hero
+// variant="panel" -> painel dedicado (secção de blog / arquivo)
+// ─────────────────────────────────────────────────────────────
+import { SITE } from '../siteConfig';
+
+interface Props {
+  variant?: 'pill' | 'panel';
+}
+const { variant = 'panel' } = Astro.props;
+
+// Cores do embed, URL-encoded, a condizer com o site (fundo preto, texto branco).
+const embedBase = SITE.social.substack.replace(/\/+$/, '') + '/embed';
+const embedSrc =
+  `${embedBase}?background=%23000000&text_color=%23ffffff` +
+  `&button_color=%23ffffff&border_color=%23222222`;
+---
+<div class={`news news-${variant}`}>
+  <div class="news-frame liquid-glass">
+    <iframe
+      src={embedSrc}
+      title="Subscrever a newsletter de Hélder Gonçalves"
+      loading="lazy"
+      scrolling="no"
+    ></iframe>
+  </div>
+  <p class="news-fine">
+    <span data-pt="Sem spam. Cancela quando quiseres." data-en="No spam. Unsubscribe anytime.">Sem spam. Cancela quando quiseres.</span>
+  </p>
+</div>
