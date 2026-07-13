@@ -49,16 +49,7 @@ Precisas do **Deploy Webhook URL** do Coolify (secção 2). Escolhe UMA das opç
 Assim que publicas no Substack, o Zap dispara e o Coolify refaz o site em segundos.
 Latência típica: 1–15 min (depende do polling do RSS no Zapier/Make).
 
-### Opção B — GitHub Action agendada (grátis, dentro do repo)
-
-Já incluída em `.github/workflows/rebuild.yml`: corre de X em X tempo e, havendo
-posts novos no feed, chama o Deploy Webhook do Coolify. Precisa de UM secret no repo:
-
-- `COOLIFY_DEPLOY_HOOK` = o Deploy Webhook URL do Coolify.
-
-Configura em: repo → Settings → Secrets and variables → Actions → New secret.
-
-### Opção C — Cron no próprio Coolify
+### Opção B — Cron no próprio Coolify
 
 Na app do Coolify → **Scheduled Tasks**, cria uma tarefa que faz `curl` ao próprio
 Deploy Webhook, ex. 1x por dia às 08:00:
