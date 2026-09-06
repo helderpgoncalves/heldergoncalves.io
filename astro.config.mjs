@@ -1,11 +1,8 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Domínio final — usado para canonical, sitemap, hreflang e Open Graph.
 export default defineConfig({
   site: 'https://heldergoncalves.io',
-  // Português na raiz (/), inglês em /en/. Duas páginas reais, não um
-  // toggle em JavaScript: é o que o Google consegue indexar.
   i18n: {
     defaultLocale: 'pt',
     locales: ['pt', 'en'],
@@ -13,13 +10,10 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/rss.xml'),
-      i18n: {
-        defaultLocale: 'pt',
-        locales: { pt: 'pt-PT', en: 'en' },
-      },
+      filter: (page) => !page.includes('/404'),
+      i18n: { defaultLocale: 'pt', locales: { pt: 'pt-PT', en: 'en' } },
     }),
   ],
-  build: { inlineStylesheets: 'auto' },
+  build: { inlineStylesheets: 'always' },
   compressHTML: true,
 });
