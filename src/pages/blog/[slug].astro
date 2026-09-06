@@ -1,9 +1,9 @@
 ---
 import OS from '../../layouts/OS.astro';
 import Shell from '../../components/os/Shell.astro';
-import { SITE, COPY, other } from '../../siteConfig';
+import { SITE, COPY, ROUTES, other } from '../../siteConfig';
 import { getPosts, getTranslation, postSlug, postPath, type Post } from '../../lib/posts';
-import { articleLd } from '../../lib/seo';
+import { articleLd, breadcrumbLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const posts = await getPosts('pt');
@@ -28,7 +28,16 @@ const url = new URL(Astro.url.pathname, SITE.url).href;
   keywords={post.data.tags.length ? post.data.tags.join(', ') : c.keywords}
   altPath={altPath}
   ogType="article"
-  jsonLd={articleLd(post, lang, url)}
+  published={post.data.date.toISOString()}
+  modified={(post.data.updated ?? post.data.date).toISOString()}
+  jsonLd={[
+    articleLd(post, lang, url),
+    breadcrumbLd([
+      { name: SITE.name, url: new URL(ROUTES[lang].home, SITE.url).href },
+      { name: c.escritos.heading, url: new URL(ROUTES[lang].blog, SITE.url).href },
+      { name: post.data.title, url },
+    ]),
+  ]}
 >
   <Shell
     lang={lang}

@@ -329,7 +329,8 @@ function initChat(ctx) {
     busy = true;
     if (input) input.value = '';
     bubble('me', message);
-    const chip = suggest.querySelector('[data-ask="' + CSS.escape(message) + '"]');
+    // Sem CSS.escape: comparar é mais simples e funciona em todo o lado.
+    const chip = [...suggest.querySelectorAll('[data-ask]')].find((b) => b.dataset.ask === message);
     if (chip) chip.remove();
 
     await prepare();

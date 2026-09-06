@@ -15,7 +15,7 @@ import { createServer } from 'node:http';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { resolve, normalize, extname, sep, join } from 'node:path';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { gzipSync } from 'node:zlib';
+import { gzipSync, brotliCompressSync, constants as zlib } from 'node:zlib';
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = resolve(process.env.STATIC_DIR || './dist');
@@ -316,14 +316,31 @@ async function load(file) {
     body,
     type,
     etag: '"' + createHash('sha1').update(body).digest('base64url').slice(0, 22) + '"',
-    gzip: COMPRESSIBLE.test(type) && body.length > 1024 ? gzipSync(body, { level: 8 }) : null,
+    gzip: null,
+    br: null,
   };
+  // Comprime uma vez, na primeira vez que o ficheiro é pedido, e guarda.
+  // O Brotli poupa mais uns 15-20% do que o gzip em texto.
+  if (COMPRESSIBLE.test(type) && body.length > 1024) {
+    entry.gzip = gzipSync(body, { level: 8 });
+    try {
+      entry.br = brotliCompressSync(body, {
+        params: {
+          [zlib.BROTLI_PARAM_QUALITY]: 10,
+          [zlib.BROTLI_PARAM_SIZE_HINT]: body.length,
+        },
+      });
+    } catch (_) {
+      entry.br = null;
+    }
+  }
   cache.set(file, entry);
   return entry;
 }
 
 function cacheControl(urlPath, type) {
-  if (urlPath.startsWith('/_astro/')) return 'public, max-age=31536000, immutable';
+  if (urlPath === '/sw.js') return 'public, max-age=0, must-revalidate';
+  if (urlPath.startsWith('/_astro/') || urlPath.startsWith('/fonts/')) return 'public, max-age=31536000, immutable';
   if (type.startsWith('text/html')) return 'public, max-age=0, must-revalidate';
   return 'public, max-age=3600';
 }
@@ -336,8 +353,16 @@ async function serveFile(req, res, file, urlPath, status) {
     res.writeHead(304, Object.assign({}, SECURITY, { ETag: entry.etag, 'Cache-Control': control }));
     return res.end();
   }
-  const useGzip = String(req.headers['accept-encoding'] || '').indexOf('gzip') !== -1 && !!entry.gzip;
-  const body = useGzip ? entry.gzip : entry.body;
+  const accept = String(req.headers['accept-encoding'] || '');
+  let body = entry.body;
+  let encoding = null;
+  if (entry.br && accept.indexOf('br') !== -1) {
+    body = entry.br;
+    encoding = 'br';
+  } else if (entry.gzip && accept.indexOf('gzip') !== -1) {
+    body = entry.gzip;
+    encoding = 'gzip';
+  }
   const headers = {
     'Content-Type': entry.type,
     'Cache-Control': control,
@@ -345,7 +370,7 @@ async function serveFile(req, res, file, urlPath, status) {
     Vary: 'Accept-Encoding',
     'Content-Length': String(body.length),
   };
-  if (useGzip) headers['Content-Encoding'] = 'gzip';
+  if (encoding) headers['Content-Encoding'] = encoding;
   res.writeHead(code, Object.assign({}, SECURITY, headers));
   if (req.method === 'HEAD') return res.end();
   res.end(body);

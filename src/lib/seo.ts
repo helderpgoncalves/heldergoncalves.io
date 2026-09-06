@@ -65,3 +65,33 @@ export function articleLd(post: Post, lang: Lang, url: string) {
     publisher: { '@id': `${SITE.url}/#person` },
   };
 }
+
+/** O site em si — dá ao Google o nome, a língua e a quem pertence. */
+export function websiteLd(lang: Lang) {
+  const c = COPY[lang];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE.url}/#website`,
+    url: SITE.url,
+    name: SITE.name,
+    description: c.description,
+    inLanguage: c.htmlLang,
+    publisher: { '@id': `${SITE.url}/#person` },
+    author: { '@id': `${SITE.url}/#person` },
+  };
+}
+
+/** O caminho até à página, para aparecer nos resultados de pesquisa. */
+export function breadcrumbLd(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}

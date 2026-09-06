@@ -3,7 +3,7 @@ import OS from '../../../layouts/OS.astro';
 import Shell from '../../../components/os/Shell.astro';
 import { SITE, COPY, ROUTES, other } from '../../../siteConfig';
 import { getPosts, postPath } from '../../../lib/posts';
-import { blogLd } from '../../../lib/seo';
+import { blogLd, breadcrumbLd } from '../../../lib/seo';
 
 const lang = 'en' as const;
 const c = COPY[lang];
@@ -20,7 +20,10 @@ const ld = blogLd(
   title={`${c.escritos.title} — ${SITE.name}`}
   description={c.escritos.description}
   altPath={ROUTES[other(lang)].blog}
-  jsonLd={ld}
+  jsonLd={[ld, breadcrumbLd([
+    { name: SITE.name, url: new URL(ROUTES[lang].home, SITE.url).href },
+    { name: c.escritos.heading, url: blogUrl },
+  ])]}
 >
   <Shell lang={lang} posts={posts} boot="escritos" docTitle={c.escritos.heading} docLead={c.escritos.lead} />
 </OS>

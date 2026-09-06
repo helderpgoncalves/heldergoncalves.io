@@ -483,7 +483,7 @@ a:hover { text-decoration: underline; }
 .phone {
   position: absolute; inset: 0; overflow: hidden;
   --sb-h: calc(52px + env(safe-area-inset-top, 0px));
-  --home-h: calc(28px + env(safe-area-inset-bottom, 0px));
+  --home-h: calc(32px + env(safe-area-inset-bottom, 0px));
   isolation: isolate;
 }
 .ios-wall { z-index: 0; }
@@ -957,13 +957,16 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
 /* Simulador — o telefone dentro do site */
 .sim { flex: 1; display: grid; place-items: center; padding: 18px; background: var(--surface-2); }
 .sim-device {
-  position: relative; height: 100%; width: auto; max-width: 100%; aspect-ratio: 9 / 19.5;
+  position: relative; width: min(300px, 100%); height: 640px; max-width: 100%;
   border-radius: 46px; padding: 11px; background: #0a0a0c;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1.5px #37373d, 0 0 0 1px rgba(0, 0, 0, 0.6);
 }
 .sim-device::after {
   content: ''; position: absolute; left: 50%; top: 4px; width: 46%; height: 22px;
   transform: translateX(-50%); border-radius: 0 0 14px 14px; pointer-events: none;
+}
+@supports (aspect-ratio: 9 / 19.5) {
+  .sim-device { width: auto; height: 100%; aspect-ratio: 9 / 19.5; }
 }
 .sim-screen { width: 100%; height: 100%; border: 0; border-radius: 36px; overflow: hidden; background: #000; display: block; }
 .sim-note { margin-top: 14px; font-size: 12px; color: var(--ink-3); text-align: center; max-width: 34ch; }
@@ -1121,3 +1124,8 @@ input, textarea, select { font-family: inherit; }
   padding: 12px 14px; border-radius: 10px; background: var(--surface-2);
   border: 0.5px solid var(--line);
 }
+.doc-kicker { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 0 0 0.5rem; }
+
+/* A barra inferior avisa quando o comutador está armado */
+.homebar i { transition: transform 0.22s var(--ease-os), width 0.22s var(--ease-os), opacity 0.2s; }
+.homebar.armed i { width: 64px; opacity: 0.9; }

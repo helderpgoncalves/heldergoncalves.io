@@ -7,6 +7,11 @@ import { reducedMotion, effectiveTheme, setPref, prefs } from './state.js';
 import { track, rubber, clamp, project } from './gesture.js';
 
 const EASE = 'cubic-bezier(.32,.72,0,1)';
+// Browsers antigos (Safari 12 e afins) não têm Web Animations. Em vez de
+// partir, ficam sem a animação — o site funciona na mesma.
+const CAN_ANIMATE =
+  typeof Element !== 'undefined' &&
+  typeof Element.prototype.animate === 'function';
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 
@@ -72,6 +77,45 @@ export function createPhone(ctx) {
     return view;
   }
 
+  // ── O modelo de movimento ───────────────────────────────────
+  // Abrir, fechar e arrastar usam TODOS a mesma fórmula, com o mesmo
+  // ponto de origem. Era isto que faltava: antes o arrasto encolhia a
+  // app pelo centro e a largada continuava a partir do canto — e via-se
+  // o salto. Agora `p` vai de 0 (app inteira) a 1 (dentro do ícone), e
+  // toda a gente concorda no caminho.
+  function iconTarget(id) {
+    const source = iconFor(id);
+    const pr = phone.getBoundingClientRect();
+    if (!source || !pr.width) return null;
+    const r = source.getBoundingClientRect();
+    if (!r.width) return null;
+    return {
+      s: Math.max(0.06, r.width / pr.width),
+      x: r.left + r.width / 2 - (pr.left + pr.width / 2),
+      y: r.top + r.height / 2 - (pr.top + pr.height / 2),
+    };
+  }
+
+  const frame = (t, p, drift) =>
+    'translate3d(' + (t.x * p + (drift || 0)) + 'px,' + t.y * p + 'px,0) scale(' + (1 - (1 - t.s) * p) + ')';
+
+  const radiusAt = (p) => 28 * p + 'px';
+
+  /** O ecrã inicial acompanha: aparece à medida que a app se afasta. */
+  function springboardAt(p) {
+    if (p <= 0) {
+      sb.style.transform = '';
+      sb.style.opacity = '';
+      sb.style.filter = '';
+      sb.classList.add('pushed');
+      return;
+    }
+    sb.classList.remove('pushed');
+    sb.style.transform = 'scale(' + (0.93 + 0.07 * p) + ')';
+    sb.style.opacity = String(Math.min(1, p * 1.4));
+    sb.style.filter = 'blur(' + (1 - p) * 6 + 'px)';
+  }
+
   function open(id, fromEl) {
     const view = views.get(id) || build(id);
     if (current === id) return view;
@@ -86,33 +130,36 @@ export function createPhone(ctx) {
     view.style.transform = '';
     view.style.borderRadius = '';
     view.style.opacity = '';
+    view.style.transition = '';
     pushSpringboard(true);
     layer.style.pointerEvents = 'auto';
     ctx.active = id;
     closeCC();
     closeNC();
 
-    const source = fromEl && fromEl.getBoundingClientRect ? fromEl : iconFor(id);
-    if (!reducedMotion() && source) {
-      const r = source.getBoundingClientRect();
-      const pr = phone.getBoundingClientRect();
-      if (r.width > 0 && pr.width > 0) {
-        const scale = Math.max(0.05, r.width / pr.width);
-        view.animate(
-          [
-            {
-              transformOrigin: '0 0',
-              transform: 'translate(' + (r.left - pr.left) + 'px,' + (r.top - pr.top) + 'px) scale(' + scale + ')',
-              borderRadius: '26px',
-              opacity: 0.35,
-            },
-            { transformOrigin: '0 0', transform: 'none', borderRadius: '0px', opacity: 1 },
-          ],
-          { duration: 400, easing: EASE }
-        );
-      }
+    const target = fromEl && fromEl.getBoundingClientRect ? rectTarget(fromEl) : iconTarget(id);
+    if (CAN_ANIMATE && !reducedMotion() && target) {
+      view.animate(
+        [
+          { transformOrigin: '50% 50%', transform: frame(target, 1), borderRadius: radiusAt(1), opacity: 0.3 },
+          { transformOrigin: '50% 50%', transform: 'none', borderRadius: '0px', opacity: 1 },
+        ],
+        { duration: 420, easing: EASE }
+      );
     }
     return view;
+  }
+
+  /** O mesmo alvo, mas a partir de um elemento qualquer (um cartão). */
+  function rectTarget(el) {
+    const pr = phone.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    if (!pr.width || !r.width) return null;
+    return {
+      s: Math.max(0.06, r.width / pr.width),
+      x: r.left + r.width / 2 - (pr.left + pr.width / 2),
+      y: r.top + r.height / 2 - (pr.top + pr.height / 2),
+    };
   }
 
   function pushSpringboard(on) {
@@ -122,13 +169,13 @@ export function createPhone(ctx) {
     sb.classList.toggle('pushed', on);
   }
 
-  function home() {
+  /** Fecha a app visível. `from` é o ponto onde o dedo a deixou. */
+  function home(from) {
     if (!current) return Promise.resolve();
     const view = views.get(current);
     const id = current;
     current = null;
     ctx.active = null;
-    pushSpringboard(false);
     layer.style.pointerEvents = 'none';
 
     const clear = () => {
@@ -136,29 +183,45 @@ export function createPhone(ctx) {
       view.style.transform = '';
       view.style.borderRadius = '';
       view.style.opacity = '';
+      view.style.transition = '';
+      view.style.willChange = '';
+      pushSpringboard(false);
     };
-    const source = iconFor(id);
-    if (reducedMotion() || !source) {
+
+    const target = iconTarget(id);
+    if (!CAN_ANIMATE || reducedMotion() || !target) {
       clear();
       return Promise.resolve();
     }
-    const r = source.getBoundingClientRect();
-    const pr = phone.getBoundingClientRect();
-    const scale = Math.max(0.05, r.width / pr.width);
-    const from = view.style.transform || 'none';
+
+    const p0 = from && typeof from.p === 'number' ? from.p : 0;
+    const drift = from && from.drift ? from.drift : 0;
     const anim = view.animate(
       [
-        { transformOrigin: '0 0', transform: from === 'none' ? 'none' : from, opacity: 1 },
-        {
-          transformOrigin: '0 0',
-          transform: 'translate(' + (r.left - pr.left) + 'px,' + (r.top - pr.top) + 'px) scale(' + scale + ')',
-          borderRadius: '26px',
-          opacity: 0.2,
-        },
+        { transformOrigin: '50% 50%', transform: frame(target, p0, drift), borderRadius: radiusAt(p0), opacity: 1 },
+        { transformOrigin: '50% 50%', transform: frame(target, 1), borderRadius: radiusAt(1), opacity: 0.25 },
       ],
-      { duration: 320, easing: EASE }
+      { duration: Math.round(300 + (1 - p0) * 90), easing: EASE }
     );
-    return anim.finished.then(clear, clear);
+    // O ecrã inicial volta ao normal enquanto a app se afasta — mas a
+    // partir de onde o dedo o deixou, senão salta.
+    sb.classList.remove('pushed');
+    sb.style.transition = 'none';
+    springboardAt(Math.max(p0, 0.02));
+    requestAnimationFrame(() => {
+      sb.style.transition = 'transform .34s ' + EASE + ', opacity .26s linear, filter .3s linear';
+      springboardAt(1);
+      setTimeout(() => {
+        sb.style.transition = '';
+        sb.style.transform = '';
+        sb.style.opacity = '';
+        sb.style.filter = '';
+      }, 370);
+    });
+
+    if (anim && anim.finished) return anim.finished.then(clear, clear);
+    setTimeout(clear, 380);
+    return Promise.resolve();
   }
 
   function close(id) {
@@ -190,72 +253,104 @@ export function createPhone(ctx) {
     closeNC();
   }
 
-  // ── Gesto: barra inferior ───────────────────────────────────
-  // Subir devolve ao início; subir e segurar abre o comutador.
-  let homeDrag = null;
+  // ── Gesto: a barra inferior ─────────────────────────────────
+  // Um só gesto, três destinos: soltar em baixo mantém a app, arrastar
+  // para cima devolve ao início, e parar a meio caminho abre o
+  // comutador. A app segue o dedo pelo caminho exato que vai fazer ao
+  // ser largada — nada salta.
+  let drag = null;
+
   track(
     homebar,
     {
       begin: () => {
-        const view = current ? views.get(current) : null;
-        homeDrag = { view, peak: 0 };
-        if (view) {
-          view.style.transition = 'none';
-          view.style.willChange = 'transform';
+        if (!current) {
+          drag = null;
+          return;
         }
+        const view = views.get(current);
+        const target = iconTarget(current);
+        if (!view || !target) {
+          drag = null;
+          return;
+        }
+        view.style.transition = 'none';
+        view.style.willChange = 'transform, border-radius';
+        view.style.transformOrigin = '50% 50%';
+        sb.classList.remove('pushed');
+        sb.style.transition = 'none';
+        drag = { view, target, p: 0, drift: 0, switcher: false, still: 0, lastAt: performance.now() };
       },
       move: (g) => {
-        if (!homeDrag) return;
+        if (!drag) {
+          if (!current) sb.style.transform = 'translate3d(0,' + rubber(g.dy, 120) + 'px,0)';
+          return;
+        }
         const h = phone.clientHeight || 1;
         const up = Math.max(0, -g.dy);
-        const p = clamp(up / (h * 0.45), 0, 1);
-        homeDrag.peak = Math.max(homeDrag.peak, p);
-        if (homeDrag.view) {
-          const scale = 1 - p * 0.32;
-          homeDrag.view.style.transformOrigin = '50% 50%';
-          homeDrag.view.style.transform =
-            'translate3d(0,' + -up * 0.22 + 'px,0) scale(' + scale + ')';
-          homeDrag.view.style.borderRadius = 34 * p + 'px';
-        } else {
-          // Sem app aberta, o ecrã inicial faz o elástico.
-          sb.style.transform = 'translate3d(0,' + rubber(g.dy, 120) + 'px,0)';
-        }
+        drag.p = clamp(up / (h * 0.5), 0, 0.86);
+        // O dedo também leva a app de lado, mas com metade da força.
+        drag.drift = g.dx * (1 - drag.p) * 0.45;
+
+        // Parar a meio caminho é o sinal do comutador, como no iPhone.
+        const now = performance.now();
+        if (Math.abs(g.vy) < 0.08 && Math.abs(g.vx) < 0.08) drag.still += now - drag.lastAt;
+        else drag.still = 0;
+        drag.lastAt = now;
+        drag.switcher = stack.length > 1 && drag.p > 0.22 && drag.still > 130;
+
+        drag.view.style.transform = frame(drag.target, drag.p, drag.drift);
+        drag.view.style.borderRadius = radiusAt(drag.p);
+        springboardAt(drag.switcher ? Math.min(drag.p, 0.35) : drag.p);
+        homebar.classList.toggle('armed', drag.switcher);
       },
       end: (g) => {
-        sb.style.transform = '';
-        const view = homeDrag && homeDrag.view;
-        if (view) {
-          view.style.transition = '';
-          view.style.willChange = '';
+        sb.style.transition = '';
+        homebar.classList.remove('armed');
+        if (!drag) {
+          sb.style.transform = '';
+          return;
         }
-        const up = -g.dy + project(-g.vy);
-        const fast = g.vy < -0.45;
-        const paused = Math.abs(g.vy) < 0.12;
-        const wantSwitcher = stack.length > 1 && up > 110 && paused;
-        homeDrag = null;
-        if (!current) return;
-        if (wantSwitcher) {
-          home().then(openSwitcher);
-        } else if (up > 80 || fast) {
-          home();
-        } else if (view) {
-          view.animate(
-            [{ transform: view.style.transform, borderRadius: view.style.borderRadius }, { transform: 'none', borderRadius: '0px' }],
-            { duration: 230, easing: EASE }
-          ).finished.then(
-            () => {
-              view.style.transform = '';
-              view.style.borderRadius = '';
-            },
-            () => {}
+        const state = drag;
+        drag = null;
+        state.view.style.transition = '';
+        state.view.style.willChange = '';
+
+        const h = phone.clientHeight || 1;
+        // Conta o embalo: para onde o dedo ia, não onde parou.
+        const reach = -g.dy + project(-g.vy);
+        const wantsHome = reach > h * 0.16 || g.vy < -0.5;
+
+        if (state.switcher) {
+          home({ p: state.p, drift: state.drift }).then(openSwitcher);
+          return;
+        }
+        if (wantsHome) {
+          home({ p: state.p, drift: state.drift });
+          return;
+        }
+        // Volta para a app, pelo mesmo caminho.
+        if (CAN_ANIMATE && !reducedMotion()) {
+          state.view.animate(
+            [
+              { transform: frame(state.target, state.p, state.drift), borderRadius: radiusAt(state.p) },
+              { transform: 'none', borderRadius: '0px' },
+            ],
+            { duration: 260, easing: EASE }
           );
         }
+        state.view.style.transform = '';
+        state.view.style.borderRadius = '';
+        sb.classList.add('pushed');
+        sb.style.transform = '';
+        sb.style.opacity = '';
+        sb.style.filter = '';
       },
       tap: () => {
         if (current) home();
       },
     },
-    { threshold: 4 }
+    { threshold: 3 }
   );
 
   // ── Gesto: páginas do ecrã inicial ──────────────────────────
@@ -476,39 +571,50 @@ export function createPhone(ctx) {
       track(
         card,
         {
-          begin: () => (card.style.transition = 'none'),
+          begin: () => {
+            card.style.transition = 'none';
+            card.style.willChange = 'transform, opacity';
+          },
           move: (g) => {
-            card.style.transform = 'translate3d(0,' + Math.min(0, g.dy) + 'px,0)';
-            card.style.opacity = String(clamp(1 + g.dy / 400, 0.2, 1));
+            const up = Math.min(0, g.dy);
+            // Elástico ao empurrar para baixo, para não parecer partido.
+            const down = g.dy > 0 ? rubber(g.dy, 90) : 0;
+            card.style.transform = 'translate3d(0,' + (up + down) + 'px,0) scale(' + (1 - Math.min(0.06, -up / 2400)) + ')';
+            card.style.opacity = String(clamp(1 + up / 520, 0.25, 1));
           },
           end: (g) => {
-            card.style.transition = '';
-            if (-g.dy - project(g.vy) > 95) {
-              card.style.transform = 'translateY(-120%)';
-              card.style.opacity = '0';
+            card.style.willChange = '';
+            const reach = -g.dy + project(-g.vy);
+            if (reach > 110) {
               const id = card.dataset.card;
+              card.style.transition = 'transform .24s ' + EASE + ', opacity .2s linear';
+              card.style.transform = 'translate3d(0,-130%,0) scale(.9)';
+              card.style.opacity = '0';
               setTimeout(() => {
                 close(id);
                 card.remove();
                 if (!stack.length) closeSwitcher();
-              }, 220);
-            } else {
-              card.style.transform = '';
-              card.style.opacity = '';
+              }, 230);
+              return;
             }
+            card.style.transition = 'transform .26s ' + EASE + ', opacity .2s linear';
+            card.style.transform = '';
+            card.style.opacity = '';
+            setTimeout(() => (card.style.transition = ''), 280);
           },
         },
-        { axis: 'y', threshold: 12 }
+        { axis: 'y', threshold: 10 }
       );
     });
   }
+
   const closeSwitcher = () => switcher.classList.remove('open');
 
   switcher.addEventListener('click', (ev) => {
     const card = ev.target.closest('[data-card]');
     if (card) {
       closeSwitcher();
-      open(card.dataset.card, card.querySelector('svg'));
+      open(card.dataset.card, card);
     } else if (ev.target === switcher) {
       closeSwitcher();
     }

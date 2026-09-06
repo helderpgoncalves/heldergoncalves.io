@@ -64,9 +64,9 @@ const osData = {
     close: c.os.close,
     terminal: c.terminal,
     contact: { ...c.contacto },
-    chat: { ...c.mensagens },
+    // As perguntas guardadas já estão no HTML — não se repetem aqui.
+    chat: { ...c.mensagens, chat: undefined },
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
-    notFound: c.notFound,
   },
   posts: posts.map((p) => ({
     slug: postSlug(p),
@@ -346,7 +346,8 @@ const osData = {
 <!-- ── O documento por baixo do sistema ─────────────────────── -->
 <div class="doc" id="pool">
   <div class="doc-head">
-    <h1>{docTitle}</h1>
+    {/* Nos escritos o título principal é o do texto, mais abaixo. Um por página. */}
+    {post ? <p class="doc-kicker">{docTitle}</p> : <h1>{docTitle}</h1>}
     <p>{docLead}</p>
     <p><a href={ROUTES[alt].home}>{c.switch}</a> · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
   </div>

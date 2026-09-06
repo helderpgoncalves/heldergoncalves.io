@@ -3,7 +3,7 @@ import OS from '../../layouts/OS.astro';
 import Shell from '../../components/os/Shell.astro';
 import { SITE, COPY, ROUTES } from '../../siteConfig';
 import { getPosts } from '../../lib/posts';
-import { personLd } from '../../lib/seo';
+import { personLd, websiteLd } from '../../lib/seo';
 
 const lang = 'en' as const;
 const c = COPY[lang];
@@ -15,7 +15,7 @@ const posts = await getPosts(lang);
   description={c.description}
   altPath={ROUTES.pt.home}
   ogType="profile"
-  jsonLd={personLd(lang)}
+  jsonLd={[personLd(lang), websiteLd(lang)]}
 >
   <Shell lang={lang} posts={posts} bootMac="sobre" docTitle={SITE.name} docLead={c.description} />
 </OS>

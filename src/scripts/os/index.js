@@ -164,6 +164,16 @@ function boot(data) {
     }
   });
 
+  // ── Funcionar sem rede ────────────────────────────────────────
+  // Registado depois do arranque, para não competir com o que interessa.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }, 1200);
+    });
+  }
+
   // ── Sequência de arranque ─────────────────────────────────────
   const first = !seenThisSession('helderos-booted') && !forcedPhone;
   const bootEl = document.getElementById('boot');
