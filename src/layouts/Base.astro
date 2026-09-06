@@ -8,6 +8,7 @@ import '../styles/global.css';
 
 interface Props {
   lang?: Lang;
+  bodyClass?: string;
   title?: string;
   description?: string;
   type?: 'website' | 'article';
@@ -16,14 +17,14 @@ interface Props {
   noHreflang?: boolean;
   jsonLd?: Record<string, unknown>;
 }
-const { lang = SITE.defaultLang, ...seo } = Astro.props;
+const { lang = SITE.defaultLang, bodyClass, ...seo } = Astro.props;
 ---
 <!doctype html>
 <html lang={lang === 'pt' ? 'pt-PT' : 'en'}>
   <head>
     <SEO lang={lang} {...seo} />
   </head>
-  <body>
+  <body class={bodyClass}>
     <slot />
   </body>
 </html>

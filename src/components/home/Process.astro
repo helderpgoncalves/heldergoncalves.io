@@ -1,0 +1,76 @@
+---
+// Process — como trabalho, em três passos. O cartão activo expande
+// (hover no desktop, todos abertos no mobile).
+const steps = [
+  {
+    n: '01',
+    pt: { s: 'Passo 01', t: 'Perceber o problema', d: 'Começamos pela conversa. Quero saber o contexto, o que já existe e o que conta mesmo como sucesso.' },
+    en: { s: 'Step 01', t: 'Understand the problem', d: 'It starts with a conversation. I want the context, what already exists, and what actually counts as success.' },
+    g: '#0b1b3a,#3c85f4',
+  },
+  {
+    n: '02',
+    pt: { s: 'Passo 02', t: 'Prototipar depressa', d: 'Uma primeira versão pequena e a funcionar vale mais do que um plano perfeito. Vê-se cedo o que resiste.' },
+    en: { s: 'Step 02', t: 'Prototype fast', d: 'A small working version beats a perfect plan. You find out early what holds up.' },
+    g: '#0d3b32,#22c55e',
+  },
+  {
+    n: '03',
+    pt: { s: 'Passo 03', t: 'Enviar e melhorar', d: 'Poucos slides, código a correr. Depois é medir, ajustar e deixar a coisa preparada para durar.' },
+    en: { s: 'Step 03', t: 'Ship and improve', d: 'Few slides, running code. Then measure, adjust and leave it ready to last.' },
+    g: '#3a1a0b,#f59e0b',
+  },
+];
+---
+<section class="zx-section" id="process">
+  <div class="zx-shell alt">
+    <div class="zx-inner">
+      <div class="zx-head-center zx-rise">
+        <div class="zx-badge">
+          <span class="spark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.1L20 10l-5.8 1.9L12 18l-2.2-6.1L4 10l5.8-1.9L12 2z"/></svg>
+          </span>
+          <span data-pt="Como trabalho" data-en="How I work">Como trabalho</span>
+        </div>
+        <h2 class="zx-h2" data-pt="Da ideia ao que já funciona, em 3 passos" data-en="From idea to something that works, in 3 steps">Da ideia ao que já funciona, em 3 passos</h2>
+        <p class="zx-lead"
+          data-pt="Sem processo pesado. O suficiente para não andar às voltas e o bastante para chegar ao fim."
+          data-en="No heavy process. Enough to avoid going in circles, and enough to actually finish.">Sem processo pesado. O suficiente para não andar às voltas e o bastante para chegar ao fim.</p>
+      </div>
+
+      <div class="zx-steps" id="zx-steps">
+        {steps.map((s, i) => (
+          <article class={`zx-step${i === 0 ? ' active' : ''}`} data-step={i}>
+            <div class="zx-step-in">
+              <div class="zx-step-copy">
+                <span class="zx-step-pill">
+                  <span class="n" aria-hidden="true">{s.n}</span>
+                  <span data-pt={s.pt.s} data-en={s.en.s}>{s.pt.s}</span>
+                </span>
+                <div>
+                  <h3 data-pt={s.pt.t} data-en={s.en.t}>{s.pt.t}</h3>
+                  <p data-pt={s.pt.d} data-en={s.en.d}>{s.pt.d}</p>
+                </div>
+              </div>
+              <div class="zx-step-media" aria-hidden="true" style={`background:linear-gradient(150deg, ${s.g})`}></div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var wrap = document.getElementById('zx-steps');
+    if (!wrap) return;
+    var cards = Array.prototype.slice.call(wrap.querySelectorAll('.zx-step')) as HTMLElement[];
+    cards.forEach(function (c) {
+      c.addEventListener('mouseenter', function () {
+        cards.forEach(function (o) { o.classList.remove('active'); });
+        c.classList.add('active');
+      });
+    });
+  })();
+</script>

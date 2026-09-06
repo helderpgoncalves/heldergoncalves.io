@@ -1,9 +1,22 @@
 ---
+// ─────────────────────────────────────────────────────────────
+// Home — landing pessoal em secções de cartão branco sobre cinza,
+// hero escuro em vídeo e rodapé preto. Bilingue PT/EN (data-pt /
+// data-en) e sem dependências novas: só Astro, CSS e vanilla JS.
+// ─────────────────────────────────────────────────────────────
 import Base from '../layouts/Base.astro';
-import { SITE } from '../siteConfig';
-import RecentPosts from '../components/RecentPosts.astro';
-import Newsletter from '../components/Newsletter.astro';
+import '../styles/home.css';
 
+import Hero from '../components/home/Hero.astro';
+import Focus from '../components/home/Focus.astro';
+import Process from '../components/home/Process.astro';
+import Principles from '../components/home/Principles.astro';
+import Spotlight from '../components/home/Spotlight.astro';
+import Writing from '../components/home/Writing.astro';
+import Faq from '../components/home/Faq.astro';
+import SiteFooter from '../components/home/SiteFooter.astro';
+
+// Vídeos de fundo (já usados no site anterior).
 const V = {
   hero: 'https://plugin-assets.open-design.ai/plugins/innovation/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a-6993b9.mp4',
   featured: 'https://plugin-assets.open-design.ai/plugins/innovation/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8-eee511.mp4',
@@ -12,309 +25,31 @@ const V = {
   work2: 'https://plugin-assets.open-design.ai/plugins/innovation/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4-c2f128.mp4',
 };
 ---
-<Base lang="pt">
+<Base lang="pt" bodyClass="home">
+  <main class="home">
+    <Hero video={V.hero} />
+    <Focus video={V.philo} />
+    <Process />
+    <Principles video={V.work2} />
+    <Spotlight video={V.featured} />
+    <Writing />
+    <Faq video={V.work1} />
+    <SiteFooter />
+  </main>
 
-  <!-- ════════ SECTION 1 — HERO ════════ -->
-  <section class="hero" id="top">
-    <video id="hero-video" muted playsinline preload="auto" src={V.hero}></video>
-
-    <nav class="nav">
-      <div class="nav-pill liquid-glass">
-        <div class="nav-left">
-          <a href="#top" class="brand" aria-label="Hélder Gonçalves">
-            <span class="mark" aria-hidden="true">H</span>
-            <span>Hélder Gonçalves</span>
-          </a>
-          <div class="nav-links">
-            <a href="#about" data-pt="Sobre" data-en="About">Sobre</a>
-            <a href="#work" data-pt="Trabalho" data-en="Work">Trabalho</a>
-            <a href="#blog" data-pt="Blog" data-en="Blog">Blog</a>
-          </div>
-        </div>
-        <div class="nav-right">
-          <div class="lang-toggle liquid-glass" role="group" aria-label="Idioma">
-            <button type="button" data-lang="pt" class="active">PT</button>
-            <button type="button" data-lang="en">EN</button>
-          </div>
-          <a href="#contact" class="cta-nav liquid-glass" data-pt="Contacto" data-en="Contact">Contacto</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="hero-body">
-      <p class="hero-kicker" data-pt="Developer · Criador · IA" data-en="Developer · Maker · AI">Developer · Criador · IA</p>
-      <h1 class="hero-h1 serif">
-        <span data-pt="Construir com" data-en="Build with">Construir com</span>
-        <em class="serif-i" data-pt="curiosidade" data-en="curiosity">curiosidade</em>.
-      </h1>
-      <div class="email-row">
-        <p class="email-label" data-pt="Junta-te à newsletter. Notas sobre código, IA e o que ando a construir." data-en="Join the newsletter. Notes on code, AI and what I'm building.">Junta-te à newsletter. Notas sobre código, IA e o que ando a construir.</p>
-        <form class="email-pill liquid-glass" id="news-form">
-          <label for="news-email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email</label>
-          <input id="news-email" type="email" required placeholder="o-teu@email.com" data-pt-ph="o-teu@email.com" data-en-ph="your@email.com" />
-          <button type="submit" class="email-submit" aria-label="Subscrever">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </form>
-      </div>
-      <p class="hero-sub" data-pt="Gosto de desenvolver, aprender e criar. Este é o meu canto na web, onde partilho trabalho, ideias e escrita." data-en="I love to build, learn and create. This is my corner of the web, where I share work, ideas and writing.">Gosto de desenvolver, aprender e criar. Este é o meu canto na web, onde partilho trabalho, ideias e escrita.</p>
-    </div>
-
-    <div class="socials">
-      <a class="social-btn liquid-glass" href={SITE.social.twitter} target="_blank" rel="noopener" aria-label="Twitter / X">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
-      </a>
-      <a class="social-btn liquid-glass" href={SITE.social.linkedin} target="_blank" rel="noopener" aria-label="LinkedIn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-      </a>
-      <a class="social-btn liquid-glass" href={SITE.social.substack} target="_blank" rel="noopener" aria-label="Substack">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 5.5H2V3h20v2.5ZM2 8.4h20V21l-10-5.6L2 21V8.4Z"/></svg>
-      </a>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 2 — ABOUT ════════ -->
-  <section class="about" id="about">
-    <div class="about-grad"></div>
-    <div class="about-inner">
-      <p class="eyebrow reveal-sm" data-pt="Sobre mim" data-en="About me">Sobre mim</p>
-      <h2 class="about-h2 reveal"
-        data-pt-html='Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span>. A construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.'
-        data-en-html='I spend my days <span class="serif-i" style="color:rgba(255,255,255,0.6)">building, learning and creating</span>. Making things with technology and <span class="serif-i" style="color:rgba(255,255,255,0.6)">artificial intelligence</span>.'>
-        Passo os dias a <span class="serif-i" style="color:rgba(255,255,255,0.6)">desenvolver, aprender e criar</span>. A construir coisas com tecnologia e <span class="serif-i" style="color:rgba(255,255,255,0.6)">inteligência artificial</span>.
-      </h2>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 3 — FEATURED VIDEO ════════ -->
-  <section class="featured">
-    <div class="featured-inner">
-      <div class="video-frame reveal-up">
-        <video muted autoplay loop playsinline preload="auto" src={V.featured}></video>
-        <div class="video-grad-t"></div>
-        <div class="featured-overlay">
-          <div class="approach-card liquid-glass">
-            <p class="approach-label" data-pt="A minha abordagem" data-en="My approach">A minha abordagem</p>
-            <p class="approach-body" data-pt="Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta, e a resposta abre sempre a porta seguinte." data-en="I learn by building and build to learn. Every project starts with a question, and the answer always opens the next door.">Aprendo a construir e construo para aprender. Cada projeto começa com uma pergunta, e a resposta abre sempre a porta seguinte.</p>
-          </div>
-          <a href="#work" class="explore-btn liquid-glass" data-pt="Ver trabalho" data-en="See work">Ver trabalho</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 4 — PHILOSOPHY ════════ -->
-  <section class="philo">
-    <div class="philo-inner">
-      <h2 class="philo-h2 serif reveal">
-        <span data-pt="Ideias" data-en="Ideas">Ideias</span>
-        <span class="serif-i" style="color:rgba(255,255,255,0.4)">×</span>
-        <span data-pt="Execução" data-en="Execution">Execução</span>
-      </h2>
-      <div class="philo-grid">
-        <div class="philo-video reveal-l">
-          <video muted autoplay loop playsinline preload="auto" src={V.philo}></video>
-        </div>
-        <div class="philo-blocks reveal-r">
-          <div>
-            <p class="philo-label" data-pt="Curiosidade primeiro" data-en="Curiosity first">Curiosidade primeiro</p>
-            <p class="philo-text" data-pt="Acredito que as melhores coisas nascem quando a curiosidade encontra a persistência. Começo pela pergunta certa, depois construo até ela ter resposta." data-en="I believe the best things happen when curiosity meets persistence. I start from the right question, then build until it has an answer.">Acredito que as melhores coisas nascem quando a curiosidade encontra a persistência. Começo pela pergunta certa, depois construo até ela ter resposta.</p>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <p class="philo-label" data-pt="Enviar, não só sonhar" data-en="Ship, don't just dream">Enviar, não só sonhar</p>
-            <p class="philo-text" data-pt="Prefiro código que corre a slides que impressionam. Uma ideia só conta quando existe, funciona e alguém a consegue usar." data-en="I prefer code that runs to slides that impress. An idea only counts when it exists, works, and someone can actually use it.">Prefiro código que corre a slides que impressionam. Uma ideia só conta quando existe, funciona e alguém a consegue usar.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 5 — WORK ════════ -->
-  <section class="services" id="work">
-    <div class="services-grad"></div>
-    <div class="services-inner">
-      <div class="services-head reveal">
-        <h2 class="services-h2 serif" data-pt="Trabalho" data-en="Work">Trabalho</h2>
-        <span class="services-label" data-pt="Projetos selecionados" data-en="Selected projects">Projetos selecionados</span>
-      </div>
-      <div class="services-grid">
-        <div class="scard liquid-glass reveal-up" data-delay="0">
-          <div class="scard-media">
-            <video muted autoplay loop playsinline preload="auto" src={V.work1}></video>
-            <div class="scard-grad"></div>
-          </div>
-          <div class="scard-body">
-            <div class="scard-top">
-              <span class="scard-tag" data-pt="Software · IA" data-en="Software · AI">Software · IA</span>
-              <span class="scard-arrow liquid-glass" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-              </span>
-            </div>
-            <h3 class="scard-title serif" data-pt="Em construção" data-en="In the making">Em construção</h3>
-            <p class="scard-desc" data-pt="Projetos onde exploro modelos de linguagem, automação e ferramentas para developers." data-en="Projects where I explore language models, automation and tools for developers.">Projetos onde exploro modelos de linguagem, automação e ferramentas para developers.</p>
-            <p class="scard-note" data-pt="Caso de estudo em breve" data-en="Case study soon">Caso de estudo em breve</p>
-          </div>
-        </div>
-        <div class="scard liquid-glass reveal-up" data-delay="150">
-          <div class="scard-media">
-            <video muted autoplay loop playsinline preload="auto" src={V.work2}></video>
-            <div class="scard-grad"></div>
-          </div>
-          <div class="scard-body">
-            <div class="scard-top">
-              <span class="scard-tag" data-pt="Produto · Web" data-en="Product · Web">Produto · Web</span>
-              <span class="scard-arrow liquid-glass" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-              </span>
-            </div>
-            <h3 class="scard-title serif" data-pt="Interfaces &amp; produto" data-en="Interfaces &amp; product">Interfaces &amp; produto</h3>
-            <p class="scard-desc" data-pt="Do conceito ao lançamento. Interfaces cuidadas, rápidas e com atenção ao detalhe." data-en="From concept to launch. Interfaces that are careful, fast and detail-obsessed.">Do conceito ao lançamento. Interfaces cuidadas, rápidas e com atenção ao detalhe.</p>
-            <p class="scard-note" data-pt="Caso de estudo em breve" data-en="Case study soon">Caso de estudo em breve</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 6 — BLOG (Substack) ════════ -->
-  <section class="blog" id="blog">
-    <div class="blog-inner">
-      <div class="blog-card liquid-glass reveal-up">
-        <p class="blog-eyebrow" data-pt="Blog" data-en="Blog">Blog</p>
-        <h2 class="blog-h2 serif">
-          <span data-pt="Escrevo sobre o que" data-en="I write about what">Escrevo sobre o que</span>
-          <em class="serif-i" style="color:rgba(255,255,255,0.55)" data-pt="ando a aprender" data-en="I'm learning">ando a aprender</em>.
-        </h2>
-        <p class="blog-text" data-pt="Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido, só quando tenho algo que vale a pena partilhar." data-en="Notes on development, artificial intelligence and the things I build. No rigid schedule, only when I have something worth sharing.">Notas sobre desenvolvimento, inteligência artificial e as coisas que vou construindo. Sem calendário rígido, só quando tenho algo que vale a pena partilhar.</p>
-        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;z-index:1">
-          <a href="/blog" class="blog-btn liquid-glass">
-            <span data-pt="Ler o blog" data-en="Read the blog">Ler o blog</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-          </a>
-          <a href={SITE.social.substack} target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5);font-size:0.85rem;display:inline-flex;align-items:center;gap:8px" data-pt="também no Substack" data-en="also on Substack">também no Substack</a>
-        </div>
-      </div>
-
-      <!-- Últimos posts reais do Substack (só aparece quando há posts) -->
-      <RecentPosts limit={3} />
-
-      <!-- Adesão à newsletter: embed real do Substack, sem sair do site -->
-      <div class="news-block reveal-up" id="subscribe">
-        <div class="news-copy">
-          <p class="news-eyebrow" data-pt="Newsletter" data-en="Newsletter">Newsletter</p>
-          <h3 class="news-h3 serif">
-            <span data-pt="Recebe o próximo" data-en="Get the next one">Recebe o próximo</span>
-            <em class="serif-i" style="color:rgba(255,255,255,0.55)" data-pt="antes de todos" data-en="before anyone">antes de todos</em>.
-          </h3>
-          <p class="news-text" data-pt="Escrevo em código, IA e o que ando a construir. Deixa o email e recebes cada texto novo diretamente, sem ruído." data-en="I write about code, AI and what I'm building. Drop your email and get each new piece straight to your inbox, no noise.">Escrevo em código, IA e o que ando a construir. Deixa o email e recebes cada texto novo diretamente, sem ruído.</p>
-        </div>
-        <Newsletter variant="panel" />
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ SECTION 7 — CONTACT / FOOTER ════════ -->
-  <section class="contact" id="contact">
-    <div class="contact-inner">
-      <p class="eyebrow reveal-sm" data-pt="Contacto" data-en="Get in touch">Contacto</p>
-      <h2 class="contact-h2 serif reveal">
-        <span data-pt="Vamos" data-en="Let's">Vamos</span>
-        <em class="serif-i" data-pt="conversar" data-en="talk">conversar</em>.
-      </h2>
-      <a href={`mailto:${SITE.email}`} class="contact-email reveal">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
-        {SITE.email}
-      </a>
-    </div>
-
-    <footer>
-      <div class="footer-inner">
-        <span class="footer-brand">Hélder Gonçalves</span>
-        <div class="footer-links">
-          <a href={SITE.social.twitter} target="_blank" rel="noopener">Twitter</a>
-          <a href={SITE.social.linkedin} target="_blank" rel="noopener">LinkedIn</a>
-          <a href={SITE.social.substack} target="_blank" rel="noopener">Substack</a>
-          <a href={`mailto:${SITE.email}`}>Email</a>
-        </div>
-        <span class="footer-copy">© <span id="year"></span> · heldergoncalves.io</span>
-      </div>
-    </footer>
-  </section>
-
-  <!-- ═══════ Ilhas de comportamento (client-side) ═══════ -->
   <script>
-    // ── HERO VIDEO: crossfade-to-black loop ──
-    (function () {
-      var v = document.getElementById('hero-video') as HTMLVideoElement | null;
-      if (!v) return;
-      var FADE = 500;
-      var raf: number | null = null;
-      function animateOpacity(from: number, to: number, dur: number) {
-        if (raf) cancelAnimationFrame(raf);
-        var start = performance.now();
-        function step(now: number) {
-          var t = Math.min((now - start) / dur, 1);
-          v!.style.opacity = (from + (to - from) * t).toFixed(3);
-          if (t < 1) raf = requestAnimationFrame(step);
-        }
-        raf = requestAnimationFrame(step);
-      }
-      v.addEventListener('canplay', function () {
-        var p = v!.play(); if (p && p.catch) p.catch(function () {});
-        animateOpacity(0, 1, FADE);
-      });
-      v.addEventListener('timeupdate', function () {
-        if (!isNaN(v!.duration) && v!.duration - v!.currentTime <= 0.55) {
-          animateOpacity(parseFloat(v!.style.opacity) || 1, 0, FADE);
-        }
-      });
-      v.addEventListener('ended', function () {
-        v!.style.opacity = '0';
-        setTimeout(function () {
-          v!.currentTime = 0;
-          var p = v!.play(); if (p && p.catch) p.catch(function () {});
-          animateOpacity(0, 1, FADE);
-        }, 100);
-      });
-      if (v.readyState >= 3) {
-        var p = v.play(); if (p && p.catch) p.catch(function () {});
-        animateOpacity(0, 1, FADE);
-      }
-    })();
-
-    // ── REVEAL on scroll ──
-    (function () {
-      var items = document.querySelectorAll('.reveal, .reveal-sm, .reveal-l, .reveal-r, .reveal-up');
-      if (!('IntersectionObserver' in window)) {
-        items.forEach(function (el) { el.classList.add('in'); });
-        return;
-      }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) {
-            var d = parseInt((e.target as HTMLElement).getAttribute('data-delay') || '0', 10);
-            setTimeout(function () { e.target.classList.add('in'); }, d);
-            io.unobserve(e.target);
-          }
-        });
-      }, { rootMargin: '-100px 0px', threshold: 0.1 });
-      items.forEach(function (el) { io.observe(el); });
-    })();
-
-    // ── BILINGUE PT / EN ──
+    // ── Bilingue PT / EN ──
+    // Troca textContent e placeholders em todos os [data-pt]/[data-en]
+    // e avisa quem precisa de reconstruir texto (letras animadas).
     (function () {
       var STORE = 'hg-lang';
-      var buttons = document.querySelectorAll<HTMLButtonElement>('.lang-toggle button');
+      var buttons = document.querySelectorAll<HTMLButtonElement>('.zx-lang button');
+
       function apply(lang: string) {
         document.documentElement.lang = lang === 'pt' ? 'pt-PT' : 'en';
         document.querySelectorAll<HTMLElement>('[data-pt]').forEach(function (el) {
           var val = el.getAttribute('data-' + lang);
           if (val != null) el.textContent = val;
-        });
-        document.querySelectorAll<HTMLElement>('[data-pt-html]').forEach(function (el) {
-          var val = el.getAttribute('data-' + lang + '-html');
-          if (val != null) el.innerHTML = val;
         });
         document.querySelectorAll<HTMLInputElement>('[data-pt-ph]').forEach(function (el) {
           var val = el.getAttribute('data-' + lang + '-ph');
@@ -322,40 +57,58 @@ const V = {
         });
         buttons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-lang') === lang); });
         try { localStorage.setItem(STORE, lang); } catch (_) {}
+        document.dispatchEvent(new CustomEvent('hg:lang', { detail: lang }));
       }
+
       buttons.forEach(function (b) {
         b.addEventListener('click', function () { apply(b.getAttribute('data-lang') || 'pt'); });
       });
+
       var saved = 'pt';
       try { saved = localStorage.getItem(STORE) || 'pt'; } catch (_) {}
-      // ?lang=en força inglês (usado no hreflang)
-      var params = new URLSearchParams(location.search);
-      if (params.get('lang') === 'en') saved = 'en';
+      if (new URLSearchParams(location.search).get('lang') === 'en') saved = 'en';
       apply(saved === 'en' ? 'en' : 'pt');
     })();
 
-    // ── Newsletter (hero) → leva ao embed real, sem sair do site ──
-    // O email cross-origin para o Substack não é fiável (sem CORS,
-    // Cloudflare, captcha). Em vez de abrir uma aba, o input do hero
-    // faz scroll suave até ao embed oficial na secção #subscribe.
+    // ── Revelação ao scroll ──
     (function () {
-      var form = document.getElementById('news-form') as HTMLFormElement | null;
-      var target = document.getElementById('subscribe');
-      if (!form) return;
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          var frame = target.querySelector('iframe') as HTMLIFrameElement | null;
-          if (frame) setTimeout(function () { try { frame!.focus(); } catch (_) {} }, 600);
-        }
-      });
+      var items = document.querySelectorAll('.zx-rise');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach(function (el) { el.classList.add('in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { rootMargin: '-80px 0px', threshold: 0.08 });
+      items.forEach(function (el) { io.observe(el); });
     })();
 
-    // ── Ano no rodapé ──
+    // ── Link activo na navegação ──
     (function () {
-      var y = document.getElementById('year');
-      if (y) y.textContent = String(new Date().getFullYear());
+      var links = Array.prototype.slice.call(
+        document.querySelectorAll('.zx-nav-links a')
+      ) as HTMLAnchorElement[];
+      if (!links.length || !('IntersectionObserver' in window)) return;
+      var map: Record<string, HTMLAnchorElement> = {};
+      links.forEach(function (a) {
+        var id = (a.getAttribute('href') || '').replace('#', '');
+        if (id) map[id] = a;
+      });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var a = map[e.target.id];
+          if (!a) return;
+          links.forEach(function (l) { l.classList.remove('active'); });
+          a.classList.add('active');
+        });
+      }, { rootMargin: '-45% 0px -45% 0px' });
+      Object.keys(map).forEach(function (id) {
+        var sec = document.getElementById(id);
+        if (sec) io.observe(sec);
+      });
     })();
   </script>
 </Base>
