@@ -294,10 +294,7 @@ export function createPhone(ctx) {
         };
       },
       move: (g) => {
-        if (!drag) {
-          if (!current) sb.style.transform = 'translate3d(0,' + rubber(g.dy, 120) + 'px,0)';
-          return;
-        }
+        if (!drag) return;
         // De lado na barra inferior: passar à app anterior ou seguinte,
         // como no iPhone. Só enquanto o dedo não subir.
         if (!drag.vertical && Math.abs(g.dx) > Math.abs(g.dy) * 1.6 && Math.abs(g.dx) > 18) {
@@ -331,10 +328,7 @@ export function createPhone(ctx) {
       end: (g) => {
         sb.style.transition = '';
         homebar.classList.remove('armed');
-        if (!drag) {
-          sb.style.transform = '';
-          return;
-        }
+        if (!drag) return;
         const state = drag;
         drag = null;
         state.view.style.transition = '';
@@ -394,7 +388,9 @@ export function createPhone(ctx) {
         if (current) home();
       },
     },
-    { threshold: 3 }
+    // Sem app aberta a barra não agarra nada: em baixo do ecrã inicial
+    // o dedo pertence às páginas.
+    { threshold: 3, filter: () => !!current }
   );
 
   // ── Gesto: páginas do ecrã inicial ──────────────────────────

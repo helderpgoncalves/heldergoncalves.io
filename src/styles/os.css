@@ -1024,7 +1024,7 @@ button, a, [role='button'], .dock-item, .row, label { touch-action: manipulation
    daí deixamos de receber eventos — era isto que impedia o deslizar
    entre páginas do ecrã inicial. */
 .sb, .sb-pages, .sb-page, .sb-app, .sb-widgets, .widget, .w-row, .ios-dock, .sb-dots {
-  touch-action: pan-y;
+  touch-action: none;
 }
 .lock, .lock button, .lock-note, .lock-action, .lock-open { touch-action: none; }
 .nc, .nc-note, .nc-inner { touch-action: pan-y; }
@@ -1635,3 +1635,10 @@ a.glass:active {
   .app-pad { padding: 30px 36px 40px; }
   .app-escritos .app-side { flex: 0 0 320px; }
 }
+
+/* Durante um gesto, nada se acende como se tivesse sido tocado. */
+.gesturing button:active,
+.gesturing a:active,
+.gesturing .widget:active,
+.gesturing .glass:active { transform: none !important; }
+.gesturing .sb-app:active svg { transform: none !important; }

@@ -24,6 +24,22 @@ export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
  *
  * Os handlers recebem um objeto com dx, dy, vx, vy (px/ms) e o tempo.
  */
+/** Engole o clique que o browser dispara a seguir a um gesto. */
+function swallowNextClick() {
+  let timer = 0;
+  const swallow = (ev) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    done();
+  };
+  const done = () => {
+    clearTimeout(timer);
+    window.removeEventListener('click', swallow, true);
+  };
+  window.addEventListener('click', swallow, true);
+  timer = setTimeout(done, 320);
+}
+
 export function track(el, handlers, opts = {}) {
   const threshold = opts.threshold == null ? 8 : opts.threshold;
   let g = null;
@@ -80,12 +96,25 @@ export function track(el, handlers, opts = {}) {
       const ax = Math.abs(g.dx);
       const ay = Math.abs(g.dy);
       if (Math.max(ax, ay) < threshold) return;
-      g.axis = ax > ay ? 'x' : 'y';
-      if (opts.axis && g.axis !== opts.axis) {
-        reset();
-        return;
+
+      // Um dedo nunca anda em linha reta. Desistir do gesto ao primeiro
+      // tremor no eixo errado é o que faz um deslize "não funcionar" de
+      // vez em quando — por isso só se desiste quando o outro eixo ganha
+      // com folga; enquanto estiver renhido, espera-se.
+      if (opts.axis) {
+        const mine = opts.axis === 'x' ? ax : ay;
+        const other = opts.axis === 'x' ? ay : ax;
+        if (other > mine * 1.3 && other > threshold * 1.5) {
+          reset();
+          return;
+        }
+        if (mine < threshold) return;
       }
+
+      g.axis = ax > ay ? 'x' : 'y';
       g.began = true;
+      // Enquanto o dedo arrasta, nada fica com ar de carregado.
+      document.documentElement.classList.add('gesturing');
       try {
         el.setPointerCapture(g.id);
       } catch (_) {}
@@ -102,10 +131,15 @@ export function track(el, handlers, opts = {}) {
     if (!g || (ev && ev.pointerId !== g.id)) return;
     const done = g;
     reset();
+    document.documentElement.classList.remove('gesturing');
     try {
       if (ev) el.releasePointerCapture(done.id);
     } catch (_) {}
     if (done.began) {
+      // Depois de um gesto não pode nascer um clique. Sem isto, deslizar
+      // por cima de um ícone acabava a abrir a aplicação — que é como um
+      // gesto bom parece um gesto partido.
+      swallowNextClick();
       if (handlers.end) handlers.end(done, ev);
     } else if (handlers.tap) {
       handlers.tap(done, ev);
