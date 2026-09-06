@@ -289,46 +289,38 @@ function initChat(ctx) {
     return t.unknown;
   }
 
-  async function stream(answer) {
+  /** Escreve a resposta letra a letra. O texto chega inteiro do servidor
+      — é mais barato e mais fiável do que streaming — e é aqui que ganha
+      o ritmo de quem está a escrever do outro lado. */
+  function typeOut(node, text) {
+    return new Promise((done) => {
+      if (document.documentElement.getAttribute('data-motion') === 'off') {
+        node.textContent = text;
+        scroll();
+        return done();
+      }
+      let i = 0;
+      const step = () => {
+        i = Math.min(text.length, i + 2);
+        node.textContent = text.slice(0, i);
+        scroll();
+        if (i < text.length) setTimeout(step, 14);
+        else done();
+      };
+      step();
+    });
+  }
+
+  async function talk() {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, lang: ctx.data.lang, messages: history }),
     });
     if (res.status === 429) throw new Error('limite');
-    if (!res.ok || !res.body) throw new Error('upstream');
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let full = '';
-    for (;;) {
-      const step = await reader.read();
-      if (step.done) break;
-      buffer += decoder.decode(step.value, { stream: true });
-      const blocks = buffer.split('\n\n');
-      buffer = blocks.pop() || '';
-      for (const block of blocks) {
-        let event = 'message';
-        let data = '';
-        for (const line of block.split('\n')) {
-          if (line.startsWith('event:')) event = line.slice(6).trim();
-          else if (line.startsWith('data:')) data += line.slice(5).trim();
-        }
-        if (event === 'erro') throw new Error('stream');
-        if (event === 'done') return full;
-        if (!data) continue;
-        try {
-          const piece = JSON.parse(data).t;
-          if (typeof piece === 'string') {
-            full += piece;
-            answer.textContent = full;
-            scroll();
-          }
-        } catch (_) {}
-      }
-    }
-    return full;
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data || !data.ok || typeof data.text !== 'string') throw new Error('upstream');
+    return data.text;
   }
 
   async function ask(text) {
@@ -355,15 +347,13 @@ function initChat(ctx) {
 
     history.push({ role: 'user', content: message });
     history = history.slice(-8);
-    let answer = null;
     try {
-      answer = bubble('them', '');
+      const text = await talk();
       dots.remove();
-      const full = await stream(answer);
-      if (full) history.push({ role: 'assistant', content: full });
-      else answer.textContent = t.error;
+      const answer = bubble('them', '');
+      await typeOut(answer, text);
+      history.push({ role: 'assistant', content: text });
     } catch (err) {
-      if (answer) answer.remove();
       if (dots.isConnected) dots.remove();
       bubble('them', err && err.message === 'limite' ? t.limit : t.error);
       history.pop();

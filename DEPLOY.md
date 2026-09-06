@@ -38,8 +38,18 @@ Para a aplicação Mensagens responder a sério (OpenRouter):
 | `OPENROUTER_API_KEY`  | `sk-or-v1-...`                     | **só aqui, nunca no site**    |
 | `OPENROUTER_MODEL`    | `anthropic/claude-opus-5`          | opcional; é este por omissão  |
 
-Sem a chave, as Mensagens continuam a funcionar com as respostas guardadas —
-diz-se isso por baixo da caixa de escrita, sem fingir.
+E, se quiseres que o agente consiga marcar conversas:
+
+| Variável              | Exemplo                            | Para quê                        |
+| --------------------- | ---------------------------------- | ------------------------------- |
+| `BOOKING_URL`         | `https://cal.com/helder/30min`     | o agente dá a ligação           |
+| `BOOKING_WEBHOOK_URL` | `https://…`                        | o agente regista o pedido       |
+
+Sem nenhuma das duas, um pedido de reunião chega-te por email (se o envio
+estiver ligado) ou o agente encaminha para o teu endereço. Nunca fica no ar.
+
+Sem a chave do OpenRouter, as Mensagens continuam a funcionar com as respostas
+guardadas — diz-se isso por baixo da caixa de escrita, sem fingir.
 
 **Quanto custa.** Por omissão usa o `anthropic/claude-opus-5`: 5 dólares por
 milhão de tokens à entrada e 25 à saída. Cada resposta é curta (o servidor
@@ -93,6 +103,23 @@ mensagem custa dinheiro:
   caracteres, para que nada corra em aberto.
 - **O texto do modelo entra na página como texto**, nunca como HTML.
 - **Nada é registado**: nem perguntas, nem respostas.
+
+## O que o agente sabe
+
+Tudo o que está em `knowledge/*.md`. Editar um ficheiro e fazer push é a
+única coisa precisa para o ensinar — não há prompt escondido no código. As
+regras estão em `knowledge/README.md`.
+
+O agente tem três ferramentas: `procurar` (base de conhecimento e escritos),
+`marcar_reuniao` e `enviar_mensagem`. No máximo duas rondas de ferramentas
+por mensagem, para o custo não fugir.
+
+## MCP
+
+O site é também um servidor MCP, em `POST /mcp` (JSON-RPC 2.0). Um `GET`
+no mesmo endereço descreve-o. Ferramentas: `procurar`, `escritos` e
+`contactar`. Limite de 60 pedidos por IP à hora; o `contactar` usa os mesmos
+limites do formulário de contacto.
 
 ## Cabeçalhos
 

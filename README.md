@@ -73,12 +73,24 @@ um telemóvel:
 
 No Mac: arrastar uma janela para o topo ou para os lados **encaixa-a**.
 
-### Mensagens
+### O agente das Mensagens
 
-Com uma chave de OpenRouter no servidor, a aplicação Mensagens é uma conversa a
-sério, em streaming, com um papel apertado: o modelo só sabe o que está no site
-e só fala sobre isso. Sem chave, responde com as respostas guardadas — e diz
-que é isso que está a fazer. A chave nunca chega ao browser.
+Com uma chave de OpenRouter no servidor, a aplicação Mensagens é um agente a
+sério. O que ele sabe está em **`knowledge/*.md`** — um ficheiro por assunto,
+em português simples. Editar um ficheiro e fazer push é tudo o que é preciso
+para o ensinar; não há prompt escondido no meio do código.
+
+Tem três ferramentas: `procurar` (na base de conhecimento e nos escritos),
+`marcar_reuniao` e `enviar_mensagem`. Duas rondas de ferramentas por mensagem,
+no máximo. Se não souber, diz que não sabe — foi mandado fazer isso em vez de
+inventar. Sem chave, responde com as respostas guardadas e diz que é isso que
+está a fazer. A chave nunca chega ao browser.
+
+### O site como servidor MCP
+
+`POST /mcp` fala JSON-RPC 2.0 com as ferramentas `procurar`, `escritos` e
+`contactar`. Um agente de fora pode saber o que o Hélder faz e deixar recado
+sem ler uma linha de HTML.
 
 ### Para máquinas
 

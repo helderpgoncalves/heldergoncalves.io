@@ -4,7 +4,7 @@
 // de Controlo ou para as notificações, arrastar da margem para voltar
 // atrás, e deslizar para desbloquear.
 import { reducedMotion, effectiveTheme, setPref, prefs } from './state.js';
-import { track, rubber, clamp } from './gesture.js';
+import { track, rubber, clamp, project } from './gesture.js';
 
 const EASE = 'cubic-bezier(.32,.72,0,1)';
 const esc = (s) =>
@@ -199,7 +199,10 @@ export function createPhone(ctx) {
       begin: () => {
         const view = current ? views.get(current) : null;
         homeDrag = { view, peak: 0 };
-        if (view) view.style.transition = 'none';
+        if (view) {
+          view.style.transition = 'none';
+          view.style.willChange = 'transform';
+        }
       },
       move: (g) => {
         if (!homeDrag) return;
@@ -211,18 +214,21 @@ export function createPhone(ctx) {
           const scale = 1 - p * 0.32;
           homeDrag.view.style.transformOrigin = '50% 50%';
           homeDrag.view.style.transform =
-            'translateY(' + -up * 0.22 + 'px) scale(' + scale + ')';
+            'translate3d(0,' + -up * 0.22 + 'px,0) scale(' + scale + ')';
           homeDrag.view.style.borderRadius = 34 * p + 'px';
         } else {
           // Sem app aberta, o ecrã inicial faz o elástico.
-          sb.style.transform = 'translateY(' + rubber(g.dy, 120) + 'px)';
+          sb.style.transform = 'translate3d(0,' + rubber(g.dy, 120) + 'px,0)';
         }
       },
       end: (g) => {
         sb.style.transform = '';
         const view = homeDrag && homeDrag.view;
-        if (view) view.style.transition = '';
-        const up = -g.dy;
+        if (view) {
+          view.style.transition = '';
+          view.style.willChange = '';
+        }
+        const up = -g.dy + project(-g.vy);
         const fast = g.vy < -0.45;
         const paused = Math.abs(g.vy) < 0.12;
         const wantSwitcher = stack.length > 1 && up > 110 && paused;
@@ -259,8 +265,8 @@ export function createPhone(ctx) {
   function goToPage(n, animate) {
     page = clamp(n, 0, pageCount - 1);
     if (!pages) return;
-    pages.style.transition = animate === false ? 'none' : 'transform .36s ' + EASE;
-    pages.style.transform = 'translateX(' + -page * 100 + '%)';
+    pages.style.transition = animate === false ? 'none' : 'transform .38s ' + EASE;
+    pages.style.transform = 'translate3d(' + -page * 100 + '%,0,0)';
     if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === page));
   }
 
@@ -270,19 +276,21 @@ export function createPhone(ctx) {
       {
         begin: () => {
           pages.style.transition = 'none';
+          pages.style.willChange = 'transform';
         },
         move: (g) => {
           const w = pages.clientWidth || 1;
           let dx = g.dx;
           if ((page === 0 && dx > 0) || (page === pageCount - 1 && dx < 0)) dx = rubber(dx, w * 0.4);
-          pages.style.transform = 'translateX(calc(' + -page * 100 + '% + ' + dx + 'px))';
+          pages.style.transform = 'translate3d(calc(' + -page * 100 + '% + ' + dx + 'px),0,0)';
         },
         end: (g) => {
+          pages.style.willChange = '';
           const w = pages.clientWidth || 1;
-          const far = Math.abs(g.dx) > w * 0.22;
-          const fast = Math.abs(g.vx) > 0.35;
-          if ((far || fast) && g.dx < 0) goToPage(page + 1);
-          else if ((far || fast) && g.dx > 0) goToPage(page - 1);
+          // Onde o dedo ia parar, não onde estava.
+          const predicted = g.dx + project(g.vx);
+          if (predicted < -w * 0.28) goToPage(page + 1);
+          else if (predicted > w * 0.28) goToPage(page - 1);
           else goToPage(page);
         },
       },
@@ -319,18 +327,20 @@ export function createPhone(ctx) {
           begin: () => {
             el.classList.add('open', 'dragging');
             el.style.transition = 'none';
+            el.style.willChange = 'transform';
             if (onOpen) onOpen();
           },
           move: (g) => {
             const h = phone.clientHeight || 1;
             const p = clamp(g.dy / h, 0, 1);
-            el.style.transform = 'translateY(' + (p - 1) * 100 + '%)';
+            el.style.transform = 'translate3d(0,' + (p - 1) * 100 + '%,0)';
           },
           end: (g) => {
             el.classList.remove('dragging');
             el.style.transition = '';
+            el.style.willChange = '';
             const h = phone.clientHeight || 1;
-            if (g.dy > h * 0.18 || g.vy > 0.4) openIt();
+            if (g.dy + project(g.vy) > h * 0.16) openIt();
             else closeIt();
           },
           tap: openIt,
@@ -348,12 +358,12 @@ export function createPhone(ctx) {
         move: (g) => {
           const h = phone.clientHeight || 1;
           const p = clamp(-g.dy / h, 0, 1);
-          el.style.transform = 'translateY(' + -p * 100 + '%)';
+          el.style.transform = 'translate3d(0,' + -p * 100 + '%,0)';
         },
         end: (g) => {
           el.style.transition = '';
           const h = phone.clientHeight || 1;
-          if (-g.dy > h * 0.16 || g.vy < -0.4) closeIt();
+          if (-g.dy - project(g.vy) > h * 0.14) closeIt();
           else openIt();
         },
       },
@@ -468,12 +478,12 @@ export function createPhone(ctx) {
         {
           begin: () => (card.style.transition = 'none'),
           move: (g) => {
-            card.style.transform = 'translateY(' + Math.min(0, g.dy) + 'px)';
+            card.style.transform = 'translate3d(0,' + Math.min(0, g.dy) + 'px,0)';
             card.style.opacity = String(clamp(1 + g.dy / 400, 0.2, 1));
           },
           end: (g) => {
             card.style.transition = '';
-            if (-g.dy > 90 || g.vy < -0.5) {
+            if (-g.dy - project(g.vy) > 95) {
               card.style.transform = 'translateY(-120%)';
               card.style.opacity = '0';
               const id = card.dataset.card;
@@ -518,7 +528,7 @@ export function createPhone(ctx) {
       move: (g) => {
         if (!backPane) return;
         const w = phone.clientWidth || 1;
-        backPane.style.transform = 'translateX(' + clamp(g.dx, 0, w) + 'px)';
+        backPane.style.transform = 'translate3d(' + clamp(g.dx, 0, w) + 'px,0,0)';
       },
       end: (g) => {
         if (!backPane) return;
@@ -527,7 +537,7 @@ export function createPhone(ctx) {
         pane.classList.remove('dragging');
         pane.style.transform = '';
         const w = phone.clientWidth || 1;
-        if (g.dx > w * 0.32 || g.vx > 0.4) ctx.run('back');
+        if (g.dx + project(g.vx) > w * 0.35) ctx.run('back');
       },
     },
     {
@@ -564,13 +574,13 @@ export function createPhone(ctx) {
       move: (g) => {
         const h = phone.clientHeight || 1;
         const up = Math.min(0, g.dy);
-        lock.style.transform = 'translateY(' + up + 'px)';
+        lock.style.transform = 'translate3d(0,' + up + 'px,0)';
         lock.style.opacity = String(clamp(1 + g.dy / (h * 0.7), 0.15, 1));
       },
       end: (g) => {
         lock.style.transition = '';
         lock.style.opacity = '';
-        if (-g.dy > 64 || g.vy < -0.4) unlock();
+        if (-g.dy - project(g.vy) > 70) unlock();
         else lock.style.transform = '';
       },
       tap: (g, ev) => {

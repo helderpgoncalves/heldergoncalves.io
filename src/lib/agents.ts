@@ -55,6 +55,11 @@ export async function llmsIndex(lang: Lang): Promise<Response> {
       lang === 'pt' ? 'todos os escritos, em Markdown' : 'every piece of writing, in Markdown'
     }`,
     `- [posts.json](${abs('/posts.json')}): ${lang === 'pt' ? 'índice legível por máquina' : 'machine-readable index'}`,
+    `- [MCP](${abs('/mcp')}): ${
+      lang === 'pt'
+        ? 'servidor MCP (JSON-RPC em POST) com as ferramentas procurar, escritos e contactar'
+        : 'MCP server (JSON-RPC over POST) with the tools procurar, escritos and contactar'
+    }`,
     `- [RSS](${abs(ROUTES[lang].feed)})`,
     `- [${other === 'en' ? 'English' : 'Português'}](${abs(ROUTES[other].home)})`,
     '',

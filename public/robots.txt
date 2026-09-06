@@ -3,8 +3,9 @@ User-agent: *
 Allow: /
 
 # Agentes e assistentes: são bem-vindos. O conteúdo em texto simples
-# está em /llms.txt (índice) e /llms-full.txt (tudo), e há um índice
-# legível por máquina em /posts.json.
+# está em /llms.txt (índice) e /llms-full.txt (tudo), há um índice
+# legível por máquina em /posts.json, e o site é também um servidor
+# MCP em /mcp (JSON-RPC 2.0 em POST).
 User-agent: GPTBot
 Allow: /
 User-agent: OAI-SearchBot

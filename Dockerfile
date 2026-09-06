@@ -30,6 +30,7 @@ ENV NODE_ENV=production
 # dependências de terceiros a correr em produção.
 COPY --from=build /app/dist ./dist
 COPY server ./server
+COPY knowledge ./knowledge
 
 # Corre como utilizador sem privilégios.
 USER node

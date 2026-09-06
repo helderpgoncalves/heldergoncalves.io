@@ -328,6 +328,9 @@ export const COPY = {
       resetHint: 'Volta ao estado de fábrica e recarrega.',
       about: 'Sobre este sistema',
       version: 'Versão',
+      legal: 'Aviso',
+      legalText:
+        'Site pessoal, sem fins comerciais, sem publicidade e sem receita. Homenagem aos sistemas da Apple — sem qualquer ligação à Apple Inc. Nenhum ficheiro da Apple é usado aqui: os ícones são do Lucide (ISC) e a tipografia, fora dos dispositivos Apple, é a Inter (OFL). Apple, iPhone e macOS são marcas da Apple Inc.',
       wallpapers: {
         aurora: 'Aurora',
         sonoma: 'Serra',
@@ -638,6 +641,9 @@ export const COPY = {
       resetHint: 'Back to factory settings, then reload.',
       about: 'About this system',
       version: 'Version',
+      legal: 'Notice',
+      legalText:
+        'A personal, non-commercial site: no ads, no sponsorship, no revenue. A homage to Apple\u2019s systems, with no affiliation to Apple Inc. No Apple files are used here: icons are from Lucide (ISC) and the typeface, away from Apple devices, is Inter (OFL). Apple, iPhone and macOS are trademarks of Apple Inc.',
       wallpapers: {
         aurora: 'Aurora',
         sonoma: 'Ridge',

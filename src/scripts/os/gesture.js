@@ -3,6 +3,13 @@
 // completar o gesto ou voltar atrás. Tudo o que desliza no telefone
 // passa por aqui — é o que separa "um site" de "um telemóvel".
 
+/**
+ * Para onde o dedo *ia*. Ao largar, o iOS não olha só para onde o dedo
+ * estava — soma o embalo. É isto que faz a diferença entre um gesto que
+ * obedece e um gesto que parece adivinhar.
+ */
+export const project = (velocity, ms = 110) => velocity * ms;
+
 /** Elástico: quanto mais se puxa para lá do limite, menos anda. */
 export const rubber = (distance, limit) => (distance * limit) / (limit + Math.abs(distance) * 0.55);
 
@@ -47,6 +54,15 @@ export function track(el, handlers, opts = {}) {
     if (handlers.down) handlers.down(g, ev);
   };
 
+  // Os eventos de ponteiro chegam mais depressa do que o ecrã pinta.
+  // Guardamos o último e aplicamos uma vez por frame: menos trabalho,
+  // zero saltos.
+  let queued = false;
+  const flush = () => {
+    queued = false;
+    if (g && g.began && handlers.move) handlers.move(g);
+  };
+
   const move = (ev) => {
     if (!g || ev.pointerId !== g.id) return;
     const now = performance.now();
@@ -75,7 +91,10 @@ export function track(el, handlers, opts = {}) {
       } catch (_) {}
       if (handlers.begin) handlers.begin(g, ev);
     }
-    if (handlers.move) handlers.move(g, ev);
+    if (!queued) {
+      queued = true;
+      requestAnimationFrame(flush);
+    }
     if (ev.cancelable) ev.preventDefault();
   };
 
