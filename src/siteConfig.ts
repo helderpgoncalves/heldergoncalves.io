@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────
-// Configuração central do site — SEO, identidade e links.
-// Editar aqui reflete em todo o lado (head, JSON-LD, footer).
+// Configuração central — identidade, links e SEO base.
+// Um sítio só para editar; reflete-se em head, JSON-LD e rodapé.
 // ─────────────────────────────────────────────────────────────
 export const SITE = {
   url: 'https://heldergoncalves.io',
@@ -8,27 +8,29 @@ export const SITE = {
   defaultLang: 'pt' as const,
   locales: ['pt', 'en'] as const,
   email: 'helder@heldergoncalves.io',
-  ogImage: '/og.svg', // 1200×630 — placeholder escuro. Trocar por '/og.jpg' quando tiveres imagem raster (melhor suporte em previews sociais).
+  location: { pt: 'Barcelos, Portugal', en: 'Barcelos, Portugal' },
+  ogImage: '/og.png', // PNG: as redes sociais não renderizam SVG em previews
+  github: 'https://github.com/helderpgoncalves',
+  githubUser: 'helderpgoncalves',
   social: {
+    github: 'https://github.com/helderpgoncalves',
     twitter: 'https://x.com/heldinhoshotgun',
     twitterHandle: '@heldinhoshotgun',
     linkedin: 'https://www.linkedin.com/in/heldergoncalves16/',
-    substack: 'https://helderpgoncalves.substack.com/',
   },
+  company: { name: 'Bitsapiens', url: 'https://bitsapiens.io/' },
+  // Ponto verde + "Disponível para projetos" no topo da home.
+  // Mudar para false quando não houver disponibilidade.
+  available: true,
 };
 
-// Metadados por idioma (title + description) — usados no <head> e OG.
-export const META = {
-  pt: {
-    title: 'Hélder Gonçalves · Developer, criador e IA',
-    description:
-      'O canto na web do Hélder Gonçalves. Developer que gosta de construir, aprender e criar com tecnologia e inteligência artificial. Trabalho, ideias e escrita.',
-  },
-  en: {
-    title: 'Hélder Gonçalves · Developer, maker & AI',
-    description:
-      "Hélder Gonçalves's corner of the web. A developer who loves building, learning and creating with technology and artificial intelligence. Work, ideas and writing.",
-  },
-} as const;
-
 export type Lang = (typeof SITE.locales)[number];
+
+// Caminho da mesma página no outro idioma (para o hreflang e o switcher).
+export function altPath(pathname: string, to: Lang): string {
+  const clean = pathname.replace(/\/+$/, '') || '/';
+  const isEn = clean === '/en' || clean.startsWith('/en/');
+  const base = isEn ? clean.replace(/^\/en/, '') || '/' : clean;
+  if (to === 'en') return base === '/' ? '/en/' : `/en${base}/`.replace(/\/+$/, '/');
+  return base === '/' ? '/' : `${base}/`.replace(/\/+$/, '/');
+}

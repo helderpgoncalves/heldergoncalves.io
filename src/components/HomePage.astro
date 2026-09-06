@@ -1,0 +1,195 @@
+---
+// Conteúdo da página inicial, partilhado pelas duas línguas.
+// Recebe o idioma e vai buscar projetos (GitHub) e notas (Markdown).
+import { SITE, type Lang } from '../siteConfig';
+import { useT, formatDate } from '../i18n/ui';
+import { getProjects } from '../lib/github';
+import { getPosts } from '../lib/posts';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const t = useT(lang);
+const projects = await getProjects();
+const posts = (await getPosts(lang)).slice(0, 3);
+const blog = lang === 'pt' ? '/blog/' : '/en/blog/';
+
+const stack = [
+  'TypeScript', 'Python', 'Node.js', 'Astro', 'FastAPI',
+  'Docker', 'MCP', 'Claude Code', 'PostgreSQL', 'Linux', 'Git',
+];
+---
+<!-- ═══ Hero ═══ -->
+<section class="hero">
+  <div class="wrap">
+    <p class="role">
+      <span class={SITE.available ? 'status-dot' : 'status-dot off'} aria-hidden="true"></span>
+      <span>{t('hero.role')} · {SITE.available ? t('hero.available') : t('hero.unavailable')}</span>
+    </p>
+    <h1>{t('hero.title')}</h1>
+    <p class="intro">{t('hero.intro')}</p>
+    <div class="actions">
+      <a class="btn" href="#work">
+        {t('hero.cta.work')}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></svg>
+      </a>
+      <a class="btn secondary" href="#contact">{t('hero.cta.contact')}</a>
+    </div>
+    <p class="hint">
+      <kbd>⌘</kbd><kbd>K</kbd>
+      <span>{lang === 'pt' ? 'para navegar em qualquer sítio' : 'to jump anywhere'}</span>
+    </p>
+  </div>
+</section>
+
+<!-- ═══ Trabalho ═══ -->
+<section class="block" id="work" aria-labelledby="work-title">
+  <div class="wrap">
+    <div class="block-head">
+      <p class="eyebrow">{t('work.eyebrow')}</p>
+      <h2 id="work-title">{t('work.title')}</h2>
+      <p>{t('work.intro')}</p>
+    </div>
+
+    <ol class="rows">
+      {projects.map((p, i) => (
+        <li class="row">
+          <span class="idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <div class="title">
+              <h3>
+                <a href={p.url} target="_blank" rel="noopener">
+                  {p.name}
+                  <span class="sr"> — {p[lang].tagline}</span>
+                </a>
+              </h3>
+              <svg class="arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
+            </div>
+            <p class="tagline">{p[lang].tagline}</p>
+            <p class="desc">{p[lang].description}</p>
+            <p class="meta">
+              {p.tags.map((tag) => <span class="tag">{tag}</span>)}
+              {p.links?.map((l) => (
+                <a class="tag" href={l.url} target="_blank" rel="noopener">{l.label} ↗</a>
+              ))}
+            </p>
+          </div>
+          <p class="side">
+            <span>{p.year}</span>
+            {p.stars > 0 && (
+              <>
+                <span class="sep" aria-hidden="true">·</span>
+                <span class="stars">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z" /></svg>
+                  <span>{p.stars}<span class="sr"> {t('work.stars')}</span></span>
+                </span>
+              </>
+            )}
+          </p>
+        </li>
+      ))}
+    </ol>
+
+    <a class="link-more" href={SITE.social.github} target="_blank" rel="noopener">
+      {t('work.all')}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ Ferramentas ═══ -->
+<section class="block" id="stack" aria-labelledby="stack-title">
+  <div class="wrap">
+    <div class="block-head">
+      <p class="eyebrow">{t('stack.eyebrow')}</p>
+      <h2 id="stack-title">{t('stack.title')}</h2>
+      <p>{t('stack.intro')}</p>
+    </div>
+    <ul class="chips">
+      {stack.map((s) => <li class="chip">{s}</li>)}
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ Escrita ═══ -->
+<section class="block" id="writing" aria-labelledby="writing-title">
+  <div class="wrap">
+    <div class="block-head">
+      <p class="eyebrow">{t('writing.eyebrow')}</p>
+      <h2 id="writing-title">{t('writing.title')}</h2>
+      <p>{t('writing.intro')}</p>
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="empty">{t('writing.empty')}</p>
+    ) : (
+      <div class="notes">
+        {posts.map((post) => (
+          <article class="note-row">
+            <h3>
+              <a href={post.href}>{post.data.title}</a>
+            </h3>
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date, lang)}</time>
+            <p>{post.data.description}</p>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <a class="link-more" href={blog}>
+      {t('writing.all')}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ Sobre ═══ -->
+<section class="block" id="about" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="block-head">
+      <p class="eyebrow">{t('about.eyebrow')}</p>
+      <h2 id="about-title">{t('about.title')}</h2>
+    </div>
+    <div class="prose-block">
+      <p>{t('about.p1')}</p>
+      <p>{t('about.p2')}</p>
+      <p>{t('about.p3')}</p>
+    </div>
+    <dl class="facts">
+      <div class="fact">
+        <dt>{t('about.based')}</dt>
+        <dd>{SITE.location[lang]}</dd>
+      </div>
+      <div class="fact">
+        <dt>{t('about.company')}</dt>
+        <dd><a href={SITE.company.url} target="_blank" rel="noopener">{SITE.company.name}</a></dd>
+      </div>
+      <div class="fact">
+        <dt>{lang === 'pt' ? 'Foco' : 'Focus'}</dt>
+        <dd>{lang === 'pt' ? 'IA aplicada, agentes e automação' : 'Applied AI, agents and automation'}</dd>
+      </div>
+      <div class="fact">
+        <dt>Email</dt>
+        <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ═══ Contacto ═══ -->
+<section class="block" id="contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <p class="eyebrow">{t('contact.eyebrow')}</p>
+    <div class="contact-card">
+      <h2 id="contact-title">{t('contact.title')}</h2>
+      <p>{t('contact.intro')}</p>
+      <div class="contact-links">
+        <a class="btn" href={`mailto:${SITE.email}`}>
+          {t('contact.email')}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
+        </a>
+        <a class="mail" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
+    </div>
+  </div>
+</section>

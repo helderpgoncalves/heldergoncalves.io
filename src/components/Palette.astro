@@ -1,0 +1,317 @@
+---
+// ─────────────────────────────────────────────────────────────
+// Palette — a paleta de comandos (⌘K / Ctrl+K). É também o menu
+// de navegação em ecrãs pequenos, por isso tem de funcionar tão
+// bem a toque como com teclado: diálogo modal, foco preso lá
+// dentro, Esc fecha, setas movem, Enter abre.
+// ─────────────────────────────────────────────────────────────
+import { SITE, altPath, type Lang } from '../siteConfig';
+import { useT } from '../i18n/ui';
+import { getProjects } from '../lib/github';
+import { getPosts } from '../lib/posts';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const t = useT(lang);
+const home = lang === 'pt' ? '/' : '/en/';
+const blog = lang === 'pt' ? '/blog/' : '/en/blog/';
+const otherLang: Lang = lang === 'pt' ? 'en' : 'pt';
+const otherHref = altPath(Astro.url.pathname, otherLang);
+
+const projects = await getProjects();
+const posts = await getPosts(lang);
+
+const navItems = [
+  { label: lang === 'pt' ? 'Início' : 'Home', href: home },
+  { label: t('nav.work'), href: `${home}#work` },
+  { label: t('nav.writing'), href: blog },
+  { label: t('nav.about'), href: `${home}#about` },
+  { label: t('nav.contact'), href: `${home}#contact` },
+];
+---
+<div class="palette" id="palette" data-open="false" hidden>
+  <div
+    class="palette-box"
+    role="dialog"
+    aria-modal="true"
+    aria-label={t('palette.open')}
+    id="palette-box"
+  >
+    <div class="palette-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="20" y1="20" x2="16.65" y2="16.65" /></svg>
+      <input
+        id="palette-search"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        spellcheck="false"
+        aria-expanded="true"
+        aria-controls="palette-list"
+        aria-autocomplete="list"
+        placeholder={t('palette.placeholder')}
+        aria-label={t('palette.placeholder')}
+      />
+      <kbd>Esc</kbd>
+    </div>
+
+    <div class="palette-list" id="palette-list" role="listbox" aria-label={t('palette.open')}>
+      <div class="palette-group" role="presentation" data-group>{t('palette.nav')}</div>
+      {navItems.map((item) => (
+        <a class="palette-item" role="option" aria-selected="false" href={item.href} data-item data-text={item.label}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          <span>{item.label}</span>
+        </a>
+      ))}
+
+      <div class="palette-group" role="presentation" data-group>{t('palette.projects')}</div>
+      {projects.map((p) => (
+        <a
+          class="palette-item"
+          role="option"
+          aria-selected="false"
+          href={p.url}
+          target="_blank"
+          rel="noopener"
+          data-item
+          data-text={`${p.name} ${p[lang].tagline} ${p.tags.join(' ')}`}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+          <span>{p.name}</span>
+          <span class="hint">{p[lang].tagline}</span>
+        </a>
+      ))}
+
+      {posts.length > 0 && (
+        <>
+          <div class="palette-group" role="presentation" data-group>{t('palette.posts')}</div>
+          {posts.map((post) => (
+            <a
+              class="palette-item"
+              role="option"
+              aria-selected="false"
+              href={post.href}
+              data-item
+              data-text={`${post.data.title} ${post.data.description}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" /></svg>
+              <span>{post.data.title}</span>
+            </a>
+          ))}
+        </>
+      )}
+
+      <div class="palette-group" role="presentation" data-group>{t('palette.actions')}</div>
+      <button class="palette-item" role="option" aria-selected="false" type="button" data-item data-action="theme" data-text={t('palette.theme')}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></svg>
+        <span>{t('palette.theme')}</span>
+      </button>
+      <a class="palette-item" role="option" aria-selected="false" href={otherHref} data-item data-text={t('palette.lang')} hreflang={otherLang}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" /></svg>
+        <span>{t('palette.lang')}</span>
+        <span class="hint">{otherLang.toUpperCase()}</span>
+      </a>
+      <button class="palette-item" role="option" aria-selected="false" type="button" data-item data-action="copy-email" data-text={`${t('palette.copyEmail')} ${SITE.email}`}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
+        <span>{t('palette.copyEmail')}</span>
+        <span class="hint">{SITE.email}</span>
+      </button>
+      <a class="palette-item" role="option" aria-selected="false" href={SITE.social.github} target="_blank" rel="noopener" data-item data-text="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.4-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.8 2.7 1.3 3.4 1 .1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z" /></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="palette-item" role="option" aria-selected="false" href={SITE.social.linkedin} target="_blank" rel="noopener" data-item data-text="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 0h-14c-2.8 0-5 2.2-5 5v14c0 2.8 2.2 5 5 5h14c2.8 0 5-2.2 5-5v-14c0-2.8-2.2-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.3a1.8 1.8 0 1 1 0-3.5 1.8 1.8 0 0 1 0 3.5zm13.5 12.3h-3v-5.6c0-3.4-4-3.1-4 0v5.6h-3v-11h3v1.8c1.4-2.6 7-2.8 7 2.5v6.7z" /></svg>
+        <span>LinkedIn</span>
+      </a>
+    </div>
+
+    <p class="palette-empty" id="palette-empty" hidden>{t('palette.empty')}</p>
+
+    <div class="palette-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> {lang === 'pt' ? 'navegar' : 'navigate'}</span>
+      <span><kbd>↵</kbd> {lang === 'pt' ? 'abrir' : 'open'}</span>
+      <span><kbd>Esc</kbd> {t('palette.close')}</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<style>
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(8px);
+    z-index: 95; padding: 10px 16px; border-radius: 8px;
+    background: var(--fg); color: var(--bg); font-size: 13px;
+    box-shadow: var(--shadow); opacity: 0; transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .toast[data-show='true'] { opacity: 1; transform: translateX(-50%); }
+</style>
+
+<script is:inline define:vars={{ copiedLabel: t('palette.copied'), email: SITE.email }}>
+  (function () {
+    var root = document.getElementById('palette');
+    var box = document.getElementById('palette-box');
+    var input = document.getElementById('palette-search');
+    var list = document.getElementById('palette-list');
+    var empty = document.getElementById('palette-empty');
+    var toast = document.getElementById('toast');
+    if (!root || !input || !list) return;
+
+    var items = Array.prototype.slice.call(list.querySelectorAll('[data-item]'));
+    var groups = Array.prototype.slice.call(list.querySelectorAll('[data-group]'));
+    var visible = items.slice();
+    var active = 0;
+    var lastFocused = null;
+
+    function normalize(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function setActive(i) {
+      if (!visible.length) return;
+      active = Math.max(0, Math.min(visible.length - 1, i));
+      items.forEach(function (el) {
+        el.setAttribute('data-active', 'false');
+        el.setAttribute('aria-selected', 'false');
+      });
+      var el = visible[active];
+      el.setAttribute('data-active', 'true');
+      el.setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', el.id);
+      el.scrollIntoView({ block: 'nearest' });
+    }
+
+    function filter() {
+      var q = normalize(input.value).trim();
+      visible = [];
+      items.forEach(function (el) {
+        var hit = q === '' || normalize(el.getAttribute('data-text') || el.textContent).indexOf(q) !== -1;
+        el.hidden = !hit;
+        if (hit) visible.push(el);
+      });
+      // Esconde um cabeçalho de grupo quando não sobrou nada nesse grupo.
+      groups.forEach(function (g) {
+        var any = false;
+        var node = g.nextElementSibling;
+        while (node && !node.hasAttribute('data-group')) {
+          if (node.hasAttribute('data-item') && !node.hidden) { any = true; break; }
+          node = node.nextElementSibling;
+        }
+        g.hidden = !any;
+      });
+      if (empty) empty.hidden = visible.length > 0;
+      setActive(0);
+    }
+
+    function open() {
+      lastFocused = document.activeElement;
+      root.hidden = false;
+      root.setAttribute('data-open', 'true');
+      document.body.style.overflow = 'hidden';
+      input.value = '';
+      filter();
+      input.focus();
+    }
+
+    function close() {
+      root.setAttribute('data-open', 'false');
+      root.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    function isOpen() { return root.getAttribute('data-open') === 'true'; }
+
+    function showToast(msg) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.hidden = false;
+      requestAnimationFrame(function () { toast.setAttribute('data-show', 'true'); });
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () {
+        toast.setAttribute('data-show', 'false');
+        setTimeout(function () { toast.hidden = true; }, 220);
+      }, 1800);
+    }
+
+    function run(el) {
+      var action = el.getAttribute('data-action');
+      if (action === 'theme') {
+        document.dispatchEvent(new CustomEvent('hg:theme-toggle'));
+        close();
+        return;
+      }
+      if (action === 'copy-email') {
+        var done = function () { showToast(copiedLabel); close(); };
+        if (navigator.clipboard) navigator.clipboard.writeText(email).then(done, done);
+        else done();
+        return;
+      }
+      close();
+      if (el.tagName === 'A') {
+        if (el.target === '_blank') window.open(el.href, '_blank', 'noopener');
+        else window.location.href = el.href;
+      }
+    }
+
+    // Abrir: ⌘K / Ctrl+K, ou "/" fora de um campo de texto.
+    document.addEventListener('keydown', function (e) {
+      var typing = /^(input|textarea|select)$/i.test((e.target && e.target.tagName) || '');
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        isOpen() ? close() : open();
+        return;
+      }
+      if (e.key === '/' && !typing && !isOpen()) {
+        e.preventDefault();
+        open();
+        return;
+      }
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); return; }
+      if (e.key === 'Home') { e.preventDefault(); setActive(0); return; }
+      if (e.key === 'End') { e.preventDefault(); setActive(visible.length - 1); return; }
+      if (e.key === 'Enter') {
+        if (visible[active]) { e.preventDefault(); run(visible[active]); }
+        return;
+      }
+      // Foco preso dentro do diálogo.
+      if (e.key === 'Tab') {
+        var focusables = [input].concat(visible);
+        var i = focusables.indexOf(document.activeElement);
+        e.preventDefault();
+        var next = e.shiftKey ? i - 1 : i + 1;
+        if (next < 0) next = focusables.length - 1;
+        if (next >= focusables.length) next = 0;
+        focusables[next].focus();
+      }
+    });
+
+    input.addEventListener('input', filter);
+
+    items.forEach(function (el, i) {
+      if (!el.id) el.id = 'palette-opt-' + i;
+      el.addEventListener('mousemove', function () {
+        var idx = visible.indexOf(el);
+        if (idx !== -1 && idx !== active) setActive(idx);
+      });
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        run(el);
+      });
+    });
+
+    root.addEventListener('mousedown', function (e) {
+      if (box && !box.contains(e.target)) close();
+    });
+
+    document.querySelectorAll('[data-palette-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () { open(); });
+    });
+
+    filter();
+  })();
+</script>

@@ -1,71 +1,36 @@
-# Deploy — heldergoncalves.io (Coolify)
+# Deploy
 
-Site estático Astro, servido na **porta 3000** por um container único (sem nginx).
-Os posts do blog vêm do teu Substack e são gerados no build.
+O site é estático. O `Dockerfile` faz o build com Node e serve o `dist/` na
+porta 3000 — pensado para Coolify (build pack: Dockerfile), mas corre em
+qualquer sítio que aceite um container.
 
----
+## Coolify
 
-## 1. Criar a app no Coolify
+1. Novo recurso → **Public Repository** → `https://github.com/helderpgoncalves/heldergoncalves.io`.
+2. Build pack: **Dockerfile** (deteta o `EXPOSE 3000`).
+3. Domínio: `https://heldergoncalves.io`.
+4. Deploy. Cada push para `main` refaz o site.
 
-1. **New Resource → Public/Private Repository**
-   - Repo: `helderpgoncalves/heldergoncalves.io`
-   - Branch: `main`
-2. **Build Pack: `Dockerfile`** (o Coolify deteta o `EXPOSE 3000` sozinho).
-   - Se pedir a porta: **Ports Exposes = `3000`**.
-3. **Domínio:** `https://heldergoncalves.io`
-   - O Coolify trata do SSL (Let's Encrypt) automaticamente.
-4. **Deploy.**
+## Publicar uma nota
 
-O container publica `dist/` na porta 3000 via `serve`. Health check embutido no Dockerfile.
+Não há CMS nem serviço externo: uma nota é um ficheiro Markdown no repositório.
 
----
-
-## 2. Auto-deploy a cada push (GitHub)
-
-No Coolify, na app → **Webhooks / Git Source**:
-
-- Ativa **"Automatic Deployment"** para a branch `main`.
-- O Coolify configura um webhook no GitHub — cada `git push` à `main` refaz o site.
-
-Se preferires configurar à mão, copia o **Deploy Webhook URL** que o Coolify mostra
-(algo como `https://vps.heldergoncalves.io/api/v1/deploy?uuid=XXXX&force=false`) e
-adiciona-o em GitHub → repo → Settings → Webhooks.
-
----
-
-## 3. Automatizar a escrita: Substack → rebuild imediato
-
-O site lê o feed do Substack **no build**. Escreves no Substack, o site refaz-se, o
-post aparece em `heldergoncalves.io/blog`. Falta só disparar o rebuild quando publicas.
-
-O Substack **não** dispara webhooks nativos de "novo post", por isso usa-se uma ponte.
-Precisas do **Deploy Webhook URL** do Coolify (secção 2). Escolhe UMA das opções:
-
-### Opção A — Zapier / Make (sem código, recomendado)
-
-1. Trigger: **"New Post in Substack"** (por RSS: `https://helderpgoncalves.substack.com/feed`).
-2. Action: **Webhooks → POST** para o Deploy Webhook URL do Coolify.
-
-Assim que publicas no Substack, o Zap dispara e o Coolify refaz o site em segundos.
-Latência típica: 1–15 min (depende do polling do RSS no Zapier/Make).
-
-### Opção B — Cron no próprio Coolify
-
-Na app do Coolify → **Scheduled Tasks**, cria uma tarefa que faz `curl` ao próprio
-Deploy Webhook, ex. 1x por dia às 08:00:
-
-```
-0 8 * * *   curl -fsSL "$COOLIFY_DEPLOY_HOOK"
+```bash
+# ver README.md para o frontmatter completo
+git add src/content/blog/pt/nova-nota.md
+git commit -m "Nota: ..."
+git push
 ```
 
-Mais simples, menos imediato (rebuild diário em vez de ao publicar).
+O push dispara o deploy e o texto fica no site, no RSS e no sitemap.
 
----
+## Notas de operação
 
-## Notas
-
-- **Feed vazio ou offline no build?** O site compila na mesma (o `substack.ts` é
-  tolerante a falhas). Nunca quebra o deploy por causa do Substack.
-- **Newsletter:** o formulário usa o embed oficial do Substack (`/embed`), estilizado
-  para dark. Mantém a pessoa no site e trata de captcha/validação automaticamente.
-- **Testar o build localmente:** `npm install && npm run build && npx serve -s dist -l 3000`.
+- **GitHub em baixo no build?** A lista de projetos volta aos valores guardados
+  em `src/data/projects.ts`. O build nunca quebra por causa disso.
+- **Domínio**: definido em `astro.config.mjs` (`site`). É de lá que saem o
+  canonical, o sitemap e os URLs absolutos do Open Graph.
+- **Imagem social**: `public/og.png`. Trocar por uma versão desenhada quando
+  houver — o caminho está em `src/siteConfig.ts`.
+- **Sem cookies, sem analytics.** Se um dia for preciso medir, usar algo sem
+  cookies e dizê-lo na página.

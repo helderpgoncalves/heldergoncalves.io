@@ -1,11 +1,11 @@
 ---
-// Arquivo das notas (PT).
-import Base from '../../layouts/Base.astro';
-import { SITE } from '../../siteConfig';
-import { useT, formatDate } from '../../i18n/ui';
-import { getPosts } from '../../lib/posts';
+// Notes archive (EN).
+import Base from '../../../layouts/Base.astro';
+import { SITE } from '../../../siteConfig';
+import { useT, formatDate } from '../../../i18n/ui';
+import { getPosts } from '../../../lib/posts';
 
-const lang = 'pt' as const;
+const lang = 'en' as const;
 const t = useT(lang);
 const posts = await getPosts(lang);
 
@@ -13,10 +13,10 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    '@id': `${SITE.url}/blog/#blog`,
+    '@id': `${SITE.url}/en/blog/#blog`,
     name: `${t('writing.index.title')} — ${SITE.name}`,
     description: t('writing.index.description'),
-    inLanguage: 'pt-PT',
+    inLanguage: 'en',
     author: { '@id': `${SITE.url}/#person` },
     blogPost: posts.map((p) => ({
       '@type': 'BlogPosting',

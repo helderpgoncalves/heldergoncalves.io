@@ -1,0 +1,20 @@
+---
+// 404 — serve as duas línguas: mostra português e uma saída em inglês.
+import Base from '../layouts/Base.astro';
+import { useT } from '../i18n/ui';
+
+const t = useT('pt');
+---
+<Base lang="pt" title={t('404.title')} description={t('404.text')} noindex>
+  <section class="page-404">
+    <div class="wrap">
+      <p class="eyebrow" style="justify-content:center">404</p>
+      <h1>{t('404.title')}</h1>
+      <p>{t('404.text')}</p>
+      <div class="actions" style="justify-content:center;display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn" href="/">{t('404.home')}</a>
+        <a class="btn secondary" href="/en/">Back home (EN)</a>
+      </div>
+    </div>
+  </section>
+</Base>

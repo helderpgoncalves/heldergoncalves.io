@@ -1,12 +1,13 @@
 {
   "name": "Hélder Gonçalves",
   "short_name": "Hélder G.",
-  "description": "Developer que gosta de construir, aprender e criar com tecnologia e IA.",
+  "description": "Engenheiro de software. Produtos e ferramentas com IA, agentes e automação.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/og.png", "sizes": "1200x630", "type": "image/png" }
   ]
 }

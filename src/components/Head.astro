@@ -1,0 +1,167 @@
+---
+// ─────────────────────────────────────────────────────────────
+// Head.astro — todo o SEO de uma página num só sítio.
+// Meta base + Open Graph + Twitter + canonical + hreflang (PT/EN/
+// x-default) + JSON-LD. Renderizado no servidor, zero JavaScript.
+// `alternates` permite dar caminhos explícitos quando os slugs
+// diferem entre idiomas (é o caso dos artigos).
+// ─────────────────────────────────────────────────────────────
+import { SITE, altPath, type Lang } from '../siteConfig';
+import { useT } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  keywords?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  published?: Date;
+  modified?: Date;
+  alternates?: Partial<Record<Lang, string>>;
+  jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  lang,
+  title,
+  description,
+  keywords,
+  type = 'website',
+  image,
+  published,
+  modified,
+  alternates,
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+const t = useT(lang);
+const pathname = Astro.url.pathname;
+
+const pageTitle = title ?? t('meta.title');
+const fullTitle = title ? `${title} — ${SITE.name}` : t('meta.title');
+const pageDesc = description ?? t('meta.description');
+const pageKeywords = keywords ?? t('meta.keywords');
+
+const canonical = new URL(pathname, SITE.url).href;
+const ogImage = new URL(image ?? SITE.ogImage, SITE.url).href;
+
+const ptHref = new URL(alternates?.pt ?? altPath(pathname, 'pt'), SITE.url).href;
+const enHref = new URL(alternates?.en ?? altPath(pathname, 'en'), SITE.url).href;
+
+// Person + WebSite estão em todas as páginas; o resto vem por props.
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${SITE.url}/#person`,
+  name: SITE.name,
+  url: SITE.url,
+  email: `mailto:${SITE.email}`,
+  jobTitle: lang === 'pt' ? 'Engenheiro de software' : 'Software engineer',
+  description: pageDesc,
+  image: new URL(SITE.ogImage, SITE.url).href,
+  address: { '@type': 'PostalAddress', addressLocality: 'Barcelos', addressCountry: 'PT' },
+  worksFor: { '@type': 'Organization', name: SITE.company.name, url: SITE.company.url },
+  sameAs: [SITE.social.github, SITE.social.linkedin, SITE.social.twitter],
+  knowsAbout: [
+    'Software engineering',
+    'Artificial intelligence',
+    'Large language models',
+    'AI agents',
+    'Model Context Protocol',
+    'Automation',
+    'TypeScript',
+    'Python',
+  ],
+};
+
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE.url}/#website`,
+  name: SITE.name,
+  url: SITE.url,
+  inLanguage: lang === 'pt' ? 'pt-PT' : 'en',
+  publisher: { '@id': `${SITE.url}/#person` },
+};
+
+const graphs = [personLd, websiteLd, ...jsonLd];
+---
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={pageDesc} />
+<meta name="keywords" content={pageKeywords} />
+<meta name="author" content={SITE.name} />
+<meta name="generator" content={Astro.generator} />
+<meta name="theme-color" content="#ffffff" />
+{noindex
+  ? <meta name="robots" content="noindex, nofollow" />
+  : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+
+<link rel="canonical" href={canonical} />
+<link rel="alternate" hreflang="pt-PT" href={ptHref} />
+<link rel="alternate" hreflang="en" href={enHref} />
+<link rel="alternate" hreflang="x-default" href={ptHref} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={pageDesc} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={t('meta.og.alt')} />
+<meta property="og:locale" content={lang === 'pt' ? 'pt_PT' : 'en_GB'} />
+<meta property="og:locale:alternate" content={lang === 'pt' ? 'en_GB' : 'pt_PT'} />
+{published && <meta property="article:published_time" content={published.toISOString()} />}
+{modified && <meta property="article:modified_time" content={modified.toISOString()} />}
+{type === 'article' && <meta property="article:author" content={SITE.name} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={pageDesc} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:creator" content={SITE.social.twitterHandle} />
+<meta name="twitter:site" content={SITE.social.twitterHandle} />
+
+<!-- Ícones e manifesto -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<!-- Feeds -->
+<link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${lang === 'pt' ? 'Notas' : 'Notes'}`} href={`${SITE.url}${lang === 'pt' ? '/rss.xml' : '/en/rss.xml'}`} />
+
+<!-- Tipografia -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+/>
+
+<!-- Dados estruturados -->
+{graphs.map((g) => (
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(g)}></script>
+))}
+
+<!-- Tema aplicado antes da primeira pintura, para não haver flash -->
+<script is:inline>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      var dark =
+        saved === 'dark' ||
+        (saved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', dark ? '#000000' : '#ffffff');
+    } catch (e) {}
+  })();
+</script>

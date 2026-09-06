@@ -1,30 +1,43 @@
 ---
-// Layout base — <head> de SEO + slot de conteúdo + CSS global.
-// Repassa todas as props de SEO ao componente <SEO> (title, description,
-// type, image, publishedTime, noHreflang, jsonLd) para páginas com SEO próprio.
-import SEO from '../components/SEO.astro';
-import { SITE, type Lang } from '../siteConfig';
-import '../styles/global.css';
+// Estrutura comum a todas as páginas: <head> de SEO, cabeçalho,
+// conteúdo, rodapé e a paleta de comandos.
+import Head from '../components/Head.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Palette from '../components/Palette.astro';
+import { useT } from '../i18n/ui';
+import type { Lang } from '../siteConfig';
+import '../styles/app.css';
 
 interface Props {
-  lang?: Lang;
-  bodyClass?: string;
+  lang: Lang;
   title?: string;
   description?: string;
+  keywords?: string;
   type?: 'website' | 'article';
   image?: string;
-  publishedTime?: string;
-  noHreflang?: boolean;
-  jsonLd?: Record<string, unknown>;
+  published?: Date;
+  modified?: Date;
+  alternates?: Partial<Record<Lang, string>>;
+  jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
 }
-const { lang = SITE.defaultLang, bodyClass, ...seo } = Astro.props;
+
+const { lang, ...seo } = Astro.props;
+const t = useT(lang);
 ---
 <!doctype html>
 <html lang={lang === 'pt' ? 'pt-PT' : 'en'}>
   <head>
-    <SEO lang={lang} {...seo} />
+    <Head lang={lang} {...seo} />
   </head>
-  <body class={bodyClass}>
-    <slot />
+  <body>
+    <a href="#content" class="skip">{t('nav.skip')}</a>
+    <Header lang={lang} />
+    <main id="content">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <Palette lang={lang} />
   </body>
 </html>
