@@ -1319,3 +1319,160 @@ input, textarea, select { font-family: inherit; }
 .nc .glass-lens,
 .menubar .glass-lens,
 .win .glass-lens { -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); }
+
+/* ═══════════════════════════════════════════════════════════════
+   10. As regras da Apple, aplicadas
+   ═══════════════════════════════════════════════════════════════
+   Da sessão «Meet Liquid Glass» e do sistema de desenho novo. Cada
+   bloco abaixo é uma regra, com o nome dela.
+   ─────────────────────────────────────────────────────────────── */
+
+/* REGRA: há duas variantes, Regular e Clear, e não se misturam.
+   ─────────────────────────────────────────────────────────────
+   Regular é a versátil: adapta-se, e lê-se por cima de seja o que
+   for. É a que se usa quase sempre. */
+.glass { --glass-clear: 0; }
+
+/* Clear não se adapta: é permanentemente mais transparente, para
+   deixar passar a riqueza do que está por baixo. Só se usa quando o
+   conteúdo coberto é forte e vivo e não sofre com um escurecimento —
+   aqui, o papel de parede. E leva sempre uma camada de escurecimento
+   por baixo, senão o texto deixa de se ler. */
+.glass-clear {
+  --glass-tint: rgba(255, 255, 255, 0.1);
+  --glass-blur: 14px;
+  --glass-sat: 140%;
+  --glass-bright: 1;
+  --glass-hairline: rgba(255, 255, 255, 0.1);
+  --glass-rim: rgba(255, 255, 255, 0.75);
+  --glass-bevel-top: rgba(255, 255, 255, 0.45);
+}
+.glass-clear::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+}
+
+/* REGRA: o vidro é da camada de navegação. Nunca do conteúdo.
+   ─────────────────────────────────────────────────────────────
+   Uma janela do Mac é moldura; o que está dentro dela é conteúdo, e
+   conteúdo assenta em superfície opaca — lê-se melhor e é o que a
+   Apple manda. */
+.win-body { background: var(--surface-solid); }
+.win-bar { background: transparent; }
+.ios-view-body { background: var(--surface-solid); }
+
+/* REGRA: nunca vidro sobre vidro.
+   ─────────────────────────────────────────────────────────────
+   Dentro de uma superfície de vidro a separação faz-se com
+   preenchimentos e transparência, não com mais uma camada. */
+.cc-tile {
+  background: rgba(255, 255, 255, 0.16);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.nc-note {
+  background: rgba(255, 255, 255, 0.15);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.dock-tip {
+  background: var(--surface-solid);
+  border: 0.5px solid var(--line);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* REGRA: peças maiores são material mais espesso.
+   ─────────────────────────────────────────────────────────────
+   O desfoque e a sombra crescem com o tamanho da peça. */
+.cc, .nc { --glass-blur: 34px; }
+.win, .spot-box, .cmdtab { --glass-blur: 30px; }
+.dock { --glass-blur: 26px; }
+.menu, .ctx, .ios-view-head { --glass-blur: 22px; }
+.lock-action, .dock-tip { --glass-blur: 16px; }
+
+/* REGRA: concentricidade — raio de dentro = raio de fora menos a
+   margem.
+   ─────────────────────────────────────────────────────────────
+   É a fórmula da Apple, e é o que faz as formas assentarem umas
+   dentro das outras à volta do mesmo centro. */
+.dock { --r: 22px; --pad: 6px; }
+.menu, .ctx { --r: 10px; --pad: 5px; }
+.spot-box { --r: 14px; }
+.spot-results { --r: 14px; --pad: 6px; }
+.widget { --r: 22px; --pad: 14px; }
+.nc-note { --r: 20px; --pad: 13px; }
+.menu button, .ctx button { border-radius: calc(var(--r) - var(--pad)); }
+.spot-item { border-radius: calc(var(--r) - var(--pad)); }
+.widget .w-row:first-of-type { border-top-left-radius: calc(var(--r) - var(--pad)); border-top-right-radius: calc(var(--r) - var(--pad)); }
+
+/* REGRA: cápsulas — raio igual a metade da altura.
+   ─────────────────────────────────────────────────────────────
+   A cápsula é a forma que a Apple repete por todo o sistema, porque
+   a geometria dela encaixa naturalmente em qualquer contentor. */
+.btn, .chip, .chat-suggest button, .seg, .seg button, .lock-open, .cc-close { border-radius: 999px; }
+.compose-bar .btn { border-radius: 999px; }
+
+/* REGRA: o efeito de borda de rolagem.
+   ─────────────────────────────────────────────────────────────
+   Serve para dizer onde a interface acaba e o conteúdo começa. Não é
+   decoração. Um por vista, sem misturar estilos. Aqui é o suave: o
+   conteúdo desvanece por baixo da barra em vez de lhe bater. */
+.ios-view-body,
+.win-body { position: relative; }
+.ios-view-body::before,
+.win-body::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22px;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--surface-solid), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.ios-view.scrolled .ios-view-body::before { opacity: 1; }
+.win.scrolled .win-body::before { opacity: 1; }
+
+/* Na barra do telefone o aro é só a linha de baixo — é ali que a
+   interface encontra o conteúdo. */
+.ios-view-head::before { border-radius: 0; padding: 0 0 1px; }
+
+/* REGRA: a sombra cresce quando há conteúdo a passar por baixo.
+   ───────────────────────────────────────────────────────────── */
+.ios-view.scrolled .ios-view-head {
+  --glass-drop: 0 6px 16px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* REGRA: ao tocar, o vidro acende-se por dentro.
+   ─────────────────────────────────────────────────────────────
+   «Liquid Glass will flex and energize with light on interactions.» */
+button.glass:active,
+a.glass:active {
+  --glass-tint: rgba(255, 255, 255, 0.34);
+  --glass-rim: #fff;
+  transform: scale(0.97);
+}
+.glass { transition: box-shadow 0.25s, transform 0.16s var(--ease-os); }
+.glass:hover::before { opacity: 1; }
+
+/* REGRA: acessibilidade — quando o sistema pede contraste, o vidro
+   deixa de ser vidro.
+   ───────────────────────────────────────────────────────────── */
+@media (prefers-contrast: more) {
+  .glass {
+    --glass-tint: var(--surface-solid);
+    --glass-blur: 0px;
+    --glass-hairline: var(--ink);
+  }
+  .glass-lens, .glass::before { display: none; }
+  .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
+}

@@ -54,7 +54,7 @@ export function createPhone(ctx) {
     view.className = 'ios-view';
     view.dataset.app = id;
     view.innerHTML =
-      '<header class="ios-view-head">' +
+      '<header class="ios-view-head glass">' +
       '<span class="lead-btn"></span>' +
       '<h2>' + esc(app.name) + '</h2>' +
       '<button class="trail-btn" type="button" data-view-done>' + esc(s.done) + '</button>' +
@@ -73,6 +73,7 @@ export function createPhone(ctx) {
       true
     );
     layer.appendChild(view);
+    if (ctx.addGlass) ctx.addGlass(view.querySelector('.ios-view-head'));
     views.set(id, view);
     return view;
   }

@@ -172,6 +172,16 @@ export function createMac(ctx) {
 
   function wireWindow(win, id) {
     win.addEventListener('pointerdown', () => focus(id), true);
+    // Borda de rolagem: a barra de título separa-se do conteúdo assim
+    // que há alguma coisa a passar por baixo dela.
+    win.addEventListener(
+      'scroll',
+      (ev) => {
+        const top = ev.target && ev.target.scrollTop;
+        win.classList.toggle('scrolled', typeof top === 'number' && top > 2);
+      },
+      true
+    );
     win.querySelector('.light-close').addEventListener('click', () => close(id));
     win.querySelector('.light-min').addEventListener('click', () => minimize(id));
     win.querySelector('.light-zoom').addEventListener('click', () => zoom(id));
