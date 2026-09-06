@@ -1,0 +1,127 @@
+---
+// Estrutura comum a todas as páginas: <head> de SEO, fundo, cabeçalho,
+// rodapé. Zero JavaScript no cliente.
+import { SITE, COPY, ROUTES, other, type Lang } from '../siteConfig';
+import '../styles/app.css';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Caminho da mesma página na outra língua; sem isto não há hreflang par. */
+  altPath?: string;
+  ogType?: 'website' | 'profile' | 'article';
+  keywords?: string;
+  noindex?: boolean;
+  jsonLd?: unknown;
+  /** Cabeçalho grande só na página inicial. */
+  wide?: boolean;
+}
+
+const {
+  lang,
+  title,
+  description,
+  altPath,
+  ogType = 'website',
+  keywords = COPY[lang].keywords,
+  noindex = false,
+  jsonLd,
+  wide = false,
+} = Astro.props;
+
+const c = COPY[lang];
+const r = ROUTES[lang];
+const alt = other(lang);
+
+const abs = (path: string) => new URL(path, SITE.url).href;
+const canonical = abs(Astro.url.pathname);
+const ogImage = abs(SITE.ogImage);
+const altHref = altPath ? abs(altPath) : abs(ROUTES[alt].home);
+const selfHref = canonical;
+const ptHref = lang === 'pt' ? selfHref : altHref;
+const enHref = lang === 'en' ? selfHref : altHref;
+const switchHref = altPath ?? ROUTES[alt].home;
+---
+<!doctype html>
+<html lang={c.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content={SITE.name} />
+    <meta
+      name="robots"
+      content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'}
+    />
+    <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0c10" media="(prefers-color-scheme: dark)" />
+
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="pt-PT" href={ptHref} />
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="x-default" href={ptHref} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={`${SITE.name} — ${c.role}`} />
+    <meta property="og:locale" content={c.locale} />
+    <meta property="og:locale:alternate" content={COPY[alt].locale} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:creator" content={SITE.twitterHandle} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${c.blog.title}`} href={r.feed} />
+
+    {jsonLd && (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
+    )}
+  </head>
+
+  <body>
+    <a href="#main" class="skip">{c.skip}</a>
+
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <div class:list={['shell', { wide }]}>
+      <header class="masthead">
+        <a class="brand" href={r.home}>
+          <span class="brand-mark" aria-hidden="true">H</span>
+          <span class="brand-name">{SITE.name}</span>
+        </a>
+        <nav class="nav" aria-label={lang === 'pt' ? 'Navegação' : 'Navigation'}>
+          <a href={r.blog}>{c.nav.blog}</a>
+          <a href={r.feed}>{c.nav.feed}</a>
+          <a class="nav-lang" href={switchHref} hreflang={alt}>{c.switch}</a>
+        </nav>
+      </header>
+
+      <main id="main">
+        <slot />
+      </main>
+
+      <footer class="site-foot">
+        <p>© {new Date().getFullYear()} {SITE.name} · {c.footer}</p>
+        <p class="site-foot-links">
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <a href={SITE.github} target="_blank" rel="noopener me">{c.labels.github}</a>
+          <a href={SITE.linkedin} target="_blank" rel="noopener me">{c.labels.linkedin}</a>
+          <a href={SITE.twitter} target="_blank" rel="noopener me">{c.labels.twitter}</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

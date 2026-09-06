@@ -1,4 +1,20 @@
 ---
-import Page from '../../layouts/Page.astro';
+import Base from '../../layouts/Base.astro';
+import Home from '../../components/Home.astro';
+import { COPY, ROUTES } from '../../siteConfig';
+import { personLd } from '../../lib/seo';
+
+const lang = 'en' as const;
+const c = COPY[lang];
 ---
-<Page lang="en" />
+<Base
+  lang={lang}
+  title={c.title}
+  description={c.description}
+  altPath={ROUTES.pt.home}
+  ogType="profile"
+  jsonLd={personLd(lang)}
+  wide
+>
+  <Home lang={lang} />
+</Base>

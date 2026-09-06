@@ -1,0 +1,32 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostList from '../../../components/PostList.astro';
+import { SITE, COPY, ROUTES, other } from '../../../siteConfig';
+import { getPosts, postPath } from '../../../lib/posts';
+import { blogLd } from '../../../lib/seo';
+
+const lang = 'en' as const;
+const c = COPY[lang];
+const posts = await getPosts(lang);
+const blogUrl = new URL(ROUTES[lang].blog, SITE.url).href;
+const ld = blogLd(
+  lang,
+  blogUrl,
+  posts.map((p) => ({ title: p.data.title, url: new URL(postPath(p, lang), SITE.url).href }))
+);
+---
+<Base
+  lang={lang}
+  title={`${c.blog.title} — ${SITE.name}`}
+  description={c.blog.description}
+  altPath={ROUTES[other(lang)].blog}
+  jsonLd={ld}
+>
+  <section class="page-head">
+    <h1 class="display">{c.blog.heading}</h1>
+    <p class="lead">{c.blog.lead}</p>
+    <p class="feed-line"><a href={ROUTES[lang].feed}>{c.blog.feed} →</a></p>
+  </section>
+
+  <PostList posts={posts} lang={lang} />
+</Base>

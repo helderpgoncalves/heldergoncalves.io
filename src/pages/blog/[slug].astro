@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import Article from '../../components/Article.astro';
+import { SITE, COPY, other } from '../../siteConfig';
+import { getPosts, getTranslation, postSlug, postPath, type Post } from '../../lib/posts';
+import { articleLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const posts = await getPosts('pt');
+  return posts.map((post) => ({ params: { slug: postSlug(post) }, props: { post } }));
+}
+
+interface Props { post: Post }
+const { post } = Astro.props;
+
+const lang = 'pt' as const;
+const c = COPY[lang];
+const alt = other(lang);
+const translation = await getTranslation(post, alt);
+const altPath = translation ? postPath(translation, alt) : undefined;
+const url = new URL(Astro.url.pathname, SITE.url).href;
+---
+<Base
+  lang={lang}
+  title={`${post.data.title} — ${SITE.name}`}
+  description={post.data.description}
+  keywords={post.data.tags.length ? post.data.tags.join(', ') : c.keywords}
+  altPath={altPath}
+  ogType="article"
+  jsonLd={articleLd(post, lang, url)}
+>
+  <Article post={post} lang={lang} altPath={altPath} />
+</Base>

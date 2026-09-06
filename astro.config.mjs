@@ -10,7 +10,7 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/404'),
+      filter: (page) => !page.includes('/404') && !page.endsWith('.xml'),
       i18n: { defaultLocale: 'pt', locales: { pt: 'pt-PT', en: 'en' } },
     }),
   ],

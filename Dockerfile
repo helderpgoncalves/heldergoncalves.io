@@ -42,6 +42,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
 
 # `serve` publica ./dist na porta 3000.
-#  -s  : single-page fallback (serve index.html em rotas desconhecidas)
 #  -l  : porta a ouvir
-CMD ["serve", "-s", "dist", "-l", "3000"]
+#  sem -s: site multi-página; rotas desconhecidas caem no dist/404.html
+#  com estado 404 a sério (importante para SEO).
+CMD ["serve", "dist", "-l", "3000"]

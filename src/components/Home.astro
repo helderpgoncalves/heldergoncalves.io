@@ -1,0 +1,60 @@
+---
+// Página inicial, igual nas duas línguas: quem sou, escritos recentes, contacto.
+import { SITE, COPY, ROUTES, type Lang } from '../siteConfig';
+import { getPosts } from '../lib/posts';
+import PostList from './PostList.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const r = ROUTES[lang];
+
+const posts = (await getPosts(lang)).slice(0, SITE.homePosts);
+
+// O nome da empresa vira link sem duplicar o texto nas duas línguas.
+const companyLinked = c.intro2.replace(
+  SITE.company.name,
+  `<a href="${SITE.company.url}" target="_blank" rel="noopener">${SITE.company.name}</a>`
+);
+
+const links = [
+  { label: SITE.email, href: `mailto:${SITE.email}`, external: false },
+  { label: c.labels.github, href: SITE.github, external: true },
+  { label: c.labels.linkedin, href: SITE.linkedin, external: true },
+  { label: c.labels.twitter, href: SITE.twitter, external: true },
+];
+---
+<section class="hero">
+  <p class="eyebrow">{c.role}<span class="dot" aria-hidden="true">·</span>{c.place}</p>
+  <h1 class="display">{SITE.name}</h1>
+  <div class="intro">
+    <p class="intro-lead">{c.intro}</p>
+    <p set:html={companyLinked}></p>
+    <p>{c.intro3}</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="writing">
+  <div class="section-head">
+    <h2 id="writing">{c.home.writing}</h2>
+    <a class="section-link" href={r.blog}>{c.home.all} →</a>
+  </div>
+  <p class="lead">{c.home.writingLead}</p>
+  <PostList posts={posts} lang={lang} />
+</section>
+
+<section class="section" aria-labelledby="contact">
+  <div class="section-head">
+    <h2 id="contact">{c.home.contact}</h2>
+  </div>
+  <p class="lead">{c.home.contactLead}</p>
+  <nav class="links" aria-label={c.home.contact}>
+    {links.map((l) => (
+      <a
+        href={l.href}
+        target={l.external ? '_blank' : undefined}
+        rel={l.external ? 'noopener me' : undefined}
+      >{l.label}</a>
+    ))}
+  </nav>
+</section>
