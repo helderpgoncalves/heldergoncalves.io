@@ -33,6 +33,20 @@
     <clipPath id="sq"><path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z"/></clipPath>
   </defs>
 
+  <!-- ── O mapa de refração ──────────────────────────────────────
+       O vermelho diz quanto cada ponto do fundo se desloca na
+       horizontal, o verde na vertical; 128 é ficar quieto. Junto às
+       bordas os valores afastam-se de 128, e é aí que o fundo se
+       entorta — como acontece na borda de uma lente. O centro fica
+       intacto, para o conteúdo continuar legível.
+       Só o Chromium aplica filtros SVG a `backdrop-filter`; nos
+       outros esta camada não pinta nada e o vidro por baixo mantém-se.
+       ────────────────────────────────────────────────────────── -->
+  <filter id="lg-refract" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3ClinearGradient id='x' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='rgb(0,0,0)'/%3E%3Cstop offset='0.13' stop-color='rgb(128,0,0)'/%3E%3Cstop offset='0.87' stop-color='rgb(128,0,0)'/%3E%3Cstop offset='1' stop-color='rgb(255,0,0)'/%3E%3C/linearGradient%3E%3ClinearGradient id='y' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='rgb(0,0,0)'/%3E%3Cstop offset='0.13' stop-color='rgb(0,128,0)'/%3E%3Cstop offset='0.87' stop-color='rgb(0,128,0)'/%3E%3Cstop offset='1' stop-color='rgb(0,255,0)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='240' height='240' fill='url(%23x)'/%3E%3Crect width='240' height='240' fill='url(%23y)' style='mix-blend-mode:screen'/%3E%3C/svg%3E" preserveAspectRatio="none" x="0%" y="0%" width="100%" height="100%" result="mapa" />
+    <feDisplacementMap in="SourceGraphic" in2="mapa" scale="10" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+
   <symbol id="icon-sobre" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-sobre)"/>

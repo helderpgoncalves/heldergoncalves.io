@@ -102,7 +102,7 @@ const osData = {
   <div class="mac" id="mac">
     <div class="wall" aria-hidden="true"></div>
 
-    <div class="menubar" id="menubar" role="menubar" aria-label={c.os.macName}>
+    <div class="menubar glass" id="menubar" role="menubar" aria-label={c.os.macName}>
       <button class="menubar-item" data-menu="apple" aria-haspopup="true" aria-expanded="false" aria-label={c.os.macName}>
         <Icon id="ui-apple" size={14} />
       </button>
@@ -133,24 +133,24 @@ const osData = {
     </div>
 
     <div class="dock-wrap">
-      <div class="dock" id="dock" role="toolbar" aria-label="Dock">
+      <div class="dock glass" id="dock" role="toolbar" aria-label="Dock">
         {dockApps.map((a) => (
           <button class="dock-item" type="button" data-open={a.id} aria-label={c.apps[a.id].name}>
             <Icon id={a.id} />
             <span class="dot" aria-hidden="true"></span>
-            <span class="dock-tip" aria-hidden="true">{c.apps[a.id].name}</span>
+            <span class="dock-tip glass" aria-hidden="true">{c.apps[a.id].name}</span>
           </button>
         ))}
         <span class="dock-sep" aria-hidden="true"></span>
         <button class="dock-item" type="button" data-trash aria-label={c.os.trash}>
           <Icon id="icon-trash" />
-          <span class="dock-tip" aria-hidden="true">{c.os.trash}</span>
+          <span class="dock-tip glass" aria-hidden="true">{c.os.trash}</span>
         </button>
       </div>
     </div>
 
     <div class="spotlight" id="spotlight" hidden>
-      <div class="spot-box" role="dialog" aria-label={c.os.search}>
+      <div class="spot-box glass" role="dialog" aria-label={c.os.search}>
         <div class="spot-input">
           <Icon id="ui-search" size={18} />
           <input type="text" id="spotInput" placeholder={c.os.search} autocomplete="off" spellcheck="false" />
@@ -180,12 +180,12 @@ const osData = {
         <div class="sb-pages" id="sbPages">
           <div class="sb-page">
             <div class="sb-widgets">
-              <div class="widget widget-date">
+              <div class="widget glass glass-dark widget-date">
                 <p class="w-day" data-widget-day></p>
                 <p class="w-date" data-widget-date></p>
               </div>
               {latest && (
-                <button class="widget widget-post" type="button" data-open-post={postSlug(latest)}>
+                <button class="widget glass glass-dark widget-post" type="button" data-open-post={postSlug(latest)}>
                   <span class="w-kicker">{c.escritos.heading}</span>
                   <span class="w-title">{latest.data.title}</span>
                   <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
@@ -204,7 +204,7 @@ const osData = {
 
           <div class="sb-page">
             <div class="sb-widgets one">
-              <div class="widget widget-list">
+              <div class="widget glass glass-dark widget-list">
                 <span class="w-kicker">{c.escritos.heading}</span>
                 {posts.slice(0, 3).map((p) => (
                   <button class="w-row" type="button" data-open-post={postSlug(p)}>
@@ -214,7 +214,7 @@ const osData = {
                 ))}
                 {posts.length === 0 && <span class="w-meta">{c.escritos.empty}</span>}
               </div>
-              <div class="widget widget-links">
+              <div class="widget glass glass-dark widget-links">
                 <span class="w-kicker">{c.contacto.elsewhere}</span>
                 <div class="w-links">
                   <a href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
@@ -229,7 +229,7 @@ const osData = {
 
         <div class="sb-dots" id="sbDots" aria-hidden="true"><i class="on"></i><i></i></div>
 
-        <div class="ios-dock">
+        <div class="ios-dock glass glass-dark">
           {iosDock.map((a) => (
             <button class="sb-app" type="button" data-open={a.id}>
               <Icon id={a.id} />
@@ -242,9 +242,9 @@ const osData = {
       <div class="ios-views" id="iosViews"></div>
       <div class="switcher" id="switcher" aria-label={c.os.appSwitcher}><div class="switcher-rail"></div></div>
 
-      <div class="cc" id="cc" role="dialog" aria-label={c.os.control.title}>
+      <div class="cc glass glass-dark" id="cc" role="dialog" aria-label={c.os.control.title}>
         <div class="cc-grid">
-          <button class="cc-tile span2" type="button" data-cc="theme">
+          <button class="cc-tile glass glass-dark span2" type="button" data-cc="theme">
             <Icon id="ui-moon" size={20} />
             <span class="t-label">{c.os.control.theme}</span>
             <span class="t-value" data-cc-theme>{c.os.control.light}</span>
@@ -253,15 +253,15 @@ const osData = {
             <span class="fill"></span>
             <Icon id="ui-sun" class="ico" size={20} />
           </div>
-          <button class="cc-tile" type="button" data-cc="lang">
+          <button class="cc-tile glass glass-dark" type="button" data-cc="lang">
             <Icon id="ui-globe" size={20} />
             <span class="t-value">{lang === 'pt' ? 'EN' : 'PT'}</span>
           </button>
-          <button class="cc-tile span2" type="button" data-cc="wallpaper">
+          <button class="cc-tile glass glass-dark span2" type="button" data-cc="wallpaper">
             <span class="t-label">{c.os.control.wallpaper}</span>
             <span class="t-value" data-cc-wall></span>
           </button>
-          <button class="cc-tile span2" type="button" data-cc="settings">
+          <button class="cc-tile glass glass-dark span2" type="button" data-cc="settings">
             <span class="t-label">{c.apps.definicoes.name}</span>
             <span class="t-value">{c.apps.definicoes.subtitle}</span>
           </button>
@@ -269,18 +269,18 @@ const osData = {
         <button class="cc-close" type="button" data-cc="close">{c.os.done}</button>
       </div>
 
-      <div class="nc" id="nc" role="dialog" aria-label={c.os.notifications}>
+      <div class="nc glass glass-dark" id="nc" role="dialog" aria-label={c.os.notifications}>
         <div class="nc-inner">
           <p class="nc-title">{c.os.notifications}</p>
           {posts.slice(0, 3).map((p) => (
-            <button class="nc-note" type="button" data-open-post={postSlug(p)}>
+            <button class="nc-note glass glass-dark" type="button" data-open-post={postSlug(p)}>
               <span class="nc-app"><Icon id="escritos" size={17} />{c.escritos.heading}</span>
               <strong>{p.data.title}</strong>
               <span>{p.data.description}</span>
               <span class="nc-when">{formatDate(p.data.date, lang)}</span>
             </button>
           ))}
-          <button class="nc-note" type="button" data-open="contacto">
+          <button class="nc-note glass glass-dark" type="button" data-open="contacto">
             <span class="nc-app"><Icon id="contacto" size={17} />{c.apps.contacto.name}</span>
             <strong>{c.contacto.lead}</strong>
             <span>{SITE.email}</span>
@@ -304,7 +304,7 @@ const osData = {
 
           <div class="lock-notes">
             {posts.slice(0, 2).map((p) => (
-              <button class="lock-note" type="button" data-open-post={postSlug(p)}>
+              <button class="lock-note glass glass-dark" type="button" data-open-post={postSlug(p)}>
                 <span class="ln-icon"><Icon id="escritos" size={30} /></span>
                 <span class="ln-text">
                   <strong>{p.data.title}</strong>
@@ -317,10 +317,10 @@ const osData = {
 
           <div class="lock-bottom">
             <div class="lock-actions">
-              <button class="lock-action" type="button" data-open="escritos" aria-label={c.apps.escritos.name}>
+              <button class="lock-action glass glass-dark" type="button" data-open="escritos" aria-label={c.apps.escritos.name}>
                 <Icon id="ui-note" size={22} />
               </button>
-              <button class="lock-action" type="button" data-open="contacto" aria-label={c.apps.contacto.name}>
+              <button class="lock-action glass glass-dark" type="button" data-open="contacto" aria-label={c.apps.contacto.name}>
                 <Icon id="ui-mail" size={22} />
               </button>
             </div>

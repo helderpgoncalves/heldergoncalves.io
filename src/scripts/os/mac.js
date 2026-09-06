@@ -48,7 +48,7 @@ export function createMac(ctx) {
     const y = Math.max(10, Math.min(H - h - 80, 26 + i * 26));
 
     const win = document.createElement('section');
-    win.className = 'win opening';
+    win.className = 'win glass opening';
     win.dataset.app = id;
     win.style.setProperty('--x', x + 'px');
     win.style.setProperty('--y', y + 'px');
@@ -68,6 +68,7 @@ export function createMac(ctx) {
 
     win.querySelector('.win-body').appendChild(ctx.contentEl(id));
     layer.appendChild(win);
+    if (ctx.addGlass) ctx.addGlass(win);
     wins.set(id, win);
     wireWindow(win, id);
     focus(id);
@@ -334,7 +335,7 @@ export function createMac(ctx) {
     closeMenus();
     const list = menuFor(key);
     const el = document.createElement('div');
-    el.className = 'menu';
+    el.className = 'menu glass';
     el.setAttribute('role', 'menu');
     el.innerHTML = list
       .map((m) =>
@@ -347,6 +348,7 @@ export function createMac(ctx) {
     el.style.left = Math.max(4, r.left) + 'px';
     el.style.top = r.bottom + 2 + 'px';
     root.appendChild(el);
+    if (ctx.addGlass) ctx.addGlass(el);
     openMenu = el;
     button.setAttribute('aria-expanded', 'true');
     el.addEventListener('click', (ev) => {
@@ -381,7 +383,7 @@ export function createMac(ctx) {
     const walls = ['aurora', 'sonoma', 'night', 'graphite'];
     const next = walls[(walls.indexOf(prefs.wallpaper) + 1) % walls.length];
     const el = document.createElement('div');
-    el.className = 'ctx';
+    el.className = 'ctx glass';
     el.innerHTML =
       `<button type="button" data-action="open:terminal">${esc(meta('terminal').name)}</button>` +
       `<button type="button" data-action="wallpaper:${next}">${esc(s.control.wallpaper)} — ${esc((s.wallpaperNames && s.wallpaperNames[next]) || next)}</button>` +
@@ -390,6 +392,7 @@ export function createMac(ctx) {
     el.style.left = Math.min(ev.clientX, window.innerWidth - 210) + 'px';
     el.style.top = ev.clientY + 'px';
     root.appendChild(el);
+    if (ctx.addGlass) ctx.addGlass(el);
     ctxMenu = el;
     el.addEventListener('click', (e) => {
       const b = e.target.closest('button');
@@ -623,8 +626,9 @@ export function createMac(ctx) {
     switcherIndex = 1;
     if (!switcherEl) {
       switcherEl = document.createElement('div');
-      switcherEl.className = 'cmdtab';
+      switcherEl.className = 'cmdtab glass';
       root.appendChild(switcherEl);
+      if (ctx.addGlass) ctx.addGlass(switcherEl);
     }
     switcherEl.innerHTML = order
       .map(
