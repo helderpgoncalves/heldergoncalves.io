@@ -821,15 +821,24 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
 .app-main-empty { flex: 1; display: grid; place-content: center; justify-items: center; gap: 8px; color: var(--ink-3); }
 .app-main-empty svg { width: 42px; height: 42px; opacity: 0.5; }
 
-[data-mode='ios'] .app-escritos { flex-direction: column; }
-[data-mode='ios'] .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
-[data-mode='ios'] .app-escritos .app-main {
-  position: absolute; inset: 0; z-index: 3; background: var(--surface-solid);
-  transform: translateX(100%); transition: transform 0.34s var(--ease-os); visibility: hidden;
+/* O arrasto de voltar atrás, em qualquer largura. */
+.app-escritos .app-main.dragging {
+  transition: none;
+  visibility: visible;
+  box-shadow: -14px 0 34px rgba(0, 0, 0, 0.22);
 }
-[data-mode='ios'] .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
-[data-mode='ios'] .app-escritos .app-main.dragging { transition: none; visibility: visible; box-shadow: -14px 0 34px rgba(0, 0, 0, 0.22); }
-[data-mode='ios'] .app-escritos .back-btn { display: inline-flex; }
+
+/* Alternativa para browsers sem container queries: decide-se pelo modo. */
+@supports not (container-type: inline-size) {
+  [data-mode='ios'] .app-escritos { flex-direction: column; }
+  [data-mode='ios'] .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
+  [data-mode='ios'] .app-escritos .app-main {
+    position: absolute; inset: 0; z-index: 3; background: var(--surface-solid);
+    transform: translateX(100%); transition: transform 0.34s var(--ease-os); visibility: hidden;
+  }
+  [data-mode='ios'] .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
+  [data-mode='ios'] .app-escritos .back-btn { display: inline-flex; }
+}
 .back-btn { display: none; align-items: center; gap: 4px; padding: 10px 16px; color: var(--accent); font-size: 15px; }
 
 /* Texto longo */
@@ -1475,4 +1484,154 @@ a.glass:active {
   }
   .glass-lens, .glass::before { display: none; }
   .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. Métrica: as medidas da Apple
+   ═══════════════════════════════════════════════════════════════ */
+
+/* REGRA: alvos de toque de 44×44 pontos, no mínimo.
+   ─────────────────────────────────────────────────────────────
+   É a medida da Apple desde o primeiro iPhone, e abaixo dela os
+   erros de toque sobem a pique. Só no telefone: no Mac há rato. */
+[data-mode='ios'] button,
+[data-mode='ios'] a.row,
+[data-mode='ios'] .post-link,
+[data-mode='ios'] .chat-suggest button,
+[data-mode='ios'] .seg button {
+  min-height: 44px;
+}
+[data-mode='ios'] .lead-btn,
+[data-mode='ios'] .trail-btn,
+[data-mode='ios'] .back-btn { min-width: 44px; }
+[data-mode='ios'] .sb-dots { padding: 18px 0; }
+[data-mode='ios'] .sb-dots i { margin: -8px 0; padding: 8px 0; background-clip: content-box; }
+
+/* REGRA: escala de tipos do sistema.
+   ─────────────────────────────────────────────────────────────
+   O iOS e o macOS não têm a mesma escala: no telefone o corpo é 17
+   pontos, no computador é 13. Não é gosto — é distância aos olhos. */
+[data-mode='ios'] {
+  --t-title: 28px;
+  --t-title3: 20px;
+  --t-headline: 17px;
+  --t-body: 17px;
+  --t-callout: 16px;
+  --t-subhead: 15px;
+  --t-foot: 13px;
+  --t-caption: 12px;
+}
+[data-mode='mac'] {
+  --t-title: 22px;
+  --t-title3: 16px;
+  --t-headline: 13px;
+  --t-body: 13px;
+  --t-callout: 12.5px;
+  --t-subhead: 12px;
+  --t-foot: 11.5px;
+  --t-caption: 11px;
+}
+[data-mode='ios'] .app-lead,
+[data-mode='ios'] .prose,
+[data-mode='ios'] .row .k,
+[data-mode='ios'] .row .v,
+[data-mode='ios'] .card p { font-size: var(--t-body); }
+[data-mode='ios'] .post-link h3 { font-size: var(--t-headline); }
+[data-mode='ios'] .post-desc { font-size: var(--t-subhead); }
+[data-mode='ios'] .post-meta { font-size: var(--t-foot); }
+[data-mode='ios'] .app-eyebrow, [data-mode='ios'] .chip { font-size: var(--t-caption); }
+[data-mode='ios'] .prose h2 { font-size: 22px; }
+[data-mode='ios'] .prose h1 { font-size: 30px; }
+
+/* REGRA: margens de leitura.
+   ─────────────────────────────────────────────────────────────
+   16 pontos no telefone, 20 no computador, e uma linha de texto que
+   nunca passa dos 70 caracteres — depois disso os olhos perdem-se
+   ao voltar ao início. */
+.prose { max-width: 68ch; }
+[data-mode='ios'] .app-pad { padding: 16px 16px 28px; }
+
+/* REGRA: o vidro recua quando perde o foco.
+   ───────────────────────────────────────────────────────────── */
+.win:not(.focused) {
+  --glass-tint: var(--surface-solid);
+  --glass-rim: var(--glass-rim-dim);
+  --glass-drop: 0 16px 40px -16px rgba(0, 0, 0, 0.34);
+}
+
+/* REGRA: peças de vidro juntas formam uma só.
+   ─────────────────────────────────────────────────────────────
+   Duas superfícies de vidro lado a lado devem fundir-se numa forma
+   contínua, não ficar duas ilhas. Onde há um par de botões, o vidro
+   é do grupo — os botões que ficam dentro são só preenchimento. */
+.lock-actions {
+  padding: 6px;
+  border-radius: 999px;
+}
+.lock-actions .lock-action {
+  background: rgba(255, 255, 255, 0.18);
+  border: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.lock-actions .lock-action::before { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   12. Cada aplicação responde ao seu contentor
+   ═══════════════════════════════════════════════════════════════
+   Não ao tamanho do ecrã — ao tamanho da janela onde está. Uma
+   janela do Mac muda de largura sem a página mudar de nada, e é o
+   conteúdo dela que tem de se arrumar. É o mesmo raciocínio das
+   classes de tamanho da Apple, feito com container queries.
+   ─────────────────────────────────────────────────────────────── */
+.win-body,
+.ios-view-body {
+  container-type: inline-size;
+  container-name: app;
+}
+
+/* Escritos: lista e leitor lado a lado quando há espaço; empilhados
+   quando não há, com o leitor a entrar por cima — em qualquer um dos
+   dois mundos. */
+@container app (max-width: 640px) {
+  .app-escritos { flex-direction: column; }
+  .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
+  .app-escritos .app-main {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--surface-solid);
+    transform: translateX(100%);
+    transition: transform 0.34s var(--ease-os);
+    visibility: hidden;
+  }
+  .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
+  .app-escritos .back-btn { display: inline-flex; }
+}
+@container app (max-width: 560px) {
+  .app-pad { padding: 18px 18px 26px; }
+  .cards { grid-template-columns: 1fr; }
+  .about-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .row { flex-wrap: wrap; gap: 4px 12px; }
+  .row .k { flex: 0 0 100%; }
+  .row .v { margin-left: 0; text-align: left; }
+  .compose-field { flex-wrap: wrap; }
+  .compose-field label { flex: 0 0 100%; }
+  .walls { grid-template-columns: repeat(2, 1fr); }
+  .bubble { max-width: 88%; }
+  .btn-row { flex-direction: column; align-items: stretch; }
+  .btn-row .btn { justify-content: center; }
+}
+@container app (max-width: 400px) {
+  .app-pad { padding: 14px 14px 22px; }
+  .seg { width: 100%; }
+  .seg button { flex: 1; padding: 8px 6px; }
+  .walls { grid-template-columns: 1fr; }
+  .term { font-size: 12px; }
+  .chat-head .btn { display: none; }
+}
+@container app (min-width: 900px) {
+  .app-pad { padding: 30px 36px 40px; }
+  .app-escritos .app-side { flex: 0 0 320px; }
 }
