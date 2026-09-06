@@ -438,36 +438,40 @@ a:hover { text-decoration: underline; }
 }
 .boot[hidden] { display: none; }
 .boot-mark { width: min(190px, 46vw); height: auto; color: #fff; }
+.boot-mark { opacity: 0; animation: mark-in 0.5s ease-out forwards; }
+@keyframes mark-in { to { opacity: 1; } }
 .boot-mark .ink {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: draw 0.72s var(--ease-os) forwards;
+  /* Curva simétrica: começa devagar, acelera, e assenta. Um traço a ser
+     desenhado por uma mão, não um valor a saltar para o fim. */
+  animation: draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
-.boot-mark .i1 { animation-delay: 0.05s; }
-.boot-mark .i2 { animation-delay: 0.28s; }
-.boot-mark .i3 { animation-delay: 0.44s; }
-.boot-mark .i4 { animation-delay: 0.62s; }
+.boot-mark .i1 { animation-delay: 0.1s; }
+.boot-mark .i2 { animation-delay: 0.34s; }
+.boot-mark .i3 { animation-delay: 0.5s; }
+.boot-mark .i4 { animation-delay: 0.72s; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 .boot-name {
-  margin: 0; font-size: 15px; font-weight: 500; letter-spacing: 0.34em; text-indent: 0.34em;
+  margin: 2px 0 0; font-size: 15px; font-weight: 500; letter-spacing: 0.34em; text-indent: 0.34em;
   text-transform: uppercase; color: rgba(255, 255, 255, 0.92);
-  animation: boot-name 0.9s 1.25s var(--ease-os) backwards;
+  animation: boot-name 1s 1.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @keyframes boot-name { from { opacity: 0; letter-spacing: 0.7em; } }
 .boot-bar {
   width: 190px; height: 4px; border-radius: 99px; overflow: hidden; margin-top: 6px;
   background: rgba(255, 255, 255, 0.2);
-  animation: fade-in 0.4s 1.35s backwards;
+  animation: fade-in 0.5s 1.7s backwards;
 }
 .boot-bar span {
   display: block; height: 100%; width: 0; border-radius: 99px; background: #fff;
-  animation: boot-fill 1.5s 1.35s var(--ease-os) forwards;
+  animation: boot-fill 1.5s 1.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 @keyframes boot-fill { to { width: 100%; } }
 @keyframes fade-in { from { opacity: 0; } }
 .boot-label {
   margin: 0; font-size: 11.5px; color: rgba(255, 255, 255, 0.42); letter-spacing: 0.02em;
-  animation: fade-in 0.6s 1.6s backwards;
+  animation: fade-in 0.6s 1.95s backwards;
 }
 .os.booted .boot { animation: fade-out 0.45s forwards; }
 
@@ -1009,7 +1013,20 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
    pode ter menos — e nenhum toque pode ter atraso ou halo azul. */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
-button, a, [role='button'], .sb-app, .dock-item, .row, label { touch-action: manipulation; }
+button, a, [role='button'], .dock-item, .row, label { touch-action: manipulation; }
+
+/* Onde há gestos nossos, o browser não pode ficar com o dedo primeiro.
+   `manipulation` deixa o browser começar a arrastar a página, e a partir
+   daí deixamos de receber eventos — era isto que impedia o deslizar
+   entre páginas do ecrã inicial. */
+.sb, .sb-pages, .sb-page, .sb-app, .sb-widgets, .widget, .w-row, .ios-dock, .sb-dots {
+  touch-action: pan-y;
+}
+.lock, .lock button, .lock-note, .lock-action, .lock-open { touch-action: none; }
+.nc, .nc-note, .nc-inner { touch-action: pan-y; }
+.cc, .cc button, .cc-tile, .cc-slider { touch-action: none; }
+.homebar, .homebar i { touch-action: none; }
+.switcher-card, .switcher-card * { touch-action: pan-x; }
 button, a, .sb-app, .widget, .nc-note, .cc-tile { -webkit-tap-highlight-color: transparent; }
 
 input, textarea, select { font-family: inherit; }
@@ -1129,3 +1146,6 @@ input, textarea, select { font-family: inherit; }
 /* A barra inferior avisa quando o comutador está armado */
 .homebar i { transition: transform 0.22s var(--ease-os), width 0.22s var(--ease-os), opacity 0.2s; }
 .homebar.armed i { width: 64px; opacity: 0.9; }
+
+/* As notificações percorrem-se com o dedo; o painel fecha-se pelo resto. */
+.nc-inner { overscroll-behavior: contain; }

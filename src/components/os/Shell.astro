@@ -85,7 +85,7 @@ const osData = {
        dispositivo a acordar. Traços com pathLength=1, por isso a
        animação é exata em qualquer tamanho. -->
   <div class="boot" id="boot" hidden>
-    <svg class="boot-mark" viewBox="0 0 200 120" role="img" aria-label={SITE.name}>
+    <svg class="boot-mark" viewBox="19 17 150 86" role="img" aria-label={SITE.name}>
       <g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
         <path class="ink i1" pathLength="1" d="M28 26V94" />
         <path class="ink i2" pathLength="1" d="M28 60h48" />
@@ -272,7 +272,7 @@ const osData = {
       <div class="nc" id="nc" role="dialog" aria-label={c.os.notifications}>
         <div class="nc-inner">
           <p class="nc-title">{c.os.notifications}</p>
-          {posts.slice(0, 4).map((p) => (
+          {posts.slice(0, 3).map((p) => (
             <button class="nc-note" type="button" data-open-post={postSlug(p)}>
               <span class="nc-app"><Icon id="escritos" size={17} />{c.escritos.heading}</span>
               <strong>{p.data.title}</strong>
@@ -286,6 +286,7 @@ const osData = {
             <span>{SITE.email}</span>
           </button>
         </div>
+        <button class="cc-close" type="button" data-nc-close>{c.os.done}</button>
       </div>
 
       <!-- Ecrã bloqueado. Tem fundo próprio: sem ele via-se o ecrã

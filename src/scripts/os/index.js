@@ -196,7 +196,7 @@ function boot(data) {
       }, 460);
       if (ctx.mode === 'ios') phone.showLock();
       ready();
-    }, 2650);
+    }, 3150);
   } else {
     ready();
   }

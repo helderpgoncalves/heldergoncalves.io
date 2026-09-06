@@ -279,13 +279,36 @@ export function createPhone(ctx) {
         view.style.transformOrigin = '50% 50%';
         sb.classList.remove('pushed');
         sb.style.transition = 'none';
-        drag = { view, target, p: 0, drift: 0, switcher: false, still: 0, lastAt: performance.now() };
+        drag = {
+          view,
+          target,
+          p: 0,
+          drift: 0,
+          switcher: false,
+          sideways: false,
+          vertical: false,
+          viewDx: 0,
+          still: 0,
+          lastAt: performance.now(),
+        };
       },
       move: (g) => {
         if (!drag) {
           if (!current) sb.style.transform = 'translate3d(0,' + rubber(g.dy, 120) + 'px,0)';
           return;
         }
+        // De lado na barra inferior: passar à app anterior ou seguinte,
+        // como no iPhone. Só enquanto o dedo não subir.
+        if (!drag.vertical && Math.abs(g.dx) > Math.abs(g.dy) * 1.6 && Math.abs(g.dx) > 18) {
+          drag.sideways = true;
+          drag.viewDx = rubber(g.dx, 260);
+          drag.view.style.transform = 'translate3d(' + drag.viewDx + 'px,0,0)';
+          drag.view.style.borderRadius = '';
+          return;
+        }
+        if (drag.sideways && Math.abs(g.dx) > Math.abs(g.dy)) return;
+        drag.sideways = false;
+        drag.vertical = true;
         const h = phone.clientHeight || 1;
         const up = Math.max(0, -g.dy);
         drag.p = clamp(up / (h * 0.5), 0, 0.86);
@@ -315,6 +338,26 @@ export function createPhone(ctx) {
         drag = null;
         state.view.style.transition = '';
         state.view.style.willChange = '';
+
+        // Passagem lateral entre apps abertas.
+        if (state.sideways) {
+          const reach = state.viewDx + project(g.vx);
+          const order = stack.slice();
+          const at = order.indexOf(ctx.active || order[order.length - 1]);
+          const next = reach < -70 ? order[at - 1] : reach > 70 ? order[at + 1] : null;
+          state.view.style.transform = '';
+          if (next && next !== ctx.active) {
+            open(next);
+            return;
+          }
+          if (CAN_ANIMATE && !reducedMotion()) {
+            state.view.animate([{ transform: 'translate3d(' + state.viewDx + 'px,0,0)' }, { transform: 'none' }], {
+              duration: 240,
+              easing: EASE,
+            });
+          }
+          return;
+        }
 
         const h = phone.clientHeight || 1;
         // Conta o embalo: para onde o dedo ia, não onde parou.
@@ -375,7 +418,7 @@ export function createPhone(ctx) {
         },
         move: (g) => {
           const w = pages.clientWidth || 1;
-          let dx = g.dx;
+          let dx = clamp(g.dx, -w, w);
           if ((page === 0 && dx > 0) || (page === pageCount - 1 && dx < 0)) dx = rubber(dx, w * 0.4);
           pages.style.transform = 'translate3d(calc(' + -page * 100 + '% + ' + dx + 'px),0,0)';
         },
@@ -462,7 +505,7 @@ export function createPhone(ctx) {
           else openIt();
         },
       },
-      { axis: 'y', threshold: 10, filter: (ev) => !ev.target.closest('button, a, .cc-slider') }
+      { axis: 'y', threshold: 10, filter: (ev) => !ev.target.closest('a, .cc-slider, .nc-inner') }
     );
 
     return { open: openIt, close: closeIt };
@@ -480,6 +523,10 @@ export function createPhone(ctx) {
 
   const ccPanel = panel(cc, ccHot, () => syncCC());
   const ncPanel = panel(nc, ncHot, null);
+  if (nc) {
+    const ncClose = nc.querySelector('[data-nc-close]');
+    if (ncClose) ncClose.addEventListener('click', () => ncPanel.close());
+  }
   const openCC = () => ccPanel.open();
   const closeCC = () => ccPanel.close();
   const closeNC = () => ncPanel.close();
@@ -641,9 +688,14 @@ export function createPhone(ctx) {
         const pane = backPane;
         backPane = null;
         pane.classList.remove('dragging');
-        pane.style.transform = '';
         const w = phone.clientWidth || 1;
-        if (g.dx + project(g.vx) > w * 0.35) ctx.run('back');
+        if (g.dx + project(g.vx) > w * 0.35) {
+          // Deixa a folha onde está: o CSS leva-a o resto do caminho.
+          ctx.run('back');
+          setTimeout(() => (pane.style.transform = ''), 20);
+        } else {
+          pane.style.transform = '';
+        }
       },
     },
     {
@@ -653,6 +705,9 @@ export function createPhone(ctx) {
         current === 'escritos' &&
         !!ctx.escritos &&
         ctx.escritos.hasDetail() &&
+        // Fora a barra inferior e os painéis: dois gestos a agarrar o
+        // mesmo dedo é um gesto que não funciona.
+        !ev.target.closest('.homebar, .cc, .nc, .switcher, .lock') &&
         ev.clientX - phone.getBoundingClientRect().left < 28,
     }
   );
