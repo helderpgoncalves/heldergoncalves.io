@@ -57,6 +57,16 @@ export function createPhone(ctx) {
       '<div class="ios-view-body"></div>';
     view.querySelector('.ios-view-body').appendChild(ctx.contentEl(id));
     view.querySelector('[data-view-done]').addEventListener('click', () => home());
+    // Como no iOS: o risco por baixo do título só aparece quando há
+    // conteúdo a passar por trás dele.
+    view.addEventListener(
+      'scroll',
+      (ev) => {
+        const top = ev.target && ev.target.scrollTop;
+        view.classList.toggle('scrolled', typeof top === 'number' && top > 2);
+      },
+      true
+    );
     layer.appendChild(view);
     views.set(id, view);
     return view;
@@ -98,7 +108,7 @@ export function createPhone(ctx) {
             },
             { transformOrigin: '0 0', transform: 'none', borderRadius: '0px', opacity: 1 },
           ],
-          { duration: 460, easing: EASE }
+          { duration: 400, easing: EASE }
         );
       }
     }
@@ -146,7 +156,7 @@ export function createPhone(ctx) {
           opacity: 0.2,
         },
       ],
-      { duration: 360, easing: EASE }
+      { duration: 320, easing: EASE }
     );
     return anim.finished.then(clear, clear);
   }
@@ -225,7 +235,7 @@ export function createPhone(ctx) {
         } else if (view) {
           view.animate(
             [{ transform: view.style.transform, borderRadius: view.style.borderRadius }, { transform: 'none', borderRadius: '0px' }],
-            { duration: 260, easing: EASE }
+            { duration: 230, easing: EASE }
           ).finished.then(
             () => {
               view.style.transform = '';
@@ -249,7 +259,7 @@ export function createPhone(ctx) {
   function goToPage(n, animate) {
     page = clamp(n, 0, pageCount - 1);
     if (!pages) return;
-    pages.style.transition = animate === false ? 'none' : 'transform .42s ' + EASE;
+    pages.style.transition = animate === false ? 'none' : 'transform .36s ' + EASE;
     pages.style.transform = 'translateX(' + -page * 100 + '%)';
     if (dots) [...dots.children].forEach((d, i) => d.classList.toggle('on', i === page));
   }
@@ -552,21 +562,26 @@ export function createPhone(ctx) {
     {
       begin: () => (lock.style.transition = 'none'),
       move: (g) => {
-        lock.style.transform = 'translateY(' + Math.min(0, g.dy) + 'px)';
-        lock.style.opacity = String(clamp(1 + g.dy / 500, 0.25, 1));
+        const h = phone.clientHeight || 1;
+        const up = Math.min(0, g.dy);
+        lock.style.transform = 'translateY(' + up + 'px)';
+        lock.style.opacity = String(clamp(1 + g.dy / (h * 0.7), 0.15, 1));
       },
       end: (g) => {
         lock.style.transition = '';
         lock.style.opacity = '';
-        if (-g.dy > 70 || g.vy < -0.45) unlock();
+        if (-g.dy > 64 || g.vy < -0.4) unlock();
         else lock.style.transform = '';
       },
       tap: (g, ev) => {
         if (!ev || !ev.target.closest('button')) unlock();
       },
     },
-    { axis: 'y', threshold: 8, filter: (ev) => !ev.target.closest('.lock-note') }
+    { axis: 'y', threshold: 8, filter: (ev) => !ev.target.closest('.lock-note, .lock-action') }
   );
+
+  const unlockBtn = lock.querySelector('[data-unlock]');
+  if (unlockBtn) unlockBtn.addEventListener('click', unlock);
 
   return {
     open,

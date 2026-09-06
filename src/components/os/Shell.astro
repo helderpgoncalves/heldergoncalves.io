@@ -288,20 +288,51 @@ const osData = {
         </div>
       </div>
 
+      <!-- Ecrã bloqueado. Tem fundo próprio: sem ele via-se o ecrã
+           inicial por trás e não se percebia o que era para fazer. -->
       <div class="lock" id="lock" hidden>
-        <div class="lock-top">
-          <p class="lock-date" data-lock-date></p>
-          <p class="lock-time" data-lock-time></p>
-          {latest && (
-            <button class="lock-note" type="button" data-open-post={postSlug(latest)}>
-              <strong>{c.escritos.heading}</strong>
-              <span>{latest.data.title}</span>
+        <div class="wall" aria-hidden="true"></div>
+        <div class="lock-scrim" aria-hidden="true"></div>
+
+        <div class="lock-body">
+          <div class="lock-top">
+            <span class="lock-padlock" aria-hidden="true"><Icon id="ui-lock" size={15} /></span>
+            <p class="lock-date" data-lock-date></p>
+            <p class="lock-time" data-lock-time></p>
+          </div>
+
+          <div class="lock-notes">
+            {posts.slice(0, 2).map((p) => (
+              <button class="lock-note" type="button" data-open-post={postSlug(p)}>
+                <span class="ln-icon"><Icon id="escritos" size={30} /></span>
+                <span class="ln-text">
+                  <strong>{p.data.title}</strong>
+                  <span>{p.data.description}</span>
+                </span>
+                <span class="ln-when">{formatDate(p.data.date, lang)}</span>
+              </button>
+            ))}
+          </div>
+
+          <div class="lock-bottom">
+            <div class="lock-actions">
+              <button class="lock-action" type="button" data-open="escritos" aria-label={c.apps.escritos.name}>
+                <Icon id="ui-note" size={22} />
+              </button>
+              <button class="lock-action" type="button" data-open="contacto" aria-label={c.apps.contacto.name}>
+                <Icon id="ui-mail" size={22} />
+              </button>
+            </div>
+
+            <button class="lock-open" type="button" data-unlock>
+              <span class="lock-arrow" aria-hidden="true">
+                <Icon id="ui-chevron" size={16} />
+              </span>
+              <span class="lock-open-label">{c.os.unlock}</span>
             </button>
-          )}
-        </div>
-        <div class="lock-bottom">
-          <span class="lock-chevron" aria-hidden="true"><Icon id="ui-chevron" size={18} /></span>
-          <p class="lock-hint">{c.os.unlock}</p>
+
+            <div class="lock-indicator" aria-hidden="true"><i></i></div>
+          </div>
         </div>
       </div>
 
