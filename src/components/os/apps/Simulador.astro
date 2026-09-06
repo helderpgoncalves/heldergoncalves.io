@@ -1,0 +1,20 @@
+---
+import { COPY, type Lang } from '../../../siteConfig';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+---
+<section class="app-shell app-simulador" data-content="simulador" aria-label={c.apps.simulador.name}>
+  <div class="sim" data-sim>
+    <div class="sim-device">
+      <iframe
+        class="sim-screen"
+        data-sim-frame
+        title={c.apps.simulador.window}
+        loading="lazy"
+        referrerpolicy="same-origin"
+      ></iframe>
+    </div>
+    <p class="sim-note">{c.apps.simulador.subtitle}</p>
+  </div>
+</section>

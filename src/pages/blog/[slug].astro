@@ -1,6 +1,6 @@
 ---
-import Base from '../../layouts/Base.astro';
-import Article from '../../components/Article.astro';
+import OS from '../../layouts/OS.astro';
+import Shell from '../../components/os/Shell.astro';
 import { SITE, COPY, other } from '../../siteConfig';
 import { getPosts, getTranslation, postSlug, postPath, type Post } from '../../lib/posts';
 import { articleLd } from '../../lib/seo';
@@ -16,11 +16,12 @@ const { post } = Astro.props;
 const lang = 'pt' as const;
 const c = COPY[lang];
 const alt = other(lang);
+const posts = await getPosts(lang);
 const translation = await getTranslation(post, alt);
 const altPath = translation ? postPath(translation, alt) : undefined;
 const url = new URL(Astro.url.pathname, SITE.url).href;
 ---
-<Base
+<OS
   lang={lang}
   title={`${post.data.title} — ${SITE.name}`}
   description={post.data.description}
@@ -29,5 +30,13 @@ const url = new URL(Astro.url.pathname, SITE.url).href;
   ogType="article"
   jsonLd={articleLd(post, lang, url)}
 >
-  <Article post={post} lang={lang} altPath={altPath} />
-</Base>
+  <Shell
+    lang={lang}
+    posts={posts}
+    post={post}
+    altPath={altPath}
+    boot="escritos"
+    docTitle={post.data.title}
+    docLead={post.data.description}
+  />
+</OS>

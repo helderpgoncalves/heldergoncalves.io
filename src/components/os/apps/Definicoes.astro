@@ -1,0 +1,72 @@
+---
+import { COPY, ROUTES, type Lang } from '../../../siteConfig';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const s = c.definicoes;
+const walls = [
+  { id: 'aurora', name: s.wallpapers.aurora, css: 'linear-gradient(155deg,#8a6bd8,#4f7fd4 45%,#2e5aa8)' },
+  { id: 'sonoma', name: s.wallpapers.sonoma, css: 'linear-gradient(180deg,#1d3557,#457b9d 50%,#e07a5f)' },
+  { id: 'night', name: s.wallpapers.night, css: 'linear-gradient(180deg,#05060d,#0b1024 60%,#131a3a)' },
+  { id: 'graphite', name: s.wallpapers.graphite, css: 'linear-gradient(160deg,#1a1a1e,#37373d)' },
+];
+---
+<section class="app-shell app-definicoes" data-content="definicoes" aria-label={c.apps.definicoes.name}>
+  <div class="app-scroll">
+    <div class="app-pad">
+      <div class="set-group">
+        <h3>{s.appearance}</h3>
+        <p>{s.appearanceHint}</p>
+        <div class="seg" data-set="theme">
+          <button type="button" data-value="auto">{s.auto}</button>
+          <button type="button" data-value="light">{s.light}</button>
+          <button type="button" data-value="dark">{s.dark}</button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <h3>{s.wallpaper}</h3>
+        <p>{s.wallpaperHint}</p>
+        <div class="walls" data-set="wallpaper">
+          {walls.map((w) => (
+            <button class="wall-pick" type="button" data-value={w.id}>
+              <span class="swatch" style={`background:${w.css}`}></span>
+              <span class="name">{w.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="set-group">
+        <h3>{s.language}</h3>
+        <p>{s.languageHint}</p>
+        <div class="seg" data-set="lang">
+          <button type="button" data-value="pt" data-href={ROUTES.pt.home}>Português</button>
+          <button type="button" data-value="en" data-href={ROUTES.en.home}>English</button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <h3>{s.motion}</h3>
+        <p>{s.motionHint}</p>
+        <div class="seg" data-set="motion">
+          <button type="button" data-value="on">{s.motionOn}</button>
+          <button type="button" data-value="off">{s.motionOff}</button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <h3>{s.about}</h3>
+        <div class="rows">
+          <div class="row"><span class="k">{c.os.macName}</span><span class="v">{s.version} 1.0</span></div>
+          <div class="row"><span class="k">Astro</span><span class="v">4.16 · static</span></div>
+          <div class="row"><span class="k">JavaScript</span><span class="v">0 frameworks</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" type="button" data-reset-os>{s.reset}</button>
+          <span class="hintline" style="align-self:center;color:var(--ink-3);font-size:12.5px">{s.resetHint}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,21 +1,19 @@
 ---
-import Base from '../layouts/Base.astro';
-import { COPY, ROUTES } from '../siteConfig';
+import OS from '../layouts/OS.astro';
+import Shell from '../components/os/Shell.astro';
+import { COPY } from '../siteConfig';
+import { getPosts } from '../lib/posts';
 
 const lang = 'pt' as const;
 const c = COPY[lang];
-const en = COPY.en;
+const posts = await getPosts(lang);
 ---
-<Base lang={lang} title={`404 — ${c.notFound.title}`} description={c.notFound.lead} noindex>
-  <section class="page-head">
-    <p class="eyebrow">404</p>
-    <h1 class="display">{c.notFound.title}</h1>
-    <p class="lead">{c.notFound.lead} · {en.notFound.lead}</p>
-    <nav class="links" aria-label="404">
-      <a href={ROUTES.pt.home}>{c.notFound.home}</a>
-      <a href={ROUTES.pt.blog}>{c.notFound.blog}</a>
-      <a href={ROUTES.en.home}>{en.notFound.home}</a>
-      <a href={ROUTES.en.blog}>{en.notFound.blog}</a>
-    </nav>
-  </section>
-</Base>
+<OS lang={lang} title={`404 — ${c.notFound.title}`} description={c.notFound.lead} noindex>
+  <Shell
+    lang={lang}
+    posts={posts}
+    bootMac="sobre"
+    docTitle={c.notFound.title}
+    docLead={`${c.notFound.lead} · ${COPY.en.notFound.lead}`}
+  />
+</OS>

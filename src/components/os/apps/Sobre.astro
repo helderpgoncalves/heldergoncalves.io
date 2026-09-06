@@ -1,0 +1,60 @@
+---
+import { SITE, COPY, socialLinks, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const links = socialLinks(lang);
+---
+<section class="app-shell app-sobre" data-content="sobre" aria-label={c.apps.sobre.name}>
+  <div class="app-scroll">
+    <div class="app-pad">
+      <div class="about-head">
+        <span class="avatar" aria-hidden="true">HG</span>
+        <div>
+          <h2>{SITE.name}</h2>
+          <p>{c.role} · {c.place}</p>
+        </div>
+      </div>
+
+      <p class="app-lead">{c.intro}</p>
+      <p class="app-lead">
+        {c.intro2.split(SITE.company.name)[0]}<a href={SITE.company.url} target="_blank" rel="noopener">{SITE.company.name}</a>{c.intro2.split(SITE.company.name)[1]}
+      </p>
+      <p class="app-lead">{c.intro3}</p>
+
+      <div class="btn-row">
+        <a class="btn btn-primary" href={`mailto:${SITE.email}`} data-open="contacto">{c.sobre.buttonWrite}</a>
+        <button class="btn" type="button" data-open="projetos">{c.sobre.buttonProjects}</button>
+      </div>
+
+      <div class="app-section">
+        <h3>{c.sobre.specs}</h3>
+        <div class="rows">
+          <div class="row"><span class="k">{c.sobre.specRole}</span><span class="v">{c.role}</span></div>
+          <div class="row"><span class="k">{c.sobre.specPlace}</span><span class="v">{c.place}</span></div>
+          <div class="row"><span class="k">{c.sobre.specCompany}</span><span class="v">{SITE.company.name}</span></div>
+          <div class="row"><span class="k">{c.sobre.specStack}</span><span class="v">{c.sobre.specStackValue}</span></div>
+          <div class="row"><span class="k">{c.sobre.specSince}</span><span class="v">{c.sobre.specSinceValue}</span></div>
+        </div>
+      </div>
+
+      <div class="app-section">
+        <h3>{c.contacto.elsewhere}</h3>
+        <div class="rows">
+          {links.map((l) => (
+            <a class="row" href={l.href} target={l.id === 'email' ? undefined : '_blank'} rel="noopener me">
+              <span class="k">{l.label}</span><span class="v">{l.value}</span>
+              <Icon id="ui-arrow" class="arrow" size={11} />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="app-section">
+        <h3>{c.sobre.more}</h3>
+        <p class="app-lead">{c.sobre.colophon}</p>
+      </div>
+    </div>
+  </div>
+</section>

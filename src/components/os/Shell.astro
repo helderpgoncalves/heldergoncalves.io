@@ -1,0 +1,278 @@
+---
+// A casca do sistema. Tudo o que aqui está é HTML normal: o
+// JavaScript só o transforma em janelas e gestos. Sem JavaScript,
+// o leitor recebe o documento simples que está dentro de #pool.
+import { SITE, COPY, ROUTES, APPS, other, formatDate, readingMinutes, type Lang, type AppId } from '../../siteConfig';
+import { postPath, postSlug, type Post } from '../../lib/posts';
+import IconSprite from './IconSprite.astro';
+import Icon from './Icon.astro';
+import Sobre from './apps/Sobre.astro';
+import Escritos from './apps/Escritos.astro';
+import Mensagens from './apps/Mensagens.astro';
+import Contacto from './apps/Contacto.astro';
+import Projetos from './apps/Projetos.astro';
+import Terminal from './apps/Terminal.astro';
+import Definicoes from './apps/Definicoes.astro';
+import Simulador from './apps/Simulador.astro';
+
+interface Props {
+  lang: Lang;
+  posts: Post[];
+  /** Escrito aberto quando a página é um /blog/<slug>/. */
+  post?: Post;
+  altPath?: string;
+  /** Aplicação aberta no arranque, nos dois modos. */
+  boot?: AppId;
+  /** Aplicação aberta no arranque só no Mac (no telefone fica o ecrã inicial). */
+  bootMac?: AppId;
+  /** Título e texto do documento simples (sem JavaScript). */
+  docTitle: string;
+  docLead: string;
+}
+
+const { lang, posts, post, altPath, boot, bootMac, docTitle, docLead } = Astro.props;
+const c = COPY[lang];
+const alt = other(lang);
+const dockApps = APPS.filter((a) => a.dock);
+const iosDock = APPS.filter((a) => a.iosDock);
+const iosGrid = APPS.filter((a) => !a.iosDock);
+const latest = posts[0];
+
+// Tudo o que o JavaScript precisa de saber, já traduzido.
+const osData = {
+  lang,
+  alt,
+  intlLocale: c.intlLocale,
+  routes: ROUTES,
+  altHome: ROUTES[alt].home,
+  site: { email: SITE.email, github: SITE.github, linkedin: SITE.linkedin, twitter: SITE.twitter, name: SITE.name },
+  boot: boot ?? null,
+  bootMac: bootMac ?? null,
+  bootPost: post ? postSlug(post) : null,
+  apps: APPS.map((a) => ({
+    id: a.id,
+    name: c.apps[a.id].name,
+    subtitle: c.apps[a.id].subtitle,
+    window: c.apps[a.id].window,
+    win: a.win,
+    bare: Boolean(a.bare),
+  })),
+  menus: c.os.menus,
+  menuLabels: c.os.menuLabels,
+  strings: {
+    ...c.os,
+    close: c.os.close,
+    terminal: c.terminal,
+    contact: { copied: c.contacto.copied, copy: c.contacto.copy, hint: c.contacto.sendHint },
+    chat: { typing: c.mensagens.typing },
+    escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
+    notFound: c.notFound,
+  },
+  posts: posts.map((p) => ({
+    slug: postSlug(p),
+    title: p.data.title,
+    description: p.data.description,
+    url: postPath(p, lang),
+    date: formatDate(p.data.date, lang),
+    minutes: readingMinutes(p.body),
+  })),
+};
+---
+<IconSprite />
+
+<div class="os" id="os">
+  <!-- Arranque -->
+  <div class="boot" id="boot" hidden>
+    <Icon id="ui-apple" size={68} />
+    <div>
+      <div class="boot-bar"><span></span></div>
+      <p class="boot-label">{c.os.booting} {c.os.macName}…</p>
+    </div>
+  </div>
+
+  <!-- ── macOS ─────────────────────────────────────────────── -->
+  <div class="mac" id="mac">
+    <div class="wall" aria-hidden="true"></div>
+
+    <div class="menubar" id="menubar" role="menubar" aria-label={c.os.macName}>
+      <button class="menubar-item" data-menu="apple" aria-haspopup="true" aria-expanded="false" aria-label={c.os.macName}>
+        <Icon id="ui-apple" size={14} />
+      </button>
+      <button class="menubar-item strong" data-menu="app" id="menuApp" aria-haspopup="true" aria-expanded="false">Finder</button>
+      <button class="menubar-item" data-menu="window" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.window}</button>
+      <button class="menubar-item" data-menu="help" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.help}</button>
+      <span class="menubar-spacer"></span>
+      <span class="menubar-right">
+        <button class="menubar-item" data-action="spotlight" aria-label={c.os.search}><Icon id="ui-search" size={13} /></button>
+        <button class="menubar-item" data-action="open:definicoes" aria-label={c.os.control.title}><Icon id="ui-control" size={14} /></button>
+        <span class="menubar-item" aria-hidden="true"><Icon id="ui-wifi" size={13} /></span>
+        <span class="menubar-item" aria-hidden="true"><Icon id="ui-battery" size={16} /></span>
+        <span class="menu-clock" data-clock-mac></span>
+      </span>
+    </div>
+
+    <div class="desktop" id="desktop">
+      <div class="desk-icons">
+        <button class="desk-icon" type="button" data-open="sobre">
+          <Icon id="icon-disk" size={46} />{c.os.desktopHd}
+        </button>
+        <button class="desk-icon" type="button" data-open="projetos">
+          <Icon id="icon-doc" size={46} />{c.os.desktopCv}
+        </button>
+      </div>
+      <div class="windows" id="windows"></div>
+      <p class="hint">{c.os.hintMac}</p>
+    </div>
+
+    <div class="dock-wrap">
+      <div class="dock" id="dock" role="toolbar" aria-label="Dock">
+        {dockApps.map((a) => (
+          <button class="dock-item" type="button" data-open={a.id} aria-label={c.apps[a.id].name}>
+            <Icon id={a.id} />
+            <span class="dot" aria-hidden="true"></span>
+            <span class="dock-tip" aria-hidden="true">{c.apps[a.id].name}</span>
+          </button>
+        ))}
+        <span class="dock-sep" aria-hidden="true"></span>
+        <button class="dock-item" type="button" data-trash aria-label={c.os.trash}>
+          <Icon id="icon-trash" />
+          <span class="dock-tip" aria-hidden="true">{c.os.trash}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="spotlight" id="spotlight" hidden>
+      <div class="spot-box" role="dialog" aria-label={c.os.search}>
+        <div class="spot-input">
+          <Icon id="ui-search" size={18} />
+          <input type="text" id="spotInput" placeholder={c.os.search} autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="spot-results" id="spotResults" role="listbox"></div>
+        <p class="spot-foot">{c.os.searchHint}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── iOS ───────────────────────────────────────────────── -->
+  <div class="ios" id="ios">
+    <div class="phone" id="phone">
+      <div class="wall ios-wall" aria-hidden="true"></div>
+
+      <div class="statusbar">
+        <span class="clock" data-clock-ios></span>
+        <span class="status-right" aria-hidden="true">
+          <Icon id="ui-cell" size={17} />
+          <Icon id="ui-wifi" size={15} />
+          <Icon id="ui-battery" size={24} />
+        </span>
+      </div>
+      <div class="island" id="island" aria-hidden="true"><span class="island-text"></span></div>
+
+      <div class="sb" id="springboard">
+        <div class="sb-widgets">
+          <div class="widget widget-date">
+            <p class="w-day" data-widget-day></p>
+            <p class="w-date" data-widget-date></p>
+          </div>
+          {latest && (
+            <button class="widget widget-post" type="button" data-open-post={postSlug(latest)}>
+              <span class="w-kicker">{c.escritos.heading}</span>
+              <span class="w-title">{latest.data.title}</span>
+              <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
+            </button>
+          )}
+        </div>
+
+        <div class="sb-grid">
+          {iosGrid.map((a) => (
+            <button class="sb-app" type="button" data-open={a.id}>
+              <Icon id={a.id} />
+              <span class="label">{c.apps[a.id].name}</span>
+            </button>
+          ))}
+        </div>
+
+        <div class="sb-dots" aria-hidden="true"><i class="on"></i><i></i></div>
+
+        <div class="ios-dock">
+          {iosDock.map((a) => (
+            <button class="sb-app" type="button" data-open={a.id}>
+              <Icon id={a.id} />
+              <span class="label">{c.apps[a.id].name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="ios-views" id="iosViews"></div>
+      <div class="switcher" id="switcher" aria-label={c.os.appSwitcher}><div class="switcher-rail"></div></div>
+
+      <div class="cc" id="cc" role="dialog" aria-label={c.os.control.title}>
+        <div class="cc-grid">
+          <button class="cc-tile span2" type="button" data-cc="theme">
+            <Icon id="ui-moon" size={20} />
+            <span class="t-label">{c.os.control.theme}</span>
+            <span class="t-value" data-cc-theme>{c.os.control.light}</span>
+          </button>
+          <div class="cc-slider" data-cc="brightness" role="slider" aria-label={c.os.control.brightness} aria-valuemin="30" aria-valuemax="100" aria-valuenow="100" tabindex="0" style="grid-row:span 2">
+            <span class="fill"></span>
+            <Icon id="ui-sun" class="ico" size={20} />
+          </div>
+          <button class="cc-tile" type="button" data-cc="lang">
+            <Icon id="ui-globe" size={20} />
+            <span class="t-value">{lang === 'pt' ? 'EN' : 'PT'}</span>
+          </button>
+          <button class="cc-tile span2" type="button" data-cc="wallpaper">
+            <span class="t-label">{c.os.control.wallpaper}</span>
+            <span class="t-value" data-cc-wall></span>
+          </button>
+          <button class="cc-tile span2" type="button" data-cc="settings">
+            <span class="t-label">{c.apps.definicoes.name}</span>
+            <span class="t-value">{c.apps.definicoes.subtitle}</span>
+          </button>
+        </div>
+        <button class="cc-close" type="button" data-cc="close">{c.os.done}</button>
+      </div>
+
+      <div class="lock" id="lock" hidden>
+        <div class="lock-top">
+          <p class="lock-date" data-lock-date></p>
+          <p class="lock-time" data-lock-time></p>
+          {latest && (
+            <button class="lock-note" type="button" data-open-post={postSlug(latest)}>
+              <strong>{c.escritos.heading}</strong>
+              <span>{latest.data.title}</span>
+            </button>
+          )}
+        </div>
+        <div class="lock-bottom">
+          <span class="lock-chevron" aria-hidden="true"><Icon id="ui-chevron" size={18} /></span>
+          <p class="lock-hint">{c.os.unlock}</p>
+        </div>
+      </div>
+
+      <div class="homebar" id="homebar"><i></i></div>
+    </div>
+  </div>
+
+  <div class="dim" aria-hidden="true"></div>
+</div>
+
+<!-- ── O documento por baixo do sistema ─────────────────────── -->
+<div class="doc" id="pool">
+  <div class="doc-head">
+    <h1>{docTitle}</h1>
+    <p>{docLead}</p>
+    <p><a href={ROUTES[alt].home}>{c.switch}</a> · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
+  </div>
+  <Sobre lang={lang} />
+  <Escritos lang={lang} posts={posts} post={post} altPath={altPath} />
+  <Mensagens lang={lang} />
+  <Contacto lang={lang} />
+  <Projetos lang={lang} />
+  <Terminal lang={lang} />
+  <Definicoes lang={lang} />
+  <Simulador lang={lang} />
+</div>
+
+<script type="application/json" id="os-data" is:inline set:html={JSON.stringify(osData).replace(/</g, "\\u003c")}></script>

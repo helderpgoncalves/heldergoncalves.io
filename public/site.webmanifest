@@ -1,13 +1,14 @@
 {
   "name": "Hélder Gonçalves",
   "short_name": "Hélder G.",
-  "description": "Engenheiro de software. Produtos e ferramentas com IA, agentes e automação — e escritos sobre isso.",
+  "description": "Engenheiro de software. O site é um sistema operativo: um iPhone no telemóvel, um Mac no computador.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f4ef",
-  "theme_color": "#f6f4ef",
+  "orientation": "portrait",
+  "background_color": "#2e5aa8",
+  "theme_color": "#2e5aa8",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/og.png", "sizes": "1200x630", "type": "image/png" }
   ]
 }

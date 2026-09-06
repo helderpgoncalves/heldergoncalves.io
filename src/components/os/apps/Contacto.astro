@@ -1,0 +1,46 @@
+---
+import { SITE, COPY, socialLinks, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const k = c.contacto;
+const links = socialLinks(lang).filter((l) => l.id !== 'email');
+---
+<section class="app-shell app-contacto" data-content="contacto" aria-label={c.apps.contacto.name}>
+  <form class="compose" data-compose action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
+    <div class="compose-fields">
+      <div class="compose-field">
+        <label for="c-to">{k.to}</label>
+        <input id="c-to" name="to" value={SITE.email} readonly />
+      </div>
+      <div class="compose-field">
+        <label for="c-from">{k.from}</label>
+        <input id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" />
+      </div>
+      <div class="compose-field">
+        <label for="c-subject">{k.subject}</label>
+        <input id="c-subject" name="subject" value={k.subjectValue} />
+      </div>
+    </div>
+    <textarea class="compose-body" id="c-body" name="body" placeholder={k.placeholder} rows="8"></textarea>
+    <div class="compose-bar">
+      <button class="btn btn-primary" type="submit">
+        <Icon id="ui-arrow" size={12} />{k.send}
+      </button>
+      <button class="btn" type="button" data-copy-email>{k.copy}</button>
+      <span class="hintline" data-compose-hint>{k.sendHint}</span>
+    </div>
+  </form>
+  <div class="app-pad" style="flex:0 0 auto">
+    <h3 class="app-eyebrow">{k.elsewhere}</h3>
+    <div class="rows">
+      {links.map((l) => (
+        <a class="row" href={l.href} target="_blank" rel="noopener me">
+          <span class="k">{l.label}</span><span class="v">{l.value}</span>
+          <Icon id="ui-arrow" class="arrow" size={11} />
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

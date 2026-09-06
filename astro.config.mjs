@@ -14,6 +14,6 @@ export default defineConfig({
       i18n: { defaultLocale: 'pt', locales: { pt: 'pt-PT', en: 'en' } },
     }),
   ],
-  build: { inlineStylesheets: 'always' },
+  build: { inlineStylesheets: 'auto' },
   compressHTML: true,
 });

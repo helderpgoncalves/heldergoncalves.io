@@ -33,9 +33,9 @@ ${post.data.tags.map((t) => `      <category>${escape(t)}</category>`).join('\n'
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escape(`${SITE.name} — ${c.blog.title}`)}</title>
+    <title>${escape(`${SITE.name} — ${c.escritos.title}`)}</title>
     <link>${home}</link>
-    <description>${escape(c.blog.description)}</description>
+    <description>${escape(c.escritos.description)}</description>
     <language>${c.htmlLang}</language>
     <atom:link href="${self}" rel="self" type="application/rss+xml" />
     <lastBuildDate>${(posts[0]?.data.date ?? new Date()).toUTCString()}</lastBuildDate>

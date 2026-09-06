@@ -1,0 +1,31 @@
+---
+import { SITE, COPY, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const p = c.projetos;
+---
+<section class="app-shell app-projetos" data-content="projetos" aria-label={c.apps.projetos.name}>
+  <div class="app-scroll">
+    <div class="app-pad">
+      <h2 class="app-title">{c.apps.projetos.name}</h2>
+      <p class="app-lead">{p.lead}</p>
+      <div class="cards">
+        {p.list.map((item) => (
+          <article class="card">
+            <h3>{item.name}</h3>
+            <p class="tagline">{item.tagline}</p>
+            <p>{item.body}</p>
+            <p class="chips">{item.tags.map((t) => <span class="chip">{t}</span>)}</p>
+          </article>
+        ))}
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-primary" href={SITE.github} target="_blank" rel="noopener">
+          <Icon id="ui-arrow" size={12} />{p.all}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

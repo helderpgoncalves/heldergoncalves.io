@@ -1,6 +1,6 @@
 ---
-import Base from '../../layouts/Base.astro';
-import PostList from '../../components/PostList.astro';
+import OS from '../../layouts/OS.astro';
+import Shell from '../../components/os/Shell.astro';
 import { SITE, COPY, ROUTES, other } from '../../siteConfig';
 import { getPosts, postPath } from '../../lib/posts';
 import { blogLd } from '../../lib/seo';
@@ -15,18 +15,12 @@ const ld = blogLd(
   posts.map((p) => ({ title: p.data.title, url: new URL(postPath(p, lang), SITE.url).href }))
 );
 ---
-<Base
+<OS
   lang={lang}
-  title={`${c.blog.title} — ${SITE.name}`}
-  description={c.blog.description}
+  title={`${c.escritos.title} — ${SITE.name}`}
+  description={c.escritos.description}
   altPath={ROUTES[other(lang)].blog}
   jsonLd={ld}
 >
-  <section class="page-head">
-    <h1 class="display">{c.blog.heading}</h1>
-    <p class="lead">{c.blog.lead}</p>
-    <p class="feed-line"><a href={ROUTES[lang].feed}>{c.blog.feed} →</a></p>
-  </section>
-
-  <PostList posts={posts} lang={lang} />
-</Base>
+  <Shell lang={lang} posts={posts} boot="escritos" docTitle={c.escritos.heading} docLead={c.escritos.lead} />
+</OS>

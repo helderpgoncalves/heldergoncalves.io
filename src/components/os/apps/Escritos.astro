@@ -1,0 +1,84 @@
+---
+import { SITE, COPY, ROUTES, formatDate, readingMinutes, type Lang } from '../../../siteConfig';
+import { postPath, postSlug, type Post } from '../../../lib/posts';
+import Icon from '../Icon.astro';
+
+interface Props { lang: Lang; posts: Post[]; post?: Post; altPath?: string }
+const { lang, posts, post, altPath } = Astro.props;
+const c = COPY[lang];
+const e = c.escritos;
+const Content = post ? (await post.render()).Content : null;
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+---
+<section
+  class="app-shell app-escritos"
+  data-content="escritos"
+  data-detail={post ? '1' : '0'}
+  aria-label={c.apps.escritos.name}
+>
+  <div class="app-side">
+    <div class="app-side-head">
+      <h2>{e.heading}</h2>
+      <p>{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
+    </div>
+    {posts.length === 0 ? (
+      <p class="app-pad">{e.empty}</p>
+    ) : (
+      <ul class="post-list">
+        {posts.map((p) => (
+          <li>
+            <a
+              class="post-link"
+              href={postPath(p, lang)}
+              data-post={postSlug(p)}
+              aria-current={post && postSlug(post) === postSlug(p) ? 'true' : undefined}
+            >
+              <h3>{p.data.title}</h3>
+              <span class="post-meta">
+                <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time> ·
+                {readingMinutes(p.body)} {e.readingTime}
+              </span>
+              <p class="post-desc">{p.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <div class="app-main">
+    <button class="back-btn" type="button" data-back-list>
+      <Icon id="ui-chevron" size={12} />{e.backToList}
+    </button>
+    <div class="app-scroll" data-reader>
+      {post && Content ? (
+        <article class="app-pad prose" data-post-body={postSlug(post)}>
+          <header class="article-head">
+            <p class="app-eyebrow">
+              <time datetime={iso(post.data.date)}>{formatDate(post.data.date, lang)}</time>
+              · {readingMinutes(post.body)} {e.readingTime}
+            </p>
+            <h1>{post.data.title}</h1>
+            <p>{post.data.description}</p>
+            {post.data.updated && (
+              <p class="post-meta">{e.updated} <time datetime={iso(post.data.updated)}>{formatDate(post.data.updated, lang)}</time></p>
+            )}
+            {altPath && <p class="post-meta"><a href={altPath}>{e.readOther} →</a></p>}
+          </header>
+          <Content />
+          <footer class="article-foot">
+            {post.data.tags.length > 0 && (
+              <p class="chips">{post.data.tags.map((t) => <span class="chip">{t}</span>)}</p>
+            )}
+            <p>{e.talk} <a href={`mailto:${SITE.email}?subject=${encodeURIComponent(post.data.title)}`}>{e.talkLink}</a></p>
+          </footer>
+        </article>
+      ) : (
+        <div class="app-main-empty">
+          <Icon id="ui-note" size={42} />
+          <p>{e.pick}</p>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

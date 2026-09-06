@@ -38,9 +38,9 @@ export function blogLd(lang: Lang, blogUrl: string, posts: { title: string; url:
   return {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: `${SITE.name} — ${c.blog.title}`,
+    name: `${SITE.name} — ${c.escritos.title}`,
     url: blogUrl,
-    description: c.blog.description,
+    description: c.escritos.description,
     inLanguage: c.htmlLang,
     author: { '@id': `${SITE.url}/#person` },
     blogPost: posts.map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: p.url })),

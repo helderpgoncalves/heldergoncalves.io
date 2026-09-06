@@ -1,21 +1,19 @@
 ---
-// Estrutura comum a todas as páginas: <head> de SEO, fundo, cabeçalho,
-// rodapé. Zero JavaScript no cliente.
+// A página. O <head> trata do SEO; o corpo é o sistema operativo.
+// O primeiro <script> corre antes de pintar: evita o piscar de tema
+// e esconde o documento simples quando há JavaScript.
 import { SITE, COPY, ROUTES, other, type Lang } from '../siteConfig';
-import '../styles/app.css';
+import '../styles/os.css';
 
 interface Props {
   lang: Lang;
   title: string;
   description: string;
-  /** Caminho da mesma página na outra língua; sem isto não há hreflang par. */
   altPath?: string;
   ogType?: 'website' | 'profile' | 'article';
   keywords?: string;
   noindex?: boolean;
   jsonLd?: unknown;
-  /** Cabeçalho grande só na página inicial. */
-  wide?: boolean;
 }
 
 const {
@@ -27,7 +25,6 @@ const {
   keywords = COPY[lang].keywords,
   noindex = false,
   jsonLd,
-  wide = false,
 } = Astro.props;
 
 const c = COPY[lang];
@@ -38,16 +35,14 @@ const abs = (path: string) => new URL(path, SITE.url).href;
 const canonical = abs(Astro.url.pathname);
 const ogImage = abs(SITE.ogImage);
 const altHref = altPath ? abs(altPath) : abs(ROUTES[alt].home);
-const selfHref = canonical;
-const ptHref = lang === 'pt' ? selfHref : altHref;
-const enHref = lang === 'en' ? selfHref : altHref;
-const switchHref = altPath ?? ROUTES[alt].home;
+const ptHref = lang === 'pt' ? canonical : altHref;
+const enHref = lang === 'en' ? canonical : altHref;
 ---
 <!doctype html>
-<html lang={c.htmlLang}>
+<html lang={c.htmlLang} data-wallpaper="aurora" data-mode="mac">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords} />
@@ -56,8 +51,9 @@ const switchHref = altPath ?? ROUTES[alt].home;
       name="robots"
       content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'}
     />
-    <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0d0c10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#2e5aa8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="pt-PT" href={ptHref} />
@@ -83,45 +79,42 @@ const switchHref = altPath ?? ROUTES[alt].home;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${c.blog.title}`} href={r.feed} />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${c.escritos.title}`} href={r.feed} />
 
     {jsonLd && (
       <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
     )}
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        try {
+          var p = JSON.parse(localStorage.getItem('helderos') || '{}');
+          if (p.theme && p.theme !== 'auto') d.setAttribute('data-theme', p.theme);
+          if (p.wallpaper) d.setAttribute('data-wallpaper', p.wallpaper);
+          if (p.motion) d.setAttribute('data-motion', p.motion);
+          if (p.brightness) d.style.setProperty('--brightness', String(p.brightness));
+        } catch (e) {}
+        var phone =
+          location.search.indexOf('device') > -1 ||
+          window.matchMedia('(max-width: 860px), (pointer: coarse) and (max-width: 1180px)').matches;
+        d.setAttribute('data-mode', phone ? 'ios' : 'mac');
+        if (location.search.indexOf('device') > -1) d.classList.add('in-frame');
+        // Se o sistema não arrancar em 5s, devolvemos o documento simples.
+        setTimeout(function () {
+          var os = document.getElementById('os');
+          if (!os || !os.classList.contains('ready')) d.classList.remove('js');
+        }, 5000);
+      })();
+    </script>
   </head>
 
   <body>
-    <a href="#main" class="skip">{c.skip}</a>
-
-    <div class="aurora" aria-hidden="true"></div>
-    <div class="grain" aria-hidden="true"></div>
-
-    <div class:list={['shell', { wide }]}>
-      <header class="masthead">
-        <a class="brand" href={r.home}>
-          <span class="brand-mark" aria-hidden="true">H</span>
-          <span class="brand-name">{SITE.name}</span>
-        </a>
-        <nav class="nav" aria-label={lang === 'pt' ? 'Navegação' : 'Navigation'}>
-          <a href={r.blog}>{c.nav.blog}</a>
-          <a href={r.feed}>{c.nav.feed}</a>
-          <a class="nav-lang" href={switchHref} hreflang={alt}>{c.switch}</a>
-        </nav>
-      </header>
-
-      <main id="main">
-        <slot />
-      </main>
-
-      <footer class="site-foot">
-        <p>© {new Date().getFullYear()} {SITE.name} · {c.footer}</p>
-        <p class="site-foot-links">
-          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-          <a href={SITE.github} target="_blank" rel="noopener me">{c.labels.github}</a>
-          <a href={SITE.linkedin} target="_blank" rel="noopener me">{c.labels.linkedin}</a>
-          <a href={SITE.twitter} target="_blank" rel="noopener me">{c.labels.twitter}</a>
-        </p>
-      </footer>
-    </div>
+    <a href="#pool" class="skip">{c.skip}</a>
+    <slot />
+    <script>
+      import '../scripts/os/index.js';
+    </script>
   </body>
 </html>

@@ -1,0 +1,205 @@
+---
+// Todos os ícones do sistema num sprite só: as aplicações (com o
+// squircle da Apple) e os símbolos da interface. Cada um vive numa
+// caixa de 100×100 para que <use> funcione em qualquer tamanho.
+---
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <linearGradient id="g-sobre" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f9bff" /><stop offset="1" stop-color="#3b5bdb" />
+    </linearGradient>
+    <linearGradient id="g-escritos" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe27a" /><stop offset="1" stop-color="#ffb703" />
+    </linearGradient>
+    <linearGradient id="g-mensagens" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6ff08a" /><stop offset="1" stop-color="#12b34a" />
+    </linearGradient>
+    <linearGradient id="g-contacto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fd8ff" /><stop offset="1" stop-color="#0a7cff" />
+    </linearGradient>
+    <linearGradient id="g-projetos" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c48bff" /><stop offset="1" stop-color="#6b46e5" />
+    </linearGradient>
+    <linearGradient id="g-terminal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4a52" /><stop offset="1" stop-color="#141418" />
+    </linearGradient>
+    <linearGradient id="g-definicoes" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d7d7dd" /><stop offset="1" stop-color="#8a8a91" />
+    </linearGradient>
+    <linearGradient id="g-simulador" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a4a6b" /><stop offset="1" stop-color="#12182b" />
+    </linearGradient>
+    <linearGradient id="g-gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".26" />
+      <stop offset=".5" stop-color="#fff" stop-opacity=".04" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="sq">
+      <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" />
+    </clipPath>
+  </defs>
+
+  <!-- Aplicações -->
+  <symbol id="icon-sobre" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-sobre)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <circle cx="50" cy="40" r="12" fill="#fff" />
+      <path d="M26 79c3-14 12-21 24-21s21 7 24 21" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-escritos" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-escritos)" />
+      <rect width="100" height="26" fill="#fff" opacity=".55" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <g stroke="#8a5a00" stroke-width="7" stroke-linecap="round" opacity=".8">
+        <path d="M26 46h48" /><path d="M26 62h48" /><path d="M26 78h30" />
+      </g>
+    </g>
+  </symbol>
+
+  <symbol id="icon-mensagens" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-mensagens)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <path d="M50 24c17.7 0 30 10.7 30 24S67.7 72 50 72c-3.4 0-6.6-.4-9.6-1.1L26 77l4.4-11.7C24.6 60.9 20 54.6 20 48c0-13.3 12.3-24 30-24Z" fill="#fff" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-contacto" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-contacto)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <rect x="20" y="31" width="60" height="38" rx="7" fill="#fff" />
+      <path d="M24 36l26 19 26-19" fill="none" stroke="#0a7cff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-projetos" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-projetos)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <path d="M50 20l28 15-28 15-28-15 28-15Z" fill="#fff" />
+      <path d="M22 51l28 15 28-15M22 65l28 15 28-15" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".82" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-terminal" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-terminal)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <path d="M26 36l16 15-16 15" fill="none" stroke="#5ee2a0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M52 68h22" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-definicoes" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-definicoes)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <g stroke="#3a3a3f" stroke-width="7" stroke-linecap="round">
+        <path d="M24 38h52" /><path d="M24 62h52" />
+      </g>
+      <circle cx="40" cy="38" r="9" fill="#fbfbfd" stroke="#3a3a3f" stroke-width="6" />
+      <circle cx="64" cy="62" r="9" fill="#fbfbfd" stroke="#3a3a3f" stroke-width="6" />
+    </g>
+  </symbol>
+
+  <symbol id="icon-simulador" viewBox="0 0 100 100">
+    <g clip-path="url(#sq)">
+      <rect width="100" height="100" fill="url(#g-simulador)" />
+      <rect width="100" height="100" fill="url(#g-gloss)" />
+      <rect x="33" y="18" width="34" height="64" rx="9" fill="none" stroke="#fff" stroke-width="5" />
+      <rect x="44" y="21" width="12" height="3.5" rx="1.75" fill="#fff" />
+      <rect x="42" y="36" width="16" height="30" rx="4.5" fill="none" stroke="#7fd8ff" stroke-width="3.5" />
+      <rect x="47" y="46" width="6" height="11" rx="2" fill="none" stroke="#7fd8ff" stroke-width="2" opacity=".8" />
+    </g>
+  </symbol>
+
+  <!-- Ficheiros do ambiente de trabalho -->
+  <symbol id="icon-disk" viewBox="0 0 100 100">
+    <rect x="12" y="22" width="76" height="56" rx="10" fill="#d8d8de" stroke="#9a9aa2" stroke-width="2" />
+    <rect x="12" y="22" width="76" height="20" rx="10" fill="#ececf1" />
+    <circle cx="50" cy="56" r="13" fill="#fbfbfd" stroke="#9a9aa2" stroke-width="2" />
+    <circle cx="50" cy="56" r="3.5" fill="#9a9aa2" />
+  </symbol>
+  <symbol id="icon-doc" viewBox="0 0 100 100">
+    <path d="M24 12h34l20 20v56a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4Z" fill="#fbfbfd" stroke="#9a9aa2" stroke-width="2" />
+    <path d="M58 12v20h20" fill="#e6e6ec" stroke="#9a9aa2" stroke-width="2" />
+    <g stroke="#c2c2ca" stroke-width="4" stroke-linecap="round">
+      <path d="M32 50h36" /><path d="M32 62h36" /><path d="M32 74h22" />
+    </g>
+  </symbol>
+  <symbol id="icon-trash" viewBox="0 0 100 100">
+    <path d="M28 30h44l-4 52a8 8 0 0 1-8 7H40a8 8 0 0 1-8-7L28 30Z" fill="rgba(220,220,228,.5)" stroke="#e8e8ee" stroke-width="4" />
+    <path d="M22 28h56M40 24c0-4 4-7 10-7s10 3 10 7" fill="none" stroke="#e8e8ee" stroke-width="5" stroke-linecap="round" />
+    <g stroke="#e8e8ee" stroke-width="4" stroke-linecap="round" opacity=".7">
+      <path d="M42 44v32" /><path d="M58 44v32" />
+    </g>
+  </symbol>
+
+  <!-- Interface -->
+  <symbol id="ui-apple" viewBox="0 0 100 100">
+    <path d="M68.6 53.2c-.1-10.4 8.5-15.4 8.9-15.6-4.8-7.1-12.4-8-15.1-8.1-6.4-.7-12.5 3.8-15.8 3.8-3.2 0-8.3-3.7-13.6-3.6-7 .1-13.4 4.1-17 10.3-7.2 12.6-1.8 31.2 5.2 41.4 3.4 5 7.5 10.6 12.9 10.4 5.2-.2 7.1-3.4 13.4-3.4s8 3.4 13.5 3.3c5.6-.1 9.1-5.1 12.5-10.1 3.9-5.8 5.6-11.4 5.7-11.7-.1-.1-10.9-4.2-11-16.7ZM58.3 22.8c2.8-3.5 4.8-8.3 4.2-13.1-4.1.2-9.1 2.8-12.1 6.2-2.6 3-4.9 7.9-4.3 12.6 4.6.4 9.3-2.3 12.2-5.7Z" fill="currentColor" />
+  </symbol>
+  <symbol id="ui-search" viewBox="0 0 100 100">
+    <circle cx="44" cy="44" r="26" fill="none" stroke="currentColor" stroke-width="9" />
+    <path d="M63 63l20 20" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" />
+  </symbol>
+  <symbol id="ui-control" viewBox="0 0 100 100">
+    <g stroke="currentColor" stroke-width="8" stroke-linecap="round">
+      <path d="M22 32h56" /><path d="M22 68h56" />
+    </g>
+    <circle cx="38" cy="32" r="9" fill="currentColor" />
+    <circle cx="64" cy="68" r="9" fill="currentColor" />
+  </symbol>
+  <symbol id="ui-wifi" viewBox="0 0 100 100">
+    <path d="M12 38a58 58 0 0 1 76 0" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />
+    <path d="M27 54a37 37 0 0 1 46 0" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />
+    <circle cx="50" cy="74" r="8" fill="currentColor" />
+  </symbol>
+  <symbol id="ui-cell" viewBox="0 0 100 100">
+    <g fill="currentColor">
+      <rect x="8" y="58" width="14" height="18" rx="4" />
+      <rect x="30" y="46" width="14" height="30" rx="4" />
+      <rect x="52" y="34" width="14" height="42" rx="4" />
+      <rect x="74" y="22" width="14" height="54" rx="4" opacity=".45" />
+    </g>
+  </symbol>
+  <symbol id="ui-battery" viewBox="0 0 100 100">
+    <rect x="6" y="34" width="76" height="32" rx="11" fill="none" stroke="currentColor" stroke-width="6" opacity=".5" />
+    <rect x="12" y="40" width="52" height="20" rx="6" fill="currentColor" />
+    <path d="M88 44v12a9 9 0 0 0 0-12Z" fill="currentColor" opacity=".5" />
+  </symbol>
+  <symbol id="ui-chevron" viewBox="0 0 100 100">
+    <path d="M62 22 34 50l28 28" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+  <symbol id="ui-arrow" viewBox="0 0 100 100">
+    <path d="M38 22 66 50 38 78" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+  <symbol id="ui-note" viewBox="0 0 100 100">
+    <rect x="18" y="14" width="64" height="72" rx="10" fill="none" stroke="currentColor" stroke-width="7" />
+    <g stroke="currentColor" stroke-width="7" stroke-linecap="round">
+      <path d="M32 38h36" /><path d="M32 52h36" /><path d="M32 66h20" />
+    </g>
+  </symbol>
+  <symbol id="ui-sun" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="18" fill="currentColor" />
+    <g stroke="currentColor" stroke-width="8" stroke-linecap="round">
+      <path d="M50 8v10M50 82v10M8 50h10M82 50h10M20 20l7 7M73 73l7 7M80 20l-7 7M27 73l-7 7" />
+    </g>
+  </symbol>
+  <symbol id="ui-moon" viewBox="0 0 100 100">
+    <path d="M62 12a40 40 0 1 0 26 62A44 44 0 0 1 62 12Z" fill="currentColor" />
+  </symbol>
+  <symbol id="ui-globe" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width="7" />
+    <path d="M14 50h72M50 14c12 12 12 60 0 72M50 14c-12 12-12 60 0 72" fill="none" stroke="currentColor" stroke-width="7" />
+  </symbol>
+  <symbol id="ui-lock" viewBox="0 0 100 100">
+    <rect x="24" y="44" width="52" height="42" rx="10" fill="currentColor" />
+    <path d="M36 44V32a14 14 0 0 1 28 0v12" fill="none" stroke="currentColor" stroke-width="8" />
+  </symbol>
+</svg>

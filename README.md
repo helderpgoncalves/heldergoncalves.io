@@ -1,56 +1,74 @@
 # heldergoncalves.io
 
-Site pessoal e blog, em português e inglês.
+Site pessoal de Hélder Gonçalves. Não é uma página: é um **sistema operativo**.
 
-- **Astro**, saída estática, **sem JavaScript no cliente**.
-- Português na raiz (`/`, `/blog/`), inglês em `/en/` e `/en/blog/` — páginas
-  reais, com `hreflang`, canonical, Open Graph, RSS e JSON-LD (`Person`,
-  `Blog`, `BlogPosting`).
-- Tema claro e escuro conforme o sistema. Sem cookies, sem analytics, sem
-  tipos de letra externos. O fundo (aurora + grão) é CSS e SVG — zero imagens.
+- **No telemóvel** comporta-se como um iPhone — ecrã bloqueado, ecrã inicial com
+  widgets, ícones que abrem a aplicação a partir do próprio ícone, barra de gestos,
+  Central de Controlo e comutador de aplicações.
+- **No computador** comporta-se como um Mac — barra de menus, Dock com ampliação,
+  janelas que se arrastam e redimensionam, semáforos, pesquisa (⌘K), menu do botão
+  direito e arranque com a maçã.
+- **Dentro dele** há um `Simulador` que corre o próprio site num iPhone — e dentro
+  desse iPhone há outro. Até dois níveis, depois o sistema diz que chega.
 
-## Correr
+## Como está feito
 
-```bash
-npm install
-npm run dev        # http://localhost:4321
-npm run build      # gera dist/
+Astro gera HTML estático. O resto é JavaScript escrito à mão: **zero frameworks,
+zero bibliotecas de animação, zero tracking.**
+
+```
+src/
+  siteConfig.ts          identidade, estrutura das aplicações e TODO o texto (pt/en)
+  content/blog/{pt,en}/  os escritos, um ficheiro Markdown cada
+  components/os/
+    Shell.astro          a casca: barra de menus, Dock, ecrã inicial, bloqueio…
+    IconSprite.astro     todos os ícones num sprite SVG (squircle da Apple)
+    apps/*.astro         o conteúdo de cada aplicação — HTML normal
+  scripts/os/
+    state.js             preferências, relógio, deteção de modo
+    mac.js               janelas, Dock, menus, pesquisa
+    ios.js               ecrã inicial, gestos, Central de Controlo, bloqueio
+    apps.js              o que cada aplicação faz por dentro
+    index.js             arranque e ligação entre os dois mundos
+  styles/os.css          um ficheiro: fundações, fundos, macOS, iOS, aplicações
+  layouts/OS.astro       <head> de SEO + o sistema
 ```
 
-## Escrever um texto
+### A ideia que segura tudo
 
-Um ficheiro Markdown por texto, dentro da pasta da língua. O nome do ficheiro
-é o endereço: `src/content/blog/pt/o-meu-texto.md` → `/blog/o-meu-texto/`.
+O conteúdo das aplicações é **HTML normal**, gerado pelo Astro dentro de `#pool`.
+O JavaScript não desenha conteúdo: apenas **move esses nós** para dentro de uma
+janela do Mac ou de uma vista do telefone. Daí resultam três coisas boas:
 
-```markdown
+1. **Sem JavaScript** o site continua a ser um documento legível (`#pool` é a página).
+2. O **Google lê tudo** — cada escrito tem o seu URL, com `<article>`, JSON-LD e hreflang.
+3. Mudar de modo (rodar o tablet, redimensionar a janela) **não perde estado**: o mesmo
+   nó muda de moldura.
+
+Se o módulo não arrancar em 5 segundos, o `<head>` devolve o documento simples.
+
+## Comandos
+
+Nada é construído nesta máquina — o build acontece no Coolify, pelo `Dockerfile`.
+
+| Comando         | O que faz                             |
+| --------------- | ------------------------------------- |
+| `npm run dev`   | servidor local em `localhost:4321`    |
+| `npm run build` | gera `dist/`                          |
+
+## Escrever um texto novo
+
+Criar `src/content/blog/pt/<slug>.md` (e o par em `en/` com o mesmo campo `key`):
+
+```yaml
 ---
-title: 'Título do texto'
-description: 'Uma linha que aparece na lista, no Google e no RSS.'
+title: 'Título'
+description: 'Uma linha para o Google e para a lista.'
 date: 2026-09-06
-tags: ['mcp', 'agentes']
-draft: false        # true = não é publicado
-key: 'chave-comum'  # mesma chave no PT e no EN liga as duas versões
+tags: ['tema']
+key: 'chave-partilhada-entre-linguas'
 ---
-
-O corpo, em Markdown.
 ```
 
-A versão inglesa do mesmo texto vai para `src/content/blog/en/` com a mesma
-`key` — o site passa a mostrar "Read this in English" / "Ler em português" e
-os `hreflang` certos. Não é preciso mexer em mais nada: listas, RSS e sitemap
-são gerados a partir dos ficheiros.
-
-## Onde está o quê
-
-| O quê | Onde |
-| --- | --- |
-| Textos das páginas (PT e EN), email, links, rotas | `src/siteConfig.ts` |
-| Estilos, cores, fundo | `src/styles/app.css` |
-| `<head>`, cabeçalho e rodapé | `src/layouts/Base.astro` |
-| Página inicial | `src/components/Home.astro` |
-| Lista de textos / um texto | `src/components/PostList.astro`, `Article.astro` |
-| Esquema do frontmatter | `src/content/config.ts` |
-| Dados estruturados (schema.org) | `src/lib/seo.ts` |
-| Feeds RSS (`/rss.xml`, `/en/rss.xml`) | `src/lib/rss.ts` |
-
-O sitemap é gerado pelo `@astrojs/sitemap` durante o build.
+Aparece sozinho na aplicação Escritos, no RSS, no sitemap, no widget do ecrã inicial
+e na pesquisa ⌘K.
