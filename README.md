@@ -73,6 +73,13 @@ um telemóvel:
 
 No Mac: arrastar uma janela para o topo ou para os lados **encaixa-a**.
 
+### Mensagens
+
+Com uma chave de OpenRouter no servidor, a aplicação Mensagens é uma conversa a
+sério, em streaming, com um papel apertado: o modelo só sabe o que está no site
+e só fala sobre isso. Sem chave, responde com as respostas guardadas — e diz
+que é isso que está a fazer. A chave nunca chega ao browser.
+
 ### Para máquinas
 
 `/llms.txt` e `/en/llms.txt` (índice), `/llms-full.txt` (o site inteiro em

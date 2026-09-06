@@ -64,7 +64,7 @@ const osData = {
     close: c.os.close,
     terminal: c.terminal,
     contact: { ...c.contacto },
-    chat: { typing: c.mensagens.typing },
+    chat: { ...c.mensagens },
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
     notFound: c.notFound,
   },

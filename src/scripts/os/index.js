@@ -62,6 +62,7 @@ function boot(data) {
     if (id === 'simulador' && ctx.loadSimulator) ctx.loadSimulator();
     if (id === 'terminal' && ctx.focusTerminal) ctx.focusTerminal();
     if (id === 'contacto' && ctx.prepareContact) ctx.prepareContact();
+    if (id === 'mensagens' && ctx.prepareChat) ctx.prepareChat();
   }
 
   function closeApp(id) {

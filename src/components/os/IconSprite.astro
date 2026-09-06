@@ -23,6 +23,15 @@
       <stop offset=".45" stop-color="#fff" stop-opacity=".02"/>
       <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
+    <linearGradient id="g-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".62" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".14"/>
+    </linearGradient>
+    <radialGradient id="g-spot" cx=".3" cy=".16" r=".85">
+      <stop offset="0" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
     <clipPath id="sq"><path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z"/></clipPath>
   </defs>
 
@@ -30,7 +39,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-sobre)"/>
       <g transform="translate(22.00 22.00) scale(2.3333)" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20a6 6 0 0 0-12 0" /> <circle cx="12" cy="10" r="4" /> <circle cx="12" cy="12" r="10" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -38,7 +48,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-contacto)"/>
       <g transform="translate(23.00 23.00) scale(2.2500)" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /> <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -46,7 +57,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-projetos)"/>
       <g transform="translate(23.00 23.00) scale(2.2500)" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -54,7 +66,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-terminal)"/>
       <g transform="translate(24.00 24.00) scale(2.1667)" fill="none" stroke="#5ee2a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5" /> <line x1="12" x2="20" y1="19" y2="19" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -62,7 +75,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-definicoes)"/>
       <g transform="translate(22.00 22.00) scale(2.3333)" fill="none" stroke="#3a3a3f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -70,7 +84,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-simulador)"/>
       <g transform="translate(24.00 24.00) scale(2.1667)" fill="none" stroke="#9ec7ff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -79,7 +94,8 @@
       <rect width="100" height="100" fill="url(#g-escritos)"/>
       <rect width="100" height="24" fill="#fffaf0"/>
       <g transform="translate(24.00 24.00) scale(2.1667)" fill="none" stroke="#8a5a00" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -87,7 +103,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-mensagens)"/>
       <g transform="translate(21.00 21.00) scale(2.4167)" fill="#fff" stroke="none"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -95,7 +112,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-disk)"/>
       <g transform="translate(24.00 24.00) scale(2.1667)" fill="none" stroke="#5a5a63" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="2" y1="12" y2="12" /> <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /> <line x1="6" x2="6.01" y1="16" y2="16" /> <line x1="10" x2="10.01" y1="16" y2="16" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -103,7 +121,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-doc)"/>
       <g transform="translate(24.00 24.00) scale(2.1667)" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".10" stroke-width="1"/>
   </symbol>
@@ -111,7 +130,8 @@
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="#fff" fill-opacity=".18"/>
       <g transform="translate(23.00 23.00) scale(2.2500)" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" /></g>
-      <rect width="100" height="100" fill="url(#g-sheen)"/>
+      <rect width="100" height="100" fill="url(#g-spot)"/>
+      <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
     <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.5"/>
   </symbol>

@@ -210,42 +210,165 @@ function initTerminal(ctx) {
 }
 
 // ── Mensagens ───────────────────────────────────────────────────
+// Conversa a sério quando o servidor tem uma chave de modelo, e as
+// respostas guardadas quando não tem. O texto do modelo entra sempre
+// como texto (textContent), nunca como HTML.
 function initChat(ctx) {
   const el = ctx.contentNode('mensagens');
   if (!el) return;
   const log = el.querySelector('[data-chat-log]');
   const suggest = el.querySelector('[data-chat-suggest]');
+  const form = el.querySelector('[data-chat-form]');
+  const input = el.querySelector('[data-chat-input]');
+  const note = el.querySelector('[data-chat-note]');
+  const t = ctx.data.strings.chat;
   const canned = [...el.querySelectorAll('.chat-canned')];
-  const typingText = ctx.data.strings.chat.typing;
-  const base = log.innerHTML;
-
+  const opening = log.innerHTML;
   canned.forEach((c) => c.remove());
 
-  function ask(q) {
-    const entry = canned.find((c) => c.dataset.q === q);
-    if (!entry) return;
-    const mine = document.createElement('p');
-    mine.className = 'bubble me';
-    mine.textContent = q;
-    log.appendChild(mine);
-    log.scrollTop = log.scrollHeight;
+  let token = null;
+  let live = false;
+  let asked = false;
+  let busy = false;
+  let history = [];
 
-    const typing = document.createElement('p');
-    typing.className = 'bubble them typing';
-    typing.setAttribute('aria-label', typingText);
-    typing.innerHTML = '<i></i><i></i><i></i>';
-    log.appendChild(typing);
-    log.scrollTop = log.scrollHeight;
+  async function prepare() {
+    if (asked) return;
+    asked = true;
+    try {
+      const res = await fetch('/api/token', { headers: { Accept: 'application/json' } });
+      if (!res.ok) return;
+      const data = await res.json();
+      live = data.chat === true;
+      token = typeof data.token === 'string' ? data.token : null;
+    } catch (_) {
+      live = false;
+    }
+    if (note) note.textContent = live && token ? t.ai : t.aiOff;
+  }
+  ctx.prepareChat = prepare;
 
-    setTimeout(() => {
-      typing.remove();
-      const answer = entry.querySelector('.bubble.them').cloneNode(true);
-      log.appendChild(answer);
-      log.scrollTop = log.scrollHeight;
-    }, 700 + Math.random() * 500);
+  const scroll = () => (log.scrollTop = log.scrollHeight);
 
-    const btn = suggest.querySelector(`[data-ask="${CSS.escape(q)}"]`);
-    if (btn) btn.remove();
+  function bubble(side, text) {
+    const p = document.createElement('p');
+    p.className = 'bubble ' + side;
+    p.textContent = text || '';
+    log.appendChild(p);
+    scroll();
+    return p;
+  }
+
+  function typing() {
+    const p = document.createElement('p');
+    p.className = 'bubble them typing';
+    p.setAttribute('aria-label', t.typing);
+    p.innerHTML = '<i></i><i></i><i></i>';
+    log.appendChild(p);
+    scroll();
+    return p;
+  }
+
+  /** Sem modelo: procura a resposta guardada mais próxima. */
+  function cannedFor(text) {
+    const q = text.toLowerCase();
+    const exact = canned.find((c) => c.dataset.q.toLowerCase() === q);
+    if (exact) return exact.querySelector('.bubble.them').textContent;
+    const words = q.split(/\s+/).filter((w) => w.length > 3);
+    let best = null;
+    let bestScore = 0;
+    for (const c of canned) {
+      const hay = (c.dataset.q + ' ' + c.querySelector('.bubble.them').textContent).toLowerCase();
+      const score = words.filter((w) => hay.includes(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = c;
+      }
+    }
+    if (best && bestScore >= 2) return best.querySelector('.bubble.them').textContent;
+    return t.unknown;
+  }
+
+  async function stream(answer) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, lang: ctx.data.lang, messages: history }),
+    });
+    if (res.status === 429) throw new Error('limite');
+    if (!res.ok || !res.body) throw new Error('upstream');
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let full = '';
+    for (;;) {
+      const step = await reader.read();
+      if (step.done) break;
+      buffer += decoder.decode(step.value, { stream: true });
+      const blocks = buffer.split('\n\n');
+      buffer = blocks.pop() || '';
+      for (const block of blocks) {
+        let event = 'message';
+        let data = '';
+        for (const line of block.split('\n')) {
+          if (line.startsWith('event:')) event = line.slice(6).trim();
+          else if (line.startsWith('data:')) data += line.slice(5).trim();
+        }
+        if (event === 'erro') throw new Error('stream');
+        if (event === 'done') return full;
+        if (!data) continue;
+        try {
+          const piece = JSON.parse(data).t;
+          if (typeof piece === 'string') {
+            full += piece;
+            answer.textContent = full;
+            scroll();
+          }
+        } catch (_) {}
+      }
+    }
+    return full;
+  }
+
+  async function ask(text) {
+    const message = String(text || '').trim().slice(0, 600);
+    if (!message || busy) return;
+    busy = true;
+    if (input) input.value = '';
+    bubble('me', message);
+    const chip = suggest.querySelector('[data-ask="' + CSS.escape(message) + '"]');
+    if (chip) chip.remove();
+
+    await prepare();
+    const dots = typing();
+
+    if (!live || !token) {
+      const reply = cannedFor(message);
+      setTimeout(() => {
+        dots.remove();
+        bubble('them', reply);
+        busy = false;
+      }, 550 + Math.random() * 350);
+      return;
+    }
+
+    history.push({ role: 'user', content: message });
+    history = history.slice(-8);
+    let answer = null;
+    try {
+      answer = bubble('them', '');
+      dots.remove();
+      const full = await stream(answer);
+      if (full) history.push({ role: 'assistant', content: full });
+      else answer.textContent = t.error;
+    } catch (err) {
+      if (answer) answer.remove();
+      if (dots.isConnected) dots.remove();
+      bubble('them', err && err.message === 'limite' ? t.limit : t.error);
+      history.pop();
+    }
+    busy = false;
   }
 
   suggest.addEventListener('click', (ev) => {
@@ -254,10 +377,17 @@ function initChat(ctx) {
     if (ev.target.closest('[data-ask-mail]')) location.href = 'mailto:' + ctx.data.site.email;
   });
 
+  if (form)
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      ask(input && input.value);
+    });
+
   const reset = el.querySelector('[data-chat-reset]');
   if (reset)
     reset.addEventListener('click', () => {
-      log.innerHTML = base;
+      history = [];
+      log.innerHTML = opening;
       log.querySelectorAll('.chat-canned').forEach((c) => c.remove());
       suggest.innerHTML = '';
       canned.forEach((c) => {

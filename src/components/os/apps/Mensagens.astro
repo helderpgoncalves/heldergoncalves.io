@@ -1,5 +1,6 @@
 ---
 import { SITE, COPY, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = COPY[lang];
@@ -33,5 +34,20 @@ const m = c.mensagens;
       ))}
       <button type="button" data-ask-mail>{SITE.email}</button>
     </div>
+
+    <form class="chat-compose" data-chat-form novalidate>
+      <input
+        type="text"
+        data-chat-input
+        placeholder={m.input}
+        aria-label={m.input}
+        autocomplete="off"
+        maxlength="600"
+      />
+      <button class="chat-send" type="submit" aria-label={m.send}>
+        <Icon id="ui-arrow" size={16} />
+      </button>
+    </form>
+    <p class="chat-note" data-chat-note>{m.aiOff}</p>
   </div>
 </section>

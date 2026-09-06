@@ -31,6 +31,23 @@ Para o envio funcionar a sério, no Coolify (Environment Variables):
 Alternativa sem Resend: `MAIL_PROVIDER=webhook` e `MAIL_WEBHOOK_URL=https://…`
 (n8n, Make, Zapier). O servidor faz `POST` com `{from, subject, message}`.
 
+Para a aplicação Mensagens responder a sério (OpenRouter):
+
+| Variável              | Exemplo                            | Para quê                      |
+| --------------------- | ---------------------------------- | ----------------------------- |
+| `OPENROUTER_API_KEY`  | `sk-or-v1-...`                     | **só aqui, nunca no site**    |
+| `OPENROUTER_MODEL`    | `anthropic/claude-opus-5`          | opcional; é este por omissão  |
+
+Sem a chave, as Mensagens continuam a funcionar com as respostas guardadas —
+diz-se isso por baixo da caixa de escrita, sem fingir.
+
+**Quanto custa.** Por omissão usa o `anthropic/claude-opus-5`: 5 dólares por
+milhão de tokens à entrada e 25 à saída. Cada resposta é curta (o servidor
+limita a 400 tokens) e o teto diário é de 600 mensagens, por isso o pior caso
+ronda os 5 dólares por dia — e só se alguém andar mesmo a martelar. Se quiseres
+gastar cinco vezes menos, põe `OPENROUTER_MODEL=anthropic/claude-haiku-4.5`
+(1 e 5 dólares por milhão). A escolha é tua; deixei o melhor por omissão.
+
 > A chave **nunca** chega ao browser. O site só conhece `/api/contact`; quem
 > fala com o fornecedor de email é o container.
 
@@ -58,6 +75,24 @@ uma label no recurso:
 traefik.http.middlewares.hg-rate.ratelimit.average=30
 traefik.http.middlewares.hg-rate.ratelimit.burst=60
 ```
+
+## O que protege a conversa
+
+O mesmo servidor, os mesmos princípios — mas mais apertado, porque cada
+mensagem custa dinheiro:
+
+- **Limites**: 15 mensagens por IP por hora, 50 por dia, e um teto global de
+  600 por dia. Passado isso responde `429` sem chamar o modelo.
+- **Papel apertado**: o modelo só sabe o que está no site e só responde sobre
+  isso. Recebe instruções para ignorar qualquer pedido, vindo do visitante,
+  para mudar de regras, mudar de personagem ou revelar as instruções.
+- **Entrada validada**: no máximo 8 mensagens de histórico, 600 caracteres
+  cada, 4000 no total, corpo até 16 KB, e o servidor reconstrói o histórico a
+  partir do que recebe em vez de confiar nele.
+- **Saída limitada**: 400 tokens por resposta e um corte rígido aos 3000
+  caracteres, para que nada corra em aberto.
+- **O texto do modelo entra na página como texto**, nunca como HTML.
+- **Nada é registado**: nem perguntas, nem respostas.
 
 ## Cabeçalhos
 
