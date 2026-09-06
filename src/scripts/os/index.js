@@ -40,6 +40,9 @@ function boot(data) {
     run,
   };
 
+  // Assim que o módulo corre, o sistema está de pé: a rede de segurança
+  // do <head> deixa de fazer falta.
+  os.classList.add('ready');
   applyPrefs();
   startClock(data.intlLocale || undefined);
   initApps(ctx);
@@ -52,10 +55,13 @@ function boot(data) {
   // ── Abrir e fechar ────────────────────────────────────────────
   function openApp(id, from) {
     if (!data.apps.some((a) => a.id === id)) return;
+    // Abrir alguma coisa a partir do ecrã bloqueado desbloqueia-o antes.
+    if (ctx.mode === 'ios') phone.unlock();
     if (ctx.mode === 'mac') mac.open(id);
     else phone.open(id, from);
     if (id === 'simulador' && ctx.loadSimulator) ctx.loadSimulator();
     if (id === 'terminal' && ctx.focusTerminal) ctx.focusTerminal();
+    if (id === 'contacto' && ctx.prepareContact) ctx.prepareContact();
   }
 
   function closeApp(id) {
@@ -92,6 +98,8 @@ function boot(data) {
         return;
       case 'spotlight':
         return mac.spotOpen();
+      case 'switcher':
+        return ctx.mode === 'mac' ? mac.openAppSwitcher() : phone.openSwitcher();
       case 'minimize':
         return mac.minimize();
       case 'zoom':
@@ -160,7 +168,6 @@ function boot(data) {
   const bootEl = document.getElementById('boot');
 
   function ready() {
-    os.classList.add('ready');
     const start = data.boot || (ctx.mode === 'mac' ? data.bootMac : null);
     if (start) {
       openApp(start);
@@ -168,19 +175,17 @@ function boot(data) {
     }
   }
 
-  if (first && ctx.mode === 'mac') {
+  if (first) {
     bootEl.hidden = false;
     setTimeout(() => {
       os.classList.add('booted');
       setTimeout(() => {
         bootEl.hidden = true;
         os.classList.remove('booted');
-      }, 450);
+      }, 460);
+      if (ctx.mode === 'ios') phone.showLock();
       ready();
-    }, 1800);
-  } else if (first && ctx.mode === 'ios') {
-    phone.showLock();
-    ready();
+    }, 2650);
   } else {
     ready();
   }

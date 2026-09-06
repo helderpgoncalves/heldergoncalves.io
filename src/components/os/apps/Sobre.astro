@@ -45,7 +45,7 @@ const links = socialLinks(lang);
           {links.map((l) => (
             <a class="row" href={l.href} target={l.id === 'email' ? undefined : '_blank'} rel="noopener me">
               <span class="k">{l.label}</span><span class="v">{l.value}</span>
-              <Icon id="ui-arrow" class="arrow" size={11} />
+              <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow" size={15} />
             </a>
           ))}
         </div>

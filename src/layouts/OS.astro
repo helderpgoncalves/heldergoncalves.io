@@ -14,6 +14,9 @@ interface Props {
   keywords?: string;
   noindex?: boolean;
   jsonLd?: unknown;
+  /** Datas ISO, só nos escritos. */
+  published?: string;
+  modified?: string;
 }
 
 const {
@@ -25,6 +28,8 @@ const {
   keywords = COPY[lang].keywords,
   noindex = false,
   jsonLd,
+  published,
+  modified,
 } = Astro.props;
 
 const c = COPY[lang];
@@ -35,6 +40,7 @@ const abs = (path: string) => new URL(path, SITE.url).href;
 const canonical = abs(Astro.url.pathname);
 const ogImage = abs(SITE.ogImage);
 const altHref = altPath ? abs(altPath) : abs(ROUTES[alt].home);
+const llms = lang === 'pt' ? '/llms.txt' : '/en/llms.txt';
 const ptHref = lang === 'pt' ? canonical : altHref;
 const enHref = lang === 'en' ? canonical : altHref;
 ---
@@ -52,6 +58,8 @@ const enHref = lang === 'en' ? canonical : altHref;
       content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'}
     />
     <meta name="theme-color" content="#2e5aa8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -80,34 +88,18 @@ const enHref = lang === 'en' ? canonical : altHref;
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${c.escritos.title}`} href={r.feed} />
+    <link rel="alternate" type="text/markdown" href={llms} title="llms.txt" />
+    <link rel="me" href={SITE.github} />
+
+    {published && <meta property="article:published_time" content={published} />}
+    {modified && <meta property="article:modified_time" content={modified} />}
+    {ogType === 'article' && <meta property="article:author" content={SITE.name} />}
 
     {jsonLd && (
       <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>
     )}
 
-    <script is:inline>
-      (function () {
-        var d = document.documentElement;
-        d.classList.add('js');
-        try {
-          var p = JSON.parse(localStorage.getItem('helderos') || '{}');
-          if (p.theme && p.theme !== 'auto') d.setAttribute('data-theme', p.theme);
-          if (p.wallpaper) d.setAttribute('data-wallpaper', p.wallpaper);
-          if (p.motion) d.setAttribute('data-motion', p.motion);
-          if (p.brightness) d.style.setProperty('--brightness', String(p.brightness));
-        } catch (e) {}
-        var phone =
-          location.search.indexOf('device') > -1 ||
-          window.matchMedia('(max-width: 860px), (pointer: coarse) and (max-width: 1180px)').matches;
-        d.setAttribute('data-mode', phone ? 'ios' : 'mac');
-        if (location.search.indexOf('device') > -1) d.classList.add('in-frame');
-        // Se o sistema não arrancar em 5s, devolvemos o documento simples.
-        setTimeout(function () {
-          var os = document.getElementById('os');
-          if (!os || !os.classList.contains('ready')) d.classList.remove('js');
-        }, 5000);
-      })();
-    </script>
+    <script is:inline src="/os-early.js"></script>
   </head>
 
   <body>

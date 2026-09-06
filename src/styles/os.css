@@ -399,18 +399,45 @@ a:hover { text-decoration: underline; }
 .ctx button { display: block; width: 100%; text-align: left; padding: 4px 10px; border-radius: 5px; }
 .ctx button:hover { background: var(--accent); color: #fff; }
 
-/* Arranque */
+/* Arranque — o monograma desenha-se, depois o nome, depois a barra */
 .boot {
   position: absolute; inset: 0; z-index: 1000; display: grid; place-content: center;
-  justify-items: center; gap: 40px; background: #000; color: #fff;
+  justify-items: center; gap: 18px; background: #000; color: #fff;
+  padding: 0 24px;
 }
 .boot[hidden] { display: none; }
-.boot svg { width: 68px; height: 68px; animation: boot-logo 0.8s var(--ease-os); }
-@keyframes boot-logo { from { opacity: 0; transform: scale(0.9); } }
-.boot-bar { width: 200px; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.22); overflow: hidden; }
-.boot-bar span { display: block; height: 100%; width: 0; border-radius: 99px; background: #fff; animation: boot-fill 1.7s var(--ease-os) forwards; }
+.boot-mark { width: min(190px, 46vw); height: auto; color: #fff; }
+.boot-mark .ink {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 0.72s var(--ease-os) forwards;
+}
+.boot-mark .i1 { animation-delay: 0.05s; }
+.boot-mark .i2 { animation-delay: 0.28s; }
+.boot-mark .i3 { animation-delay: 0.44s; }
+.boot-mark .i4 { animation-delay: 0.62s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.boot-name {
+  margin: 0; font-size: 15px; font-weight: 500; letter-spacing: 0.34em; text-indent: 0.34em;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.92);
+  animation: boot-name 0.9s 1.25s var(--ease-os) backwards;
+}
+@keyframes boot-name { from { opacity: 0; letter-spacing: 0.7em; } }
+.boot-bar {
+  width: 190px; height: 4px; border-radius: 99px; overflow: hidden; margin-top: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  animation: fade-in 0.4s 1.35s backwards;
+}
+.boot-bar span {
+  display: block; height: 100%; width: 0; border-radius: 99px; background: #fff;
+  animation: boot-fill 1.5s 1.35s var(--ease-os) forwards;
+}
 @keyframes boot-fill { to { width: 100%; } }
-.boot-label { font-size: 12px; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.02em; }
+@keyframes fade-in { from { opacity: 0; } }
+.boot-label {
+  margin: 0; font-size: 11.5px; color: rgba(255, 255, 255, 0.42); letter-spacing: 0.02em;
+  animation: fade-in 0.6s 1.6s backwards;
+}
 .os.booted .boot { animation: fade-out 0.45s forwards; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -457,10 +484,13 @@ a:hover { text-decoration: underline; }
 /* Ecrã inicial */
 .sb {
   position: absolute; inset: var(--sb-h) 0 0 0; z-index: 100;
-  display: flex; flex-direction: column;
-  padding: 10px 18px calc(var(--home-h) + 6px);
+  display: flex; flex-direction: column; overflow: hidden;
+  padding: 10px 0 calc(var(--home-h) + 6px);
   transition: transform 0.5s var(--ease-os), opacity 0.35s var(--ease-os), filter 0.5s var(--ease-os);
+  user-select: none; -webkit-user-select: none;
 }
+.sb-pages { flex: 1; min-height: 0; display: flex; align-items: stretch; touch-action: pan-y; }
+.sb-page { flex: 0 0 100%; min-width: 100%; display: flex; flex-direction: column; gap: 16px; padding: 0 18px; }
 .sb.pushed { transform: scale(0.92); opacity: 0; filter: blur(6px); pointer-events: none; }
 .sb-grid {
   flex: 1; align-content: start;
@@ -477,11 +507,11 @@ a:hover { text-decoration: underline; }
   overflow: hidden; text-overflow: ellipsis; max-width: 84px;
 }
 .sb-app:active svg { transform: scale(0.9); transition: transform 0.12s; }
-.sb-dots { display: flex; justify-content: center; gap: 7px; padding: 12px 0 14px; }
-.sb-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); }
+.sb-dots { display: flex; justify-content: center; gap: 7px; padding: 14px 0 16px; margin: 0 18px; }
+.sb-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); cursor: pointer; transition: background 0.2s; }
 .sb-dots i.on { background: #fff; }
 .ios-dock {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  margin: 0 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
   padding: 12px; border-radius: 32px;
   background: rgba(255, 255, 255, 0.18);
   -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
@@ -515,6 +545,7 @@ a:hover { text-decoration: underline; }
 /* Barra de gestos */
 .homebar {
   position: absolute; left: 0; right: 0; bottom: 0; height: var(--home-h); z-index: 550;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   display: flex; align-items: center; justify-content: center;
   touch-action: none; -webkit-tap-highlight-color: transparent;
 }
@@ -555,15 +586,35 @@ a:hover { text-decoration: underline; }
 @keyframes pulse { 50% { opacity: 0.35; } }
 
 /* Central de Controlo */
-.cc {
-  position: absolute; inset: 0; z-index: 700; display: none;
+.cc, .nc {
+  position: absolute; inset: 0; z-index: 700; overflow: hidden;
   padding: calc(var(--sb-h) + 6px) 14px 14px;
-  background: rgba(0, 0, 0, 0.28);
-  -webkit-backdrop-filter: blur(24px) saturate(150%); backdrop-filter: blur(24px) saturate(150%);
-  color: #fff; touch-action: none;
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(26px) saturate(150%); backdrop-filter: blur(26px) saturate(150%);
+  color: #fff; touch-action: none; visibility: hidden;
+  transform: translateY(-100%);
+  transition: transform 0.42s var(--ease-os), visibility 0.42s;
+  will-change: transform;
 }
-.cc.open { display: block; animation: cc-in 0.35s var(--ease-os); }
-@keyframes cc-in { from { opacity: 0; transform: translateY(-16px); } }
+.cc.open, .nc.open { visibility: visible; transform: none; }
+.cc.dragging, .nc.dragging { transition: none; }
+
+/* Centro de notificações */
+.nc-inner { max-width: 440px; margin: 0 auto; display: grid; gap: 10px; overflow: auto; max-height: 100%; }
+.nc-title { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75; }
+.nc-note {
+  display: grid; gap: 3px; text-align: left; color: #fff; padding: 13px 15px; border-radius: 20px;
+  background: rgba(255, 255, 255, 0.17); border: 0.5px solid rgba(255, 255, 255, 0.18);
+  animation: note-in 0.45s var(--ease-pop) backwards;
+}
+.nc-note:nth-child(3) { animation-delay: 0.04s; }
+.nc-note:nth-child(4) { animation-delay: 0.08s; }
+.nc-note:nth-child(5) { animation-delay: 0.12s; }
+.nc-note .nc-app { display: flex; align-items: center; gap: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+.nc-note .nc-app svg { width: 17px; height: 17px; }
+.nc-note strong { font-size: 14.5px; line-height: 1.25; }
+.nc-note span { font-size: 12.5px; opacity: 0.82; line-height: 1.35; }
+.nc-note .nc-when { font-size: 11px; opacity: 0.6; }
 .cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 420px; margin: 0 auto; }
 .cc-tile {
   border-radius: 22px; padding: 14px; background: rgba(255, 255, 255, 0.18);
@@ -689,6 +740,7 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
   transform: translateX(100%); transition: transform 0.4s var(--ease-os); visibility: hidden;
 }
 [data-mode='ios'] .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
+[data-mode='ios'] .app-escritos .app-main.dragging { transition: none; visibility: visible; box-shadow: -14px 0 34px rgba(0, 0, 0, 0.22); }
 [data-mode='ios'] .app-escritos .back-btn { display: inline-flex; }
 .back-btn { display: none; align-items: center; gap: 4px; padding: 10px 16px; color: var(--accent); font-size: 15px; }
 
@@ -854,7 +906,87 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
 
 /* Detalhes que só existem quando o JavaScript está ligado */
 .js .skip { display: none; }
-.cc-hotspot { position: absolute; top: 0; right: 0; width: 46%; height: 44px; z-index: 560; touch-action: none; }
+.cc-hotspot, .nc-hotspot { position: absolute; top: 0; width: 50%; height: var(--sb-h); z-index: 560; touch-action: none; }
+.cc-hotspot { right: 0; }
+.nc-hotspot { left: 0; }
 .dialog { background: var(--surface); }
 .dialog-body { padding: 22px 20px; text-align: center; display: grid; gap: 10px; justify-items: center; }
 .dialog-body p { margin: 0; color: var(--ink-2); font-size: 13.5px; }
+
+/* ── 7. Toque: o que separa um site de uma aplicação ─────────── */
+/* O iPhone dá zoom a qualquer campo com menos de 16px. Nada aqui
+   pode ter menos — e nenhum toque pode ter atraso ou halo azul. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+button, a, [role='button'], .sb-app, .dock-item, .row, label { touch-action: manipulation; }
+button, a, .sb-app, .widget, .nc-note, .cc-tile { -webkit-tap-highlight-color: transparent; }
+
+input, textarea, select { font-family: inherit; }
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px; }
+}
+[data-mode='ios'] input,
+[data-mode='ios'] textarea,
+[data-mode='ios'] select { font-size: 16px; }
+[data-mode='ios'] .term { font-size: 15px; }
+[data-mode='ios'] .term-line input { font-size: 16px; }
+[data-mode='ios'] .spot-input input { font-size: 20px; }
+
+/* A moldura do sistema não se seleciona nem se arrasta; o texto sim. */
+.menubar, .dock, .statusbar, .sb, .homebar, .win-bar, .ios-view-head, .sb-dots {
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.prose, .app-lead, .bubble, .term-out, .post-desc, .card p { user-select: text; -webkit-user-select: text; }
+.dock-item svg, .sb-app svg, .widget, .desk-icon svg { -webkit-user-drag: none; user-select: none; }
+
+/* Rolagem contida: nada de arrastar a página inteira por trás. */
+.app-scroll, .post-list, .chat-log, .ios-view-body, .spot-results, .nc-inner, .term {
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+}
+
+/* Segunda página do ecrã inicial */
+.sb-widgets.one { grid-template-columns: 1fr; }
+.widget-list { gap: 2px; min-height: 150px; }
+.w-row {
+  display: grid; gap: 1px; width: 100%; text-align: left; color: #fff; padding: 9px 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.16);
+}
+.widget-list .w-row:last-of-type { border-bottom: 0; }
+.w-row-title { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
+.w-row-meta { font-size: 11px; opacity: 0.68; }
+.w-links { display: flex; gap: 12px; margin-top: 10px; }
+.w-links a {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2); color: #fff;
+}
+.w-links a:hover { background: rgba(255, 255, 255, 0.32); }
+
+/* Comutador: cartões que se arrastam para fora */
+.switcher-card { position: relative; transition: transform 0.28s var(--ease-os), opacity 0.28s; touch-action: pan-x; }
+.switcher-rail { align-items: center; }
+
+/* Encaixe de janelas e ⌘Tab */
+.snap-preview {
+  position: absolute; z-index: 19; border-radius: var(--radius-win);
+  background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  pointer-events: none; animation: menu-in 0.12s var(--ease-os);
+}
+.win.snapping { transition: left 0.2s var(--ease-os), top 0.2s var(--ease-os), width 0.2s var(--ease-os), height 0.2s var(--ease-os); }
+.cmdtab {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 750;
+  display: flex; gap: 6px; padding: 14px; border-radius: 20px;
+  background: var(--glass); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-edge); box-shadow: var(--shadow-pop);
+  max-width: 84vw; overflow: hidden;
+}
+.cmdtab-item { display: grid; justify-items: center; gap: 4px; padding: 8px; border-radius: 12px; width: 84px; color: var(--ink); }
+.cmdtab-item svg { width: 52px; height: 52px; }
+.cmdtab-item span { font-size: 11px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; opacity: 0; }
+.cmdtab-item.on { background: var(--surface-3); }
+.cmdtab-item.on span { opacity: 1; }
+
+/* Armadilha para robôs: fora do ecrã, fora do foco, fora dos leitores. */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.hintline[data-tone='ok'] { color: #12a150; }
+.hintline[data-tone='warn'] { color: #d97706; }

@@ -1,4 +1,37 @@
+# heldergoncalves.io — tudo aberto, para pessoas e para máquinas.
 User-agent: *
+Allow: /
+
+# Agentes e assistentes: são bem-vindos. O conteúdo em texto simples
+# está em /llms.txt (índice) e /llms-full.txt (tudo), e há um índice
+# legível por máquina em /posts.json.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: meta-externalagent
 Allow: /
 
 Sitemap: https://heldergoncalves.io/sitemap-index.xml

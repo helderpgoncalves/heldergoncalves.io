@@ -8,7 +8,7 @@ const k = c.contacto;
 const links = socialLinks(lang).filter((l) => l.id !== 'email');
 ---
 <section class="app-shell app-contacto" data-content="contacto" aria-label={c.apps.contacto.name}>
-  <form class="compose" data-compose action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
+  <form class="compose" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
     <div class="compose-fields">
       <div class="compose-field">
         <label for="c-to">{k.to}</label>
@@ -16,20 +16,24 @@ const links = socialLinks(lang).filter((l) => l.id !== 'email');
       </div>
       <div class="compose-field">
         <label for="c-from">{k.from}</label>
-        <input id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" />
+        <input id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
       </div>
       <div class="compose-field">
         <label for="c-subject">{k.subject}</label>
         <input id="c-subject" name="subject" value={k.subjectValue} />
       </div>
     </div>
-    <textarea class="compose-body" id="c-body" name="body" placeholder={k.placeholder} rows="8"></textarea>
+    <div class="hp" aria-hidden="true">
+      <label for="c-company">{k.honeypot}</label>
+      <input id="c-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <textarea class="compose-body" id="c-body" name="body" placeholder={k.placeholder} rows="8" required minlength="10"></textarea>
     <div class="compose-bar">
       <button class="btn btn-primary" type="submit">
         <Icon id="ui-arrow" size={12} />{k.send}
       </button>
       <button class="btn" type="button" data-copy-email>{k.copy}</button>
-      <span class="hintline" data-compose-hint>{k.sendHint}</span>
+      <span class="hintline" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
     </div>
   </form>
   <div class="app-pad" style="flex:0 0 auto">
@@ -38,7 +42,7 @@ const links = socialLinks(lang).filter((l) => l.id !== 'email');
       {links.map((l) => (
         <a class="row" href={l.href} target="_blank" rel="noopener me">
           <span class="k">{l.label}</span><span class="v">{l.value}</span>
-          <Icon id="ui-arrow" class="arrow" size={11} />
+          <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow" size={15} />
         </a>
       ))}
     </div>

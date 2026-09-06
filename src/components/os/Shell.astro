@@ -63,7 +63,7 @@ const osData = {
     ...c.os,
     close: c.os.close,
     terminal: c.terminal,
-    contact: { copied: c.contacto.copied, copy: c.contacto.copy, hint: c.contacto.sendHint },
+    contact: { ...c.contacto },
     chat: { typing: c.mensagens.typing },
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
     notFound: c.notFound,
@@ -81,13 +81,21 @@ const osData = {
 <IconSprite />
 
 <div class="os" id="os">
-  <!-- Arranque -->
+  <!-- Arranque: o monograma desenha-se a si próprio, como um
+       dispositivo a acordar. Traços com pathLength=1, por isso a
+       animação é exata em qualquer tamanho. -->
   <div class="boot" id="boot" hidden>
-    <Icon id="ui-apple" size={68} />
-    <div>
-      <div class="boot-bar"><span></span></div>
-      <p class="boot-label">{c.os.booting} {c.os.macName}…</p>
-    </div>
+    <svg class="boot-mark" viewBox="0 0 200 120" role="img" aria-label={SITE.name}>
+      <g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+        <path class="ink i1" pathLength="1" d="M28 26V94" />
+        <path class="ink i2" pathLength="1" d="M28 60h48" />
+        <path class="ink i3" pathLength="1" d="M76 26v68" />
+        <path class="ink i4" pathLength="1" d="M151 39a30 30 0 1 0 0 42V62h-20" />
+      </g>
+    </svg>
+    <p class="boot-name">{SITE.name}</p>
+    <div class="boot-bar"><span></span></div>
+    <p class="boot-label">{c.os.booting} {c.os.macName}…</p>
   </div>
 
   <!-- ── macOS ─────────────────────────────────────────────── -->
@@ -169,30 +177,57 @@ const osData = {
       <div class="island" id="island" aria-hidden="true"><span class="island-text"></span></div>
 
       <div class="sb" id="springboard">
-        <div class="sb-widgets">
-          <div class="widget widget-date">
-            <p class="w-day" data-widget-day></p>
-            <p class="w-date" data-widget-date></p>
+        <div class="sb-pages" id="sbPages">
+          <div class="sb-page">
+            <div class="sb-widgets">
+              <div class="widget widget-date">
+                <p class="w-day" data-widget-day></p>
+                <p class="w-date" data-widget-date></p>
+              </div>
+              {latest && (
+                <button class="widget widget-post" type="button" data-open-post={postSlug(latest)}>
+                  <span class="w-kicker">{c.escritos.heading}</span>
+                  <span class="w-title">{latest.data.title}</span>
+                  <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
+                </button>
+              )}
+            </div>
+            <div class="sb-grid">
+              {iosGrid.map((a) => (
+                <button class="sb-app" type="button" data-open={a.id}>
+                  <Icon id={a.id} />
+                  <span class="label">{c.apps[a.id].name}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          {latest && (
-            <button class="widget widget-post" type="button" data-open-post={postSlug(latest)}>
-              <span class="w-kicker">{c.escritos.heading}</span>
-              <span class="w-title">{latest.data.title}</span>
-              <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
-            </button>
-          )}
+
+          <div class="sb-page">
+            <div class="sb-widgets one">
+              <div class="widget widget-list">
+                <span class="w-kicker">{c.escritos.heading}</span>
+                {posts.slice(0, 3).map((p) => (
+                  <button class="w-row" type="button" data-open-post={postSlug(p)}>
+                    <span class="w-row-title">{p.data.title}</span>
+                    <span class="w-row-meta">{formatDate(p.data.date, lang)}</span>
+                  </button>
+                ))}
+                {posts.length === 0 && <span class="w-meta">{c.escritos.empty}</span>}
+              </div>
+              <div class="widget widget-links">
+                <span class="w-kicker">{c.contacto.elsewhere}</span>
+                <div class="w-links">
+                  <a href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
+                  <a href={SITE.github} target="_blank" rel="noopener me" aria-label={c.labels.github}><Icon id="ui-github" size={20} /></a>
+                  <a href={SITE.linkedin} target="_blank" rel="noopener me" aria-label={c.labels.linkedin}><Icon id="ui-linkedin" size={20} /></a>
+                  <a href={SITE.twitter} target="_blank" rel="noopener me" aria-label={c.labels.twitter}><Icon id="ui-twitter" size={20} /></a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="sb-grid">
-          {iosGrid.map((a) => (
-            <button class="sb-app" type="button" data-open={a.id}>
-              <Icon id={a.id} />
-              <span class="label">{c.apps[a.id].name}</span>
-            </button>
-          ))}
-        </div>
-
-        <div class="sb-dots" aria-hidden="true"><i class="on"></i><i></i></div>
+        <div class="sb-dots" id="sbDots" aria-hidden="true"><i class="on"></i><i></i></div>
 
         <div class="ios-dock">
           {iosDock.map((a) => (
@@ -232,6 +267,25 @@ const osData = {
           </button>
         </div>
         <button class="cc-close" type="button" data-cc="close">{c.os.done}</button>
+      </div>
+
+      <div class="nc" id="nc" role="dialog" aria-label={c.os.notifications}>
+        <div class="nc-inner">
+          <p class="nc-title">{c.os.notifications}</p>
+          {posts.slice(0, 4).map((p) => (
+            <button class="nc-note" type="button" data-open-post={postSlug(p)}>
+              <span class="nc-app"><Icon id="escritos" size={17} />{c.escritos.heading}</span>
+              <strong>{p.data.title}</strong>
+              <span>{p.data.description}</span>
+              <span class="nc-when">{formatDate(p.data.date, lang)}</span>
+            </button>
+          ))}
+          <button class="nc-note" type="button" data-open="contacto">
+            <span class="nc-app"><Icon id="contacto" size={17} />{c.apps.contacto.name}</span>
+            <strong>{c.contacto.lead}</strong>
+            <span>{SITE.email}</span>
+          </button>
+        </div>
       </div>
 
       <div class="lock" id="lock" hidden>

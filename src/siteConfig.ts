@@ -112,6 +112,8 @@ export const COPY = {
       hintMac: 'Arrasta as janelas · ⌘K para pesquisar',
       hintPhone: 'Toca num ícone · desliza para cima para voltar',
       appSwitcher: 'Aplicações abertas',
+      notifications: 'Notificações',
+      wallpaperNames: { aurora: 'Aurora', sonoma: 'Serra', night: 'Noite', graphite: 'Grafite' },
       today: 'Hoje',
       menus: {
         apple: [
@@ -128,6 +130,7 @@ export const COPY = {
           { label: 'Ecrã inteiro', action: 'zoom' },
           { label: 'Fechar janela', action: 'close' },
           { label: '—', action: '' },
+          { label: 'Aplicações abertas…', action: 'switcher' },
           { label: 'Arrumar janelas', action: 'tile' },
           { label: 'Fechar tudo', action: 'closeAll' },
         ],
@@ -220,6 +223,13 @@ export const COPY = {
       elsewhere: 'Noutros sítios',
       copied: 'Email copiado',
       copy: 'Copiar email',
+      sending: 'A enviar…',
+      sent: 'Mensagem enviada. Obrigado — respondo em breve.',
+      failed: 'Não consegui enviar daqui. Abri a tua aplicação de email.',
+      limit: 'Já foram muitas mensagens deste sítio. Tenta daqui a pouco.',
+      invalid: 'Falta um email válido para eu poder responder.',
+      short: 'Escreve um pouco mais — dá-me contexto.',
+      honeypot: 'Deixa este campo vazio',
     },
 
     projetos: {
@@ -406,6 +416,8 @@ export const COPY = {
       hintMac: 'Drag the windows · ⌘K to search',
       hintPhone: 'Tap an icon · swipe up to go home',
       appSwitcher: 'Open apps',
+      notifications: 'Notifications',
+      wallpaperNames: { aurora: 'Aurora', sonoma: 'Ridge', night: 'Night', graphite: 'Graphite' },
       today: 'Today',
       menus: {
         apple: [
@@ -422,6 +434,7 @@ export const COPY = {
           { label: 'Full screen', action: 'zoom' },
           { label: 'Close window', action: 'close' },
           { label: '—', action: '' },
+          { label: 'Open apps…', action: 'switcher' },
           { label: 'Tile windows', action: 'tile' },
           { label: 'Close everything', action: 'closeAll' },
         ],
@@ -513,6 +526,13 @@ export const COPY = {
       elsewhere: 'Elsewhere',
       copied: 'Email copied',
       copy: 'Copy email',
+      sending: 'Sending…',
+      sent: 'Message sent. Thank you — I will reply soon.',
+      failed: 'I could not send it from here. I opened your email app instead.',
+      limit: 'That is a lot of messages from here. Try again in a bit.',
+      invalid: 'I need a valid email address to reply to.',
+      short: 'Write a little more — give me some context.',
+      honeypot: 'Leave this field empty',
     },
 
     projetos: {

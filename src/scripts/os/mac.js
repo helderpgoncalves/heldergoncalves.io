@@ -186,17 +186,30 @@ export function createMac(ctx) {
       const oy = parseFloat(win.style.getPropertyValue('--y'));
       const { w: W, h: H } = area();
       const ww = win.offsetWidth;
+      let zone = null;
       bar.setPointerCapture(ev.pointerId);
       const move = (e) => {
         const x = Math.max(-ww + 90, Math.min(W - 90, ox + e.clientX - startX));
         const y = Math.max(0, Math.min(H - 44, oy + e.clientY - startY));
         win.style.setProperty('--x', x + 'px');
         win.style.setProperty('--y', y + 'px');
+        // Encaixe: junto às margens, o Mac mostra para onde a janela vai.
+        const r = layer.getBoundingClientRect();
+        const px = e.clientX - r.left;
+        const py = e.clientY - r.top;
+        const next = py <= 4 ? 'top' : px <= 4 ? 'left' : px >= W - 4 ? 'right' : null;
+        if (next !== zone) {
+          zone = next;
+          showSnap(zone);
+        }
       };
       const up = () => {
         bar.removeEventListener('pointermove', move);
         bar.removeEventListener('pointerup', up);
         bar.removeEventListener('pointercancel', up);
+        if (zone) snapTo(win, zone);
+        showSnap(null);
+        zone = null;
       };
       bar.addEventListener('pointermove', move);
       bar.addEventListener('pointerup', up);
@@ -371,7 +384,7 @@ export function createMac(ctx) {
     el.className = 'ctx';
     el.innerHTML =
       `<button type="button" data-action="open:terminal">${esc(meta('terminal').name)}</button>` +
-      `<button type="button" data-action="wallpaper:${next}">${esc(s.control.wallpaper)} — ${esc(next)}</button>` +
+      `<button type="button" data-action="wallpaper:${next}">${esc(s.control.wallpaper)} — ${esc((s.wallpaperNames && s.wallpaperNames[next]) || next)}</button>` +
       `<button type="button" data-action="theme">${esc(s.control.theme)}</button>` +
       `<button type="button" data-action="open:definicoes">${esc(meta('definicoes').name)}</button>`;
     el.style.left = Math.min(ev.clientX, window.innerWidth - 210) + 'px';
@@ -505,6 +518,16 @@ export function createMac(ctx) {
       else closeMenus();
       return;
     }
+    if (cmd && ev.key === 'Tab') {
+      ev.preventDefault();
+      if (!switcherEl) {
+        if (!openAppSwitcher()) return;
+      } else {
+        switcherIndex = (switcherIndex + (ev.shiftKey ? -1 : 1) + order.length) % order.length;
+        markSwitcher();
+      }
+      return;
+    }
     if (!cmd) return;
     const key = ev.key.toLowerCase();
     if (key === 'w' && ctx.active) {
@@ -514,6 +537,10 @@ export function createMac(ctx) {
       ev.preventDefault();
       minimize(ctx.active);
     }
+  });
+
+  document.addEventListener('keyup', (ev) => {
+    if (switcherEl && (ev.key === 'Meta' || ev.key === 'Control')) closeAppSwitcher(true);
   });
 
   window.addEventListener('resize', () => {
@@ -548,6 +575,87 @@ export function createMac(ctx) {
     ctx.syncSettings();
   }
 
+
+  // ── Encaixe de janelas nas margens ──────────────────────────
+  let snapEl = null;
+  function snapRect(zone) {
+    const { w: W, h: H } = area();
+    if (zone === 'top') return { x: 0, y: 0, w: W, h: H };
+    if (zone === 'left') return { x: 0, y: 0, w: Math.round(W / 2), h: H };
+    if (zone === 'right') return { x: Math.round(W / 2), y: 0, w: Math.round(W / 2), h: H };
+    return null;
+  }
+  function showSnap(zone) {
+    const r = snapRect(zone);
+    if (!r) {
+      if (snapEl) snapEl.remove();
+      snapEl = null;
+      return;
+    }
+    if (!snapEl) {
+      snapEl = document.createElement('div');
+      snapEl.className = 'snap-preview';
+      layer.appendChild(snapEl);
+    }
+    snapEl.style.cssText =
+      'left:' + r.x + 'px;top:' + r.y + 'px;width:' + r.w + 'px;height:' + r.h + 'px';
+  }
+  function snapTo(win, zone) {
+    const r = snapRect(zone);
+    if (!r) return;
+    win.classList.remove('zoomed');
+    win.classList.add('snapping');
+    win.style.setProperty('--x', r.x + 'px');
+    win.style.setProperty('--y', r.y + 'px');
+    win.style.setProperty('--w', r.w + 'px');
+    win.style.setProperty('--h', r.h + 'px');
+    setTimeout(() => win.classList.remove('snapping'), 220);
+  }
+
+  // ── ⌘Tab ────────────────────────────────────────────────────
+  let switcherEl = null;
+  let switcherIndex = 0;
+  let order = [];
+
+  function openAppSwitcher() {
+    order = [...wins.keys()].reverse();
+    if (order.length < 2) return false;
+    switcherIndex = 1;
+    if (!switcherEl) {
+      switcherEl = document.createElement('div');
+      switcherEl.className = 'cmdtab';
+      root.appendChild(switcherEl);
+    }
+    switcherEl.innerHTML = order
+      .map(
+        (id) =>
+          '<button class="cmdtab-item" type="button" data-id="' + esc(id) + '">' +
+          '<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#icon-' + esc(id) + '"/></svg>' +
+          '<span>' + esc(meta(id).name) + '</span></button>'
+      )
+      .join('');
+    switcherEl.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-id]');
+      if (b) {
+        closeAppSwitcher();
+        open(b.dataset.id);
+      }
+    });
+    markSwitcher();
+    return true;
+  }
+  function markSwitcher() {
+    if (!switcherEl) return;
+    [...switcherEl.children].forEach((el, i) => el.classList.toggle('on', i === switcherIndex));
+  }
+  function closeAppSwitcher(activate) {
+    if (!switcherEl) return;
+    const id = order[switcherIndex];
+    switcherEl.remove();
+    switcherEl = null;
+    if (activate && id) open(id);
+  }
+
   return {
     open,
     close,
@@ -559,6 +667,8 @@ export function createMac(ctx) {
     teardown,
     spotOpen,
     spotClose,
+    snapTo,
+    openAppSwitcher,
     themeCycle,
     alertBox,
     has: (id) => wins.has(id),
