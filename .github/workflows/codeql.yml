@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────────────
+# Análise estática de segurança.
+#
+# Vale a pena aqui porque este repositório não é só um site: tem um
+# servidor que recebe formulários, manda email e guarda uma lista de
+# pessoas. É esse código que interessa analisar.
+#
+# Corre nos pull requests e uma vez por semana — as regras do CodeQL
+# mudam sem o código mudar, e uma corrida semanal apanha isso.
+# ─────────────────────────────────────────────────────────────────────
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analisar:
+    name: JavaScript e TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

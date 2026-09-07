@@ -5,13 +5,17 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/precompress.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "start": "node server/index.mjs"
+    "start": "node server/index.mjs",
+    "precompress": "node scripts/precompress.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.2.1",
     "astro": "4.16.19"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

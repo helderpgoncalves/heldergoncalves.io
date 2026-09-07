@@ -11,3 +11,11 @@ npm-debug.log*
 Dockerfile
 .dockerignore
 README.md
+DEPLOY.md
+NOTICE.md
+CLAUDE.md
+CLAUDE.local.md
+.claude
+.github
+data
+__pycache__

@@ -6,7 +6,7 @@
 # ─────────────────────────────────────────────────────────────
 
 # ── Stage 1 — build ──────────────────────────────────────────
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 # Instala dependências. `npm install` (não `npm ci`) resolve de forma
@@ -16,12 +16,14 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund
 
-# Copia o resto e gera o site estático em /app/dist.
+# Copia o resto e gera o site estático em /app/dist. O `npm run build`
+# corre o Astro e a seguir a compressão: o `.br` e o `.gz` de cada
+# ficheiro ficam prontos aqui, para o servidor nunca ter de comprimir.
 COPY . .
 RUN npm run build
 
 # ── Stage 2 — runtime (o nosso servidor, zero dependências) ──
-FROM node:22-alpine AS runtime
+FROM node:24-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -31,6 +33,10 @@ ENV NODE_ENV=production
 COPY --from=build /app/dist ./dist
 COPY server ./server
 COPY knowledge ./knowledge
+
+# O npm não corre nada em produção: o CMD é `node` e mais nada. Tirá-lo
+# poupa ~15 MB e deixa a imagem sem gestor de pacotes lá dentro.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # A lista da newsletter vive aqui. Sem um volume montado neste caminho,
 # a lista desaparece quando o container é substituído — ver DEPLOY.md.
@@ -43,7 +49,8 @@ USER node
 # Coolify lê o EXPOSE para detetar a porta.
 EXPOSE 3000
 
+# Nove bytes em vez da página inicial, de trinta em trinta segundos.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
+  CMD wget -q --spider http://127.0.0.1:3000/healthz || exit 1
 
 CMD ["node", "server/index.mjs"]

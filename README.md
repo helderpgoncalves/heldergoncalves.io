@@ -65,8 +65,12 @@ bar hands the animation the exact `p` where the finger let go.
 
 ### A server with no dependencies
 
-`server/` imports nothing but Node built-ins. Static files are read,
-compressed with Brotli and hashed once, on first request, and kept in memory.
+`server/` imports nothing but Node built-ins, and it never compresses
+anything: the build writes a Brotli and a gzip copy next to every file, at
+maximum quality, so serving a page is reading bytes and sending them. Files
+are hashed and cached in memory on first read, and the cache is warmed at
+boot so the first visitor after a deploy waits for nothing.
+
 Rate limits are sliding windows. Form tokens are HMACs that prove the form was
 opened on this server, by this visitor, and how long ago — a bot posting
 directly has none of the three. Visitor IPs are never stored in the clear,

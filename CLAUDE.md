@@ -22,7 +22,7 @@ As regras da máquina estão em `~/CLAUDE.md` e **mandam sobre este
 ficheiro**. Este ficheiro diz o que o projecto é; esse diz o que se
 pode correr aqui. Em caso de conflito, ganha esse.
 
-## As sete invariantes
+## As oito invariantes
 
 Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
 
@@ -41,6 +41,10 @@ Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
    por assunto, não ao meio.
 7. **`data/` nunca entra no repositório.** É a lista da newsletter e o
    segredo que assina as ligações. Vive num volume no servidor.
+8. **Em produção não se calcula o que se pode calcular no build.** A
+   compressão é o exemplo: comprime-se uma vez no build, à qualidade
+   máxima, e o servidor só lê. Se acrescentares trabalho por pedido,
+   pergunta primeiro se não pode ser feito antes.
 
 ## Comandos
 

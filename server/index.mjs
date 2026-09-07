@@ -20,6 +20,7 @@ import { CHAT, LIMITS, MAIL, PORT, ROOT, SITE_ORIGIN, chatReady, mailReady, news
 import { json, send, text } from './http.mjs';
 import { bump, ipKey, issueToken } from './security.mjs';
 import { handleStatic } from './static.mjs';
+import { warmCache } from './warm.mjs';
 import { initSubscribers } from './subscribers.mjs';
 import { handleContact } from './routes/contact.mjs';
 import { handleConfirm, handleSubscribe, handleUnsubscribe } from './routes/subscribe.mjs';
@@ -44,9 +45,17 @@ function handleToken(req, res) {
 
 const mcpRoute = (req, res) => (req.method === 'GET' ? describeMcp(res) : handleMcp(req, res));
 
+/**
+ * Para o healthcheck do container. Existe porque a alternativa era
+ * bater na página inicial de trinta em trinta segundos — 2880 páginas
+ * por dia para responder a uma pergunta de sim ou não.
+ */
+const health = (req, res) => text(res, 200, 'ok');
+
 // ── A tabela ─────────────────────────────────────────────────────────
 // Caminho exacto, métodos permitidos, e quem trata. Mais nada.
 const ROUTES = [
+  { path: '/healthz', methods: ['GET'], handler: health },
   { path: '/api/token', methods: ['GET'], handler: handleToken },
   { path: '/api/contact', methods: ['POST'], handler: handleContact },
   { path: '/api/subscribe', methods: ['POST'], handler: handleSubscribe },
@@ -97,6 +106,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('contacto:   ' + estado(mailReady, MAIL.provider, 'inativo, o site usa mailto:'));
   console.log('newsletter: ' + estado(newsletterReady, MAIL.provider, 'inativa, precisa do email configurado'));
   console.log('conversa:   ' + estado(chatReady, CHAT.model, 'inativa, as Mensagens usam respostas guardadas'));
+  // Depois de a porta estar aberta: quem chegar primeiro já não espera.
+  warmCache();
 });
 
 const stop = () => server.close(() => process.exit(0));

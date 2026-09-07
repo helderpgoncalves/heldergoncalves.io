@@ -1,9 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────
 // Servir o que o Astro gerou.
 //
-// Cada ficheiro é lido, comprimido e etiquetado uma única vez, na
-// primeira vez que alguém o pede, e fica em memória. O que muda a cada
-// pedido é só a escolha entre brotli, gzip e nada.
+// As versões comprimidas vêm prontas do build (`scripts/precompress.mjs`
+// escreve um `.br` e um `.gz` ao lado de cada ficheiro), por isso servir
+// é ler bytes e mandá-los. Se não estiverem lá — a correr sem passar
+// pelo build — comprime-se à mesma, uma vez, e guarda-se em memória:
+// mais lento no primeiro pedido, mas nunca partido.
+//
+// Cada ficheiro é lido e etiquetado uma única vez e fica em memória. O
+// que muda a cada pedido é só a escolha entre brotli, gzip e nada.
 // ─────────────────────────────────────────────────────────────────────
 import { readFile, stat } from 'node:fs/promises';
 import { resolve, normalize, extname, sep, join } from 'node:path';
@@ -51,9 +56,19 @@ function safePath(pathname) {
   return full;
 }
 
-async function load(file) {
+/** A versão comprimida que o build deixou ao lado, se a deixou. */
+async function sidecar(file, ext) {
+  try {
+    return await readFile(file + ext);
+  } catch (_) {
+    return null;
+  }
+}
+
+export async function load(file) {
   const hit = cache.get(file);
   if (hit) return hit;
+
   const body = await readFile(file);
   const type = TYPES[extname(file).toLowerCase()] || 'application/octet-stream';
   const entry = {
@@ -63,21 +78,29 @@ async function load(file) {
     gzip: null,
     br: null,
   };
-  // O Brotli poupa mais uns 15-20% do que o gzip em texto. Comprimir
-  // custa, mas custa uma vez só na vida do processo.
+
   if (COMPRESSIBLE.test(type) && body.length > 1024) {
-    entry.gzip = gzipSync(body, { level: 8 });
-    try {
-      entry.br = brotliCompressSync(body, {
-        params: {
-          [zlib.BROTLI_PARAM_QUALITY]: 10,
-          [zlib.BROTLI_PARAM_SIZE_HINT]: body.length,
-        },
-      });
-    } catch (_) {
-      entry.br = null;
+    // O caminho normal: o build já comprimiu, e à qualidade máxima.
+    entry.br = await sidecar(file, '.br');
+    entry.gzip = await sidecar(file, '.gz');
+
+    // O caminho de recurso: sem build, comprime-se aqui. Qualidade 10 e
+    // não 11 porque agora há alguém à espera do outro lado.
+    if (!entry.br && !entry.gzip) {
+      entry.gzip = gzipSync(body, { level: 8 });
+      try {
+        entry.br = brotliCompressSync(body, {
+          params: {
+            [zlib.BROTLI_PARAM_QUALITY]: 10,
+            [zlib.BROTLI_PARAM_SIZE_HINT]: body.length,
+          },
+        });
+      } catch (_) {
+        entry.br = null;
+      }
     }
   }
+
   cache.set(file, entry);
   return entry;
 }
@@ -135,7 +158,12 @@ async function notFound(req, res) {
   }
 }
 
+/** Os ficheiros comprimidos acompanham o original; não se servem sozinhos. */
+const SIDECAR = /\.(br|gz)$/i;
+
 export async function handleStatic(req, res, url) {
+  if (SIDECAR.test(url.pathname)) return notFound(req, res);
+
   const file = safePath(url.pathname);
   if (!file) return text(res, 400, 'Bad request');
 

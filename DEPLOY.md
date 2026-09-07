@@ -184,6 +184,36 @@ O servidor envia, em todas as respostas: `Content-Security-Policy` (sem
 Também trata de ETag, `304`, gzip e cache longo para `/_astro/` (ficheiros com
 hash no nome).
 
+## Peso e velocidade em produção
+
+O que corre no servidor é o mínimo, e é de propósito.
+
+**Nada é comprimido em tempo de pedido.** O `npm run build` corre o Astro
+e a seguir `scripts/precompress.mjs`, que escreve um `.br` e um `.gz` ao
+lado de cada ficheiro de texto, com o Brotli na qualidade máxima (11).
+Servir passa a ser ler bytes e mandá-los: zero CPU de compressão por
+pedido, e melhor rácio do que era possível com alguém à espera.
+
+**A cache aquece no arranque.** Depois de a porta abrir, o servidor lê o
+HTML, o CSS e o JS para memória (com tectos: 120 ficheiros, 24 MB). Quem
+chegar primeiro depois de um deploy não espera por I/O nenhum.
+
+**O healthcheck bate em `/healthz`**, que devolve nove bytes, e não na
+página inicial. São 2880 pedidos por dia; a diferença entre servir uma
+página e servir `ok` é real ao fim do mês.
+
+**A imagem não tem npm.** O `CMD` é `node` e mais nada, por isso o npm é
+apagado da camada final: menos ~15 MB e sem gestor de pacotes dentro do
+container de produção. Zero dependências de terceiros a correr.
+
+**A imagem base é `node:24-alpine`**, a LTS activa. Sobe por Dependabot.
+
+Se quiseres confirmar que a compressão está mesmo a sair do disco:
+
+```bash
+curl -sI -H 'Accept-Encoding: br' https://heldergoncalves.io/ | grep -i content-encoding
+```
+
 ## Outras notas
 
 - O domínio está em `astro.config.mjs` (`site`) — é de lá que saem o canonical,

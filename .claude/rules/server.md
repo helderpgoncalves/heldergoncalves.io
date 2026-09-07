@@ -39,6 +39,11 @@ que faz um servidor de 936 linhas.
   que a devolva, nem sequer para a contar.
 - **Uma ferramenta do agente nunca lança.** Uma falha é uma frase que diz
   o que correu mal e o que fazer a seguir — o modelo vai ler aquilo.
+- **O servidor não comprime nada em tempo de pedido.** Quem comprime é
+  `scripts/precompress.mjs`, no build, e à qualidade máxima. O
+  `static.mjs` só lê o `.br` ou o `.gz` que já lá está. O caminho de
+  recurso — comprimir à pressa — existe para quem corre sem passar pelo
+  build, e não deve ser o normal.
 - **Se uma funcionalidade não estiver configurada, responde `503` e o
   site continua.** O contacto volta ao `mailto:`, as Mensagens usam as
   respostas guardadas. Nunca se perde nada.

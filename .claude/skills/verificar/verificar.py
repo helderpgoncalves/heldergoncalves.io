@@ -7,14 +7,15 @@ um segundo, não constrói nada, não instala nada e não abre browser
 nenhum, o que é a razão de existir: a máquina onde isto costuma correr
 está a servir produção.
 
-Sete verificações:
+Oito verificações:
   1. tamanho de ficheiro           nenhum passa das 400 linhas
   2. imports do cliente            batem certo com os exports
   3. imports do servidor           idem
-  4. chavetas do CSS               nenhuma regra ficou partida
-  5. paridade das línguas          pt e en têm as mesmas chaves
-  6. segredos                      nada que pareça uma chave
-  7. ficheiros órfãos              nada importa o que já não existe
+  4. imports dos scripts de build  idem
+  5. chavetas do CSS               nenhuma regra ficou partida
+  6. paridade das línguas          pt e en têm as mesmas chaves
+  7. segredos                      nada que pareça uma chave
+  8. ficheiros órfãos              nada importa o que já não existe
 
 Saída 0 se está tudo bem, 1 se não.
 """
@@ -58,7 +59,7 @@ def read(path):
 def check_sizes():
     watched = ('.ts', '.js', '.mjs', '.astro', '.css')
     biggest = []
-    for sub in ('src', 'server'):
+    for sub in ('src', 'server', 'scripts'):
         for path in walk(sub, *watched):
             n = len(read(path).split('\n'))
             biggest.append((n, rel(path)))
@@ -190,6 +191,7 @@ def main():
     check_sizes()
     check_imports('imports do cliente', list(walk('src/scripts', '.js')))
     check_imports('imports do servidor', list(walk('server', '.mjs')))
+    check_imports('imports dos scripts', list(walk('scripts', '.mjs')))
     check_css()
     check_copy()
     check_secrets()

@@ -1,0 +1,122 @@
+# ─────────────────────────────────────────────────────────────────────
+# O que corre a cada alteração.
+#
+# Três coisas, e por esta ordem — da mais barata para a mais cara, para
+# que um erro tolo falhe em segundos e não em minutos:
+#
+#   1. verificar   as invariantes do repositório, em Python, sem instalar
+#                  nada. Segundos.
+#   2. build       o site constrói mesmo, e a compressão corre. Minuto.
+#   3. imagem      o Dockerfile constrói. Só em pull requests e no main,
+#                  porque é o mais caro dos três.
+# ─────────────────────────────────────────────────────────────────────
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Uma alteração nova cancela a corrida anterior do mesmo ramo: não vale
+# a pena gastar minutos a validar código que já foi substituído.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: Invariantes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # O verificador olha para os ficheiros rastreados; não precisa
+          # do histórico todo.
+          fetch-depth: 1
+
+      - name: Verificações estáticas
+        run: python3 .claude/skills/verificar/verificar.py
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verificar
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Construir e comprimir
+        run: npm run build
+
+      - name: O que ficou
+        run: |
+          echo "### Tamanho do site" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "sem comprimir: $(du -sh --exclude='*.br' --exclude='*.gz' dist | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "html + css + js, comprimido:" >> "$GITHUB_STEP_SUMMARY"
+          find dist -name '*.br' -printf '%s %p\n' | sort -rn | head -10 \
+            | awk '{ printf "  %6.1f KB  %s\n", $1/1024, $2 }' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: O servidor arranca e responde
+        run: |
+          npm start &
+          for i in $(seq 1 30); do
+            sleep 1
+            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
+          done
+          curl -fsS http://127.0.0.1:3000/healthz | grep -qx ok
+          curl -fsS http://127.0.0.1:3000/ >/dev/null
+          # E o brotli sai mesmo do disco, sem o servidor comprimir nada.
+          curl -fsS -H 'Accept-Encoding: br' -o /dev/null -D - http://127.0.0.1:3000/ \
+            | grep -qi 'content-encoding: br'
+        env:
+          STATIC_DIR: ./dist
+
+  imagem:
+    name: Imagem
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verificar
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construir a imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: heldergoncalves:ci
+
+      - name: A imagem arranca e responde
+        run: |
+          docker run -d --name site -p 3000:3000 heldergoncalves:ci
+          for i in $(seq 1 30); do
+            sleep 1
+            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
+          done
+          curl -fsS http://127.0.0.1:3000/healthz | grep -qx ok
+          docker logs site
+          docker rm -f site
+
+      - name: Quanto pesa
+        run: |
+          echo "### Imagem" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          docker image ls heldergoncalves:ci --format '{{.Size}}' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
