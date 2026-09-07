@@ -140,6 +140,11 @@
 .stk-row { --r: 8px; }
 .stk-pill { --r: 6px; }
 .stk-stats div { --r: 10px; }
+/* O cartão da procura é concêntrico com cada resultado lá dentro, como
+   o da pesquisa (.spot-box / .spot-item). */
+.stk-suggest { --r: 14px; --pad: 4px; }
+.stk-news-thumb { --r: 8px; }
+.stk-hold-edit input { --r: 6px; }
 .cal-arrow, .cal-today { --r: 5px; }
 .cal-ev, .cal-free { --r: 4px; }
 .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea { --r: 8px; }
@@ -169,8 +174,8 @@
    se desloca por igual quando se afasta da borda, a conta continua
    a valer depois do 1,6×. */
 .menu button, .ctx button,
-.spot-item { --r: calc(var(--r-out) - var(--pad)); }
-.menu, .ctx, .spot-results { --r-out: var(--r); }
+.spot-item, .stk-suggest-item { --r: calc(var(--r-out) - var(--pad)); }
+.menu, .ctx, .spot-results, .stk-suggest { --r-out: var(--r); }
 .widget .w-row:first-of-type { border-top-left-radius: calc(var(--r) - var(--pad)); border-top-right-radius: calc(var(--r) - var(--pad)); }
 
 .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
@@ -178,6 +183,7 @@
 .cmdtab, .cmdtab-item, .skip,
 .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
 .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+  .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
 .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
 .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
 .prose pre, .prose img, .prose code,
@@ -189,6 +195,7 @@
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
   .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+  .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
   .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
   .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,
@@ -208,6 +215,7 @@
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
   .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+  .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
   .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
   .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,

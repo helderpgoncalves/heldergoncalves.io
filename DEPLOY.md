@@ -115,14 +115,25 @@ O mesmo que protege o contacto, mais uma coisa que é a que interessa:
 
 ## Calendário e Bolsa
 
-**A Bolsa** não precisa de nada: o servidor vai buscar as cotações ao
-Yahoo Finance (sem chave) e guarda cada resposta um minuto. Se a fonte
-falhar, a aplicação diz que não há cotações e o resto do site não sente.
+**A Bolsa** tem dois níveis. Sem nada configurado, o servidor Node vai
+ele próprio buscar o gráfico ao Yahoo Finance (sem chave) e guarda cada
+resposta um minuto — dá cotações e séries, mas não a ficha nem as
+notícias. Com a API da Bolsa ligada (`api/`, um serviço em Python à
+parte, com FastAPI e o `yfinance`), o servidor passa a perguntar-lhe a
+ela, e a aplicação fica completa: estatísticas, «Acerca» e notícias.
 
-| Variável         | Exemplo                                              | Para quê                         |
-| ---------------- | ---------------------------------------------------- | -------------------------------- |
-| `STOCKS_SOURCE`  | `https://query1.finance.yahoo.com/v8/finance/chart/` | a fonte; é esta por omissão      |
-| `STOCKS_TTL_MS`  | `60000`                                              | quanto tempo cada resposta vale  |
+**A API não tem domínio público.** É um segundo recurso no Coolify —
+*Public Repository*, o mesmo repositório, *Build pack* Dockerfile, com
+o directório base `/api` — sem domínio à frente. Os dois recursos
+partilham a rede interna do projecto Coolify; `BOLSA_API_URL` é o nome
+interno desse serviço, na porta 8000. Se a variável faltar ou a API não
+responder, o servidor Node volta sozinho ao Yahoo directo — nada parte.
+
+| Variável         | Exemplo                                              | Para quê                                    |
+| ---------------- | ----------------------------------------------------- | -------------------------------------------- |
+| `BOLSA_API_URL`  | `http://bolsa-api:8000`                              | a API da Bolsa, na rede interna do Coolify  |
+| `STOCKS_SOURCE`  | `https://query1.finance.yahoo.com/v8/finance/chart/` | o recuo directo; é esta por omissão         |
+| `STOCKS_TTL_MS`  | `60000`                                              | quanto tempo cada resposta do recuo vale    |
 
 **O Calendário** deixa uma pessoa entrar com o email — recebe um código
 de seis algarismos, sem palavra-passe — e marcar uma conversa numa hora

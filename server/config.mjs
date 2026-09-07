@@ -61,15 +61,19 @@ export const NEWSLETTER = {
 export const newsletterReady = mailReady;
 
 // ── Bolsa ────────────────────────────────────────────────────────────
-// As cotações vêm do Yahoo Finance, sem chave. O servidor é o único que
-// lá vai, e guarda cada resposta um minuto.
+// As cotações vêm do Yahoo Finance, sem chave. Quem lá vai é a API da
+// Bolsa (api/, em Python), na rede interna — o servidor só a repete ao
+// browser. Sem a API configurada, o servidor vai ele próprio ao gráfico
+// do Yahoo: ficam as cotações e as séries, sem a ficha nem as notícias.
 export const STOCKS = {
+  api: env('BOLSA_API_URL').replace(/\/$/, ''),
   source: env('STOCKS_SOURCE', 'https://query1.finance.yahoo.com/v8/finance/chart/'),
   agent: 'Mozilla/5.0 (compatible; heldergoncalves.io/1.0)',
   ttl: Number(env('STOCKS_TTL_MS', '60000')),
   timeout: 8000,
   cacheMax: 400,
 };
+export const stocksApiReady = /^https?:\/\//.test(STOCKS.api);
 
 // ── Sessões e reuniões ───────────────────────────────────────────────
 // Entrar é um código por email — precisa do email ligado, como a
@@ -157,4 +161,8 @@ export const LIMITS = {
   stocksPerIpWindow: 10 * 60e3,
   stocksGlobal: 3000,
   stocksGlobalWindow: 10 * 60e3,
+  // A procura dispara a cada letra; a ficha é uma por título aberto.
+  stocksSearchPerIp: 240,
+  stocksSearchWindow: 10 * 60e3,
+  stocksQuery: 40,
 };

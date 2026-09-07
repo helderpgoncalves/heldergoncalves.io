@@ -1,0 +1,5 @@
+# A API da Bolsa. Versões fixas: o yfinance muda de forma com frequência,
+# e um build reprodutível vale mais do que a última.
+fastapi==0.141.1
+uvicorn==0.52.4
+yfinance==1.7.0

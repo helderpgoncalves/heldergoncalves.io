@@ -32,9 +32,17 @@ próprio sistema; nos outros é a Inter. Ver o ficheiro NOTICE.md.
 
 ## A Bolsa e o Calendário
 
-A **Bolsa** mostra cotações ao vivo (Yahoo Finance, através do servidor,
-com um minuto de cache). A lista de títulos é do visitante e fica no
-dispositivo. Não é aconselhamento financeiro.
+A **Bolsa** mostra cotações ao vivo — Yahoo Finance, através de uma API
+em Python à parte (FastAPI e `yfinance`, ver `api/`), que o servidor do
+site é o único a poder chamar. Além das cotações e dos gráficos (com
+cursor e o eixo do tempo), mostra estatísticas, «Acerca» e notícias de
+cada título, como a aplicação verdadeira. Há duas listas: a lista, que
+é do visitante — acrescenta-se pela procura, fica no dispositivo — e o
+Portefólio, que é o do Hélder (VWCE, SXR8, MSFT); as acções e o preço
+médio de cada posição também ficam só no dispositivo de quem os
+escreve. Sem a API ligada, o servidor volta ao Yahoo directo e a
+aplicação continua a dar cotações, sem a ficha nem as notícias. Não é
+aconselhamento financeiro.
 
 O **Calendário** marca conversas de 30 minutos com o Hélder. Entra-se
 com o email — recebe-se um código de seis algarismos, não há

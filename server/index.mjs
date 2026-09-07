@@ -16,7 +16,7 @@
 // "indisponível" e o site continua a funcionar sem ela.
 // ─────────────────────────────────────────────────────────────────────
 import { createServer } from 'node:http';
-import { CHAT, LIMITS, MAIL, PORT, ROOT, SITE_ORIGIN, chatReady, mailReady, newsletterReady } from './config.mjs';
+import { CHAT, LIMITS, MAIL, PORT, ROOT, SITE_ORIGIN, STOCKS, chatReady, mailReady, newsletterReady, stocksApiReady } from './config.mjs';
 import { json, send, text } from './http.mjs';
 import { bump, ipKey, issueToken } from './security.mjs';
 import { cacheStats, handleStatic } from './static.mjs';
@@ -27,7 +27,7 @@ import { handleContact } from './routes/contact.mjs';
 import { handleConfirm, handleSubscribe, handleUnsubscribe } from './routes/subscribe.mjs';
 import { handleChat } from './routes/chat.mjs';
 import { describeMcp, handleMcp } from './routes/mcp.mjs';
-import { handleBolsa } from './routes/bolsa.mjs';
+import { handleBolsa, handleBolsaDetalhe, handleBolsaProcura } from './routes/bolsa.mjs';
 import { initSessions } from './sessions.mjs';
 import { initMeetings } from './meetings.mjs';
 import { handleAuthLogout, handleAuthMe, handleAuthStart, handleAuthVerify } from './routes/auth.mjs';
@@ -62,6 +62,8 @@ const ROUTES = [
   { path: '/api/subscribe/unsubscribe', methods: ['GET'], handler: handleUnsubscribe },
   { path: '/api/chat', methods: ['POST'], handler: handleChat },
   { path: '/api/bolsa', methods: ['GET'], handler: handleBolsa },
+  { path: '/api/bolsa/detalhe', methods: ['GET'], handler: handleBolsaDetalhe },
+  { path: '/api/bolsa/procurar', methods: ['GET'], handler: handleBolsaProcura },
   { path: '/api/auth/start', methods: ['POST'], handler: handleAuthStart },
   { path: '/api/auth/verify', methods: ['POST'], handler: handleAuthVerify },
   { path: '/api/auth/me', methods: ['GET'], handler: handleAuthMe },
@@ -117,6 +119,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('newsletter: ' + estado(newsletterReady, MAIL.provider, 'inativa, precisa do email configurado'));
   console.log('conversa:   ' + estado(chatReady, CHAT.model, 'inativa, as Mensagens usam respostas guardadas'));
   console.log('reuniões:   ' + estado(mailReady, 'código por email', 'inativas, precisam do email configurado'));
+  console.log('bolsa:      ' + estado(stocksApiReady, STOCKS.api, 'sem a API, só cotações do Yahoo directo'));
   // Depois de a porta estar aberta: quem chegar primeiro já não espera.
   warmCache().then(() => {
     // Dizer quanto se está a gastar transforma "deve ser pouco" num
