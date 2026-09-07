@@ -8,7 +8,8 @@
 //   dialogs    a caixa de aviso — não depende de ninguém
 //   dock       o ponto, o salto, a ampliação
 //   snap       encaixar nas margens
-//   windows    abrir, fechar, arrastar, redimensionar, empilhar
+//   dragging   arrastar e redimensionar
+//   windows    abrir, fechar, focar, minimizar, ampliar, empilhar
 //   menus      a barra e o botão direito
 //   spotlight  a pesquisa (⌘K)
 //   switcher   o ⌘Tab
@@ -22,6 +23,7 @@ import { prefs } from '../state.js';
 import { createDialogs } from './dialogs.js';
 import { createDock } from './dock.js';
 import { createSnap } from './snap.js';
+import { createDragging } from './dragging.js';
 import { createWindows } from './windows.js';
 import { createMenus } from './menus.js';
 import { createSpotlight } from './spotlight.js';
@@ -58,6 +60,7 @@ export function createMac(ctx) {
   desk.dialogs = createDialogs(desk);
   desk.dock = createDock(desk);
   desk.snap = createSnap(desk);
+  desk.dragging = createDragging(desk);
   desk.windows = createWindows(desk);
   desk.menus = createMenus(desk);
   desk.spotlight = createSpotlight(desk);

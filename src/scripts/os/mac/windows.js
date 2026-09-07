@@ -23,11 +23,18 @@ const STEP = 24;
 /** Que fatia do ambiente de trabalho uma janela nova pode ocupar. */
 const SHARE = { w: 0.74, h: 0.78 };
 
+// A banda onde as janelas vivem. O tecto existe porque cada foco subia
+// o contador um degrau e nada o trazia para baixo: ao fim de umas
+// centenas de cliques as janelas passavam por cima da Dock (300) e da
+// barra de menus (400), que no macOS estão sempre por cima de tudo.
+const Z_FLOOR = 20;
+const Z_CEIL = 240;
+
 export function createWindows(desk) {
   const { ctx, wins, els, s } = desk;
   const { layer, menuApp } = els;
 
-  let zTop = 20;
+  let zTop = Z_FLOOR;
   let cascade = 0;
 
   // ── Onde e de que tamanho ──────────────────────────────────────────
@@ -117,9 +124,8 @@ export function createWindows(desk) {
 
     win.querySelector('.win-body').appendChild(ctx.contentEl(id));
     layer.appendChild(win);
-    if (ctx.addGlass) ctx.addGlass(win);
     wins.set(id, win);
-    wire(win, id);
+    desk.dragging.wire(win, id, { close, minimize, zoom, focus, rectOf, setRect });
     focus(id);
     desk.dock.bounce(id);
     if (!reducedMotion()) {
@@ -152,11 +158,24 @@ export function createWindows(desk) {
     else setTimeout(done, 150);
   }
 
+  /**
+   * Volta a numerar as janelas de baixo para cima, mantendo a ordem que
+   * já tinham. Chamado quando o contador chega ao tecto da banda.
+   */
+  function renumber() {
+    const byDepth = [...wins.values()].sort(
+      (a, b) => (parseInt(a.style.zIndex, 10) || 0) - (parseInt(b.style.zIndex, 10) || 0)
+    );
+    zTop = Z_FLOOR;
+    byDepth.forEach((w) => (w.style.zIndex = String(++zTop)));
+  }
+
   function focus(id) {
     const win = wins.get(id);
     if (!win) return;
     wins.forEach((w) => w.classList.remove('focused'));
     win.classList.add('focused');
+    if (zTop >= Z_CEIL) renumber();
     win.style.zIndex = String(++zTop);
     ctx.setOpen(id, true);
     setActiveLabel(id);
@@ -257,113 +276,6 @@ export function createWindows(desk) {
   }
 
   const closeAll = () => [...wins.keys()].forEach(close);
-
-  // ── Arrastar e redimensionar ───────────────────────────────────────
-
-  function wire(win, id) {
-    win.addEventListener('pointerdown', () => focus(id), true);
-
-    // Borda de rolagem: a barra de título separa-se do conteúdo assim
-    // que há alguma coisa a passar por baixo dela.
-    win.addEventListener(
-      'scroll',
-      (ev) => {
-        const top = ev.target && ev.target.scrollTop;
-        win.classList.toggle('scrolled', typeof top === 'number' && top > 2);
-      },
-      true
-    );
-
-    win.querySelector('.light-close').addEventListener('click', () => close(id));
-    win.querySelector('.light-min').addEventListener('click', () => minimize(id));
-    win.querySelector('.light-zoom').addEventListener('click', () => zoom(id));
-
-    wireDrag(win, id);
-    win.querySelectorAll('.grip').forEach((grip) => wireResize(win, id, grip));
-  }
-
-  function wireDrag(win, id) {
-    const bar = win.querySelector('.win-bar');
-    bar.addEventListener('dblclick', () => zoom(id));
-    bar.addEventListener('pointerdown', (ev) => {
-      if (ev.target.closest('.light') || ev.button !== 0) return;
-      if (win.classList.contains('zoomed')) return;
-
-      const startX = ev.clientX;
-      const startY = ev.clientY;
-      const o = rectOf(win);
-      const { w: W, h: H } = desk.area();
-      const ww = win.offsetWidth;
-      let zone = null;
-      bar.setPointerCapture(ev.pointerId);
-
-      const move = (e) => {
-        // A barra de título nunca sai do ecrã: fica sempre uma aba de
-        // 90 píxeis por onde se possa voltar a agarrar a janela.
-        win.style.setProperty('--x', Math.max(-ww + 90, Math.min(W - 90, o.x + e.clientX - startX)) + 'px');
-        win.style.setProperty('--y', Math.max(0, Math.min(H - 44, o.y + e.clientY - startY)) + 'px');
-
-        const r = desk.els.layer.getBoundingClientRect();
-        const next = desk.snap.zoneAt(e.clientX - r.left, e.clientY - r.top, W);
-        if (next !== zone) {
-          zone = next;
-          desk.snap.show(zone);
-        }
-      };
-      const up = () => {
-        bar.removeEventListener('pointermove', move);
-        bar.removeEventListener('pointerup', up);
-        bar.removeEventListener('pointercancel', up);
-        if (zone) desk.snap.to(win, zone);
-        desk.snap.show(null);
-        zone = null;
-      };
-      bar.addEventListener('pointermove', move);
-      bar.addEventListener('pointerup', up);
-      bar.addEventListener('pointercancel', up);
-      ev.preventDefault();
-    });
-  }
-
-  function wireResize(win, id, grip) {
-    grip.addEventListener('pointerdown', (ev) => {
-      if (ev.button !== 0) return;
-      const dir = grip.dataset.dir;
-      const app = desk.meta(id);
-      const sx = ev.clientX;
-      const sy = ev.clientY;
-      const o = rectOf(win);
-      const { w: W, h: H } = desk.area();
-      grip.setPointerCapture(ev.pointerId);
-
-      const move = (e) => {
-        const dx = e.clientX - sx;
-        const dy = e.clientY - sy;
-        let { x, y, w, h } = o;
-        // O mínimo da aplicação de um lado, a borda do ecrã do outro.
-        if (dir.includes('e')) w = Math.min(W - o.x, Math.max(app.win.minW, o.w + dx));
-        if (dir.includes('s')) h = Math.min(H - o.y, Math.max(app.win.minH, o.h + dy));
-        if (dir.includes('w')) {
-          w = Math.min(o.x + o.w, Math.max(app.win.minW, o.w - dx));
-          x = o.x + (o.w - w);
-        }
-        if (dir.includes('n')) {
-          h = Math.min(o.y + o.h, Math.max(app.win.minH, o.h - dy));
-          y = Math.max(0, o.y + (o.h - h));
-        }
-        setRect(win, { x, y, w, h });
-      };
-      const up = () => {
-        grip.removeEventListener('pointermove', move);
-        grip.removeEventListener('pointerup', up);
-        grip.removeEventListener('pointercancel', up);
-      };
-      grip.addEventListener('pointermove', move);
-      grip.addEventListener('pointerup', up);
-      grip.addEventListener('pointercancel', up);
-      ev.preventDefault();
-    });
-  }
 
   // Quando o ecrã muda de tamanho, ninguém fica lá fora.
   window.addEventListener('resize', () => {

@@ -182,8 +182,17 @@
 .dock-item {
   position: relative; width: var(--dock-icon); height: var(--dock-icon);
   transform-origin: bottom center;
-  transform: scale(var(--s, 1)) translateY(calc((var(--s, 1) - 1) * -6px));
-  transition: transform 0.16s var(--ease-os);
+  /* Três coisas, por esta ordem: o deslocamento lateral que abre lugar
+     ao vizinho ampliado, a subida, e a escala. A origem em baixo faz o
+     ícone crescer para cima sem descolar do chão da Dock. */
+  transform:
+    translateX(var(--dx, 0px))
+    translateY(calc((var(--s, 1) - 1) * -7px))
+    scale(var(--s, 1));
+  /* Curta de propósito: só suaviza o salto entre quadros, e não arrasta
+     o ícone atrás do cursor. */
+  transition: transform 0.09s linear;
+  will-change: transform;
 }
 .dock-item svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28)); }
 .dock-item .dot {
@@ -193,7 +202,11 @@
 .dock-item.running .dot { opacity: 0.65; }
 .dock-sep { width: 1px; align-self: stretch; margin: 6px 4px; background: var(--line-strong); }
 .dock-tip {
-  position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%) scale(0.9);
+  position: absolute; left: 50%;
+  /* Acima do ícone **ampliado**: `100%` é a altura por ampliar, por isso
+     sem a parcela da escala a etiqueta ficava por baixo dele. */
+  bottom: calc(100% + 12px + (var(--s, 1) - 1) * var(--dock-icon));
+  transform: translateX(-50%) scale(0.9);
   padding: 3px 10px; border-radius: 7px; white-space: nowrap; font-size: 12px;
   background: var(--glass); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   border: 0.5px solid var(--glass-edge); box-shadow: var(--shadow-pop); color: var(--ink);
@@ -202,8 +215,8 @@
 .dock-item:hover .dock-tip { opacity: 1; transform: translateX(-50%) scale(1); }
 .dock-item.bouncing { animation: bounce 0.6s var(--ease-os) 2; }
 @keyframes bounce {
-  0%, 100% { transform: scale(var(--s, 1)) translateY(0); }
-  50% { transform: scale(var(--s, 1)) translateY(-22px); }
+  0%, 100% { transform: translateX(var(--dx, 0px)) translateY(0) scale(var(--s, 1)); }
+  50% { transform: translateX(var(--dx, 0px)) translateY(-22px) scale(var(--s, 1)); }
 }
 
 /* Pesquisa (⌘K) */
@@ -257,41 +270,48 @@
   padding: 0 24px;
 }
 .boot[hidden] { display: none; }
-.boot-mark { width: min(190px, 46vw); height: auto; color: #fff; }
-.boot-mark { opacity: 0; animation: mark-in 0.5s ease-out forwards; }
-@keyframes mark-in { to { opacity: 1; } }
-.boot-mark .ink {
+/* A saudação a ser escrita.
+   ─────────────────────────────────────────────────────────────
+   `pathLength="1"` no SVG faz o comprimento do traço valer 1, seja ele
+   qual for — por isso a animação é sempre a mesma conta, e mudar o
+   desenho não obriga a medir nada.
+
+   A curva não é linear nem simétrica: uma mão que escreve arranca
+   depressa, mantém o andamento no corpo da letra e assenta no fim. É a
+   diferença entre um traço a ser escrito e uma barra a encher. */
+.boot-hand { width: min(300px, 62vw); height: auto; color: #fff; }
+.boot-hand .ink {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  /* Curva simétrica: começa devagar, acelera, e assenta. Um traço a ser
-     desenhado por uma mão, não um valor a saltar para o fim. */
-  animation: draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: draw 1.7s 0.15s cubic-bezier(0.5, 0, 0.2, 1) forwards;
 }
-.boot-mark .i1 { animation-delay: 0.1s; }
-.boot-mark .i2 { animation-delay: 0.34s; }
-.boot-mark .i3 { animation-delay: 0.5s; }
-.boot-mark .i4 { animation-delay: 0.72s; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* Sem movimento, a saudação está simplesmente lá. */
+@media (prefers-reduced-motion: reduce) {
+  .boot-hand .ink { stroke-dashoffset: 0; }
+}
+[data-motion='off'] .boot-hand .ink { stroke-dashoffset: 0; }
 .boot-name {
   margin: 2px 0 0; font-size: 15px; font-weight: 500; letter-spacing: 0.34em; text-indent: 0.34em;
   text-transform: uppercase; color: rgba(255, 255, 255, 0.92);
-  animation: boot-name 1s 1.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: boot-name 1s 1.75s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @keyframes boot-name { from { opacity: 0; letter-spacing: 0.7em; } }
 .boot-bar {
   width: 190px; height: 4px; border-radius: 99px; overflow: hidden; margin-top: 6px;
   background: rgba(255, 255, 255, 0.2);
-  animation: fade-in 0.5s 1.7s backwards;
+  animation: fade-in 0.5s 1.95s backwards;
 }
 .boot-bar span {
   display: block; height: 100%; width: 0; border-radius: 99px; background: #fff;
-  animation: boot-fill 1.5s 1.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: boot-fill 1.4s 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 @keyframes boot-fill { to { width: 100%; } }
 @keyframes fade-in { from { opacity: 0; } }
 .boot-label {
   margin: 0; font-size: 11px; color: rgba(255, 255, 255, 0.42); letter-spacing: 0.02em;
-  animation: fade-in 0.6s 1.95s backwards;
+  animation: fade-in 0.6s 2.15s backwards;
 }
 .os.booted .boot { animation: fade-out 0.45s forwards; }
 

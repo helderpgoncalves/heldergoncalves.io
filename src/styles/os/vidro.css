@@ -116,36 +116,40 @@
   }
 }
 
-/* A refração vive numa camada própria, colocada ATRÁS do conteúdo
-   (z-index -1, dentro do contexto que o `isolation` cria). Tem de ser
-   atrás: uma camada por cima entortaria o próprio texto da superfície.
-   Como a camada leva também a tinta e o desfoque, se o filtro não
-   pintar nada continua a ser vidro — não há nada a perder. */
-.glass-lens {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  corner-shape: inherit;
-  pointer-events: none;
-  background: var(--glass-tint);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
-}
-.js-refract .glass {
-  background: transparent;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+/* A refração.
+   ─────────────────────────────────────────────────────────────
+   Isto esteve errado, e vale a pena dizer porquê: a refração vivia numa
+   camada-filha com `backdrop-filter` próprio. Só que `isolation:
+   isolate` faz de cada peça de vidro um *backdrop root*, e um
+   `backdrop-filter` dentro de um backdrop root só amostra o que está
+   dentro dele — ou seja, nada. A camada pintava o tinte e mais nada, e
+   como o tinte e o desfoque tinham sido tirados da peça e entregues a
+   ela, o vidro ficava chapado. Duas janelas sobrepostas pareciam dois
+   rectângulos colados, sem profundidade nenhuma entre elas.
+
+   O filtro vai agora onde pode mesmo trabalhar: no `backdrop-filter` da
+   própria peça. Onde o browser souber aplicar filtros SVG a um
+   backdrop, a borda entorta o que está por trás; onde não souber, a
+   declaração nem chega a ser lida e ficam as outras quatro camadas,
+   que são as que fazem o trabalho todo. Nenhuma delas depende desta. */
+@supports (backdrop-filter: url(#lg-refract)) or (-webkit-backdrop-filter: url(#lg-refract)) {
+  .glass {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+  }
+  /* Num painel de ecrã inteiro a refração não se vê e custa caro. */
+  .cc, .nc, .menubar, .ios-view-head {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  }
 }
 
-/* Em movimento reduzido, ou num ecrã que não aguente, fica o essencial. */
-[data-motion='off'] .glass-lens { display: none; }
+/* Quem pediu menos transparência não a leva. */
 @media (prefers-reduced-transparency: reduce) {
   .glass {
     --glass-blur: 0px;
     --glass-tint: var(--surface-solid);
   }
-  .glass-lens { display: none; }
 }
 
 /* Cada superfície tem o seu vidro: uma Dock não é uma janela, e um
@@ -173,9 +177,4 @@
 .dock-tip { --glass-blur: 18px; }
 
 
-/* A refração só faz sentido em peças pequenas e com bordas curvas.
-   Num painel de ecrã inteiro não se vê e custa caro. */
-.cc .glass-lens,
-.nc .glass-lens,
-.menubar .glass-lens,
-.win .glass-lens { -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); }
+

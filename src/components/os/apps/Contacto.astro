@@ -36,7 +36,7 @@ const links = socialLinks(lang).filter((l) => l.id !== 'email');
       <span class="hintline" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
     </div>
   </form>
-  <div class="app-pad" style="flex:0 0 auto">
+  <div class="app-pad compose-intro">
     <h3 class="app-eyebrow">{k.elsewhere}</h3>
     <div class="rows">
       {links.map((l) => (

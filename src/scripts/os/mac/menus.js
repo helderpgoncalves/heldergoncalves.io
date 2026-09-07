@@ -76,7 +76,6 @@ export function createMenus(desk) {
     el.setAttribute('role', 'menu');
     el.innerHTML = itemsFor(key).map(renderItem).join('');
     root.appendChild(el);
-    if (ctx.addGlass) ctx.addGlass(el);
 
     // Cai da barra alinhado pela borda esquerda do título — e se não
     // couber, encosta à direita do ecrã em vez de o esticar.
@@ -136,7 +135,6 @@ export function createMenus(desk) {
     el.style.left = Math.min(ev.clientX, window.innerWidth - 210) + 'px';
     el.style.top = ev.clientY + 'px';
     root.appendChild(el);
-    if (ctx.addGlass) ctx.addGlass(el);
     ctxMenu = el;
 
     el.addEventListener('click', (e) => {

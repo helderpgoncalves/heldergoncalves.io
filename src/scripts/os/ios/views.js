@@ -59,7 +59,6 @@ export function createViews(ph) {
     );
 
     layer.appendChild(view);
-    if (ctx.addGlass) ctx.addGlass(view.querySelector('.ios-view-head'));
     views.set(id, view);
     return view;
   }

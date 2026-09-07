@@ -33,6 +33,7 @@ export const PT = {
     macName: 'helderOS',
     phoneName: 'iHelder',
     booting: 'A arrancar',
+    greeting: 'Olá',
     unlock: 'Deslizar para abrir',
     unlockShort: 'Deslizar',
     lockHint: 'Toca ou desliza para cima',

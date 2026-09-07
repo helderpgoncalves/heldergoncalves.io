@@ -4,8 +4,22 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── 6. Aplicações ──────────────────────────────────────────── */
-/* O conteúdo é o mesmo no Mac e no telefone: só muda a moldura. */
-.app-shell { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: transparent; }
+/* O conteúdo é o mesmo no Mac e no telefone: só muda a moldura.
+   ─────────────────────────────────────────────────────────────
+   A regra da Apple é que o vidro é da camada de navegação e nunca do
+   conteúdo: um texto tem de assentar em superfície opaca para se ler.
+   Por isso o corpo de cada aplicação é opaco por omissão, e só se abre
+   uma janela para o vidro da moldura onde isso é mesmo navegação — a
+   coluna da lista dos Escritos, que é o que o macOS faz às barras
+   laterais.
+
+   Opaco por omissão e transparente por excepção, e não ao contrário:
+   assim uma aplicação nova nasce legível, e é preciso um acto
+   deliberado para lhe pôr texto por cima de vidro. */
+.app-shell {
+  position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  background: var(--surface-solid);
+}
 .app-contacto { overflow: auto; }
 .app-scroll { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
 .app-pad { padding: 26px 30px 34px; }
@@ -64,10 +78,22 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
    que separa as entradas é um fio que começa onde começa o texto,
    não na borda da coluna; e a entrada escolhida enche-se, o fio
    desaparece à volta dela. */
-.app-escritos { flex-direction: row; }
+/* A única aplicação que abre uma janela para o vidro: a coluna da
+   lista fica transparente e deixa passar a moldura, o texto continua
+   em cima de opaco. É a barra lateral do macOS. */
+.app-escritos { flex-direction: row; background: transparent; }
 .app-side {
   flex: 0 0 268px; min-width: 0; display: flex; flex-direction: column;
-  border-right: 0.5px solid var(--line); background: var(--sidebar);
+  border-right: 0.5px solid var(--line); background: transparent;
+}
+.app-main { background: var(--surface-solid); }
+
+/* Sem vidro por trás — no telefone, ou quando alguém pediu menos
+   transparência — a coluna volta a ter fundo próprio. */
+[data-mode='ios'] .app-side { background: var(--surface-2); }
+@media (prefers-reduced-transparency: reduce) {
+  .app-escritos { background: var(--surface-solid); }
+  .app-side { background: var(--surface-2); }
 }
 .app-side-head { padding: 14px 16px 10px; border-bottom: 0.5px solid var(--line); }
 .app-side-head h2 { margin: 0; font-size: 17px; letter-spacing: -0.02em; }
@@ -202,6 +228,8 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
 
 /* Contacto — uma janela de composição a sério */
 .compose { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+/* A apresentação não estica: o que estica é o campo da mensagem. */
+.compose-intro { flex: 0 0 auto; }
 .compose-fields { border-bottom: 0.5px solid var(--line); }
 .compose-field { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 0.5px solid var(--line); }
 .compose-field label { flex: 0 0 74px; color: var(--ink-3); font-size: 13px; }

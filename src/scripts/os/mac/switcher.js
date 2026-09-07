@@ -27,7 +27,6 @@ export function createSwitcher(desk) {
       el = document.createElement('div');
       el.className = 'cmdtab glass';
       els.root.appendChild(el);
-      if (ctx.addGlass) ctx.addGlass(el);
     }
     el.innerHTML = order
       .map(

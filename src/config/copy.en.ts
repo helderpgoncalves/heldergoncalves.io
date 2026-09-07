@@ -32,6 +32,7 @@ export const EN = {
     macName: 'helderOS',
     phoneName: 'iHelder',
     booting: 'Starting up',
+    greeting: 'Hello',
     unlock: 'Swipe up to open',
     unlockShort: 'Swipe up',
     lockHint: 'Tap or swipe up',

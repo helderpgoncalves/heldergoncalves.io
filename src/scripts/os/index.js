@@ -167,27 +167,9 @@ function boot(data) {
   });
 
   // ── Vidro ─────────────────────────────────────────────────────
-  // A refração só entra se o browser a souber aplicar a um
-  // `backdrop-filter`. Quem não souber fica com o vidro em camadas,
-  // que é o que se vê em todo o lado.
-  try {
-    const probe = document.createElement('div');
-    probe.style.backdropFilter = 'url(#lg-refract)';
-    if (probe.style.backdropFilter.indexOf('url') === 0) {
-      document.documentElement.classList.add('js-refract');
-      // Uma lente por superfície. Fica atrás do conteúdo, por isso
-      // nunca entorta o texto que está em cima dela.
-      const lens = (el) => {
-        if (el.firstElementChild && el.firstElementChild.classList.contains('glass-lens')) return;
-        const i = document.createElement('i');
-        i.className = 'glass-lens';
-        i.setAttribute('aria-hidden', 'true');
-        el.insertBefore(i, el.firstChild);
-      };
-      document.querySelectorAll('.glass').forEach(lens);
-      ctx.addGlass = lens;
-    }
-  } catch (_) {}
+  // A refração é decidida em CSS, com `@supports`. Não há nada a
+  // injectar: houve, e estava errado — uma camada-filha com
+  // `backdrop-filter` dentro de um backdrop root não amostra nada.
 
   // No Mac, a luz vem de onde está o rato: o aro das superfícies
   // acompanha, como acontece quando se inclina um telefone.

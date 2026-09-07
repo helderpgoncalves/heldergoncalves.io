@@ -46,9 +46,12 @@
    Uma janela do Mac é moldura; o que está dentro dela é conteúdo, e
    conteúdo assenta em superfície opaca — lê-se melhor e é o que a
    Apple manda. */
-.win-body { background: var(--surface-solid); }
+/* Quem pinta o fundo é a aplicação, não a moldura — é isso que deixa
+   uma barra lateral abrir uma janela para o vidro sem que as outras
+   aplicações tenham de saber que isso existe. */
+.win-body { background: transparent; }
 .win-bar { background: transparent; }
-.ios-view-body { background: var(--surface-solid); }
+.ios-view-body { background: transparent; }
 
 /* REGRA: nunca vidro sobre vidro.
    ─────────────────────────────────────────────────────────────
@@ -265,7 +268,7 @@ a.glass:active {
     --glass-blur: 0px;
     --glass-hairline: var(--ink);
   }
-  .glass-lens, .glass::before { display: none; }
+  .glass::before { display: none; }
   .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
 }
 
