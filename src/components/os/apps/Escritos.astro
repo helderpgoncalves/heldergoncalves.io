@@ -34,11 +34,13 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
               aria-current={post && postSlug(post) === postSlug(p) ? 'true' : undefined}
             >
               <h3>{p.data.title}</h3>
-              <span class="post-meta">
-                <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time> ·
-                {readingMinutes(p.body)} {e.readingTime}
+              {/* Como nas Notas: o título numa linha, e por baixo a
+                  data e o princípio do texto na mesma linha, cortados
+                  onde acabar a coluna. */}
+              <span class="post-sub">
+                <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time>
+                <span class="post-preview">{p.data.description}</span>
               </span>
-              <p class="post-desc">{p.data.description}</p>
             </a>
           </li>
         ))}

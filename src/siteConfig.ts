@@ -94,7 +94,7 @@ export const COPY = {
       welcome: 'Bem-vindo',
       openApp: 'Abrir',
       close: 'Fechar',
-      aboutApp: 'Sobre o %s',
+      aboutApp: 'Acerca de %s',
       minimize: 'Minimizar',
       zoom: 'Ecrã inteiro',
       back: 'Voltar',
@@ -102,7 +102,7 @@ export const COPY = {
       search: 'Pesquisar',
       searchHint: '↩ para abrir · esc para fechar',
       searchApps: 'Aplicações',
-      searchPosts: 'Escritos',
+      searchPosts: 'Blog',
       searchLinks: 'Ligações',
       searchEmpty: 'Sem resultados',
       noWindows: 'Nenhuma janela aberta. Escolhe uma aplicação na Dock.',
@@ -164,10 +164,10 @@ export const COPY = {
 
     // ── Aplicações ──────────────────────────────────────────
     apps: {
-      sobre: { name: 'Sobre Mim', subtitle: 'Quem escreve isto', window: 'Sobre Mim' },
-      escritos: { name: 'Escritos', subtitle: 'Notas sobre o que construo', window: 'Escritos' },
+      sobre: { name: 'Perfil', subtitle: 'Quem escreve isto', window: 'Perfil' },
+      escritos: { name: 'Blog', subtitle: 'Notas sobre o que construo', window: 'Blog' },
       mensagens: { name: 'Mensagens', subtitle: 'Perguntas rápidas', window: 'Mensagens' },
-      contacto: { name: 'Contacto', subtitle: 'Falar comigo', window: 'Nova mensagem' },
+      contacto: { name: 'Mail', subtitle: 'Falar comigo', window: 'Nova mensagem' },
       projetos: { name: 'Projetos', subtitle: 'O que ando a construir', window: 'Projetos' },
       terminal: { name: 'Terminal', subtitle: 'Para quem gosta de teclado', window: 'helder — zsh' },
       definicoes: { name: 'Definições', subtitle: 'Tema, idioma e fundo', window: 'Definições' },
@@ -192,15 +192,15 @@ export const COPY = {
     },
 
     escritos: {
-      heading: 'Escritos',
-      title: 'Escritos',
+      heading: 'Blog',
+      title: 'Blog',
       description:
         'Notas de Hélder Gonçalves sobre engenharia de software, modelos de linguagem, agentes, MCP e automação.',
       lead: 'Notas sobre engenharia, modelos de linguagem e as ferramentas que construo. Sem calendário fixo — só quando há alguma coisa que valha a pena dizer.',
       empty: 'Ainda nada publicado. Está a caminho.',
       pick: 'Escolhe um escrito à esquerda.',
       feed: 'Assinar por RSS',
-      all: 'Todos os escritos',
+      all: 'Todo o blog',
       count: 'escritos',
       readingTime: 'min de leitura',
       updated: 'Atualizado a',
@@ -208,7 +208,7 @@ export const COPY = {
       tags: 'Temas',
       talk: 'Discordas ou queres continuar a conversa?',
       talkLink: 'Escreve-me.',
-      backToList: '← Escritos',
+      backToList: '← Blog',
     },
 
     contacto: {
@@ -300,7 +300,7 @@ export const COPY = {
         },
         {
           q: 'Onde é que escreves?',
-          a: 'Aqui mesmo, na aplicação Escritos. Há feed RSS e não há newsletter — prefiro que venhas quando te apetecer.',
+          a: 'Aqui mesmo, na aplicação Blog. Há feed RSS e não há newsletter — prefiro que venhas quando te apetecer.',
         },
         {
           q: 'Posso mandar-te um email?',
@@ -417,7 +417,7 @@ export const COPY = {
       search: 'Search',
       searchHint: '↩ to open · esc to close',
       searchApps: 'Applications',
-      searchPosts: 'Writing',
+      searchPosts: 'Blog',
       searchLinks: 'Links',
       searchEmpty: 'No results',
       noWindows: 'No windows open. Pick something from the Dock.',
@@ -478,10 +478,10 @@ export const COPY = {
     },
 
     apps: {
-      sobre: { name: 'About Me', subtitle: 'Who writes this', window: 'About Me' },
-      escritos: { name: 'Writing', subtitle: 'Notes on what I build', window: 'Writing' },
+      sobre: { name: 'Profile', subtitle: 'Who writes this', window: 'Profile' },
+      escritos: { name: 'Blog', subtitle: 'Notes on what I build', window: 'Blog' },
       mensagens: { name: 'Messages', subtitle: 'Quick questions', window: 'Messages' },
-      contacto: { name: 'Contact', subtitle: 'Get in touch', window: 'New message' },
+      contacto: { name: 'Mail', subtitle: 'Get in touch', window: 'New message' },
       projetos: { name: 'Projects', subtitle: 'What I am building', window: 'Projects' },
       terminal: { name: 'Terminal', subtitle: 'For keyboard people', window: 'helder — zsh' },
       definicoes: { name: 'Settings', subtitle: 'Theme, language, wallpaper', window: 'Settings' },
@@ -506,15 +506,15 @@ export const COPY = {
     },
 
     escritos: {
-      heading: 'Writing',
-      title: 'Writing',
+      heading: 'Blog',
+      title: 'Blog',
       description:
         'Notes by Hélder Gonçalves on software engineering, language models, agents, MCP and automation.',
       lead: 'Notes on engineering, language models and the tools I build. No schedule — only when there is something worth saying.',
       empty: 'Nothing published yet. Soon.',
       pick: 'Pick something from the list.',
       feed: 'Subscribe via RSS',
-      all: 'All writing',
+      all: 'All posts',
       count: 'pieces',
       readingTime: 'min read',
       updated: 'Updated on',
@@ -522,7 +522,7 @@ export const COPY = {
       tags: 'Topics',
       talk: 'Disagree, or want to keep the conversation going?',
       talkLink: 'Write to me.',
-      backToList: '← Writing',
+      backToList: '← Blog',
     },
 
     contacto: {
@@ -614,7 +614,7 @@ export const COPY = {
         },
         {
           q: 'Where do you write?',
-          a: 'Right here, in the Writing app. There is an RSS feed and no newsletter — I would rather you came when you felt like it.',
+          a: 'Right here, in the Blog app. There is an RSS feed and no newsletter — I would rather you came when you felt like it.',
         },
         {
           q: 'Can I email you?',

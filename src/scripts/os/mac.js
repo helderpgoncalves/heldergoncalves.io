@@ -31,24 +31,76 @@ export function createMac(ctx) {
   const meta = (id) => ctx.data.apps.find((a) => a.id === id);
 
   // ── Janelas ─────────────────────────────────────────────────
-  function open(id) {
+  // O degrau da escada. No macOS cada janela nova nasce um degrau
+  // abaixo e à direita da anterior — é por isso que se vêem as barras
+  // de título das que ficaram atrás. Quando a escada chega ao fundo,
+  // recomeça em cima.
+  const STEP = 24;
+  let cascade = 0;
+
+  // Tamanho: o que a aplicação pede, mas nunca tanto que tape o ecrã
+  // inteiro. Uma janela que ocupa tudo não é uma janela, é um modo de
+  // ecrã inteiro — e deixa de haver o que sobrepor.
+  function cap(want, min, avail, share) {
+    const max = Math.max(min, Math.min(avail - 32, Math.round(avail * share)));
+    return Math.max(Math.min(want, max), Math.min(min, avail - 24));
+  }
+
+  function place(w, h) {
+    const { w: W, h: H } = area();
+    const baseX = Math.max(12, Math.min(W - w - 12, Math.round((W - w) / 2) - 60));
+    const baseY = 22;
+    const steps = Math.max(
+      1,
+      Math.floor(Math.min(W - w - baseX - 16, H - h - baseY - 72) / STEP)
+    );
+    const i = cascade % steps;
+    cascade += 1;
+    return {
+      x: Math.max(12, Math.min(W - w - 12, baseX + i * STEP)),
+      y: Math.max(8, Math.min(H - h - 56, baseY + i * STEP)),
+    };
+  }
+
+  // De onde a janela vem e para onde vai. O macOS não faz as janelas
+  // aparecerem do nada: elas crescem a partir do ícone em que se
+  // carregou, e encolhem de volta para a Dock quando se minimizam.
+  function anchor(win, el, prefix) {
+    if (!el) return false;
+    const a = el.getBoundingClientRect();
+    const b = win.getBoundingClientRect();
+    if (!a.width || !b.width) return false;
+    win.style.setProperty('--' + prefix + '-x', Math.round(a.left + a.width / 2 - (b.left + b.width / 2)) + 'px');
+    win.style.setProperty('--' + prefix + '-y', Math.round(a.top + a.height / 2 - (b.top + b.height / 2)) + 'px');
+    win.style.setProperty('--' + prefix + '-s', Math.max(0.05, a.width / b.width).toFixed(3));
+    return true;
+  }
+
+  const dockIcon = (id) => dock.querySelector(`[data-open="${id}"] svg`);
+
+  function open(id, from) {
     const existing = wins.get(id);
     if (existing) {
-      existing.classList.remove('minimized');
+      if (existing.classList.contains('minimized')) {
+        existing.classList.remove('minimized');
+        if (!reducedMotion()) {
+          anchor(existing, from || dockIcon(id), 'from');
+          existing.classList.add('opening');
+          setTimeout(() => existing.classList.remove('opening'), 300);
+        }
+      }
       focus(id);
       return existing;
     }
     const app = meta(id);
     if (!app) return null;
     const { w: W, h: H } = area();
-    const w = Math.min(app.win.w, Math.max(app.win.minW, W - 48));
-    const h = Math.min(app.win.h, Math.max(app.win.minH, H - 110));
-    const i = wins.size;
-    const x = Math.max(12, Math.min(W - w - 12, (W - w) / 2 - 60 + i * 30));
-    const y = Math.max(10, Math.min(H - h - 80, 26 + i * 26));
+    const w = cap(app.win.w, app.win.minW, W, 0.74);
+    const h = cap(app.win.h, app.win.minH, H, 0.78);
+    const { x, y } = place(w, h);
 
     const win = document.createElement('section');
-    win.className = 'win glass opening';
+    win.className = 'win glass';
     win.dataset.app = id;
     win.style.setProperty('--x', x + 'px');
     win.style.setProperty('--y', y + 'px');
@@ -73,7 +125,11 @@ export function createMac(ctx) {
     wireWindow(win, id);
     focus(id);
     bounce(id);
-    setTimeout(() => win.classList.remove('opening'), 260);
+    if (!reducedMotion()) {
+      anchor(win, from || dockIcon(id), 'from');
+      win.classList.add('opening');
+      setTimeout(() => win.classList.remove('opening'), 300);
+    }
     return win;
   }
 
@@ -86,9 +142,13 @@ export function createMac(ctx) {
       ctx.releaseContent(id);
       win.remove();
       ctx.setOpen(id, false);
-      const next = [...wins.keys()].pop();
+      const next = topmost();
       if (next) focus(next);
-      else setActiveLabel(null);
+      else {
+        setActiveLabel(null);
+        // Sem janelas abertas, a escada recomeça do primeiro degrau.
+        cascade = 0;
+      }
       syncDock();
     };
     if (reducedMotion()) done();
@@ -114,9 +174,38 @@ export function createMac(ctx) {
 
   const activeWin = () => (ctx.active ? wins.get(ctx.active) : null);
 
+  // Qual é a janela que está mesmo à frente de todas as outras.
+  function topmost(skip) {
+    let best = null;
+    let z = -1;
+    wins.forEach((win, key) => {
+      if (key === skip || win.classList.contains('minimized')) return;
+      const n = parseInt(win.style.zIndex, 10) || 0;
+      if (n >= z) {
+        z = n;
+        best = key;
+      }
+    });
+    return best;
+  }
+
   function minimize(id) {
-    const win = wins.get(id || ctx.active);
-    if (win) win.classList.add('minimized');
+    const key = id || ctx.active;
+    const win = wins.get(key);
+    if (!win || win.classList.contains('minimized')) return;
+    const after = () => {
+      win.classList.remove('minimizing');
+      win.classList.add('minimized');
+      const next = topmost(key);
+      if (next) focus(next);
+      else setActiveLabel(null);
+    };
+    if (reducedMotion() || !anchor(win, dockIcon(key), 'to')) {
+      after();
+      return;
+    }
+    win.classList.add('minimizing');
+    setTimeout(after, 280);
   }
 
   function zoom(id) {
@@ -241,19 +330,22 @@ export function createMac(ctx) {
           w: parseFloat(win.style.getPropertyValue('--w')),
           h: parseFloat(win.style.getPropertyValue('--h')),
         };
+        const { w: W, h: H } = area();
         grip.setPointerCapture(ev.pointerId);
         const move = (e) => {
           const dx = e.clientX - sx;
           const dy = e.clientY - sy;
           let { x, y, w, h } = o;
-          if (dir.includes('e')) w = Math.max(app.win.minW, o.w + dx);
-          if (dir.includes('s')) h = Math.max(app.win.minH, o.h + dy);
+          // A janela não sai do ambiente de trabalho por nenhum dos
+          // lados: o mínimo da aplicação de um lado, a borda do outro.
+          if (dir.includes('e')) w = Math.min(W - o.x, Math.max(app.win.minW, o.w + dx));
+          if (dir.includes('s')) h = Math.min(H - o.y, Math.max(app.win.minH, o.h + dy));
           if (dir.includes('w')) {
-            w = Math.max(app.win.minW, o.w - dx);
+            w = Math.min(o.x + o.w, Math.max(app.win.minW, o.w - dx));
             x = o.x + (o.w - w);
           }
           if (dir.includes('n')) {
-            h = Math.max(app.win.minH, o.h - dy);
+            h = Math.min(o.y + o.h, Math.max(app.win.minH, o.h - dy));
             y = Math.max(0, o.y + (o.h - h));
           }
           win.style.setProperty('--x', x + 'px');

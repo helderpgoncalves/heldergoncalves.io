@@ -58,7 +58,7 @@ function boot(data) {
     if (!data.apps.some((a) => a.id === id)) return;
     // Abrir alguma coisa a partir do ecrã bloqueado desbloqueia-o antes.
     if (ctx.mode === 'ios') phone.unlock();
-    if (ctx.mode === 'mac') mac.open(id);
+    if (ctx.mode === 'mac') mac.open(id, from);
     else phone.open(id, from);
     if (id === 'simulador' && ctx.loadSimulator) ctx.loadSimulator();
     if (id === 'terminal' && ctx.focusTerminal) ctx.focusTerminal();
