@@ -128,3 +128,10 @@ input, textarea, select { font-family: inherit; }
 
 /* As notificações percorrem-se com o dedo; o painel fecha-se pelo resto. */
 .nc-inner { overscroll-behavior: contain; }
+
+/* Deitado, a página do ecrã inicial rola na vertical se não couber; o
+   deslizar entre páginas continua a ser nosso, porque só o eixo
+   vertical fica com o browser. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .sb-page { touch-action: pan-y; }
+}

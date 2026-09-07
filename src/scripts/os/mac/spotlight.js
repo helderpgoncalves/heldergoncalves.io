@@ -30,7 +30,7 @@ export function createSpotlight(desk) {
   /** As fontes de resultados, pela ordem por que aparecem. */
   const sources = [
     (match) => {
-      const apps = ctx.data.apps.filter((a) => match(a.name) || match(a.subtitle));
+      const apps = ctx.data.apps.filter((a) => (!a.macOnly || ctx.mode === 'mac') && (match(a.name) || match(a.subtitle)));
       if (!apps.length) return null;
       return {
         title: s.searchApps,

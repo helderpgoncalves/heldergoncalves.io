@@ -21,18 +21,23 @@ const TYPES = ['date', 'clock', 'post', 'list', 'links'] as const;
 ---
 <!-- Os moldes dos widgets. Um por tipo; o JS clona o que for preciso
      para as páginas do telefone, para o ambiente de trabalho do Mac
-     e para a galeria. -->
+     e para a galeria.
+
+     Tocar num widget abre a aplicação dele, no sítio certo — é a
+     regra da Apple. A data e o relógio abrem o Calendário; o escrito
+     abre-se a si próprio; na lista e nas ligações cada linha já é o
+     seu destino. -->
 <template data-widget="date">
-  <div class="widget glass glass-clear widget-date">
-    <p class="w-day" data-widget-day></p>
-    <p class="w-date" data-widget-date></p>
-  </div>
+  <button class="widget glass glass-clear widget-date" type="button" data-open="calendario">
+    <span class="w-day" data-widget-day></span>
+    <span class="w-date" data-widget-date></span>
+  </button>
 </template>
 <template data-widget="clock">
-  <div class="widget glass glass-clear widget-clock">
-    <p class="w-kicker" data-widget-day></p>
-    <p class="w-time" data-clock-ios></p>
-  </div>
+  <button class="widget glass glass-clear widget-clock" type="button" data-open="calendario">
+    <span class="w-kicker" data-widget-day></span>
+    <span class="w-time" data-clock-ios></span>
+  </button>
 </template>
 <template data-widget="post">
   {latest ? (

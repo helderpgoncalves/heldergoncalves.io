@@ -98,7 +98,6 @@
 .ios-view {
   position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden;
   background: var(--surface-solid); color: var(--ink); pointer-events: auto;
-  will-change: transform, opacity;
 }
 .ios-view.open { display: flex; }
 .ios-view.behind { display: flex; filter: brightness(0.7); }
@@ -226,7 +225,6 @@
   color: #fff; touch-action: none; visibility: hidden;
   transform: translateY(-100%);
   transition: transform 0.36s var(--ease-os), visibility 0.36s;
-  will-change: transform;
 }
 .cc.open, .nc.open { visibility: visible; transform: none; }
 .cc.dragging, .nc.dragging { transition: none; }
@@ -285,3 +283,40 @@
 .switcher-card .card-head svg { width: 22px; height: 22px; }
 .switcher-card .card-body { flex: 1; padding: 14px; overflow: hidden; color: var(--ink-3); font-size: 12px; }
 .switcher-card .card-close { position: absolute; }
+
+/* ── Ecrãs largos com toque: o iPad ─────────────────────────────
+   O modo do telefone também serve o iPad. Aí o ecrã inicial não se
+   estica ao ecrã todo — quatro ícones de 60 espalhados por 800 são
+   quatro ilhas — fica com a largura de um iPhone grande, ao meio,
+   como a Dock do iPadOS. As vistas de aplicação continuam a encher
+   o ecrã: o conteúdo já responde ao seu contentor. */
+@media (min-width: 600px) {
+  .sb-widgets, .sb-grid { max-width: 430px; width: 100%; margin-left: auto; margin-right: auto; }
+  .sb-dots { margin: 0 auto; }
+  .ios-dock { width: calc(100% - 16px); max-width: 446px; margin-left: auto; margin-right: auto; }
+  .switcher-card { flex-basis: 320px; }
+}
+
+/* ── O telefone deitado ─────────────────────────────────────────
+   O iPhone deitado esconde a barra de estado e leva a ilha para o
+   lado; aqui a barra encolhe e a ilha vai-se. Os widgets deixam de
+   ser quadrados, os ícones espalham-se numa fila só, e se mesmo assim
+   não couber a página rola — o gesto está em toque.css. As margens
+   respeitam a zona segura, que deitado é o entalhe do lado. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .phone {
+    --sb-h: calc(26px + env(safe-area-inset-top, 0px));
+    --home-h: calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .island { display: none; }
+  .statusbar { padding: 0 max(26px, env(safe-area-inset-right, 0px)) 4px max(26px, env(safe-area-inset-left, 0px)); }
+  .sb { --sb-x: max(27px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); }
+  .sb-page { gap: 12px; overflow-y: auto; }
+  .sb-widgets { grid-template-columns: repeat(4, 1fr); max-width: 720px; }
+  .sb-widgets .widget.small, .sb-widgets .widget.medium { aspect-ratio: auto; height: 108px; min-height: 0; }
+  .sb-grid { grid-template-columns: repeat(auto-fit, var(--sb-icon)); justify-content: center; column-gap: 33px; row-gap: 10px; max-width: none; }
+  .ios-dock { height: 76px; padding: 8px calc(var(--sb-x) - 8px); margin-bottom: 4px; }
+  .lock-time { font-size: 64px; }
+  .lock-notes { display: none; }
+  .switcher-card { height: 76vh; }
+}

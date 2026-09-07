@@ -133,14 +133,20 @@
    declaração nem chega a ser lida e ficam as outras quatro camadas,
    que são as que fazem o trabalho todo. Nenhuma delas depende desta. */
 @supports (backdrop-filter: url(#lg-refract)) or (-webkit-backdrop-filter: url(#lg-refract)) {
-  .glass {
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
-  }
-  /* Num painel de ecrã inteiro a refração não se vê e custa caro. */
-  .cc, .nc, .menubar, .ios-view-head {
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  /* Só onde há rato. Num telefone o mapa de deslocamento em cada peça
+     de vidro — os widgets, a Dock, a barra de cada vista — custava o
+     quadro inteiro a cada deslizar, e o que se ganhava não se via a
+     um palmo dos olhos. Ficam as quatro camadas, que fazem o trabalho. */
+  @media (hover: hover) and (pointer: fine) {
+    .glass {
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+    }
+    /* Num painel de ecrã inteiro a refração não se vê e custa caro. */
+    .cc, .nc, .menubar, .ios-view-head {
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    }
   }
 }
 

@@ -46,6 +46,8 @@ export interface AppMeta {
   iosDock: boolean;
   /** Janela sem margens internas (Terminal, Simulador). */
   bare?: boolean;
+  /** Só no Mac: no telefone não aparece nem se abre (o Simulador, que é um iPhone). */
+  macOnly?: boolean;
   /** Abre no arranque do Mac. */
 }
 
@@ -57,7 +59,7 @@ export const APPS: AppMeta[] = [
   { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false },
   { id: 'terminal', win: { w: 720, h: 460, minW: 380, minH: 240 }, dock: true, iosDock: true, bare: true },
   { id: 'definicoes', win: { w: 760, h: 540, minW: 460, minH: 380 }, dock: true, iosDock: false },
-  { id: 'simulador', win: { w: 420, h: 780, minW: 340, minH: 620 }, dock: true, iosDock: false, bare: true },
+  { id: 'simulador', win: { w: 420, h: 780, minW: 340, minH: 620 }, dock: true, iosDock: false, bare: true, macOnly: true },
   { id: 'bolsa', win: { w: 900, h: 600, minW: 520, minH: 400 }, dock: true, iosDock: false, bare: true },
   { id: 'calendario', win: { w: 960, h: 640, minW: 560, minH: 420 }, dock: true, iosDock: false, bare: true },
 ];

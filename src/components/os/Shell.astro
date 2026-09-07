@@ -39,7 +39,7 @@ const c = COPY[lang];
 const alt = other(lang);
 const dockApps = APPS.filter((a) => a.dock);
 const iosDock = APPS.filter((a) => a.iosDock);
-const iosGrid = APPS.filter((a) => !a.iosDock);
+const iosGrid = APPS.filter((a) => !a.iosDock && !a.macOnly);
 
 // Tudo o que o JavaScript precisa de saber, já traduzido.
 const osData = {
@@ -59,6 +59,7 @@ const osData = {
     window: c.apps[a.id].window,
     win: a.win,
     bare: Boolean(a.bare),
+    macOnly: Boolean(a.macOnly),
   })),
   menus: c.os.menus,
   menuLabels: c.os.menuLabels,

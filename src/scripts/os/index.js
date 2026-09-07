@@ -57,7 +57,10 @@ function boot(data) {
 
   // ── Abrir e fechar ────────────────────────────────────────────
   function openApp(id, from) {
-    if (!data.apps.some((a) => a.id === id)) return;
+    const app = data.apps.find((a) => a.id === id);
+    if (!app) return;
+    // Um iPhone dentro de um iPhone não faz sentido: o Simulador é só do Mac.
+    if (app.macOnly && ctx.mode === 'ios') return;
     // Abrir alguma coisa a partir do ecrã bloqueado desbloqueia-o antes.
     if (ctx.mode === 'ios') phone.unlock();
     if (ctx.mode === 'mac') mac.open(id, from);

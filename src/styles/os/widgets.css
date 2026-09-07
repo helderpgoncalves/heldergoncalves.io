@@ -4,18 +4,22 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* Widgets do ecrã inicial */
-/* Os widgets assentam nas colunas dos ícones: o pequeno ocupa duas, o
-   médio ocupa as quatro, e a folga entre eles é a mesma da grelha. */
-.sb-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 33px; padding-top: 4px; }
+/* A medida é a da Apple: num iPhone de 393 pontos o widget pequeno tem
+   158 e o médio 338 × 158 — ou seja, dois pequenos com 22 de folga. Com
+   27 de margem de cada lado e 22 entre colunas é exactamente isso que
+   sai, e o pequeno fica alinhado com dois ícones da grelha. */
+.sb-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; padding-top: 4px; }
 .sb-widgets .widget.small { aspect-ratio: 1; min-height: 0; }
-.sb-widgets .widget.medium { aspect-ratio: 339 / 155; min-height: 0; }
-@media (max-width: 360px) { .sb-widgets { column-gap: 22px; } }
+.sb-widgets .widget.medium { aspect-ratio: 338 / 158; min-height: 0; }
 /* O widget é vidro Clear (a classe vem do molde): o corpo, o aro e a
    sombra são de vidro.css. Aqui só a forma e o que vai lá dentro.
    Os tamanhos de texto são os dos widgets, iguais nos dois sistemas —
    um widget do macOS é o mesmo desenho do iPhone, à mesma medida. */
+/* A margem de dentro é a que a Apple dá aos widgets: 16 pontos. O valor
+   está no --pad (apple.css), que é o que faz a primeira linha da lista
+   ficar concêntrica com o canto do widget. */
 .widget {
-  padding: 14px 16px; min-height: 108px; text-align: left; color: #fff;
+  padding: var(--pad, 16px); min-height: 108px; text-align: left; color: #fff;
   display: flex; flex-direction: column; gap: 3px;
 }
 .widget p, .widget span { margin: 0; }
@@ -99,6 +103,8 @@
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
 .desk-widgets:empty { display: none; }
+/* No ambiente de trabalho do Mac os widgets têm margens mais apertadas —
+   é a Apple que o diz, e o valor apertado dela é 11 (o --pad, em apple.css). */
 .desk-edit {
   position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 12;
   display: none; padding: 0 16px; height: 32px; border-radius: 999px; color: var(--ink);

@@ -126,7 +126,8 @@
 
 /* iOS */
 .ios-dock { --r: 38px; }
-.widget { --r: 22px; --pad: 14px; }
+.widget { --r: 22px; --pad: 16px; }
+.desk-widgets .widget { --pad: 11px; }
 .lock-note { --r: 20px; }
 .nc-note { --r: 20px; --pad: 13px; }
 .cc-tile { --r: 22px; }
@@ -303,18 +304,21 @@ a.glass:active {
    ─────────────────────────────────────────────────────────────
    O iOS e o macOS não têm a mesma escala: no telefone o corpo é 17
    pontos, no computador é 13. Não é gosto — é distância aos olhos. */
+/* No telefone a escala é em rem sobre a raiz, e a raiz é o corpo do
+   sistema — 17 pontos por omissão, ou o que a pessoa escolheu no
+   Dynamic Type (tipografia.css). Os números são os de sempre. */
 [data-mode='ios'] {
-  --t-large: 34px;
-  --t-title: 28px;
-  --t-title2: 22px;
-  --t-title3: 20px;
-  --t-headline: 17px;
-  --t-body: 17px;
-  --t-callout: 16px;
-  --t-subhead: 15px;
-  --t-foot: 13px;
-  --t-caption: 12px;
-  --t-caption2: 11px;
+  --t-large: calc(34rem / 17);
+  --t-title: calc(28rem / 17);
+  --t-title2: calc(22rem / 17);
+  --t-title3: calc(20rem / 17);
+  --t-headline: 1rem;
+  --t-body: 1rem;
+  --t-callout: calc(16rem / 17);
+  --t-subhead: calc(15rem / 17);
+  --t-foot: calc(13rem / 17);
+  --t-caption: calc(12rem / 17);
+  --t-caption2: calc(11rem / 17);
 }
 [data-mode='mac'] {
   --t-large: 26px;

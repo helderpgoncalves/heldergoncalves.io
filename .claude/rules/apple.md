@@ -56,6 +56,11 @@ e as duas são diferentes — não é gosto, é distância aos olhos.
 Usa `var(--t-body)`, `var(--t-foot)` e companhia. Um `font-size` em
 píxeis crus só se justifica quando a peça existe num modo só.
 
+No telefone estes valores estão em `rem`, e a raiz é o corpo do sistema
+(`font: -apple-system-body`, em `os/tipografia.css`): é assim que a
+escala segue o Dynamic Type de quem o mudou nas Definições. Não voltes a
+pôr os tokens do iOS em píxeis.
+
 ## Cores
 
 Usa os papéis, nunca um hexadecimal solto:
@@ -91,5 +96,12 @@ Uma superfície de vidro leva `class="glass"` e as cinco camadas vêm de
 
 - Alvos de toque de **44×44 pontos** no telefone. Já está posto em
   `os/apple.css`; não o desfaças.
+- **Widgets**, num iPhone de 393 pontos: pequeno 158×158, médio 338×158,
+  22 de folga entre colunas, 27 de margem ao ecrã, 16 de margem por
+  dentro (11 no ambiente de trabalho do Mac, que é mais apertado), nada
+  abaixo de 11 pontos de texto. Tocar num widget abre a aplicação dele,
+  no sítio certo.
+- **Orientação:** o telefone deitado tem regras próprias no fim de
+  `os/ios.css`; o ecrã inicial não pode rebentar quando se roda.
 - Margens em múltiplos de 8, com subdivisões de 4.
 - Linha de texto até 68 caracteres.
