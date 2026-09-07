@@ -39,7 +39,47 @@ const TYPES = {
 };
 
 const COMPRESSIBLE = /^(text\/|application\/(json|xml|manifest))/;
+
+// ── A cache, com tecto ───────────────────────────────────────────────
+// Guardar tudo o que já foi pedido é rápido e é uma fuga de memória com
+// outro nome: basta o site crescer, ou alguém pedir todas as imagens por
+// ordem, para o processo ficar a segurar o disco inteiro.
+//
+// Por isso há um orçamento em bytes e, quando ele estufa, sai o que há
+// mais tempo não é pedido. O `Map` do JavaScript guarda a ordem de
+// inserção, por isso apagar e voltar a pôr uma entrada em cada acerto dá
+// o LRU de graça, sem estrutura nenhuma a mais.
+const BUDGET = 24 * 1024 * 1024;
+
 const cache = new Map();
+let held = 0;
+
+const weigh = (entry) =>
+  entry.body.length + (entry.br ? entry.br.length : 0) + (entry.gzip ? entry.gzip.length : 0);
+
+function remember(file, entry) {
+  const size = weigh(entry);
+  // Um ficheiro que sozinho não cabe no orçamento serve-se e esquece-se.
+  if (size > BUDGET) return entry;
+  cache.set(file, entry);
+  held += size;
+  for (const [oldest, victim] of cache) {
+    if (held <= BUDGET) break;
+    if (oldest === file) break;
+    cache.delete(oldest);
+    held -= weigh(victim);
+  }
+  return entry;
+}
+
+function recall(file) {
+  const hit = cache.get(file);
+  if (!hit) return null;
+  // Volta para o fim da fila: é o que o torna o último a sair.
+  cache.delete(file);
+  cache.set(file, hit);
+  return hit;
+}
 
 /** Resolve o pedido para um caminho dentro de ROOT — ou null. */
 function safePath(pathname) {
@@ -66,7 +106,7 @@ async function sidecar(file, ext) {
 }
 
 export async function load(file) {
-  const hit = cache.get(file);
+  const hit = recall(file);
   if (hit) return hit;
 
   const body = await readFile(file);
@@ -101,8 +141,7 @@ export async function load(file) {
     }
   }
 
-  cache.set(file, entry);
-  return entry;
+  return remember(file, entry);
 }
 
 /**
@@ -191,3 +230,6 @@ export async function handleStatic(req, res, url) {
     return notFound(req, res);
   }
 }
+
+/** Quantos bytes a cache está a segurar, e em quantos ficheiros. */
+export const cacheStats = () => ({ files: cache.size, bytes: held });

@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # O verificador olha para os ficheiros rastreados; não precisa
           # do histórico todo.
@@ -48,9 +48,9 @@ jobs:
     timeout-minutes: 10
     needs: verificar
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: npm
@@ -114,12 +114,12 @@ jobs:
     timeout-minutes: 15
     needs: verificar
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Construir a imagem
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           push: false
@@ -137,9 +137,28 @@ jobs:
           docker logs site
           docker rm -f site
 
-      - name: Quanto pesa
+      - name: Quanto pesa, em disco e em memória
         run: |
-          echo "### Imagem" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          docker image ls heldergoncalves:ci --format '{{.Size}}' >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          docker run -d --name peso -p 3001:3000 heldergoncalves:ci
+          for i in $(seq 1 30); do
+            sleep 1
+            curl -fsS http://127.0.0.1:3001/healthz >/dev/null 2>&1 && break
+          done
+          # Uma centena de pedidos, para a cache encher com o que
+          # realmente se serve.
+          for i in $(seq 1 100); do curl -fsS http://127.0.0.1:3001/ >/dev/null; done
+          curl -fsS http://127.0.0.1:3001/en/ >/dev/null
+          sleep 2
+          {
+            echo "### Peso"
+            echo ""
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| imagem | $(docker image ls heldergoncalves:ci --format '{{.Size}}') |"
+            echo "| memória, depois de 100 pedidos | $(docker stats peso --no-stream --format '{{.MemUsage}}') |"
+            echo ""
+            echo '```'
+            docker logs peso 2>&1 | grep -E 'memória|cache' || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          docker rm -f peso

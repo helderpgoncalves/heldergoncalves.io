@@ -43,6 +43,20 @@ const usedTokens = new Map();
 const hits = new Map();
 const now = () => Date.now();
 
+// Um mapa de contagens sem tecto é uma fuga de memória à espera de um
+// ataque distribuído: cada endereço novo é uma chave nova, e a limpeza
+// só passa de cinco em cinco minutos. Com tecto, o pior caso é conhecido
+// — e quem é deitado fora primeiro é quem há mais tempo não aparece, que
+// é exactamente quem já não estava a ser limitado.
+const MAX_KEYS = 20_000;
+
+function evictOldest(map, keep) {
+  for (const key of map.keys()) {
+    if (map.size <= keep) break;
+    map.delete(key);
+  }
+}
+
 /**
  * Conta uma ocorrência e diz se ainda cabe dentro do limite.
  * Janela deslizante: guarda os instantes e deita fora os que já saíram.
@@ -55,7 +69,9 @@ export function bump(key, window, max) {
     return false;
   }
   list.push(t);
+  hits.delete(key);
   hits.set(key, list);
+  if (hits.size > MAX_KEYS) evictOldest(hits, MAX_KEYS);
   return true;
 }
 
@@ -119,6 +135,7 @@ export function checkToken(token, fingerprint, opts) {
   if (singleUse) {
     if (usedTokens.has(token)) return 'repetido';
     usedTokens.set(token, now() + LIMITS.tokenMaxAge);
+    if (usedTokens.size > MAX_KEYS) evictOldest(usedTokens, MAX_KEYS);
   }
   return null;
 }

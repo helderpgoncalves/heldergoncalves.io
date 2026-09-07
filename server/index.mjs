@@ -19,8 +19,9 @@ import { createServer } from 'node:http';
 import { CHAT, LIMITS, MAIL, PORT, ROOT, SITE_ORIGIN, chatReady, mailReady, newsletterReady } from './config.mjs';
 import { json, send, text } from './http.mjs';
 import { bump, ipKey, issueToken } from './security.mjs';
-import { handleStatic } from './static.mjs';
+import { cacheStats, handleStatic } from './static.mjs';
 import { warmCache } from './warm.mjs';
+import { handleHealth, primeHealth } from './health.mjs';
 import { initSubscribers } from './subscribers.mjs';
 import { handleContact } from './routes/contact.mjs';
 import { handleConfirm, handleSubscribe, handleUnsubscribe } from './routes/subscribe.mjs';
@@ -45,17 +46,10 @@ function handleToken(req, res) {
 
 const mcpRoute = (req, res) => (req.method === 'GET' ? describeMcp(res) : handleMcp(req, res));
 
-/**
- * Para o healthcheck do container. Existe porque a alternativa era
- * bater na página inicial de trinta em trinta segundos — 2880 páginas
- * por dia para responder a uma pergunta de sim ou não.
- */
-const health = (req, res) => text(res, 200, 'ok');
-
 // ── A tabela ─────────────────────────────────────────────────────────
 // Caminho exacto, métodos permitidos, e quem trata. Mais nada.
 const ROUTES = [
-  { path: '/healthz', methods: ['GET'], handler: health },
+  { path: '/healthz', methods: ['GET'], handler: handleHealth },
   { path: '/api/token', methods: ['GET'], handler: handleToken },
   { path: '/api/contact', methods: ['POST'], handler: handleContact },
   { path: '/api/subscribe', methods: ['POST'], handler: handleSubscribe },
@@ -66,6 +60,7 @@ const ROUTES = [
 ];
 
 await initSubscribers();
+await primeHealth();
 
 const server = createServer(async (req, res) => {
   try {
@@ -107,7 +102,17 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('newsletter: ' + estado(newsletterReady, MAIL.provider, 'inativa, precisa do email configurado'));
   console.log('conversa:   ' + estado(chatReady, CHAT.model, 'inativa, as Mensagens usam respostas guardadas'));
   // Depois de a porta estar aberta: quem chegar primeiro já não espera.
-  warmCache();
+  warmCache().then(() => {
+    // Dizer quanto se está a gastar transforma "deve ser pouco" num
+    // número que se pode ir ver.
+    const mb = (n) => (n / 1024 / 1024).toFixed(1);
+    const { rss, heapUsed } = process.memoryUsage();
+    const held = cacheStats();
+    console.log(
+      'memória:    ' + mb(rss) + ' MB no total, ' + mb(heapUsed) + ' MB de heap, ' +
+        mb(held.bytes) + ' MB em ' + held.files + ' ficheiros'
+    );
+  });
 });
 
 const stop = () => server.close(() => process.exit(0));

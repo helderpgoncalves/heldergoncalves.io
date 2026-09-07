@@ -25,7 +25,13 @@ RUN npm run build
 # ── Stage 2 — runtime (o nosso servidor, zero dependências) ──
 FROM node:24-alpine AS runtime
 WORKDIR /app
-ENV NODE_ENV=production
+# O V8 dimensiona a heap a partir da memória da máquina: num host grande,
+# deixa-a crescer para centenas de megabytes antes de se dar ao trabalho
+# de recolher. Este servidor segura alguns megabytes de ficheiros e mais
+# nada, por isso 128 MB é folgado — e transforma o pior caso de RSS num
+# número conhecido em vez de um número que depende do host.
+ENV NODE_ENV=production \
+    NODE_OPTIONS="--max-old-space-size=128"
 
 # Só o output estático e o servidor. Nada de npm install aqui: o
 # servidor usa apenas módulos internos do Node, o que significa zero
@@ -49,8 +55,11 @@ USER node
 # Coolify lê o EXPOSE para detetar a porta.
 EXPOSE 3000
 
-# Nove bytes em vez da página inicial, de trinta em trinta segundos.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -q --spider http://127.0.0.1:3000/healthz || exit 1
+# `/healthz` confirma que há um index.html para servir — não só que o
+# processo está vivo. São dois bytes de resposta. O start-period é curto
+# porque o servidor atende antes de aquecer a cache: fica verde no
+# segundo em que está mesmo pronto, e não dez depois.
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
 
 CMD ["node", "server/index.mjs"]

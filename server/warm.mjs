@@ -17,9 +17,11 @@ import { load } from './static.mjs';
 /** O que vale a pena ter pronto: o que uma página precisa para pintar. */
 const WARM = new Set(['.html', '.css', '.js', '.mjs']);
 
-/** Tectos, para o arranque não crescer sem limite num site que cresça. */
-const MAX_FILES = 120;
-const MAX_BYTES = 24 * 1024 * 1024;
+// Tectos apertados de propósito. Isto serve para a primeira página não
+// esperar por disco, não para trazer o site todo para a memória — disso
+// trata a cache, que tem o seu próprio orçamento e sabe deitar fora.
+const MAX_FILES = 40;
+const MAX_BYTES = 4 * 1024 * 1024;
 
 async function* walk(dir) {
   let entries;
@@ -53,6 +55,7 @@ export async function warmCache() {
   }
 
   if (files) {
-    console.log('cache:      ' + files + ' ficheiros prontos em ' + (Date.now() - started) + ' ms');
+    const kb = Math.round(bytes / 1024);
+    console.log('cache:      ' + files + ' ficheiros, ' + kb + ' KB, em ' + (Date.now() - started) + ' ms');
   }
 }

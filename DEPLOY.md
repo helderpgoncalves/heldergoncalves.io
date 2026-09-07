@@ -113,6 +113,48 @@ O mesmo que protege o contacto, mais uma coisa que é a que interessa:
   está" seria contar a um estranho quem subscreveu.
 - **Limites**: 3 pedidos por IP por hora, 120 no total por hora.
 
+## O healthcheck
+
+`GET /healthz` devolve **200 `ok`** quando o site pode mesmo ser servido,
+e **503 `no`** quando não. A diferença importa: um healthcheck que
+responde `ok` só porque o processo está vivo deixa passar um deploy em
+que a pasta do site não foi para lá — e o resultado é um site a devolver
+404 a tudo, com o Coolify a dizer que está saudável.
+
+Este confirma que há um `index.html` para servir. É uma chamada ao
+sistema, em cache durante dez segundos, e a resposta são dois bytes.
+
+O `Dockerfile` já o traz configurado:
+
+```
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3
+```
+
+O Coolify lê isto do próprio container e não é preciso configurar nada.
+Se preferires configurá-lo lá — *Health Checks*, no serviço — os valores
+que batem certo com estes são:
+
+| | |
+| --- | --- |
+| Path | `/healthz` |
+| Port | `3000` |
+| Method | `GET` |
+| Expected status | `200` |
+| Interval | `30` |
+| Timeout | `3` |
+| Retries | `3` |
+| Start period | `5` |
+
+**Porquê estes números.** O `start-period` é curto porque o servidor
+começa a atender antes de aquecer a cache — fica pronto no segundo em
+que está pronto, e não dez depois, o que encurta cada deploy. O
+`interval` de 30 segundos com 3 tentativas quer dizer que uma falha real
+é apanhada em menos de dois minutos, e que um soluço não deita o
+container abaixo.
+
+**Não uses `/` como healthcheck.** São 2880 páginas por dia para
+responder a uma pergunta de sim ou não.
+
 ## O que protege o formulário
 
 Tudo no servidor, porque tudo o que estiver no browser é público:
@@ -198,9 +240,24 @@ pedido, e melhor rácio do que era possível com alguém à espera.
 HTML, o CSS e o JS para memória (com tectos: 120 ficheiros, 24 MB). Quem
 chegar primeiro depois de um deploy não espera por I/O nenhum.
 
-**O healthcheck bate em `/healthz`**, que devolve nove bytes, e não na
-página inicial. São 2880 pedidos por dia; a diferença entre servir uma
-página e servir `ok` é real ao fim do mês.
+**A memória tem tectos, e todos.** O V8 dimensiona a heap a partir da
+memória da máquina, por isso o container leva `--max-old-space-size=128`:
+o pior caso passa a ser um número conhecido em vez de um número que
+depende do host. A cache de ficheiros tem um orçamento de 24 MB e deita
+fora o que há mais tempo não é pedido — sem isso, bastava o site crescer
+para o processo ficar a segurar o disco inteiro. Os mapas de limites por
+visitante têm tecto de 20 000 chaves, que é o que impede um ataque
+distribuído de os fazer crescer entre duas limpezas.
+
+O arranque diz quanto está a gastar:
+
+```
+memória:    52.4 MB no total, 11.2 MB de heap, 1.8 MB em 23 ficheiros
+```
+
+**Chega bem com 256 MB.** No Coolify, em *Resource Limits*, `256m` de
+memória é folgado e `0.5` de CPU chega. Pôr um limite não é só arrumação:
+sem ele, um pico leva a máquina toda em vez de levar só o container.
 
 **A imagem não tem npm.** O `CMD` é `node` e mais nada, por isso o npm é
 apagado da camada final: menos ~15 MB e sem gestor de pacotes dentro do
