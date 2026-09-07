@@ -1,8 +1,100 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- O canto contínuo da Apple: raio de 22,37% do lado, o canto a
-       ocupar 1,6× esse raio. A mesma forma dos ícones do sistema. -->
-  <path d="M 22.907 0 L 41.093 0 c 8.018 0 12.028 0 15.09 1.56 a 14.317 14.317 0 0 1 6.257 6.257 c 1.56 3.062 1.56 7.071 1.56 15.09 L 64 41.093 c 0 8.018 0 12.028 -1.56 15.09 a 14.317 14.317 0 0 1 -6.257 6.257 c -3.062 1.56 -7.071 1.56 -15.09 1.56 L 22.907 64 c -8.018 0 -12.028 0 -15.09 -1.56 a 14.317 14.317 0 0 1 -6.257 -6.257 c -1.56 -3.062 -1.56 -7.071 -1.56 -15.09 L 0 22.907 c 0 -8.018 0 -12.028 1.56 -15.09 a 14.317 14.317 0 0 1 6.257 -6.257 c 3.062 -1.56 7.071 -1.56 15.09 -1.56 Z" fill="#000"/>
-  <rect x="18" y="16" width="7" height="32" fill="#fff"/>
-  <rect x="39" y="16" width="7" height="32" fill="#fff"/>
-  <rect x="18" y="28" width="28" height="7" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- O ícone do site: "HG" em Liquid Glass.
+
+       A forma é o canto contínuo da Apple (raio de 22,37 % do lado, o
+       canto a ocupar 1,6× esse raio), o mesmo dos ícones do sistema.
+       As letras são escritas à mão, monolinha e de pontas redondas, no
+       estilo do "hello" que a Apple anima no primeiro arranque de um
+       Mac — a inclinação e o gesto vêm de lá; o traço é mais grosso,
+       para o vidro ter corpo.
+
+       O vidro são as camadas de sempre, de baixo para cima: a sombra
+       larga e baixa, o aro claro à volta (mais forte onde a luz bate,
+       em cima à esquerda, e no reflexo oposto, em baixo à direita), o
+       corpo translúcido que deixa ver o fundo, o bisel — luz na borda
+       de cima, sombra na de baixo — e um brilho difuso em cima.
+       Tudo desenhado aqui; nada é copiado.
+
+       Os PNG (Apple touch icon, PWA) saem deste ficheiro no build, em
+       scripts/icones.mjs. -->
+  <defs>
+    <clipPath id="sq"><path d="M 366.51 0 L 657.49 0 c 128.287 0 192.44 0 241.439 24.965 a 229.069 229.069 0 0 1 100.106 100.106 c 24.965 48.998 24.965 113.142 24.965 241.439 L 1024 657.49 c 0 128.287 0 192.44 -24.965 241.439 a 229.069 229.069 0 0 1 -100.106 100.106 c -48.998 24.965 -113.142 24.965 -241.439 24.965 L 366.51 1024 c -128.287 0 -192.44 0 -241.439 -24.965 a 229.069 229.069 0 0 1 -100.106 -100.106 c -24.965 -48.998 -24.965 -113.142 -24.965 -241.439 L 0 366.51 c 0 -128.287 0 -192.44 24.965 -241.439 a 229.069 229.069 0 0 1 100.106 -100.106 c 48.998 -24.965 113.142 -24.965 241.439 -24.965 Z"/></clipPath>
+    <path id="hg" d="M271.3,309.6 C249.8,440.7 226.6,577.6 207.4,708.7 M458.3,309.6 C436.9,440.7 413.6,577.6 394.5,708.7 M239.1,520.6 C309.1,508.0 388.9,508.0 465.4,512.0 M786.9,375.1 C761.4,337.8 722.4,315.3 680.0,315.3 C591.9,315.3 509.6,404.6 496.4,514.9 C483.2,625.1 544.0,714.4 632.1,714.4 C720.3,714.4 802.5,625.1 813.4,534.8 C816.6,508.0 803.1,496.6 780.3,496.6 C755.2,496.6 727.6,498.9 702.1,502.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <mask id="recorte"><use href="#hg" stroke="#fff" stroke-width="51.322"/></mask>
+
+    <!-- O fundo: a mesma cor do avatar do Sobre. Mais claro em cima, mais escuro em baixo. -->
+    <linearGradient id="fundo" x1="0" y1="0" x2="0.55" y2="1">
+      <stop offset="0" stop-color="#8c8ee3"/>
+      <stop offset="0.52" stop-color="#3b6bd6"/>
+      <stop offset="1" stop-color="#1a3d8c"/>
+    </linearGradient>
+    <radialGradient id="foco" cx="0.3" cy="0.1" r="0.85">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="penumbra" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.14"/>
+    </linearGradient>
+
+    <!-- O aro: brilha onde a luz bate e no reflexo do lado oposto. -->
+    <linearGradient id="aro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.42" stop-color="#fff" stop-opacity="0.3"/>
+      <stop offset="0.62" stop-color="#fff" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.92"/>
+    </linearGradient>
+    <!-- O corpo: translúcido, e um pouco mais denso em cima. -->
+    <linearGradient id="corpo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.66"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.44"/>
+    </linearGradient>
+    <!-- O brilho difuso, a vir de cima à esquerda. -->
+    <linearGradient id="brilho" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.38"/>
+      <stop offset="0.55" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- A sombra: só a sombra, sem a peça. -->
+    <filter id="sombra" x="-20%" y="-20%" width="140%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="difusa"/>
+      <feOffset in="difusa" dy="18" result="deslocada"/>
+      <feFlood flood-color="#0a1e50" flood-opacity="0.38"/>
+      <feComposite in2="deslocada" operator="in" result="sombra"/>
+      <feComposite in="sombra" in2="SourceAlpha" operator="out"/>
+    </filter>
+    <!-- O bisel: uma faixa de luz nas bordas de cima, uma de sombra nas de baixo. -->
+    <filter id="bisel" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feOffset in="SourceAlpha" dy="7" result="baixo"/>
+      <feComposite in="baixo" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="topo"/>
+      <feGaussianBlur in="topo" stdDeviation="2.5" result="topo-suave"/>
+      <feFlood flood-color="#fff" flood-opacity="0.9"/>
+      <feComposite in2="topo-suave" operator="in" result="luz"/>
+      <feOffset in="SourceAlpha" dy="-7" result="cima"/>
+      <feComposite in="cima" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="fundo-faixa"/>
+      <feGaussianBlur in="fundo-faixa" stdDeviation="3" result="fundo-suave"/>
+      <feFlood flood-color="#0b2a6b" flood-opacity="0.34"/>
+      <feComposite in2="fundo-suave" operator="in" result="sombra-borda"/>
+      <feMerge>
+        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="luz"/>
+        <feMergeNode in="sombra-borda"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g clip-path="url(#sq)">
+    <rect width="1024" height="1024" fill="url(#fundo)"/>
+    <rect width="1024" height="1024" fill="url(#foco)"/>
+    <rect width="1024" height="1024" fill="url(#penumbra)"/>
+
+    <use href="#hg" stroke="#000" stroke-width="51.322" filter="url(#sombra)"/>
+    <g filter="url(#bisel)">
+      <use href="#hg" stroke="url(#aro)" stroke-width="51.322"/>
+      <use href="#hg" stroke="url(#corpo)" stroke-width="43.322"/>
+    </g>
+    <g mask="url(#recorte)">
+      <rect width="1024" height="1024" fill="url(#brilho)"/>
+    </g>
+  </g>
 </svg>

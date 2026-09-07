@@ -85,8 +85,10 @@ const enHref = lang === 'en' ? canonical : altHref;
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:creator" content={SITE.twitterHandle} />
 
+    <!-- O PNG primeiro e o SVG depois: quem sabe SVG fica com o último; o Safari, que não sabe, fica com o PNG. -->
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — ${c.escritos.title}`} href={r.feed} />
     <link rel="alternate" type="text/markdown" href={llms} title="llms.txt" />

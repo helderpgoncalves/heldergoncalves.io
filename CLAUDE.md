@@ -73,6 +73,7 @@ Está tudo feito para que a resposta seja aborrecida.
 | ensinar uma coisa ao assistente | criar um `.md` em `knowledge/` — não há código a mexer |
 | mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` (os do sistema em `os.pt.ts` e `os.en.ts`) |
 | um widget novo | um `<template>` em `Widgets.astro`, uma linha em `widgets.js`, o nome nas duas línguas |
+| mudar o ícone do site | só `public/favicon.svg` — os PNG (Apple touch icon, PWA) saem dele no build, em `scripts/icones.mjs` |
 
 ## Convenções
 

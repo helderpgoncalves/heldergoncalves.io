@@ -311,4 +311,7 @@ curl -sI -H 'Accept-Encoding: br' https://heldergoncalves.io/ | grep -i content-
 - O domínio está em `astro.config.mjs` (`site`) — é de lá que saem o canonical,
   o sitemap e os URLs absolutos do Open Graph.
 - A imagem de partilha é `public/og.png`. Trocar o ficheiro chega.
+- O ícone do site é `public/favicon.svg`, e é o único desenho: os PNG do
+  Apple touch icon e da PWA saem dele no build (`scripts/icones.mjs`), por
+  isso em `npm run dev` não existem — só em `dist/`.
 - Para máquinas: `/llms.txt`, `/en/llms.txt`, `/llms-full.txt` e `/posts.json`.
