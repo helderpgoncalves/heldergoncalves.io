@@ -3,11 +3,21 @@
 //
 // Nada aqui é da Apple. Os glifos são do Lucide (lucide.dev, ISC) e as
 // marcas do Simple Icons (CC0) — ver NOTICE.md. O que segue as regras
-// da Apple é a *geometria*, que é matemática e não obra protegida: o
-// superelipse dos cantos, a margem de ~10%, o motivo principal a ocupar
-// cerca de dois terços do lado, e o traço na ordem dos 6%. As cores são
-// os valores das cores de sistema do iOS, com o gradiente que a Apple
-// usa: aclarar em cima, escurecer ligeiramente em baixo.
+// da Apple é a *geometria*, que é matemática e não obra protegida.
+//
+// A forma: o canto contínuo, com raio de 22,37% do lado — a medida da
+// máscara dos ícones do iOS. Um canto contínuo não é um arco de
+// círculo: o arco só cobre 36° no meio do canto, e de cada lado dele
+// entram duas curvas de Bézier que o entregam ao lado a direito sem
+// salto de curvatura. Por isso o canto ocupa 35,79 do lado (1,6× o
+// raio) e o lado a direito só existe entre 35,79 e 64,21. É esta
+// transição suave — e não o raio — que distingue a forma da Apple de
+// um `border-radius` qualquer.
+//
+// O resto: margem de ~10%, o motivo principal a ocupar cerca de dois
+// terços do lado, e o traço na ordem dos 6%. As cores são os valores
+// das cores de sistema do iOS, com o gradiente que a Apple usa:
+// aclarar em cima, escurecer ligeiramente em baixo.
 ---
 <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
   <defs>
@@ -30,7 +40,7 @@
       <stop offset=".6" stop-color="#000" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity=".13"/>
     </linearGradient>
-    <clipPath id="sq"><path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z"/></clipPath>
+    <clipPath id="sq"><path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z"/></clipPath>
   </defs>
 
   <!-- ── O mapa de refração ──────────────────────────────────────
@@ -54,7 +64,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-contacto" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -63,7 +73,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-projetos" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -72,7 +82,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-definicoes" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -81,7 +91,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-disk" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -90,7 +100,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-doc" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -99,7 +109,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-escritos" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -109,7 +119,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-mensagens" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -118,7 +128,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-terminal" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -127,7 +137,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-simulador" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -136,7 +146,7 @@
       <rect width="100" height="100" fill="url(#g-spot)"/>
       <rect width="100" height="100" fill="url(#g-shade)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-trash" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
@@ -144,7 +154,7 @@
       <g transform="translate(21.00 21.00) scale(2.4167)" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" /></g>
       <rect width="100" height="100" fill="url(#g-spot)"/>
     </g>
-    <path d="M0 50C0 11.5 11.5 0 50 0s50 11.5 50 50-11.5 50-50 50S0 88.5 0 50Z" fill="none" stroke="#fff" stroke-opacity=".26" stroke-width="1.5"/>
+    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#fff" stroke-opacity=".26" stroke-width="1.5"/>
   </symbol>
 
   <!-- Interface -->

@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#000"/>
+  <!-- O canto contínuo da Apple: raio de 22,37% do lado, o canto a
+       ocupar 1,6× esse raio. A mesma forma dos ícones do sistema. -->
+  <path d="M 22.907 0 L 41.093 0 c 8.018 0 12.028 0 15.09 1.56 a 14.317 14.317 0 0 1 6.257 6.257 c 1.56 3.062 1.56 7.071 1.56 15.09 L 64 41.093 c 0 8.018 0 12.028 -1.56 15.09 a 14.317 14.317 0 0 1 -6.257 6.257 c -3.062 1.56 -7.071 1.56 -15.09 1.56 L 22.907 64 c -8.018 0 -12.028 0 -15.09 -1.56 a 14.317 14.317 0 0 1 -6.257 -6.257 c -1.56 -3.062 -1.56 -7.071 -1.56 -15.09 L 0 22.907 c 0 -8.018 0 -12.028 1.56 -15.09 a 14.317 14.317 0 0 1 6.257 -6.257 c 3.062 -1.56 7.071 -1.56 15.09 -1.56 Z" fill="#000"/>
   <rect x="18" y="16" width="7" height="32" fill="#fff"/>
   <rect x="39" y="16" width="7" height="32" fill="#fff"/>
   <rect x="18" y="28" width="28" height="7" fill="#fff"/>

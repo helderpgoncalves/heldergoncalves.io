@@ -150,10 +150,15 @@ a:hover { text-decoration: underline; }
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-/* Formas: o quadrado-círculo da Apple, quando o browser souber fazê-lo. */
-.squircle { border-radius: 23%; }
+/* Formas: o canto contínuo da Apple, quando o browser souber fazê-lo.
+   O raio dos ícones é 22,37% do lado, e num canto contínuo o canto
+   ocupa 1,6× o raio — 35,79%. Ver a secção 13. */
+.squircle { border-radius: 22.37%; }
 @supports (corner-shape: squircle) {
-  .squircle { corner-shape: squircle; border-radius: 46%; }
+  .squircle { corner-shape: squircle; border-radius: 35.79%; }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .squircle { corner-shape: superellipse(1.777); }
 }
 
 /* ── 2. Fundos ──────────────────────────────────────────────── */
@@ -243,10 +248,19 @@ a:hover { text-decoration: underline; }
 .menubar svg { display: block; }
 .menu-clock { font-variant-numeric: tabular-nums; padding: 2px 6px; }
 
-/* Menus suspensos */
+/* Menus suspensos
+   ─────────────────────────────────────────────────────────────
+   Um menu do macOS tem a largura do item mais comprido que tem
+   dentro — nunca a da janela, nunca a do ecrã. Por isso `max-content`
+   e `nowrap`: sem eles o texto quebra e o menu estica-se para o que
+   houver de espaço, que é exactamente o que não pode acontecer.
+   As teclas de atalho vivem numa coluna à direita, separadas do
+   nome por uma folga que não deixa os dois encostarem-se. */
 .menu {
-  position: absolute; z-index: 500; min-width: 220px; padding: 5px;
-  border-radius: 10px; background: var(--glass);
+  position: absolute; z-index: 500;
+  width: max-content; min-width: 208px; max-width: min(340px, 84vw);
+  padding: 5px; overflow-y: auto;
+  background: var(--glass);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   border: 0.5px solid var(--glass-edge); box-shadow: var(--shadow-pop);
   color: var(--ink); font-size: 13.5px;
@@ -254,11 +268,21 @@ a:hover { text-decoration: underline; }
 }
 @keyframes menu-in { from { opacity: 0; transform: translateY(-4px); } }
 .menu button {
-  display: block; width: 100%; text-align: left; padding: 4px 10px;
-  border-radius: 5px; color: inherit;
+  display: flex; align-items: center; gap: 28px; justify-content: space-between;
+  width: 100%; min-height: 22px; text-align: left; padding: 2px 10px;
+  color: inherit; white-space: nowrap;
 }
-.menu button:hover { background: var(--accent); color: #fff; }
-.menu hr { height: 1px; margin: 5px 8px; border: 0; background: var(--line); }
+.menu button .mi-label { overflow: hidden; text-overflow: ellipsis; }
+.menu button .mi-key {
+  flex: none; color: var(--ink-3); font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.menu button:hover:not([disabled]),
+.menu button:focus-visible:not([disabled]) { background: var(--accent); color: #fff; outline: none; }
+.menu button:hover:not([disabled]) .mi-key,
+.menu button:focus-visible:not([disabled]) .mi-key { color: rgba(255, 255, 255, 0.75); }
+.menu button[disabled] { opacity: 0.32; cursor: default; }
+.menu hr { height: 1px; margin: 5px 10px; border: 0; background: var(--line); }
 
 /* Ambiente de trabalho e ícones */
 .desktop { position: absolute; inset: var(--menubar-h) 0 0 0; }
@@ -299,7 +323,7 @@ a:hover { text-decoration: underline; }
 .win.closing { animation: win-out 0.16s ease-in forwards; }
 @keyframes win-out { to { opacity: 0; transform: scale(0.94); } }
 .win.minimized { display: none; }
-.win.zoomed { border-radius: 0; }
+.win.zoomed { border-radius: 0; corner-shape: round; }
 .win[data-app] { color: var(--ink); }
 
 .win-bar {
@@ -416,13 +440,14 @@ a:hover { text-decoration: underline; }
 
 /* Menu do botão direito */
 .ctx {
-  position: absolute; z-index: 700; min-width: 190px; padding: 5px;
-  border-radius: 9px; background: var(--glass);
+  position: absolute; z-index: 700;
+  width: max-content; min-width: 190px; max-width: min(320px, 84vw);
+  padding: 5px; background: var(--glass);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   border: 0.5px solid var(--glass-edge); box-shadow: var(--shadow-pop);
   font-size: 13.5px; animation: menu-in 0.1s var(--ease-os);
 }
-.ctx button { display: block; width: 100%; text-align: left; padding: 4px 10px; border-radius: 5px; }
+.ctx button { display: block; width: 100%; min-height: 22px; text-align: left; padding: 2px 10px; white-space: nowrap; color: inherit; }
 .ctx button:hover { background: var(--accent); color: #fff; }
 
 /* Arranque — o monograma desenha-se, depois o nome, depois a barra */
@@ -638,7 +663,7 @@ a:hover { text-decoration: underline; }
 }
 .lock-note:nth-child(2) { animation-delay: 0.07s; }
 .lock-note .ln-icon { display: grid; place-items: center; }
-.lock-note .ln-icon svg { width: 30px; height: 30px; border-radius: 8px; }
+.lock-note .ln-icon svg { width: 30px; height: 30px; }
 .lock-note .ln-text { display: grid; gap: 1px; min-width: 0; }
 .lock-note strong { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
 .lock-note .ln-text > span {
@@ -1241,6 +1266,7 @@ input, textarea, select { font-family: inherit; }
     position: absolute;
     inset: 0;
     border-radius: inherit;
+    corner-shape: inherit;
     padding: 1px;
     background: conic-gradient(
       from var(--glass-angle),
@@ -1276,6 +1302,7 @@ input, textarea, select { font-family: inherit; }
   inset: 0;
   z-index: -1;
   border-radius: inherit;
+  corner-shape: inherit;
   pointer-events: none;
   background: var(--glass-tint);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
@@ -1362,6 +1389,7 @@ input, textarea, select { font-family: inherit; }
   inset: 0;
   z-index: -1;
   border-radius: inherit;
+  corner-shape: inherit;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.3));
   pointer-events: none;
 }
@@ -1407,20 +1435,128 @@ input, textarea, select { font-family: inherit; }
 .menu, .ctx, .ios-view-head { --glass-blur: 22px; }
 .lock-action, .dock-tip { --glass-blur: 16px; }
 
-/* REGRA: concentricidade — raio de dentro = raio de fora menos a
-   margem.
+/* REGRA: os cantos são contínuos, e a tabela deles vive num sítio só.
    ─────────────────────────────────────────────────────────────
-   É a fórmula da Apple, e é o que faz as formas assentarem umas
-   dentro das outras à volta do mesmo centro. */
-.dock { --r: 22px; --pad: 6px; }
+   Um canto da Apple não é um arco de círculo. O arco cobre apenas
+   36° no meio do canto; de cada lado dele entram duas curvas de
+   Bézier que o entregam ao lado a direito sem salto de curvatura.
+   Daí o nome que a Apple lhe dá: *continuous*.
+
+   Duas consequências, e são as duas que interessam:
+
+   1. O canto ocupa 1,6× o raio ao longo de cada lado. Num ícone de
+      100, com raio de 22,37, o canto vai até 35,79 e o lado a
+      direito só existe entre 35,79 e 64,21.
+   2. A fundura é a mesma de um canto circular do mesmo raio —
+      0,2929 × r nos dois casos. Por isso os raios nominais abaixo
+      são os de sempre: o que muda é a passagem, não o tamanho.
+
+   `corner-shape` desenha isto no browser. O raio que ele recebe é o
+   *comprimento do canto*, não o raio do arco — por isso leva o 1,6×.
+   O expoente 1,777 é o que reproduz a curva da Apple: a superelipse
+   de grau 2^1,777 ≈ 3,43 passa exactamente pelos dois pontos acima.
+   Onde o browser não souber, fica o canto circular do mesmo raio
+   nominal, que é a aproximação mais próxima que resta. */
+
+/* macOS */
+.win, .snap-preview { --r: 11px; }
 .menu, .ctx { --r: 10px; --pad: 5px; }
+.menubar-item { --r: 5px; }
+.desk-icon { --r: 8px; }
+.dock { --r: 22px; --pad: 6px; }
+.dock-tip { --r: 7px; }
 .spot-box { --r: 14px; }
 .spot-results { --r: 14px; --pad: 6px; }
+.cmdtab { --r: 20px; }
+.cmdtab-item { --r: 12px; }
+.skip { --r: 8px; }
+
+/* iOS */
+.ios-dock { --r: 32px; }
 .widget { --r: 22px; --pad: 14px; }
+.lock-note { --r: 20px; }
 .nc-note { --r: 20px; --pad: 13px; }
-.menu button, .ctx button { border-radius: calc(var(--r) - var(--pad)); }
-.spot-item { border-radius: calc(var(--r) - var(--pad)); }
+.cc-tile { --r: 22px; }
+.cc-slider { --r: 24px; }
+.switcher-card { --r: 28px; }
+.bubble { --r: 18px; }
+
+/* Conteúdo */
+.rows { --r: 12px; }
+.card { --r: 14px; }
+.post-link { --r: 9px; }
+.wall-pick { --r: 12px; }
+.legal-note { --r: 10px; }
+.prose pre, .prose img { --r: 10px; }
+.prose code { --r: 5px; }
+
+/* O telefone do simulador: o ecrã do iPhone tem um canto de ~14% da
+   largura, e a moldura é esse canto mais a espessura da moldura —
+   concentricidade outra vez, agora em hardware. */
+.sim-screen { --r: 42px; }
+.sim-device { --r: 53px; }
+
+/* Concentricidade: raio de dentro = raio de fora menos a margem.
+   É a fórmula da Apple, e é o que faz as formas assentarem umas
+   dentro das outras à volta do mesmo centro. Como o canto contínuo
+   se desloca por igual quando se afasta da borda, a conta continua
+   a valer depois do 1,6×. */
+.menu button, .ctx button,
+.spot-item { --r: calc(var(--r-out) - var(--pad)); }
+.menu, .ctx, .spot-results { --r-out: var(--r); }
 .widget .w-row:first-of-type { border-top-left-radius: calc(var(--r) - var(--pad)); border-top-right-radius: calc(var(--r) - var(--pad)); }
+
+.win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
+.menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+.cmdtab, .cmdtab-item, .skip,
+.ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
+.switcher-card, .bubble,
+.rows, .card, .post-link, .wall-pick, .legal-note,
+.prose pre, .prose img, .prose code,
+.sim-device, .sim-screen { border-radius: var(--r); }
+
+@supports (corner-shape: squircle) {
+  .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
+  .menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+  .cmdtab, .cmdtab-item, .skip,
+  .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
+  .switcher-card, .bubble,
+  .rows, .card, .post-link, .wall-pick, .legal-note,
+  .prose pre, .prose img, .prose code,
+  .sim-device, .sim-screen {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  .widget .w-row:first-of-type {
+    border-top-left-radius: calc((var(--r) - var(--pad)) * 1.6);
+    border-top-right-radius: calc((var(--r) - var(--pad)) * 1.6);
+  }
+}
+
+@supports (corner-shape: superellipse(1.777)) {
+  .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
+  .menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+  .cmdtab, .cmdtab-item, .skip,
+  .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
+  .switcher-card, .bubble,
+  .rows, .card, .post-link, .wall-pick, .legal-note,
+  .prose pre, .prose img, .prose code,
+  .sim-device, .sim-screen { corner-shape: superellipse(1.777); }
+}
+
+/* REGRA: o ícone tem uma forma só, e é sempre a mesma.
+   ─────────────────────────────────────────────────────────────
+   22,37% do lado — a medida da máscara dos ícones do iOS. Os ícones
+   do sprite já a trazem desenhada no próprio caminho, para não
+   dependerem de nada; isto é para as formas de ícone feitas em
+   HTML. */
+.squircle, .avatar { border-radius: 22.37%; }
+@supports (corner-shape: squircle) {
+  .squircle, .avatar { corner-shape: squircle; border-radius: 35.79%; }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .squircle, .avatar { corner-shape: superellipse(1.777); }
+}
 
 /* REGRA: cápsulas — raio igual a metade da altura.
    ─────────────────────────────────────────────────────────────

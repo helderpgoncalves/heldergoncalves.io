@@ -327,14 +327,18 @@ export function createMac(ctx) {
     menubar.querySelectorAll('[aria-expanded]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
   }
 
+  // O menu da aplicação activa tem a forma que o macOS lhe dá: o nome
+  // sozinho em cima, e depois o que se pode fazer com ela. O subtítulo
+  // não entra — no macOS um item de menu é uma frase curta, e é ele
+  // que manda na largura do menu inteiro.
   function menuFor(key) {
     if (key === 'app') {
       const app = ctx.active ? meta(ctx.active) : null;
       return app
         ? [
-            { label: app.name + ' — ' + app.subtitle, action: '' },
+            { label: s.aboutApp ? s.aboutApp.replace('%s', app.name) : app.name, action: 'open:sobre' },
             { label: '—', action: '' },
-            { label: s.close, action: 'close' },
+            { label: s.close, action: 'close', key: '⌘W' },
           ]
         : ctx.data.menus.apple;
     }
@@ -350,15 +354,32 @@ export function createMac(ctx) {
     el.innerHTML = list
       .map((m) =>
         m.label === '—'
-          ? '<hr />'
-          : `<button type="button" role="menuitem" data-action="${esc(m.action)}"${m.action ? '' : ' disabled style="opacity:.5"'}>${esc(m.label)}</button>`
+          ? '<hr role="separator" />'
+          : '<button type="button" role="menuitem" tabindex="-1" data-action="' +
+            esc(m.action) +
+            '"' +
+            (m.action ? '' : ' disabled aria-disabled="true"') +
+            '><span class="mi-label">' +
+            esc(m.label) +
+            '</span>' +
+            (m.key ? '<span class="mi-key">' + esc(m.key) + '</span>' : '') +
+            '</button>'
       )
       .join('');
-    const r = button.getBoundingClientRect();
-    el.style.left = Math.max(4, r.left) + 'px';
-    el.style.top = r.bottom + 2 + 'px';
     root.appendChild(el);
     if (ctx.addGlass) ctx.addGlass(el);
+
+    // Posição: o menu cai da barra alinhado pela borda esquerda do
+    // título, como no macOS — e se não couber, encosta à direita do
+    // ecrã em vez de o esticar.
+    const r = button.getBoundingClientRect();
+    const gap = 4;
+    const w = el.offsetWidth;
+    const left = Math.max(gap, Math.min(r.left, window.innerWidth - w - gap));
+    el.style.left = Math.round(left) + 'px';
+    el.style.top = Math.round(r.bottom + 1) + 'px';
+    el.style.maxHeight = Math.round(window.innerHeight - r.bottom - 12) + 'px';
+
     openMenu = el;
     button.setAttribute('aria-expanded', 'true');
     el.addEventListener('click', (ev) => {
@@ -366,6 +387,25 @@ export function createMac(ctx) {
       if (!b || !b.dataset.action) return;
       closeMenus();
       ctx.run(b.dataset.action);
+    });
+    // Setas, como num menu a sério. O Enter e o Escape já são tratados
+    // pelo botão e pelo teclado geral.
+    el.addEventListener('keydown', (ev) => {
+      const items = [...el.querySelectorAll('button:not([disabled])')];
+      if (!items.length) return;
+      const i = items.indexOf(document.activeElement);
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        const down = ev.key === 'ArrowDown';
+        if (i < 0) items[down ? 0 : items.length - 1].focus();
+        else items[(i + (down ? 1 : -1) + items.length) % items.length].focus();
+      } else if (ev.key === 'Home') {
+        ev.preventDefault();
+        items[0].focus();
+      } else if (ev.key === 'End') {
+        ev.preventDefault();
+        items[items.length - 1].focus();
+      }
     });
   }
 
