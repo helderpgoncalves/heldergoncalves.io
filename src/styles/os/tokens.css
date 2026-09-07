@@ -20,6 +20,7 @@
   --yellow: #ffcc00;
   --purple: #af52de;
   --teal: #30b0c7;
+  --green-tint: rgba(52, 199, 89, 0.16);
   /* systemGray, do mais escuro ao mais claro. */
   --gray: #8e8e93;
   --gray2: #aeaeb2;
@@ -70,6 +71,7 @@
   --yellow: #ffd60a;
   --purple: #bf5af2;
   --teal: #40c8e0;
+  --green-tint: rgba(48, 209, 88, 0.22);
   --gray: #8e8e93;
   --gray2: #636366;
   --gray3: #48484a;
@@ -106,6 +108,7 @@
     --yellow: #ffd60a;
     --purple: #bf5af2;
     --teal: #40c8e0;
+    --green-tint: rgba(48, 209, 88, 0.22);
     --gray: #8e8e93;
     --gray2: #636366;
     --gray3: #48484a;
@@ -169,6 +172,11 @@ a:hover { text-decoration: underline; }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+
+/* Os ícones do sprite têm, alguns, uma versão para cada sistema. O
+   estilo chega ao interior do <use> pelo elemento de origem, por isso
+   basta escondê-los aqui, uma vez. */
+[data-mode='ios'] .ic-mac, [data-mode='mac'] .ic-ios { display: none; }
 
 /* Formas: o canto contínuo da Apple, quando o browser souber fazê-lo.
    O raio dos ícones é 22,37% do lado, e num canto contínuo o canto

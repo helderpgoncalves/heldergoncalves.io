@@ -1,0 +1,38 @@
+---
+// A Bolsa. O que está aqui é o que se lê sem JavaScript: o que a
+// aplicação é e que títulos mostra por omissão. O resto — cotações,
+// gráficos, a lista que se edita — é o JS que o traz do servidor.
+import { COPY, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const b = c.bolsa;
+const DEFAULT = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'TSLA', 'BTC-USD', '^GSPC', 'EURUSD=X'];
+---
+<section class="app-shell app-bolsa" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')}>
+  <div class="stk-side">
+    <div class="stk-head">
+      <h2>{c.apps.bolsa.name}</h2>
+      <button class="stk-edit" type="button" data-stk-edit>{b.edit}</button>
+    </div>
+    <form class="stk-add" data-stk-add>
+      <Icon id="ui-search" size={13} />
+      <label class="sr" for="stk-symbol">{b.add}</label>
+      <input id="stk-symbol" type="search" placeholder={b.addPlaceholder} autocomplete="off" autocapitalize="characters" spellcheck="false" />
+    </form>
+    <ul class="stk-list" data-stk-list>
+      {DEFAULT.map((s) => (
+        <li class="stk-row" data-symbol={s}>
+          <span class="stk-sym">{s}</span>
+          <span class="stk-name">—</span>
+        </li>
+      ))}
+    </ul>
+    <p class="stk-note" data-stk-note>{b.lead}</p>
+  </div>
+  <div class="stk-main" data-stk-main>
+    <div class="stk-empty"><Icon id="bolsa" size={44} /><p>{b.pick}</p></div>
+  </div>
+</section>

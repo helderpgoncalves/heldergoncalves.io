@@ -29,3 +29,16 @@ estado.
 Nenhum ficheiro da Apple. Os glifos são do Lucide (licença ISC), as marcas
 do Simple Icons (CC0). Nos dispositivos Apple a fonte é a San Francisco do
 próprio sistema; nos outros é a Inter. Ver o ficheiro NOTICE.md.
+
+## A Bolsa e o Calendário
+
+A **Bolsa** mostra cotações ao vivo (Yahoo Finance, através do servidor,
+com um minuto de cache). A lista de títulos é do visitante e fica no
+dispositivo. Não é aconselhamento financeiro.
+
+O **Calendário** marca conversas de 30 minutos com o Hélder. Entra-se
+com o email — recebe-se um código de seis algarismos, não há
+palavra-passe — e só depois se vê a disponibilidade, nas horas de
+Lisboa (por omissão, dias úteis, 10h–12h e 15h–18h). Cada marcação
+confirma por email aos dois. Quem prefere pode continuar a escrever
+para o email do Hélder.

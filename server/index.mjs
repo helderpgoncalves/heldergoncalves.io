@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────
 // O servidor de heldergoncalves.io.
 //
-// Serve o que o Astro gerou e mais quatro coisas: recebe uma mensagem
-// de contacto, gere as subscrições do blog, responde nas Mensagens e
-// fala MCP. Zero dependências — só o Node — porque menos código de
+// Serve o que o Astro gerou e mais seis coisas: recebe uma mensagem
+// de contacto, gere as subscrições do blog, responde nas Mensagens,
+// fala MCP, vai buscar cotações à Bolsa e marca reuniões no Calendário. Zero dependências — só o Node — porque menos código de
 // terceiros é menos superfície de ataque e menos coisas para atualizar
 // às pressas.
 //
@@ -27,6 +27,11 @@ import { handleContact } from './routes/contact.mjs';
 import { handleConfirm, handleSubscribe, handleUnsubscribe } from './routes/subscribe.mjs';
 import { handleChat } from './routes/chat.mjs';
 import { describeMcp, handleMcp } from './routes/mcp.mjs';
+import { handleBolsa } from './routes/bolsa.mjs';
+import { initSessions } from './sessions.mjs';
+import { initMeetings } from './meetings.mjs';
+import { handleAuthLogout, handleAuthMe, handleAuthStart, handleAuthVerify } from './routes/auth.mjs';
+import { handleAvailability, handleBook, handleCancel } from './routes/reunioes.mjs';
 
 /**
  * O token que os formulários pedem ao abrir. Diz também o que está
@@ -56,10 +61,20 @@ const ROUTES = [
   { path: '/api/subscribe/confirm', methods: ['GET'], handler: handleConfirm },
   { path: '/api/subscribe/unsubscribe', methods: ['GET'], handler: handleUnsubscribe },
   { path: '/api/chat', methods: ['POST'], handler: handleChat },
+  { path: '/api/bolsa', methods: ['GET'], handler: handleBolsa },
+  { path: '/api/auth/start', methods: ['POST'], handler: handleAuthStart },
+  { path: '/api/auth/verify', methods: ['POST'], handler: handleAuthVerify },
+  { path: '/api/auth/me', methods: ['GET'], handler: handleAuthMe },
+  { path: '/api/auth/logout', methods: ['POST'], handler: handleAuthLogout },
+  { path: '/api/reunioes/disponibilidade', methods: ['GET'], handler: handleAvailability },
+  { path: '/api/reunioes', methods: ['POST'], handler: handleBook },
+  { path: '/api/reunioes/cancelar', methods: ['POST'], handler: handleCancel },
   { path: '/mcp', methods: ['GET', 'POST'], handler: mcpRoute },
 ];
 
 await initSubscribers();
+await initSessions();
+await initMeetings();
 await primeHealth();
 
 const server = createServer(async (req, res) => {
@@ -101,6 +116,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('contacto:   ' + estado(mailReady, MAIL.provider, 'inativo, o site usa mailto:'));
   console.log('newsletter: ' + estado(newsletterReady, MAIL.provider, 'inativa, precisa do email configurado'));
   console.log('conversa:   ' + estado(chatReady, CHAT.model, 'inativa, as Mensagens usam respostas guardadas'));
+  console.log('reuniões:   ' + estado(mailReady, 'código por email', 'inativas, precisam do email configurado'));
   // Depois de a porta estar aberta: quem chegar primeiro já não espera.
   warmCache().then(() => {
     // Dizer quanto se está a gastar transforma "deve ser pouco" num

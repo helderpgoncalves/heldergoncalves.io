@@ -17,8 +17,10 @@ import { initChat } from './mensagens.js';
 import { initCompose } from './contacto.js';
 import { initSettings } from './definicoes.js';
 import { initSimulator } from './simulador.js';
+import { initBolsa } from './bolsa.js';
+import { initCalendario } from './calendario.js';
 
-const APPS = [initEscritos, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator];
+const APPS = [initEscritos, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator, initBolsa, initCalendario];
 
 export function initApps(ctx) {
   for (const init of APPS) init(ctx);

@@ -13,9 +13,23 @@ export function wireKeys(desk) {
   /** Atalhos com ⌘ (ou Ctrl fora do Mac), pela ordem em que se provam. */
   const COMMANDS = [
     { key: 'k', run: () => (desk.spotlight.visible() ? desk.spotlight.close() : desk.spotlight.open()) },
+    { key: 'o', run: () => desk.spotlight.open() },
+    { key: 'w', alt: true, run: () => desk.windows.closeAll() },
     { key: 'w', needsWindow: true, run: () => desk.windows.close(ctx.active) },
     { key: 'm', needsWindow: true, run: () => desk.windows.minimize(ctx.active) },
+    { key: 'f', ctrl: true, needsWindow: true, run: () => desk.windows.zoom(ctx.active) },
+    { key: 'c', shift: true, run: () => ctx.run('copy') },
+    { key: ',', run: () => ctx.run('open:definicoes') },
   ];
+
+  /** Os modificadores têm de bater certo: ⌥⌘W não é ⌘W. */
+  const fits = (c, ev) =>
+    c.key === ev.key.toLowerCase() &&
+    Boolean(c.alt) === ev.altKey &&
+    Boolean(c.shift) === ev.shiftKey &&
+    // Fora do Mac o Ctrl faz de ⌘, por isso só conta como modificador
+    // quando o ⌘ verdadeiro está em baixo.
+    Boolean(c.ctrl) === (ev.ctrlKey && ev.metaKey);
 
   document.addEventListener('keydown', (ev) => {
     if (ctx.mode !== 'mac') return;
@@ -37,8 +51,7 @@ export function wireKeys(desk) {
     }
 
     if (!cmd) return;
-    const key = ev.key.toLowerCase();
-    const hit = COMMANDS.find((c) => c.key === key);
+    const hit = COMMANDS.find((c) => fits(c, ev));
     if (!hit) return;
     if (hit.needsWindow && !ctx.active) return;
     ev.preventDefault();

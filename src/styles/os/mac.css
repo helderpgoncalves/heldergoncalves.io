@@ -85,6 +85,8 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .desk-icon:hover { background: rgba(255, 255, 255, 0.16); }
+.desk-icon.selected { background: rgba(255, 255, 255, 0.24); }
+.desk-icon.selected svg { filter: brightness(0.8) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)); }
 .desk-icon svg { width: 46px; height: 46px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)); }
 
 .hint {

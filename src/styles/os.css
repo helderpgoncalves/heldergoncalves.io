@@ -11,6 +11,9 @@
      ios         ecrã inicial, bloqueio, painéis, gestos
      apps        o que vive dentro das janelas e das vistas
      notas       o Blog, com a forma das Notas da Apple
+     widgets     no ecrã inicial, no ambiente de trabalho, e a galeria
+     bolsa       a lista com as cápsulas, e o título com o gráfico
+     calendario  a grelha do mês, o dia ao lado, e a marcação
      toque       o que separa um site de uma aplicação
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
@@ -32,6 +35,9 @@
 @import './os/ios.css';
 @import './os/apps.css';
 @import './os/notas.css';
+@import './os/widgets.css';
+@import './os/bolsa.css';
+@import './os/calendario.css';
 @import './os/toque.css';
 @import './os/vidro.css';
 @import './os/apple.css';

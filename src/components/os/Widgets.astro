@@ -1,0 +1,89 @@
+---
+// Os moldes dos widgets e a galeria de onde se acrescentam.
+//
+// Um molde por tipo. O JS (scripts/os/widgets.js) clona o que for
+// preciso para as páginas do telefone, para o ambiente de trabalho do
+// Mac e para a galeria — por isso o HTML de cada widget só existe aqui,
+// uma vez.
+import { SITE, COPY, formatDate, type Lang } from '../../siteConfig';
+import { postSlug, type Post } from '../../lib/posts';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  posts: Post[];
+}
+
+const { lang, posts } = Astro.props;
+const c = COPY[lang];
+const latest = posts[0];
+const TYPES = ['date', 'clock', 'post', 'list', 'links'] as const;
+---
+<!-- Os moldes dos widgets. Um por tipo; o JS clona o que for preciso
+     para as páginas do telefone, para o ambiente de trabalho do Mac
+     e para a galeria. -->
+<template data-widget="date">
+  <div class="widget glass glass-clear widget-date">
+    <p class="w-day" data-widget-day></p>
+    <p class="w-date" data-widget-date></p>
+  </div>
+</template>
+<template data-widget="clock">
+  <div class="widget glass glass-clear widget-clock">
+    <p class="w-kicker" data-widget-day></p>
+    <p class="w-time" data-clock-ios></p>
+  </div>
+</template>
+<template data-widget="post">
+  {latest ? (
+    <button class="widget glass glass-clear widget-post" type="button" data-open-post={postSlug(latest)}>
+      <span class="w-kicker">{c.escritos.heading}</span>
+      <span class="w-title">{latest.data.title}</span>
+      <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
+    </button>
+  ) : (
+    <div class="widget glass glass-clear widget-post"><span class="w-kicker">{c.escritos.heading}</span><span class="w-meta">{c.escritos.empty}</span></div>
+  )}
+</template>
+<template data-widget="list">
+  <div class="widget glass glass-clear widget-list">
+    <span class="w-kicker">{c.escritos.heading}</span>
+    {posts.slice(0, 3).map((p) => (
+      <button class="w-row" type="button" data-open-post={postSlug(p)}>
+        <span class="w-row-title">{p.data.title}</span>
+        <span class="w-row-meta">{formatDate(p.data.date, lang)}</span>
+      </button>
+    ))}
+    {posts.length === 0 && <span class="w-meta">{c.escritos.empty}</span>}
+  </div>
+</template>
+<template data-widget="links">
+  <div class="widget glass glass-clear widget-links">
+    <span class="w-kicker">{c.contacto.elsewhere}</span>
+    <div class="w-links">
+      <a href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
+      <a href={SITE.github} target="_blank" rel="noopener me" aria-label={c.labels.github}><Icon id="ui-github" size={20} /></a>
+      <a href={SITE.linkedin} target="_blank" rel="noopener me" aria-label={c.labels.linkedin}><Icon id="ui-linkedin" size={20} /></a>
+      <a href={SITE.twitter} target="_blank" rel="noopener me" aria-label={c.labels.twitter}><Icon id="ui-twitter" size={20} /></a>
+    </div>
+  </div>
+</template>
+
+<div class="wgal" id="wgal" hidden>
+  <div class="wgal-sheet glass" role="dialog" aria-label={c.os.widgets.title}>
+    <div class="wgal-head">
+      <h2>{c.os.widgets.title}</h2>
+      <button class="wgal-close" type="button" data-wgal-close>{c.os.widgets.done}</button>
+    </div>
+    <div class="wgal-list">
+      {TYPES.map((type) => (
+        <div class="wgal-item" data-wgal-type={type}>
+          <div class="wgal-preview" aria-hidden="true"></div>
+          <span class="wgal-name">{c.os.widgets.names[type]}</span>
+          <button class="wgal-add" type="button" data-widget-add={type}>{c.os.widgets.add}</button>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+

@@ -7,6 +7,7 @@ import { postPath, postSlug, type Post } from '../../lib/posts';
 import IconSprite from './IconSprite.astro';
 import Icon from './Icon.astro';
 import Saudacao from './Saudacao.astro';
+import Widgets from './Widgets.astro';
 import Sobre from './apps/Sobre.astro';
 import Escritos from './apps/Escritos.astro';
 import Mensagens from './apps/Mensagens.astro';
@@ -15,6 +16,8 @@ import Projetos from './apps/Projetos.astro';
 import Terminal from './apps/Terminal.astro';
 import Definicoes from './apps/Definicoes.astro';
 import Simulador from './apps/Simulador.astro';
+import Bolsa from './apps/Bolsa.astro';
+import Calendario from './apps/Calendario.astro';
 
 interface Props {
   lang: Lang;
@@ -37,7 +40,6 @@ const alt = other(lang);
 const dockApps = APPS.filter((a) => a.dock);
 const iosDock = APPS.filter((a) => a.iosDock);
 const iosGrid = APPS.filter((a) => !a.iosDock);
-const latest = posts[0];
 
 // Tudo o que o JavaScript precisa de saber, já traduzido.
 const osData = {
@@ -105,9 +107,9 @@ const osData = {
       <span class="menubar-spacer"></span>
       <span class="menubar-right">
         <button class="menubar-item" data-action="spotlight" aria-label={c.os.search}><Icon id="ui-search" size={13} /></button>
-        <button class="menubar-item" data-action="open:definicoes" aria-label={c.os.control.title}><Icon id="ui-control" size={14} /></button>
-        <span class="menubar-item" aria-hidden="true"><Icon id="ui-wifi" size={13} /></span>
-        <span class="menubar-item" aria-hidden="true"><Icon id="ui-battery" size={16} /></span>
+        <button class="menubar-item" data-menu="control" aria-haspopup="true" aria-expanded="false" aria-label={c.os.control.title}><Icon id="ui-control" size={14} /></button>
+        <button class="menubar-item" data-menu="wifi" aria-haspopup="true" aria-expanded="false" aria-label={c.os.wifi}><Icon id="ui-wifi" size={13} /></button>
+        <button class="menubar-item" data-menu="battery" aria-haspopup="true" aria-expanded="false" aria-label={c.os.battery}><Icon id="ui-battery" size={16} /></button>
         <span class="menu-clock" data-clock-mac></span>
       </span>
     </div>
@@ -121,6 +123,8 @@ const osData = {
           <Icon id="icon-doc" size={46} />{c.os.desktopCv}
         </button>
       </div>
+      <div class="desk-widgets" data-widgets="mac" aria-label={c.os.widgets.title}></div>
+      <button class="desk-edit glass" type="button" data-widgets-done>{c.os.widgets.done}</button>
       <div class="windows" id="windows"></div>
       <p class="hint">{c.os.hintMac}</p>
     </div>
@@ -162,19 +166,9 @@ const osData = {
       <div class="sb" id="springboard">
         <div class="sb-pages" id="sbPages">
           <div class="sb-page">
-            <div class="sb-widgets">
-              <div class="widget glass glass-clear widget-date">
-                <p class="w-day" data-widget-day></p>
-                <p class="w-date" data-widget-date></p>
-              </div>
-              {latest && (
-                <button class="widget glass glass-clear widget-post" type="button" data-open-post={postSlug(latest)}>
-                  <span class="w-kicker">{c.escritos.heading}</span>
-                  <span class="w-title">{latest.data.title}</span>
-                  <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
-                </button>
-              )}
-            </div>
+            {/* Os widgets vêm dos moldes lá em baixo; o JS põe aqui os que
+                o visitante escolheu, ou os de origem. */}
+            <div class="sb-widgets" data-widgets="p1"></div>
             <div class="sb-grid">
               {iosGrid.map((a) => (
                 <button class="sb-app" type="button" data-open={a.id}>
@@ -186,28 +180,13 @@ const osData = {
           </div>
 
           <div class="sb-page">
-            <div class="sb-widgets one">
-              <div class="widget glass glass-clear widget-list">
-                <span class="w-kicker">{c.escritos.heading}</span>
-                {posts.slice(0, 3).map((p) => (
-                  <button class="w-row" type="button" data-open-post={postSlug(p)}>
-                    <span class="w-row-title">{p.data.title}</span>
-                    <span class="w-row-meta">{formatDate(p.data.date, lang)}</span>
-                  </button>
-                ))}
-                {posts.length === 0 && <span class="w-meta">{c.escritos.empty}</span>}
-              </div>
-              <div class="widget glass glass-clear widget-links">
-                <span class="w-kicker">{c.contacto.elsewhere}</span>
-                <div class="w-links">
-                  <a href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
-                  <a href={SITE.github} target="_blank" rel="noopener me" aria-label={c.labels.github}><Icon id="ui-github" size={20} /></a>
-                  <a href={SITE.linkedin} target="_blank" rel="noopener me" aria-label={c.labels.linkedin}><Icon id="ui-linkedin" size={20} /></a>
-                  <a href={SITE.twitter} target="_blank" rel="noopener me" aria-label={c.labels.twitter}><Icon id="ui-twitter" size={20} /></a>
-                </div>
-              </div>
-            </div>
+            <div class="sb-widgets" data-widgets="p2"></div>
           </div>
+        </div>
+
+        <div class="sb-edit">
+          <button class="sb-edit-add glass" type="button" data-widgets-open aria-label={c.os.widgets.add}>+</button>
+          <button class="sb-edit-done glass" type="button" data-widgets-done>{c.os.widgets.done}</button>
         </div>
 
         <div class="sb-dots" id="sbDots" aria-hidden="true"><i class="on"></i><i></i></div>
@@ -324,6 +303,8 @@ const osData = {
     </div>
   </div>
 
+  <Widgets lang={lang} posts={posts} />
+
   <!-- A pesquisa serve os dois mundos: ⌘K no Mac, puxar o ecrã inicial
        para baixo no telefone. Por isso vive fora dos dois. -->
   <div class="spotlight" id="spotlight" hidden>
@@ -356,6 +337,8 @@ const osData = {
   <Terminal lang={lang} />
   <Definicoes lang={lang} />
   <Simulador lang={lang} />
+  <Bolsa lang={lang} />
+  <Calendario lang={lang} />
 </div>
 
 <script type="application/json" id="os-data" is:inline set:html={JSON.stringify(osData).replace(/</g, "\\u003c")}></script>

@@ -95,8 +95,13 @@ export function startClock(locale) {
   };
 
   tick();
+  lastTick = tick;
   setInterval(tick, 15000);
 }
+
+let lastTick = () => {};
+/** Escreve a hora já: para um widget acabado de nascer não esperar 15 s. */
+export const refreshClock = () => lastTick();
 
 // ── Sessão (arranque e bloqueio só uma vez) ───────────────────
 export function seenThisSession(flag) {

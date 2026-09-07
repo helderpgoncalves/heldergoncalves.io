@@ -67,4 +67,82 @@ export const NEWSLETTER_COPY = {
   },
 };
 
+export const AUTH_COPY = {
+  pt: {
+    subject: 'O teu código para entrar em heldergoncalves.io',
+    body: (code) =>
+      [
+        'Olá,',
+        '',
+        'O teu código para entrar no Calendário é:',
+        '',
+        '    ' + code,
+        '',
+        'Vale dez minutos, e uma vez só. Se não foste tu a pedir, ignora este email — sem o código não entra ninguém.',
+        '',
+        'Hélder Gonçalves',
+        'https://heldergoncalves.io',
+      ].join('\n'),
+  },
+  en: {
+    subject: 'Your code to sign in at heldergoncalves.io',
+    body: (code) =>
+      [
+        'Hello,',
+        '',
+        'Your code to sign in to the Calendar is:',
+        '',
+        '    ' + code,
+        '',
+        'It is valid for ten minutes, once. If you did not ask for it, ignore this email — nobody gets in without the code.',
+        '',
+        'Hélder Gonçalves',
+        'https://heldergoncalves.io',
+      ].join('\n'),
+  },
+};
+
+export const MEETING_COPY = {
+  pt: {
+    userSubject: (when) => 'Conversa marcada: ' + when,
+    userBody: (when, title) =>
+      [
+        'Está marcado.',
+        '',
+        'Quando: ' + when,
+        title ? 'Assunto: ' + title : '',
+        '',
+        'Vou enviar-te a ligação para a chamada um pouco antes. Se precisares de desmarcar, faz isso no Calendário do site — ou responde a este email.',
+        '',
+        'Hélder Gonçalves',
+        'https://heldergoncalves.io',
+      ].join('\n'),
+    ownerSubject: (when) => '[agenda] Reunião marcada: ' + when,
+    ownerBody: (when, email, title, note) =>
+      ['Reunião nova marcada pelo site.', '', 'Quando: ' + when, 'Com: ' + email, 'Assunto: ' + (title || '—'), '', note || '(sem notas)', ''].join('\n'),
+    cancelSubject: (when) => '[agenda] Reunião cancelada: ' + when,
+    cancelBody: (when, email) => ['A reunião de ' + when + ' com ' + email + ' foi cancelada pela pessoa.', ''].join('\n'),
+  },
+  en: {
+    userSubject: (when) => 'Meeting booked: ' + when,
+    userBody: (when, title) =>
+      [
+        'It is booked.',
+        '',
+        'When: ' + when,
+        title ? 'Subject: ' + title : '',
+        '',
+        'I will send you the call link shortly before. If you need to cancel, do it in the Calendar on the site — or reply to this email.',
+        '',
+        'Hélder Gonçalves',
+        'https://heldergoncalves.io',
+      ].join('\n'),
+    ownerSubject: (when) => '[agenda] Meeting booked: ' + when,
+    ownerBody: (when, email, title, note) =>
+      ['New meeting booked from the site.', '', 'When: ' + when, 'With: ' + email, 'Subject: ' + (title || '—'), '', note || '(no notes)', ''].join('\n'),
+    cancelSubject: (when) => '[agenda] Meeting cancelled: ' + when,
+    cancelBody: (when, email) => ['The meeting on ' + when + ' with ' + email + ' was cancelled by the person.', ''].join('\n'),
+  },
+};
+
 export const pickLang = (value) => (value === 'en' ? 'en' : 'pt');

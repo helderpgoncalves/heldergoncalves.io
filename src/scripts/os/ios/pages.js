@@ -71,5 +71,5 @@ export function createPages(ph) {
       if (i >= 0) goTo(i);
     });
 
-  return { goTo };
+  return { goTo, current: () => page };
 }

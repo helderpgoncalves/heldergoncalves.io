@@ -27,7 +27,9 @@ export type AppId =
   | 'projetos'
   | 'terminal'
   | 'definicoes'
-  | 'simulador';
+  | 'simulador'
+  | 'bolsa'
+  | 'calendario';
 
 /**
  * Estrutura de cada aplicação: onde vive, que tamanho tem a janela no
@@ -56,6 +58,8 @@ export const APPS: AppMeta[] = [
   { id: 'terminal', win: { w: 720, h: 460, minW: 380, minH: 240 }, dock: true, iosDock: true, bare: true },
   { id: 'definicoes', win: { w: 760, h: 540, minW: 460, minH: 380 }, dock: true, iosDock: false },
   { id: 'simulador', win: { w: 420, h: 780, minW: 340, minH: 620 }, dock: true, iosDock: false, bare: true },
+  { id: 'bolsa', win: { w: 900, h: 600, minW: 520, minH: 400 }, dock: true, iosDock: false, bare: true },
+  { id: 'calendario', win: { w: 960, h: 640, minW: 560, minH: 420 }, dock: true, iosDock: false, bare: true },
 ];
 
 export const appMeta = (id: AppId): AppMeta => APPS.find((a) => a.id === id) as AppMeta;

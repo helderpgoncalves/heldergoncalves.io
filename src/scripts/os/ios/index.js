@@ -82,5 +82,6 @@ export function createPhone(ctx) {
     openSwitcher: ph.switcher.open,
     showLock: ph.lock.show,
     unlock: ph.lock.unlock,
+    page: ph.pages.current,
   };
 }

@@ -15,6 +15,7 @@ import {
 import { createMac } from './mac/index.js';
 import { createPhone } from './ios/index.js';
 import { initApps } from './apps/index.js';
+import { createWidgets } from './widgets.js';
 
 const node = document.getElementById('os-data');
 if (node) boot(JSON.parse(node.textContent));
@@ -52,6 +53,7 @@ function boot(data) {
   const phone = createPhone(ctx);
   ctx.phone = phone;
   ctx.notify = (text) => phone.notify(text);
+  ctx.widgets = createWidgets(ctx);
 
   // ── Abrir e fechar ────────────────────────────────────────────
   function openApp(id, from) {
@@ -65,9 +67,12 @@ function boot(data) {
     if (id === 'contacto' && ctx.prepareContact) ctx.prepareContact();
     if (id === 'mensagens' && ctx.prepareChat) ctx.prepareChat();
     if (id === 'escritos' && ctx.prepareSubscribe) ctx.prepareSubscribe();
+    if (id === 'bolsa' && ctx.prepareStocks) ctx.prepareStocks();
+    if (id === 'calendario' && ctx.prepareCalendar) ctx.prepareCalendar();
   }
 
   function closeApp(id) {
+    if (id === 'bolsa' && ctx.pauseStocks) ctx.pauseStocks();
     if (ctx.mode === 'mac') mac.close(id);
     else phone.close(id);
   }
@@ -122,6 +127,8 @@ function boot(data) {
         return;
       case 'spotlight':
         return mac.spotOpen();
+      case 'widgets':
+        return ctx.widgets.edit();
       case 'switcher':
         return ctx.mode === 'mac' ? mac.openAppSwitcher() : phone.openSwitcher();
       case 'minimize':
@@ -135,6 +142,8 @@ function boot(data) {
       case 'close':
         if (ctx.active) closeApp(ctx.active);
         return;
+      case 'closeApp':
+        return closeApp(value);
       case 'back':
         if (ctx.escritos && ctx.escritos.hasDetail()) ctx.escritos.list(true);
         return;
@@ -149,6 +158,11 @@ function boot(data) {
 
   // ── Cliques globais ───────────────────────────────────────────
   document.addEventListener('click', (ev) => {
+    // Em edição de widgets, tocar num ícone não abre nada — como no iPhone.
+    if (ctx.widgets && ctx.widgets.editing() && ev.target.closest('.sb, .desk-widgets')) {
+      ev.preventDefault();
+      return;
+    }
     const post = ev.target.closest('[data-open-post]');
     if (post) {
       ev.preventDefault();
@@ -156,9 +170,20 @@ function boot(data) {
       return;
     }
     const opener = ev.target.closest('[data-open]');
-    if (opener) {
-      ev.preventDefault();
-      openApp(opener.dataset.open, opener.querySelector('svg') || opener);
+    if (!opener) return;
+    ev.preventDefault();
+    // No ambiente de trabalho do Mac um clique escolhe; abre-se com dois,
+    // ou com o Enter (que chega como clique sem contagem).
+    if (ctx.mode === 'mac' && opener.classList.contains('desk-icon') && ev.detail === 1) {
+      document.querySelectorAll('.desk-icon.selected').forEach((el) => el.classList.remove('selected'));
+      opener.classList.add('selected');
+      return;
+    }
+    openApp(opener.dataset.open, opener.querySelector('svg') || opener);
+  });
+  document.addEventListener('pointerdown', (ev) => {
+    if (ctx.mode === 'mac' && !ev.target.closest('.desk-icon')) {
+      document.querySelectorAll('.desk-icon.selected').forEach((el) => el.classList.remove('selected'));
     }
   });
 

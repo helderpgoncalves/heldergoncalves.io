@@ -132,17 +132,26 @@ def keys_of(source):
 
 
 def check_copy():
-    pt_path = os.path.join(ROOT, 'src/config/copy.pt.ts')
-    en_path = os.path.join(ROOT, 'src/config/copy.en.ts')
-    if not (os.path.exists(pt_path) and os.path.exists(en_path)):
+    """Cada `x.pt.ts` em src/config tem um `x.en.ts` com as mesmas chaves."""
+    folder = os.path.join(ROOT, 'src/config')
+    pairs = sorted(f for f in os.listdir(folder) if f.endswith('.pt.ts'))
+    if not pairs:
         fail('línguas', 'falta um dos ficheiros de texto')
         return
-    pt, en = keys_of(read(pt_path)), keys_of(read(en_path))
-    for key in sorted(pt - en):
-        fail('línguas', '`%s` existe em pt e falta em en' % key)
-    for key in sorted(en - pt):
-        fail('línguas', '`%s` existe em en e falta em pt' % key)
-    notes.append('%d chaves de texto em cada língua' % len(pt))
+    total = 0
+    for name in pairs:
+        pt_path = os.path.join(folder, name)
+        en_path = os.path.join(folder, name[:-6] + '.en.ts')
+        if not os.path.exists(en_path):
+            fail('línguas', 'falta o par inglês de `%s`' % name)
+            continue
+        pt, en = keys_of(read(pt_path)), keys_of(read(en_path))
+        for key in sorted(pt - en):
+            fail('línguas', '`%s` existe em pt e falta em en (%s)' % (key, name))
+        for key in sorted(en - pt):
+            fail('línguas', '`%s` existe em en e falta em pt (%s)' % (key, name))
+        total += len(pt)
+    notes.append('%d chaves de texto em cada língua' % total)
 
 
 # ── 6. Segredos ──────────────────────────────────────────────────────

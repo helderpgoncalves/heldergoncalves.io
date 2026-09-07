@@ -47,23 +47,6 @@ input, textarea, select { font-family: inherit; }
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
 
-/* Segunda página do ecrã inicial */
-.sb-widgets.one { grid-template-columns: 1fr; }
-.widget-list { gap: 2px; min-height: 150px; }
-.w-row {
-  display: grid; gap: 1px; width: 100%; text-align: left; color: #fff; padding: 9px 0;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.16);
-}
-.widget-list .w-row:last-of-type { border-bottom: 0; }
-.w-row-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
-.w-row-meta { font-size: 11px; opacity: 0.68; }
-.w-links { display: flex; gap: 12px; margin-top: 10px; }
-.w-links a {
-  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2); color: #fff;
-}
-.w-links a:hover { background: rgba(255, 255, 255, 0.32); }
-
 /* Comutador: cartões que se arrastam para fora */
 .switcher-card { position: relative; transition: transform 0.28s var(--ease-os), opacity 0.28s; touch-action: pan-x; }
 .switcher-rail { align-items: center; }

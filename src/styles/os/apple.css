@@ -132,6 +132,17 @@
 .cc-tile { --r: 22px; }
 .cc-slider { --r: 24px; }
 .switcher-card { --r: 28px; }
+.wgal-sheet { --r: 22px; }
+/* O cartão da galeria contém um widget de 22 com 14 de margem: 22 + 14. */
+.wgal-item { --r: 36px; }
+.stk-add { --r: 8px; }
+.stk-row { --r: 8px; }
+.stk-pill { --r: 6px; }
+.stk-stats div { --r: 10px; }
+.cal-arrow, .cal-today { --r: 5px; }
+.cal-ev, .cal-free { --r: 4px; }
+.cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea { --r: 8px; }
+.cal-form { --r: 16px; }
 .bubble { --r: 18px; }
 
 /* Conteúdo */
@@ -165,7 +176,8 @@
 .menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
 .cmdtab, .cmdtab-item, .skip,
 .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
-.switcher-card, .bubble,
+.switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+.cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
 .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
 .prose pre, .prose img, .prose code,
 .sim-device, .sim-screen { border-radius: var(--r); }
@@ -175,7 +187,8 @@
   .menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
-  .switcher-card, .bubble,
+  .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+  .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
   .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,
   .sim-device, .sim-screen {
@@ -193,7 +206,8 @@
   .menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
-  .switcher-card, .bubble,
+  .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
+  .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
   .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,
   .sim-device, .sim-screen { corner-shape: superellipse(1.777); }

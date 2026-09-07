@@ -113,6 +113,41 @@ O mesmo que protege o contacto, mais uma coisa que é a que interessa:
   está" seria contar a um estranho quem subscreveu.
 - **Limites**: 3 pedidos por IP por hora, 120 no total por hora.
 
+## Calendário e Bolsa
+
+**A Bolsa** não precisa de nada: o servidor vai buscar as cotações ao
+Yahoo Finance (sem chave) e guarda cada resposta um minuto. Se a fonte
+falhar, a aplicação diz que não há cotações e o resto do site não sente.
+
+| Variável         | Exemplo                                              | Para quê                         |
+| ---------------- | ---------------------------------------------------- | -------------------------------- |
+| `STOCKS_SOURCE`  | `https://query1.finance.yahoo.com/v8/finance/chart/` | a fonte; é esta por omissão      |
+| `STOCKS_TTL_MS`  | `60000`                                              | quanto tempo cada resposta vale  |
+
+**O Calendário** deixa uma pessoa entrar com o email — recebe um código
+de seis algarismos, sem palavra-passe — e marcar uma conversa numa hora
+livre. Precisa do email ligado (é por onde vai o código) e do volume
+em `/app/data` (é onde ficam as reuniões).
+
+| Variável                 | Exemplo                        | Para quê                                          |
+| ------------------------ | ------------------------------ | ------------------------------------------------- |
+| `SESSION_SECRET`         | uma frase longa e aleatória    | assina os cookies de sessão; gerado se faltar     |
+| `MEETINGS_FILE`          | `/app/data/meetings.ndjson`    | as reuniões; opcional                             |
+| `MEETINGS_TZ`            | `Europe/Lisbon`                | o fuso da agenda                                  |
+| `MEETINGS_DAYS`          | `1-5`                          | dias da semana (1 = segunda, 0 ou 7 = domingo)    |
+| `MEETINGS_WINDOWS`       | `10:00-12:00,15:00-18:00`      | as janelas do dia                                 |
+| `MEETING_MINUTES`        | `30`                           | a duração de cada conversa                        |
+| `MEETINGS_HORIZON_DAYS`  | `60`                           | até quantos dias à frente se pode marcar          |
+| `MEETINGS_NOTICE_HOURS`  | `12`                           | antecedência mínima                               |
+
+Cada marcação manda dois emails: um a ti, com o email da pessoa em
+*reply-to*, e um à pessoa, a confirmar. Desmarcar avisa-te também. Só
+quem entrou vê a disponibilidade; quem não entrou vê o mês vazio e o
+pedido do email.
+
+Limites: 5 códigos por IP por hora, 15 tentativas de código por IP em
+15 minutos e 5 por código, 3 reuniões por pessoa por dia.
+
 ## O healthcheck
 
 `GET /healthz` devolve **200 `ok`** quando o site pode mesmo ser servido,

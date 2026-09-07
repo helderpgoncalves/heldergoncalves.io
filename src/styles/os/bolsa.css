@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════════════════
+   A Bolsa: a lista com as cápsulas, e o título com o gráfico.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+.app-bolsa { flex-direction: row; }
+.stk-side {
+  flex: 0 0 300px; min-width: 0; display: flex; flex-direction: column;
+  border-right: 0.5px solid var(--line); background: var(--surface-2);
+}
+.stk-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px; }
+.stk-head h2 { margin: 0; font-size: var(--t-title2); font-weight: 700; letter-spacing: -0.02em; }
+.stk-edit { color: var(--accent); font-size: var(--t-body); font-weight: 500; min-height: 28px; }
+.stk-add {
+  display: flex; align-items: center; gap: 6px; margin: 4px 12px 8px; height: 30px; padding: 0 10px;
+  background: var(--surface-3); color: var(--ink-3);
+}
+.stk-add input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: var(--t-body); color: var(--ink); }
+.stk-add input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.stk-list { flex: 1; min-height: 0; overflow: auto; margin: 0; padding: 0 8px 8px; list-style: none; }
+.stk-row {
+  position: relative; display: grid; grid-template-columns: 0 1fr auto auto; align-items: center; gap: 10px;
+  padding: 9px 10px; cursor: default; transition: grid-template-columns 0.2s var(--ease-os);
+}
+.stk-list li + li .stk-row::before,
+.stk-list .stk-row + .stk-row::before {
+  content: ''; position: absolute; left: 10px; right: 10px; top: -0.5px; height: 0.5px; background: var(--line);
+}
+.stk-row:hover { background: var(--surface-3); }
+.stk-row.on { background: var(--accent); color: #fff; }
+.stk-row.on .stk-name, .stk-row.on .stk-price { color: rgba(255, 255, 255, 0.85); }
+.stk-id { display: grid; min-width: 0; gap: 1px; }
+.stk-sym { font-size: var(--t-headline); font-weight: 700; letter-spacing: -0.01em; }
+.stk-name { font-size: var(--t-foot); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stk-spark svg { display: block; }
+.stk-quote { display: grid; justify-items: end; gap: 3px; }
+.stk-price { font-size: var(--t-headline); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stk-pill {
+  min-width: 68px; padding: 3px 7px; text-align: right; font-size: var(--t-foot); font-weight: 600;
+  color: #fff; font-variant-numeric: tabular-nums;
+}
+.stk-pill.up { background: var(--green); }
+.stk-pill.down { background: var(--red); }
+.stk-pill.flat { background: var(--gray); }
+.stk-remove {
+  position: relative; width: 22px; height: 22px; border-radius: 50%; background: var(--red); color: #fff;
+  font-size: 18px; line-height: 1; display: none; place-items: center;
+}
+.app-bolsa.editing .stk-row { grid-template-columns: 22px 1fr auto auto; }
+.app-bolsa.editing .stk-remove { display: grid; }
+.stk-empty-row { padding: 20px 10px; color: var(--ink-3); font-size: var(--t-foot); text-align: center; }
+.stk-note { margin: 0; padding: 10px 16px 12px; font-size: var(--t-caption); color: var(--ink-3); border-top: 0.5px solid var(--line); }
+
+.stk-main { flex: 1; min-width: 0; overflow: auto; background: var(--surface-solid); }
+.stk-empty { height: 100%; display: grid; place-content: center; justify-items: center; gap: 8px; color: var(--ink-3); }
+.stk-empty svg { opacity: 0.6; }
+.stk-detail { padding: 22px 26px 30px; display: grid; gap: 16px; }
+.stk-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.stk-title h2 { margin: 0; font-size: var(--t-title); font-weight: 700; letter-spacing: -0.02em; }
+.stk-title p { margin: 2px 0 0; color: var(--ink-3); font-size: var(--t-subhead); }
+.stk-big { display: grid; justify-items: end; gap: 2px; }
+.stk-bigprice { font-size: var(--t-large); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stk-change { font-size: var(--t-subhead); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stk-change.up { color: var(--green); }
+.stk-change.down { color: var(--red); }
+.stk-change.flat { color: var(--ink-3); }
+.stk-ranges { justify-self: start; }
+.stk-chart svg { width: 100%; height: 220px; display: block; }
+.stk-nodata { color: var(--ink-3); text-align: center; }
+.stk-stats { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.stk-stats div { padding: 10px 12px; background: var(--surface-2); }
+.stk-stats dt { font-size: var(--t-caption); color: var(--ink-3); }
+.stk-stats dd { margin: 2px 0 0; font-size: var(--t-body); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stk-source { margin: 0; font-size: var(--t-caption); color: var(--ink-3); }
+.stk-back { display: none; }
+
+/* No telefone e em janelas estreitas: a lista, e o título por cima. */
+@container app (max-width: 640px) {
+  .app-bolsa { flex-direction: column; }
+  .stk-side { flex: 1; border-right: 0; }
+  .stk-main {
+    position: absolute; inset: 0; z-index: 3; transform: translateX(100%);
+    transition: transform 0.34s var(--ease-os); visibility: hidden;
+  }
+  .app-bolsa.detail .stk-main { transform: none; visibility: visible; }
+  .stk-back { display: inline-flex; align-items: center; gap: 4px; padding: 12px 16px 0; color: var(--accent); font-size: var(--t-subhead); }
+}
+[data-mode='ios'] .stk-side { background: var(--surface-solid); }
+[data-mode='ios'] .stk-head h2 { font-size: var(--t-large); }
+[data-mode='ios'] .stk-add { height: 36px; }
+[data-mode='ios'] .stk-row { padding: 12px 10px; }

@@ -216,24 +216,6 @@ a.row:hover, button.row:hover { background: var(--surface-3); text-decoration: n
 [data-mode='ios'] .cards { grid-template-columns: 1fr; }
 [data-mode='ios'] .app-title { font-size: var(--t-large); }
 
-/* Widgets do ecrã inicial */
-.sb-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 4px; }
-.widget {
-  border-radius: 22px; padding: 14px 16px; min-height: 108px; text-align: left; color: #fff;
-  background: rgba(255, 255, 255, 0.17);
-  -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
-  border: 0.5px solid rgba(255, 255, 255, 0.2);
-  display: flex; flex-direction: column; gap: 3px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-}
-.widget p, .widget span { margin: 0; }
-.widget .w-day { font-size: 13px; font-weight: 600; color: #ff453a; text-transform: uppercase; letter-spacing: 0.03em; }
-.widget .w-date { font-family: var(--display); font-size: 34px; font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; }
-.widget .w-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.75; }
-.widget .w-title { font-size: 15px; font-weight: 600; line-height: 1.25; margin-top: 2px; }
-.widget .w-meta { font-size: 11px; opacity: 0.7; margin-top: auto; }
-.widget:active { transform: scale(0.96); transition: transform 0.12s; }
-
 /* Detalhes que só existem quando o JavaScript está ligado */
 .js .skip { display: none; }
 .cc-hotspot, .nc-hotspot { position: absolute; top: 0; width: 50%; height: var(--sb-h); z-index: 560; touch-action: none; }

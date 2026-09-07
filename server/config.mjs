@@ -60,6 +60,40 @@ export const NEWSLETTER = {
 };
 export const newsletterReady = mailReady;
 
+// ── Bolsa ────────────────────────────────────────────────────────────
+// As cotações vêm do Yahoo Finance, sem chave. O servidor é o único que
+// lá vai, e guarda cada resposta um minuto.
+export const STOCKS = {
+  source: env('STOCKS_SOURCE', 'https://query1.finance.yahoo.com/v8/finance/chart/'),
+  agent: 'Mozilla/5.0 (compatible; heldergoncalves.io/1.0)',
+  ttl: Number(env('STOCKS_TTL_MS', '60000')),
+  timeout: 8000,
+  cacheMax: 400,
+};
+
+// ── Sessões e reuniões ───────────────────────────────────────────────
+// Entrar é um código por email — precisa do email ligado, como a
+// newsletter. A agenda vale no fuso de Lisboa, seja quem for que marque.
+export const AUTH = {
+  secret: env('SESSION_SECRET'),
+  cookie: 'hs',
+  codeTtl: 10 * 60e3,
+  sessionTtl: 30 * 24 * 60 * 60e3,
+};
+export const authReady = mailReady;
+
+export const MEETINGS = {
+  file: resolve(env('MEETINGS_FILE', DATA_DIR + '/meetings.ndjson')),
+  tz: env('MEETINGS_TZ', 'Europe/Lisbon'),
+  // Dias da semana (1 = segunda … 5 = sexta, 0 ou 7 = domingo) e as
+  // janelas do dia em que o Hélder aceita conversas.
+  days: env('MEETINGS_DAYS', '1-5'),
+  windows: env('MEETINGS_WINDOWS', '10:00-12:00,15:00-18:00'),
+  minutes: Number(env('MEETING_MINUTES', '30')),
+  horizonDays: Number(env('MEETINGS_HORIZON_DAYS', '60')),
+  noticeHours: Number(env('MEETINGS_NOTICE_HOURS', '12')),
+};
+
 // ── Limites ──────────────────────────────────────────────────────────
 // Tudo o que se mede está aqui. Nenhum número mágico espalhado pelo
 // código: quem quiser apertar ou alargar mexe num sítio.
@@ -99,4 +133,28 @@ export const LIMITS = {
   chatGlobalDay: 600,
 
   mcpPerIp: 60,
+
+  // Sessões: cada pedido de código é um email; as tentativas são poucas.
+  authPerIp: 5,
+  authPerIpWindow: 60 * 60e3,
+  authGlobal: 200,
+  authGlobalWindow: 60 * 60e3,
+  authVerifyPerIp: 15,
+  authVerifyWindow: 15 * 60e3,
+  authTries: 5,
+
+  // Reuniões: a agenda é leve de ler, e marcar é raro.
+  agendaPerIp: 120,
+  agendaWindow: 10 * 60e3,
+  bookPerIp: 10,
+  bookWindow: 60 * 60e3,
+  bookPerUserDay: 3,
+  meetingNote: 1000,
+
+  // Bolsa: cada pedido pode trazer vários títulos, e a cache faz o resto.
+  stocksPerRequest: 12,
+  stocksPerIp: 120,
+  stocksPerIpWindow: 10 * 60e3,
+  stocksGlobal: 3000,
+  stocksGlobalWindow: 10 * 60e3,
 };
