@@ -8,3 +8,9 @@ dist/
 # A lista da newsletter e o segredo que assina as ligações.
 # Vivem num volume no servidor, nunca aqui.
 data/
+
+# Configuração do Claude Code que é desta máquina, não do projecto.
+# O que é do projecto está em .claude/settings.json e vai no repositório.
+.claude/settings.local.json
+CLAUDE.local.md
+__pycache__/
