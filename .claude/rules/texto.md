@@ -1,6 +1,7 @@
 ---
 paths:
   - "src/config/copy.*.ts"
+  - "src/config/os.*.ts"
   - "src/content/blog/**/*.md"
   - "knowledge/**/*.md"
 ---

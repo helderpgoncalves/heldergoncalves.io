@@ -14,7 +14,7 @@ CLAUDE.md               sempre em contexto        ~130 linhas
     apple.md              src/styles/**, src/components/os/**
     server.md             server/**
     cliente.md            src/scripts/**
-    texto.md              copy.*.ts, content/blog/**, knowledge/**
+    texto.md              copy.*.ts, os.*.ts, content/blog/**, knowledge/**
   skills/               quando se invocam com /
     verificar/            as verificações estáticas — faz de suite de testes
     nova-app/             acrescentar uma aplicação

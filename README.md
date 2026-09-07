@@ -4,8 +4,10 @@
 
 On a phone it behaves like an iPhone. On a computer it behaves like a Mac.
 Not a skin over a webpage — windows you drag and resize, a Dock that
-magnifies, gestures that follow your finger frame by frame, and a Control
-Centre whose sliders actually change something.
+magnifies the way the real one does, gestures that follow your finger frame
+by frame and settle with a spring, widgets you add and remove, and a Control
+Centre whose sliders actually change something. It boots with the same
+"hello" a Mac does.
 
 **[heldergoncalves.io →](https://heldergoncalves.io)**
 
@@ -20,10 +22,10 @@ nothing else.
 
 | | |
 | --- | --- |
-| **macOS** | Menu bar with real dropdowns and keyboard shortcuts, Dock with cursor magnification, windows that cascade, drag, resize, snap to edges, minimise into their Dock icon and stack by z-order, traffic lights, ⌘K search, ⌘Tab switcher, right-click menu |
-| **iOS** | Lock screen you swipe away, home screen with pages and widgets, apps that open out of their own icon, the home-bar gesture with all three of its destinations, Control Centre, Notification Centre, app switcher with cards you flick away, edge-swipe back |
-| **Apps** | Profile, Blog, Messages, Mail, Projects, Terminal, Settings — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
-| **Server** | Static files with Brotli, a contact form, double opt-in newsletter, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
+| **macOS** | The full menu bar — Apple, File, Edit, View, Window, Help, Wi‑Fi, battery, Control Centre — with real dropdowns and every shortcut they promise; a Dock with the real magnification maths (cosine window, the row re-laid with the new sizes, the Dock widening to fit) and right-click menus; windows that cascade, drag, resize, snap to edges, minimise into their Dock icon and stack by z-order; desktop icons you select with one click and open with two; desktop widgets; ⌘K search; ⌘Tab |
+| **iOS** | Lock screen you swipe away, home screen with pages you flick between, widgets you edit by touching and holding (the icons jiggle), pull down to search, apps that open out of their own icon, the home-bar gesture with all three of its destinations, Control Centre, Notification Centre with notifications you swipe away, tap the status bar to scroll to top, app switcher with cards you flick away, edge-swipe back — every settle is a spring that starts with the finger's velocity |
+| **Apps** | Profile, Blog (shaped like Notes, with search and month groups), Messages, Mail, Projects, Terminal, Settings, **Stocks** with live quotes, **Calendar** where you sign in with an emailed code and book a conversation in a free slot — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
+| **Server** | Static files with Brotli, a contact form, double opt-in newsletter, passwordless sign-in (a six-digit code by email), availability and bookings, a quotes proxy with a one-minute cache, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
 
 It works without JavaScript. Every word on the screen is ordinary HTML
 underneath — search engines and screen readers get the document, the
@@ -63,6 +65,19 @@ bar hands the animation the exact `p` where the finger let go.
 → [`src/scripts/os/ios/motion.js`](src/scripts/os/ios/motion.js) ·
 [`src/scripts/os/ios/views.js`](src/scripts/os/ios/views.js)
 
+### The Dock does the whole sum
+
+Most Dock imitations grow the icon under the cursor and stop there, so the
+magnified icons run into their neighbours. The real one does three things:
+each icon's scale comes from a cosine window over its distance to the
+cursor; the icons are then laid side by side **at their new sizes**, which is
+what opens room for the neighbours — nothing is pushed, the row is simply
+longer; and the Dock widens to fit, both ways, because it is centred. Between
+frames each icon moves a fraction of the way to its target, measured in time
+rather than frames, so it is the same on a 60 Hz and a 120 Hz screen.
+
+→ [`src/scripts/os/mac/dock.js`](src/scripts/os/mac/dock.js)
+
 ### A server with no dependencies
 
 `server/` imports nothing but Node built-ins, and it never compresses
@@ -84,32 +99,36 @@ only as an in-memory fingerprint that dies with the process.
 
 ```
 src/
+  assets/icons/       Apple's app icons, from public sources (see NOTICE.md)
   config/             the site, both languages, and what is derived from them
     site.ts             identity, app metadata, window sizes
-    copy.pt.ts          every word of Portuguese
-    copy.en.ts          every word of English
+    copy.{pt,en}.ts     every word of each language
+    os.{pt,en}.ts       the system's words — menus, widgets, lock screen
     copy.ts             joins them, and makes TypeScript keep them in step
   content/blog/{pt,en}/ the writing, one Markdown file each
   components/os/
     Shell.astro         the shell: menu bar, Dock, home screen, panels, lock
-    IconSprite.astro    every icon, in one 100×100 sprite
+    Saudacao.astro      the boot "hello", one path per letter, timed at build
+    Widgets.astro       one template per widget type, and the gallery
+    IconSprite.astro    every icon, in one 100×100 sprite — Mac and iOS variants
     apps/*.astro        the contents of each app — plain HTML
   scripts/os/
     index.js            boot, routing, and which of the two worlds to show
-    gesture.js          the gesture engine: capture, axis, velocity, rubber band
+    gesture.js          the gesture engine: capture, axis, velocity, rubber band, spring
     state.js            preferences, theme, motion, clock
+    widgets.js          adding, removing and editing widgets, in both worlds
     mac/                windows · dock · menus · spotlight · switcher · snap · keys
-    ios/                motion · views · panels · switcher · pages · lock · back
-    apps/               one file per app
+    ios/                motion · views · panels · switcher · pages · lock · back · search
+    apps/               one file per app (Stocks and Calendar have two)
     lib/                the small pieces more than one app needs
   styles/
     os.css              the index — nothing but the order things load in
-    os/*.css            tokens · mac · ios · apps · glass · apple · container
+    os/*.css            tokens · mac · ios · apps · notes · widgets · stocks · calendar · glass · apple · access
 server/
   index.mjs           the route table, and nothing else
-  routes/             one file per endpoint
+  routes/             one file per endpoint: contact · subscribe · chat · mcp · stocks · auth · meetings
   agent/              the assistant's prompt and its tools
-  *.mjs               config · http · security · static · mail · knowledge · subscribers
+  *.mjs               config · http · security · static · mail · knowledge · subscribers · sessions · availability · meetings
 knowledge/*.md        what the assistant knows — edit a file, deploy, done
 ```
 
@@ -139,7 +158,7 @@ npm start            # http://localhost:3000
 Deployment is a single `Dockerfile` (Astro in stage one, the server in stage
 two) built for Coolify. Everything the container needs is in
 [`DEPLOY.md`](DEPLOY.md), including the one volume it wants: `/app/data`, where
-the newsletter list lives.
+the newsletter list, the bookings and the session secret live.
 
 ---
 
@@ -158,6 +177,23 @@ never served over HTTP — there is no endpoint that returns it, not even one
 that counts.
 
 ---
+
+## The Calendar
+
+There are no passwords. You type your email, a six-digit code arrives, you
+type it back — whoever controls the inbox is whoever signs in. The session
+is a signed cookie, not a table: the server keeps nothing but a secret that
+survives restarts. Only signed-in people see availability, which is computed
+in Lisbon time from configurable days and windows, minus what is booked,
+minus what is too soon. Booking emails both sides; cancelling tells the owner.
+Bookings are the same append-only NDJSON as the newsletter.
+
+## The Stocks
+
+Quotes come from Yahoo Finance through the server, never from the browser
+(the content-security policy would not allow it, and should not). Each answer
+is cached for a minute, so a hundred people watching the same ticker are one
+request out, not a hundred. The watchlist is yours and stays on your device.
 
 ## The site as an API
 
@@ -179,13 +215,18 @@ site, and the comments explain *why*, not *what*, so they are worth the
 translation if you are reading closely.
 
 Third-party licences and attributions are in [`NOTICE.md`](NOTICE.md). The
-glyphs are Lucide (ISC), the brand marks are Simple Icons (CC0), the typeface
-shipped is Inter (SIL OFL). On Apple devices the site uses the system's own San
-Francisco through `-apple-system`; it is not, and cannot be, in this
-repository.
+app icons are Apple's, taken from public sources — the `mac-os-dock`
+component on 21st.dev, Wikipedia and Wikimedia Commons — with the iOS
+versions shown on the phone and the macOS versions on the Mac; the boot
+"hello" is the stroke from the `apple-hello-effect` component, animated
+here without its library. The remaining glyphs are Lucide (ISC), the brand
+marks are Simple Icons (CC0), the typeface shipped is Inter (SIL OFL). On
+Apple devices the site uses the system's own San Francisco through
+`-apple-system`; it is not, and cannot be, in this repository.
 
-Nothing here is Apple's. What follows Apple's rules is the *geometry* — which
-is mathematics, and mathematics is not anybody's.
+This is a personal, non-commercial site, and a homage. It is not affiliated
+with Apple Inc. What follows Apple's rules is the *geometry* — which is
+mathematics, and mathematics is not anybody's.
 
 The code is © Hélder Gonçalves. Read it, learn from it, take the ideas. If you
 want to use a chunk of it, [say hello](mailto:helder@heldergoncalves.io).

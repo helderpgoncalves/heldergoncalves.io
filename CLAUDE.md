@@ -39,8 +39,9 @@ Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
    cores de sistema têm valores certos — ver `.claude/rules/apple.md`.
 6. **Nenhum ficheiro passa das 400 linhas.** Quando um cresce, parte-se
    por assunto, não ao meio.
-7. **`data/` nunca entra no repositório.** É a lista da newsletter e o
-   segredo que assina as ligações. Vive num volume no servidor.
+7. **`data/` nunca entra no repositório.** É a lista da newsletter, as
+   reuniões marcadas e os segredos que assinam ligações e sessões. Vive
+   num volume no servidor.
 8. **Em produção não se calcula o que se pode calcular no build.** A
    compressão é o exemplo: comprime-se uma vez no build, à qualidade
    máxima, e o servidor só lê. Se acrescentares trabalho por pedido,
@@ -70,7 +71,8 @@ Está tudo feito para que a resposta seja aborrecida.
 | um endpoint novo no servidor | `/nova-rota` |
 | um escrito novo no blog | `/novo-escrito` |
 | ensinar uma coisa ao assistente | criar um `.md` em `knowledge/` — não há código a mexer |
-| mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` |
+| mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` (os do sistema em `os.pt.ts` e `os.en.ts`) |
+| um widget novo | um `<template>` em `Widgets.astro`, uma linha em `widgets.js`, o nome nas duas línguas |
 
 ## Convenções
 
@@ -87,6 +89,9 @@ Está tudo feito para que a resposta seja aborrecida.
 
 ## Armadilhas que já morderam
 
+- **Os textos das apps têm de ir para `osData.strings`** no `Shell.astro`.
+  Uma app cujo texto não chega ao JavaScript rebenta ao arrancar com um
+  `Cannot read properties of undefined` — já aconteceu com a Bolsa.
 - **`corner-shape` não se herda.** Um pseudo-elemento com
   `border-radius: inherit` segue o raio mas não a forma. Precisa também
   de `corner-shape: inherit`, senão o aro do vidro sai redondo à volta
