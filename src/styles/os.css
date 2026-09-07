@@ -10,14 +10,17 @@
      mac         barra de menus, janelas, Dock, pesquisa
      ios         ecrã inicial, bloqueio, painéis, gestos
      apps        o que vive dentro das janelas e das vistas
+     notas       o Blog, com a forma das Notas da Apple
      toque       o que separa um site de uma aplicação
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
      contentor   cada aplicação responde ao seu contentor, não ao ecrã
+     acesso      contraste, menos transparência, browsers sem desfoque
 
    `apple` vem depois de tudo o que desenha porque é ele que manda nos
    cantos e nas medidas: se viesse antes, cada secção podia contradizê-lo
-   sem se dar por isso.
+   sem se dar por isso. `acesso` vem mesmo no fim, porque um recuo tem
+   de ganhar a tudo.
 
    Escrito à mão, sem frameworks. Nada aqui depende de JavaScript para
    ser legível — o JS só transforma o documento em sistema.
@@ -28,7 +31,9 @@
 @import './os/mac.css';
 @import './os/ios.css';
 @import './os/apps.css';
+@import './os/notas.css';
 @import './os/toque.css';
 @import './os/vidro.css';
 @import './os/apple.css';
 @import './os/contentor.css';
+@import './os/acesso.css';

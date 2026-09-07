@@ -1,0 +1,53 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os recuos: contraste, menos transparência, browsers sem desfoque.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   É o último ficheiro de propósito. Cada superfície define o seu
+   vidro mais acima, e em CSS o que vem depois ganha: um recuo escrito
+   antes dessas linhas não chegava a acontecer. Aqui, ganha sempre.
+   ─────────────────────────────────────────────────────────────── */
+
+/* REGRA: acessibilidade — quando o sistema pede contraste, o vidro
+   deixa de ser vidro.
+   ───────────────────────────────────────────────────────────── */
+@media (prefers-contrast: more) {
+  .glass {
+    --glass-tint: var(--surface-solid);
+    --glass-blur: 0px;
+    --glass-hairline: var(--ink);
+  }
+  .glass::before { display: none; }
+  .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
+  .notes-foot, .ios-view-head, .spotlight { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+}
+
+/* REGRA: quem pediu menos transparência não a leva.
+   ─────────────────────────────────────────────────────────────
+   Vive aqui, no fim, porque cada superfície define o seu tinte mais
+   acima (vidro.css) e o que vier depois ganha: um recuo escrito antes
+   dessas linhas não chegava a acontecer. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-clear, .win, .cc, .nc, .menubar, .dock {
+    --glass-blur: 0px;
+    --glass-tint: var(--surface-solid);
+  }
+  .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.94); }
+  .notes-foot, .ios-view-head, .spotlight { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+  .spotlight { background: rgba(0, 0, 0, 0.5); }
+}
+
+/* REGRA: sem desfoque, sem vidro.
+   ─────────────────────────────────────────────────────────────
+   Onde o browser não sabe desfocar o que está por trás (Firefox
+   antigo, Safari muito antigo), uma tinta translúcida sem desfoque é
+   só texto por cima de fundo às cores. Aí o vidro passa a superfície
+   opaca — pela mesma razão, e no mesmo sítio, que o recuo de cima. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .win, .dock { --glass-tint: var(--surface-solid); }
+  .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.9); }
+  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+  .spotlight { background: rgba(0, 0, 0, 0.5); }
+}
+

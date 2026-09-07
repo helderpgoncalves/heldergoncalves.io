@@ -10,25 +10,32 @@
 .mac { position: absolute; inset: 0; display: none; }
 [data-mode='mac'] .mac { display: block; }
 
-/* Barra de menus */
+/* Barra de menus
+   ─────────────────────────────────────────────────────────────
+   24 pontos de altura, o nome da aplicação a negro e os menus a
+   seguir, com o título aberto realçado num rectângulo de cantos de 4.
+   À direita, os ícones de estado a 16 e o relógio em algarismos
+   tabulares. Tudo a 13 pontos, que é o corpo do macOS. */
 .menubar {
   position: absolute; inset: 0 0 auto; height: var(--menubar-h); z-index: 400;
-  display: flex; align-items: center; gap: 2px; padding: 0 8px;
+  display: flex; align-items: center; gap: 0; padding: 0 10px 0 6px;
   background: rgba(255, 255, 255, 0.36);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-  color: #fff; font-size: 13px; letter-spacing: -0.01em;
-  text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.28);
+  color: #fff; font-size: var(--t-body, 13px); letter-spacing: -0.005em;
+  text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.24);
 }
 .menubar-item {
-  padding: 2px 9px; border-radius: 5px; color: inherit; line-height: 18px;
-  white-space: nowrap;
+  display: inline-flex; align-items: center; height: calc(var(--menubar-h) - 4px);
+  padding: 0 10px; color: inherit; white-space: nowrap;
 }
-.menubar-item:hover, .menubar-item[aria-expanded='true'] { background: rgba(255, 255, 255, 0.24); }
-.menubar-item.strong { font-weight: 600; }
+.menubar-item[data-menu='apple'] { padding: 0 12px; }
+.menubar-item:hover, .menubar-item[aria-expanded='true'] { background: rgba(255, 255, 255, 0.22); }
+.menubar-item.strong { font-weight: 700; }
 .menubar-spacer { flex: 1; }
 .menubar-right { display: flex; align-items: center; gap: 2px; }
+.menubar-right .menubar-item { padding: 0 6px; }
 .menubar svg { display: block; }
-.menu-clock { font-variant-numeric: tabular-nums; padding: 2px 6px; }
+.menu-clock { font-variant-numeric: tabular-nums; padding: 0 8px; }
 
 /* Menus suspensos
    ─────────────────────────────────────────────────────────────
@@ -227,12 +234,20 @@
   100% { transform: translateY(0); }
 }
 
-/* Pesquisa (⌘K) */
+/* Pesquisa (⌘K no Mac; puxar o ecrã inicial para baixo no telefone).
+   Vive fora dos dois mundos, por isso fica por cima de tudo o que
+   cada um tem — e por baixo do escurecimento do brilho. */
 .spotlight {
-  position: absolute; inset: 0; z-index: 600; display: grid; justify-items: center;
+  position: absolute; inset: 0; z-index: 800; display: grid; justify-items: center;
   align-content: start; padding-top: 16vh; background: rgba(0, 0, 0, 0.12);
   -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
 }
+[data-mode='ios'] .spotlight {
+  padding: calc(env(safe-area-inset-top, 0px) + 60px) 12px 0;
+  background: rgba(0, 0, 0, 0.32); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+}
+[data-mode='ios'] .spot-foot { display: none; }
+[data-mode='ios'] .spot-item { min-height: 44px; }
 .spotlight[hidden] { display: none; }
 .spot-box {
   width: min(620px, 92vw); border-radius: 14px; overflow: hidden;

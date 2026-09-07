@@ -111,7 +111,8 @@
 /* macOS */
 .win, .snap-preview { --r: 11px; }
 .menu, .ctx { --r: 10px; --pad: 5px; }
-.menubar-item { --r: 5px; }
+.menubar-item { --r: 4px; }
+.notes-tool { --r: 5px; }
 .desk-icon { --r: 8px; }
 /* A Dock é concêntrica com os ícones que encostam à margem dela: o raio
    é o do ícone (22,37 % do lado) mais a margem. */
@@ -134,7 +135,9 @@
 .bubble { --r: 18px; }
 
 /* Conteúdo */
-.rows { --r: 12px; }
+.rows, .post-group > ul { --r: 12px; }
+/* Dentro do grupo arredondado do telefone a linha não tem raio seu: 12 − 0. */
+[data-mode='ios'] .post-link { --r: 0px; }
 .card { --r: 14px; }
 .post-link { --r: 9px; }
 .wall-pick { --r: 12px; }
@@ -159,21 +162,21 @@
 .widget .w-row:first-of-type { border-top-left-radius: calc(var(--r) - var(--pad)); border-top-right-radius: calc(var(--r) - var(--pad)); }
 
 .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
-.menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+.menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
 .cmdtab, .cmdtab-item, .skip,
 .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
 .switcher-card, .bubble,
-.rows, .card, .post-link, .wall-pick, .legal-note,
+.rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
 .prose pre, .prose img, .prose code,
 .sim-device, .sim-screen { border-radius: var(--r); }
 
 @supports (corner-shape: squircle) {
   .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
-  .menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+  .menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
   .switcher-card, .bubble,
-  .rows, .card, .post-link, .wall-pick, .legal-note,
+  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,
   .sim-device, .sim-screen {
     corner-shape: squircle;
@@ -187,11 +190,11 @@
 
 @supports (corner-shape: superellipse(1.777)) {
   .win, .snap-preview, .menu, .ctx, .menu button, .ctx button,
-  .menubar-item, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
+  .menubar-item, .notes-tool, .desk-icon, .dock, .dock-tip, .spot-box, .spot-item,
   .cmdtab, .cmdtab-item, .skip,
   .ios-dock, .widget, .lock-note, .nc-note, .cc-tile, .cc-slider,
   .switcher-card, .bubble,
-  .rows, .card, .post-link, .wall-pick, .legal-note,
+  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
   .prose pre, .prose img, .prose code,
   .sim-device, .sim-screen { corner-shape: superellipse(1.777); }
 }
@@ -260,19 +263,6 @@ a.glass:active {
 }
 .glass { transition: box-shadow 0.25s, transform 0.16s var(--ease-os); }
 .glass:hover::before { opacity: 1; }
-
-/* REGRA: acessibilidade — quando o sistema pede contraste, o vidro
-   deixa de ser vidro.
-   ───────────────────────────────────────────────────────────── */
-@media (prefers-contrast: more) {
-  .glass {
-    --glass-tint: var(--surface-solid);
-    --glass-blur: 0px;
-    --glass-hairline: var(--ink);
-  }
-  .glass::before { display: none; }
-  .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    11. Métrica: as medidas da Apple

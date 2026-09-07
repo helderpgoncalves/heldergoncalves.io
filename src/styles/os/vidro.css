@@ -144,14 +144,6 @@
   }
 }
 
-/* Quem pediu menos transparência não a leva. */
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
-    --glass-blur: 0px;
-    --glass-tint: var(--surface-solid);
-  }
-}
-
 /* Cada superfície tem o seu vidro: uma Dock não é uma janela, e um
    painel que cobre o ecrã inteiro precisa de mais corpo para o texto
    branco se ler por cima de qualquer fundo. */

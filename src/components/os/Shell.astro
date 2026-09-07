@@ -97,6 +97,9 @@ const osData = {
         <Icon id="ui-apple" size={14} />
       </button>
       <button class="menubar-item strong" data-menu="app" id="menuApp" aria-haspopup="true" aria-expanded="false">Finder</button>
+      <button class="menubar-item" data-menu="file" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.file}</button>
+      <button class="menubar-item" data-menu="edit" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.edit}</button>
+      <button class="menubar-item" data-menu="view" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.view}</button>
       <button class="menubar-item" data-menu="window" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.window}</button>
       <button class="menubar-item" data-menu="help" aria-haspopup="true" aria-expanded="false">{c.os.menuLabels.help}</button>
       <span class="menubar-spacer"></span>
@@ -139,16 +142,6 @@ const osData = {
       </div>
     </div>
 
-    <div class="spotlight" id="spotlight" hidden>
-      <div class="spot-box glass" role="dialog" aria-label={c.os.search}>
-        <div class="spot-input">
-          <Icon id="ui-search" size={18} />
-          <input type="text" id="spotInput" placeholder={c.os.search} autocomplete="off" spellcheck="false" />
-        </div>
-        <div class="spot-results" id="spotResults" role="listbox"></div>
-        <p class="spot-foot">{c.os.searchHint}</p>
-      </div>
-    </div>
   </div>
 
   <!-- ── iOS ───────────────────────────────────────────────── -->
@@ -328,6 +321,19 @@ const osData = {
       </div>
 
       <div class="homebar" id="homebar"><i></i></div>
+    </div>
+  </div>
+
+  <!-- A pesquisa serve os dois mundos: ⌘K no Mac, puxar o ecrã inicial
+       para baixo no telefone. Por isso vive fora dos dois. -->
+  <div class="spotlight" id="spotlight" hidden>
+    <div class="spot-box glass" role="dialog" aria-label={c.os.search}>
+      <div class="spot-input">
+        <Icon id="ui-search" size={18} />
+        <input type="text" id="spotInput" placeholder={c.os.search} autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="spot-results" id="spotResults" role="listbox"></div>
+      <p class="spot-foot">{c.os.searchHint}</p>
     </div>
   </div>
 

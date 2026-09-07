@@ -9,6 +9,18 @@ const c = COPY[lang];
 const e = c.escritos;
 const Content = post ? (await post.render()).Content : null;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
+
+// Como as Notas: o que já não é de hoje agrupa-se por mês. As datas
+// são fixas, por isso a conta faz-se no build e não muda depois.
+const monthFmt = new Intl.DateTimeFormat(c.intlLocale, { month: 'long', year: 'numeric' });
+const groups: { label: string; posts: Post[] }[] = [];
+for (const p of posts) {
+  const raw = monthFmt.format(p.data.date);
+  const label = raw.charAt(0).toUpperCase() + raw.slice(1);
+  const last = groups[groups.length - 1];
+  if (last && last.label === label) last.posts.push(p);
+  else groups.push({ label, posts: [p] });
+}
 ---
 <section
   class="app-shell app-escritos"
@@ -16,34 +28,61 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
   data-detail={post ? '1' : '0'}
   aria-label={c.apps.escritos.name}
 >
+  {/* A barra das Notas do Mac. No telefone não aparece. */}
+  <div class="notes-toolbar">
+    <button class="notes-tool" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
+    <span class="spacer"></span>
+    <button class="notes-tool" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    <button class="notes-tool" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
+    <label class="notes-search">
+      <Icon id="ui-search" />
+      <span class="sr">{e.search}</span>
+      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search />
+    </label>
+  </div>
+
+  <div class="notes-panes">
   <div class="app-side">
     <div class="app-side-head">
       <h2>{e.heading}</h2>
       <p>{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
     </div>
+    <label class="notes-search notes-search-ios">
+      <Icon id="ui-search" />
+      <span class="sr">{e.search}</span>
+      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search />
+    </label>
     {posts.length === 0 ? (
       <p class="app-pad">{e.empty}</p>
     ) : (
       <ul class="post-list">
-        {posts.map((p) => (
-          <li>
-            <a
-              class="post-link"
-              href={postPath(p, lang)}
-              data-post={postSlug(p)}
-              aria-current={post && postSlug(post) === postSlug(p) ? 'true' : undefined}
-            >
-              <h3>{p.data.title}</h3>
-              {/* Como nas Notas: o título numa linha, e por baixo a
-                  data e o princípio do texto na mesma linha, cortados
-                  onde acabar a coluna. */}
-              <span class="post-sub">
-                <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time>
-                <span class="post-preview">{p.data.description}</span>
-              </span>
-            </a>
+        {groups.map((g) => (
+          <li class="post-group">
+            <h4>{g.label}</h4>
+            <ul>
+              {g.posts.map((p) => (
+                <li>
+                  <a
+                    class="post-link"
+                    href={postPath(p, lang)}
+                    data-post={postSlug(p)}
+                    aria-current={post && postSlug(post) === postSlug(p) ? 'true' : undefined}
+                  >
+                    <h3>{p.data.title}</h3>
+                    {/* Como nas Notas: o título numa linha, e por baixo a
+                        data e o princípio do texto na mesma linha, cortados
+                        onde acabar a coluna. */}
+                    <span class="post-sub">
+                      <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time>
+                      <span class="post-preview">{p.data.description}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
+        <li class="notes-empty" data-notes-empty hidden>{e.noMatch}</li>
       </ul>
     )}
 
@@ -70,6 +109,10 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
       <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-subscribe-trap />
       <p class="sub-note" data-subscribe-note>{e.subscribeNote}</p>
     </form>
+    <div class="notes-foot">
+      <span class="count">{posts.length} {e.count}</span>
+      <button class="notes-tool" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    </div>
   </div>
 
   <div class="app-main">
@@ -106,5 +149,6 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
         </div>
       )}
     </div>
+  </div>
   </div>
 </section>

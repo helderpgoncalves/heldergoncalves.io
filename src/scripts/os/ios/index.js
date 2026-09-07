@@ -20,6 +20,7 @@
 //   pages     as páginas do ecrã inicial
 //   lock      o ecrã bloqueado
 //   back      voltar atrás pela margem esquerda
+//   search    puxar o ecrã inicial para baixo abre a pesquisa
 // ─────────────────────────────────────────────────────────────────────
 import { createMotion } from './motion.js';
 import { createIsland } from './island.js';
@@ -29,6 +30,7 @@ import { createSwitcher } from './switcher.js';
 import { createPages } from './pages.js';
 import { createLock } from './lock.js';
 import { wireBackGesture } from './back.js';
+import { wireSearch } from './search.js';
 
 export function createPhone(ctx) {
   const els = {
@@ -67,6 +69,7 @@ export function createPhone(ctx) {
   ph.pages = createPages(ph);
   ph.lock = createLock(ph);
   wireBackGesture(ph);
+  wireSearch(ph);
 
   // O que o resto do sistema pode pedir ao telefone — e só isso. Tudo o
   // que não está aqui é assunto interno das peças lá dentro.

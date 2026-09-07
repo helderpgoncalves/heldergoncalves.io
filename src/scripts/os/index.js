@@ -77,6 +77,18 @@ function boot(data) {
     if (ctx.escritos) ctx.escritos.show(slug, true);
   }
 
+  const WALLPAPERS = ['aurora', 'sonoma', 'night', 'graphite'];
+  const nextWallpaper = () => WALLPAPERS[(WALLPAPERS.indexOf(prefs.wallpaper) + 1) % WALLPAPERS.length];
+
+  function copyLink() {
+    const done = () => {
+      if (ctx.mode === 'ios') ctx.notify(data.strings.copied);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(location.href).then(done, () => {});
+    }
+  }
+
   function run(action) {
     if (!action) return;
     const [kind, value] = action.split(':');
@@ -86,8 +98,17 @@ function boot(data) {
       case 'post':
         return openPost(value);
       case 'wallpaper':
-        setPref('wallpaper', value);
+        setPref('wallpaper', value === 'next' ? nextWallpaper() : value);
         return ctx.syncSettings();
+      case 'copy':
+        return copyLink();
+      case 'share':
+        // Onde houver folha de partilha do sistema, é essa; senão copia-se.
+        if (navigator.share) {
+          navigator.share({ title: document.title, url: location.href }).catch(() => {});
+          return;
+        }
+        return copyLink();
       case 'link':
         return window.open(data.site[value], '_blank', 'noopener');
       case 'mail':

@@ -7,8 +7,8 @@
 // casos o painel segue o dedo — a decisão de abrir ou fechar é tomada
 // no fim, com o embalo contado.
 // ─────────────────────────────────────────────────────────────────────
-import { effectiveTheme, prefs, setPref } from '../state.js';
-import { track, clamp, project, spring } from '../gesture.js';
+import { effectiveTheme, prefs, setPref, reducedMotion } from '../state.js';
+import { track, clamp, project, rubber, spring } from '../gesture.js';
 
 const WALLPAPERS = ['aurora', 'sonoma', 'night', 'graphite'];
 
@@ -74,7 +74,9 @@ export function createPanels(ph) {
             const opens = g.dy + project(g.vy) > h * OPEN_AT;
             settle(clamp(g.dy, 0, h) - h, opens ? 0 : -h, g.vy, opens ? openIt : closeIt);
           },
-          tap: openIt,
+          // Tocar na barra de estado não abre nada: leva o que está
+          // aberto de volta ao topo, como no iPhone.
+          tap: scrollToTop,
         },
         { axis: 'y', threshold: 6 }
       );
@@ -103,6 +105,16 @@ export function createPanels(ph) {
     return { open: openIt, close: closeIt };
   }
 
+  /** Sobe ao topo tudo o que rola na aplicação à vista. */
+  function scrollToTop() {
+    const view = ph.current && ph.viewEls.get(ph.current);
+    if (!view) return;
+    const behavior = reducedMotion() ? 'auto' : 'smooth';
+    view.querySelectorAll('.app-scroll, .post-list, .chat-log, .term, .ios-view-body').forEach((el) => {
+      if (el.scrollTop > 0) el.scrollTo({ top: 0, behavior });
+    });
+  }
+
   const hotspot = (className) => {
     const el = document.createElement('div');
     el.className = className;
@@ -117,6 +129,59 @@ export function createPanels(ph) {
   if (nc) {
     const ncClose = nc.querySelector('[data-nc-close]');
     if (ncClose) ncClose.addEventListener('click', () => ncSheet.close());
+    nc.querySelectorAll('.nc-note').forEach(wireDismiss);
+  }
+
+  /**
+   * Uma notificação varre-se para a esquerda. Para a direita faz
+   * elástico; para a esquerda, com embalo ou distância, sai do ecrã e a
+   * lista fecha o espaço dela.
+   */
+  function wireDismiss(note) {
+    let settling = null;
+    const place = (x) => {
+      note.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)';
+      note.style.opacity = String(clamp(1 - Math.max(0, -x) / 300, 0.15, 1));
+    };
+    const collapse = () => {
+      note.style.height = note.offsetHeight + 'px';
+      note.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        note.style.transition = 'height .22s, padding .22s, margin .22s, opacity .1s';
+        note.style.height = '0';
+        note.style.paddingTop = '0';
+        note.style.paddingBottom = '0';
+        note.style.marginBottom = '-10px';
+        note.style.opacity = '0';
+        setTimeout(() => note.remove(), 240);
+      });
+    };
+    track(
+      note,
+      {
+        begin: () => {
+          if (settling) settling.cancel();
+          note.style.transition = 'none';
+        },
+        move: (g) => place(g.dx > 0 ? rubber(g.dx, 50) : g.dx),
+        end: (g) => {
+          const x = g.dx > 0 ? rubber(g.dx, 50) : g.dx;
+          if (g.dx + project(g.vx) < -(note.offsetWidth * 0.4)) {
+            settling = spring(x, -(note.offsetWidth + 40), Math.min(g.vx, -0.3), place, { damping: 1 });
+            settling.then(collapse);
+            return;
+          }
+          settling = spring(x, 0, g.vx, place);
+          settling.then(() => {
+            settling = null;
+            note.style.transition = '';
+            note.style.transform = '';
+            note.style.opacity = '';
+          });
+        },
+      },
+      { axis: 'x', threshold: 10 }
+    );
   }
 
   // ── A Central de Controlo ──────────────────────────────────────────

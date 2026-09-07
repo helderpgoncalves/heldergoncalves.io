@@ -61,7 +61,41 @@ export function initEscritos(ctx) {
       return;
     }
     if (ev.target.closest('[data-back-list]')) list(true);
+    else if (ev.target.closest('[data-notes-sidebar]')) el.classList.toggle('side-hidden');
+    else {
+      const act = ev.target.closest('[data-action]');
+      if (act) ctx.run(act.dataset.action);
+    }
   });
+
+  // ── A pesquisa da lista ────────────────────────────────────────────
+  // Filtra ao escrever, esconde os meses que ficam vazios, e diz quando
+  // não sobra nada. Os dois campos (Mac e telefone) andam a par.
+  const fields = [...el.querySelectorAll('[data-notes-search]')];
+  const empty = el.querySelector('[data-notes-empty]');
+  function filter(query) {
+    const q = query.trim().toLowerCase();
+    let left = 0;
+    el.querySelectorAll('.post-group').forEach((group) => {
+      let kept = 0;
+      group.querySelectorAll('.post-link').forEach((a) => {
+        const hit = !q || a.textContent.toLowerCase().includes(q);
+        a.parentElement.hidden = !hit;
+        if (hit) kept += 1;
+      });
+      group.hidden = kept === 0;
+      left += kept;
+    });
+    if (empty) empty.hidden = left > 0 || !q;
+  }
+  fields.forEach((field) =>
+    field.addEventListener('input', () => {
+      fields.forEach((other) => {
+        if (other !== field) other.value = field.value;
+      });
+      filter(field.value);
+    })
+  );
 
   ctx.escritos = {
     show,
