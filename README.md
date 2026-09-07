@@ -1,133 +1,187 @@
 # heldergoncalves.io
 
-Site pessoal de Hélder Gonçalves. Não é uma página: é um **sistema operativo**.
+**A personal website that is an operating system.**
 
-- **No telemóvel** comporta-se como um iPhone — arranque com o monograma a
-  desenhar-se, ecrã bloqueado que se desliza para abrir, ecrã inicial com duas
-  páginas e widgets, aplicações que abrem a partir do próprio ícone, barra de
-  gestos, Central de Controlo, Centro de Notificações e comutador de aplicações.
-- **No computador** comporta-se como um Mac — barra de menus, Dock com
-  ampliação, janelas que se arrastam, redimensionam e **encaixam nas margens**,
-  semáforos, pesquisa (⌘K) e menu do botão direito.
-- **Dentro dele** há um `Simulador` que corre o próprio site num iPhone — e
-  dentro desse iPhone há outro. Até dois níveis, depois o sistema diz que chega.
+On a phone it behaves like an iPhone. On a computer it behaves like a Mac.
+Not a skin over a webpage — windows you drag and resize, a Dock that
+magnifies, gestures that follow your finger frame by frame, and a Control
+Centre whose sliders actually change something.
 
-## Como está feito
+**[heldergoncalves.io →](https://heldergoncalves.io)**
 
-Astro gera HTML estático. O resto é JavaScript escrito à mão: **zero
-frameworks, zero bibliotecas de animação, zero tracking** — e, em produção,
-**zero dependências a correr**.
+Astro renders static HTML. Everything else is hand-written JavaScript:
+**no frameworks, no animation libraries, no tracking** — and in production,
+**no third-party dependencies running at all**. The server is Node and
+nothing else.
+
+---
+
+## What is actually in here
+
+| | |
+| --- | --- |
+| **macOS** | Menu bar with real dropdowns and keyboard shortcuts, Dock with cursor magnification, windows that cascade, drag, resize, snap to edges, minimise into their Dock icon and stack by z-order, traffic lights, ⌘K search, ⌘Tab switcher, right-click menu |
+| **iOS** | Lock screen you swipe away, home screen with pages and widgets, apps that open out of their own icon, the home-bar gesture with all three of its destinations, Control Centre, Notification Centre, app switcher with cards you flick away, edge-swipe back |
+| **Apps** | Profile, Blog, Messages, Mail, Projects, Terminal, Settings — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
+| **Server** | Static files with Brotli, a contact form, double opt-in newsletter, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
+
+It works without JavaScript. Every word on the screen is ordinary HTML
+underneath — search engines and screen readers get the document, the
+JavaScript only turns that document into a system.
+
+---
+
+## Three things worth reading the code for
+
+### The Apple corner is not a rounded rectangle
+
+An Apple corner is not a circular arc. The arc covers only 36° in the middle
+of the corner; on either side of it two Bézier curves hand it off to the
+straight edge with no jump in curvature. That is what *continuous* means, and
+it has two consequences the whole design system hangs on: the corner occupies
+**1.6× the radius** along each edge, and it cuts **exactly as deep** as a
+circular corner of the same radius (0.2929 × r, in both cases).
+
+So the icons carry the real path — radius 22.37% of the side, corner running
+to 35.79, straight edge only between 35.79 and 64.21 — and everything drawn
+in CSS uses `corner-shape: superellipse(1.777)`, the exponent whose
+superellipse passes through both of those points.
+
+→ [`src/styles/os/apple.css`](src/styles/os/apple.css) ·
+[`src/components/os/IconSprite.astro`](src/components/os/IconSprite.astro)
+
+### One motion model for opening, closing and dragging
+
+The reason app transitions on the phone feel wrong on most sites is that the
+drag and the release use different maths — the drag shrinks the app from its
+centre, the release animates from the corner, and you see the seam.
+
+Here a single value `p` runs from 0 (app filling the screen) to 1 (inside its
+icon), and opening, closing, and the finger all agree on the path. The home
+bar hands the animation the exact `p` where the finger let go.
+
+→ [`src/scripts/os/ios/motion.js`](src/scripts/os/ios/motion.js) ·
+[`src/scripts/os/ios/views.js`](src/scripts/os/ios/views.js)
+
+### A server with no dependencies
+
+`server/` imports nothing but Node built-ins. Static files are read,
+compressed with Brotli and hashed once, on first request, and kept in memory.
+Rate limits are sliding windows. Form tokens are HMACs that prove the form was
+opened on this server, by this visitor, and how long ago — a bot posting
+directly has none of the three. Visitor IPs are never stored in the clear,
+only as an in-memory fingerprint that dies with the process.
+
+→ [`server/`](server/)
+
+---
+
+## Layout
 
 ```
 src/
-  siteConfig.ts          identidade, estrutura das aplicações e TODO o texto (pt/en)
-  content/blog/{pt,en}/  os escritos, um ficheiro Markdown cada
+  config/             the site, both languages, and what is derived from them
+    site.ts             identity, app metadata, window sizes
+    copy.pt.ts          every word of Portuguese
+    copy.en.ts          every word of English
+    copy.ts             joins them, and makes TypeScript keep them in step
+  content/blog/{pt,en}/ the writing, one Markdown file each
   components/os/
-    Shell.astro          a casca: menus, Dock, ecrã inicial, painéis, bloqueio
-    IconSprite.astro     sprite de ícones — glifos Lucide (ISC), marcas Simple Icons (CC0)
-    apps/*.astro         o conteúdo de cada aplicação — HTML normal
+    Shell.astro         the shell: menu bar, Dock, home screen, panels, lock
+    IconSprite.astro    every icon, in one 100×100 sprite
+    apps/*.astro        the contents of each app — plain HTML
   scripts/os/
-    gesture.js           o motor de gestos: captura, eixo, velocidade, elástico
-    state.js             preferências, relógio, deteção de modo
-    mac.js               janelas, encaixe, Dock, menus, pesquisa
-    ios.js               páginas, gestos, Central de Controlo, notificações, bloqueio
-    apps.js              o que cada aplicação faz por dentro
-    index.js             arranque e ligação entre os dois mundos
-  lib/agents.ts          /llms.txt, /llms-full.txt e /posts.json
-  styles/os.css          um ficheiro: fundações, fundos, macOS, iOS, aplicações, toque
-  layouts/OS.astro       <head> de SEO + o sistema
-server/index.mjs         serve o dist/, cabeçalhos de segurança e /api/contact
-public/os-early.js       corre antes de pintar: tema, modo, rede de segurança
+    index.js            boot, routing, and which of the two worlds to show
+    gesture.js          the gesture engine: capture, axis, velocity, rubber band
+    state.js            preferences, theme, motion, clock
+    mac/                windows · dock · menus · spotlight · switcher · snap · keys
+    ios/                motion · views · panels · switcher · pages · lock · back
+    apps/               one file per app
+    lib/                the small pieces more than one app needs
+  styles/
+    os.css              the index — nothing but the order things load in
+    os/*.css            tokens · mac · ios · apps · glass · apple · container
+server/
+  index.mjs           the route table, and nothing else
+  routes/             one file per endpoint
+  agent/              the assistant's prompt and its tools
+  *.mjs               config · http · security · static · mail · knowledge · subscribers
+knowledge/*.md        what the assistant knows — edit a file, deploy, done
 ```
 
-### A ideia que segura tudo
+**Adding things is meant to be boring.** A new app is a file in
+`scripts/os/apps/` and a line in its index. A new endpoint is a file in
+`server/routes/` and a line in the route table. A new thing the assistant
+knows is a new Markdown file in `knowledge/` — no code at all.
 
-O conteúdo das aplicações é **HTML normal**, gerado pelo Astro dentro de
-`#pool`. O JavaScript não desenha conteúdo: apenas **move esses nós** para
-dentro de uma janela do Mac ou de uma vista do telefone. Daí resultam três
-coisas boas:
+No file in this repository is over 400 lines.
 
-1. **Sem JavaScript** o site continua a ser um documento legível (`#pool` é a
-   página). Se o módulo não arrancar em 5 segundos, o `<head>` devolve-o.
-2. O **Google lê tudo** — cada escrito tem o seu URL, com `<article>`, JSON-LD,
-   hreflang e Open Graph.
-3. Mudar de modo (rodar o tablet, redimensionar a janela) **não perde estado**:
-   o mesmo nó muda de moldura.
-
-### Gestos
-
-Tudo o que desliza passa por `gesture.js`, que trava o eixo, mede velocidade e
-decide no fim entre completar ou voltar atrás — é isso que separa "um site" de
-um telemóvel:
-
-| Gesto                                   | O que faz                        |
-| --------------------------------------- | -------------------------------- |
-| Arrastar para cima na barra inferior     | volta ao ecrã inicial            |
-| Arrastar para cima e segurar             | abre o comutador de aplicações   |
-| Arrastar na horizontal no ecrã inicial   | muda de página (com elástico)    |
-| Puxar do canto superior direito          | Central de Controlo              |
-| Puxar do canto superior esquerdo         | Centro de Notificações           |
-| Arrastar da margem esquerda              | volta atrás dentro de Escritos   |
-| Deslizar para cima no ecrã bloqueado     | desbloqueia                      |
-| Arrastar um cartão para cima             | fecha essa aplicação             |
-
-No Mac: arrastar uma janela para o topo ou para os lados **encaixa-a**.
-
-### O agente das Mensagens
-
-Com uma chave de OpenRouter no servidor, a aplicação Mensagens é um agente a
-sério. O que ele sabe está em **`knowledge/*.md`** — um ficheiro por assunto,
-em português simples. Editar um ficheiro e fazer push é tudo o que é preciso
-para o ensinar; não há prompt escondido no meio do código.
-
-Tem três ferramentas: `procurar` (na base de conhecimento e nos escritos),
-`marcar_reuniao` e `enviar_mensagem`. Duas rondas de ferramentas por mensagem,
-no máximo. Se não souber, diz que não sabe — foi mandado fazer isso em vez de
-inventar. Sem chave, responde com as respostas guardadas e diz que é isso que
-está a fazer. A chave nunca chega ao browser.
-
-### O site como servidor MCP
-
-`POST /mcp` fala JSON-RPC 2.0 com as ferramentas `procurar`, `escritos` e
-`contactar`. Um agente de fora pode saber o que o Hélder faz e deixar recado
-sem ler uma linha de HTML.
-
-### Para máquinas
-
-`/llms.txt` e `/en/llms.txt` (índice), `/llms-full.txt` (o site inteiro em
-Markdown), `/posts.json` (índice estruturado), RSS, sitemap e um `robots.txt`
-que diz explicitamente que sim aos rastreadores de IA.
-
-### Segurança
-
-Ver [DEPLOY.md](DEPLOY.md). Em resumo: nenhuma chave no browser, limites por IP
-e globais no servidor, token assinado com prazo, armadilha para robôs, e uma
-política de segurança de conteúdo sem `unsafe-inline` para scripts.
-
-## Comandos
-
-Nada é construído na máquina de produção — o build acontece no Coolify, pelo
-`Dockerfile`.
-
-| Comando         | O que faz                                  |
-| --------------- | ------------------------------------------ |
-| `npm run dev`   | servidor de desenvolvimento (`:4321`)      |
-| `npm run build` | gera `dist/`                               |
-| `npm start`     | corre o servidor de produção sobre `dist/` |
-
-## Escrever um texto novo
-
-Criar `src/content/blog/pt/<slug>.md` (e o par em `en/` com o mesmo campo `key`):
-
-```yaml
 ---
-title: 'Título'
-description: 'Uma linha para o Google e para a lista.'
-date: 2026-09-06
-tags: ['tema']
-key: 'chave-partilhada-entre-linguas'
----
+
+## Running it
+
+```bash
+npm install
+npm run dev          # http://localhost:4321
 ```
 
-Aparece sozinho na aplicação Escritos, no RSS, no sitemap, nos widgets, nas
-notificações, na pesquisa ⌘K, no `/llms.txt` e no `/posts.json`.
+For the real thing — static build plus the Node server that fronts it:
+
+```bash
+npm run build
+npm start            # http://localhost:3000
+```
+
+Deployment is a single `Dockerfile` (Astro in stage one, the server in stage
+two) built for Coolify. Everything the container needs is in
+[`DEPLOY.md`](DEPLOY.md), including the one volume it wants: `/app/data`, where
+the newsletter list lives.
+
+---
+
+## The newsletter
+
+Double opt-in, because it is the only honest way to do it. Asking to subscribe
+puts nobody on the list — it sends an email with a signed link, and the link is
+what subscribes you. Someone typing your address does not sign you up. The
+unsubscribe link never expires, because a person has to be able to leave a list
+using an email from two years ago.
+
+The list is an append-only NDJSON file: one line per event, never rewritten. A
+crash mid-write cannot corrupt what was already there, the history of who
+joined and left is kept, and you can read the whole thing with `cat`. It is
+never served over HTTP — there is no endpoint that returns it, not even one
+that counts.
+
+---
+
+## The site as an API
+
+Because sites are read by agents now, not only by people.
+
+| | |
+| --- | --- |
+| `/llms.txt`, `/llms-full.txt` | the site as text, for language models |
+| `/posts.json` | every post, structured |
+| `/rss.xml`, `/en/rss.xml` | feeds, one per language |
+| `/mcp` | a Model Context Protocol server: `procurar`, `escritos`, `contactar` |
+
+---
+
+## Notes
+
+The code comments are in Portuguese. That is deliberate — it is a Portuguese
+site, and the comments explain *why*, not *what*, so they are worth the
+translation if you are reading closely.
+
+Third-party licences and attributions are in [`NOTICE.md`](NOTICE.md). The
+glyphs are Lucide (ISC), the brand marks are Simple Icons (CC0), the typeface
+shipped is Inter (SIL OFL). On Apple devices the site uses the system's own San
+Francisco through `-apple-system`; it is not, and cannot be, in this
+repository.
+
+Nothing here is Apple's. What follows Apple's rules is the *geometry* — which
+is mathematics, and mathematics is not anybody's.
+
+The code is © Hélder Gonçalves. Read it, learn from it, take the ideas. If you
+want to use a chunk of it, [say hello](mailto:helder@heldergoncalves.io).

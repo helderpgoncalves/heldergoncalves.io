@@ -61,6 +61,58 @@ gastar cinco vezes menos, põe `OPENROUTER_MODEL=anthropic/claude-haiku-4.5`
 > A chave **nunca** chega ao browser. O site só conhece `/api/contact`; quem
 > fala com o fornecedor de email é o container.
 
+## Newsletter
+
+A subscrição do blog usa o mesmo fornecedor de email do contacto: se o
+contacto estiver ligado, a subscrição também está. Não há variável nova
+obrigatória — mas há **um volume**, e sem ele a lista desaparece.
+
+| Variável             | Exemplo                        | Para quê                                      |
+| -------------------- | ------------------------------ | --------------------------------------------- |
+| `DATA_DIR`           | `/app/data`                    | onde vive a lista; é este por omissão          |
+| `SUBSCRIBERS_FILE`   | `/app/data/subscribers.ndjson` | o ficheiro em si; opcional                     |
+| `SUBSCRIBE_SECRET`   | uma frase longa e aleatória    | assina as ligações de confirmação e de saída   |
+
+**O volume.** No Coolify, monta um volume persistente em `/app/data`. Sem
+ele, a lista vive dentro do container e desaparece no próximo deploy.
+
+**O segredo.** Se não definires `SUBSCRIBE_SECRET`, o servidor gera um na
+primeira vez e guarda-o em `/app/data/.subscribe-secret` — o que funciona,
+desde que o volume esteja montado. Definir a variável é mais seguro e é o
+que deves fazer se um dia correres mais do que um container.
+
+**A lista.** É um NDJSON: uma linha por acontecimento, sempre acrescentada
+ao fim. O estado de cada email é o da última linha que fala dele.
+
+```bash
+# quem está mesmo subscrito, sem repetições
+docker exec -it <container> node -e '
+  const fs = require("fs"), m = new Map();
+  for (const l of fs.readFileSync("/app/data/subscribers.ndjson","utf8").split("\n"))
+    if (l.trim()) { const r = JSON.parse(l); m.set(r.email, r); }
+  for (const r of m.values()) if (r.status === "active") console.log(r.email, r.lang);
+'
+```
+
+Nenhum endpoint devolve a lista — nem sequer para a contar. Quem a quer,
+lê o ficheiro no servidor.
+
+## O que protege a subscrição
+
+O mesmo que protege o contacto, mais uma coisa que é a que interessa:
+
+- **Dupla confirmação.** Pedir não inscreve ninguém. Manda um email com uma
+  ligação assinada (HMAC sobre o email e o instante), e é a ligação que
+  inscreve. Escrever o email de outra pessoa não a inscreve.
+- **A ligação de confirmação vale sete dias.** A de saída **nunca expira** —
+  uma pessoa tem de poder sair de uma lista a partir de um email antigo.
+- **Não há tabela de tokens.** A assinatura basta-se: reiniciar o servidor
+  não invalida ligações já enviadas, e não há nada a crescer em memória.
+- **Não se diz quem já lá está.** Pedir a subscrição de um email já activo
+  responde exactamente o mesmo que pedir a de um novo — dizer "esse já cá
+  está" seria contar a um estranho quem subscreveu.
+- **Limites**: 3 pedidos por IP por hora, 120 no total por hora.
+
 ## O que protege o formulário
 
 Tudo no servidor, porque tudo o que estiver no browser é público:

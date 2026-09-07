@@ -12,8 +12,8 @@ import {
   seenThisSession,
   forcedPhone,
 } from './state.js';
-import { createMac } from './mac.js';
-import { createPhone } from './ios.js';
+import { createMac } from './mac/index.js';
+import { createPhone } from './ios/index.js';
 import { initApps } from './apps/index.js';
 
 const node = document.getElementById('os-data');
