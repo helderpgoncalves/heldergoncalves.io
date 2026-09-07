@@ -104,6 +104,13 @@ let lastTick = () => {};
 export const refreshClock = () => lastTick();
 
 // ── Sessão (arranque e bloqueio só uma vez) ───────────────────
+/** Esquece o sinal: o próximo arranque volta a ser o primeiro. */
+export function forgetSession(flag) {
+  try {
+    sessionStorage.removeItem(flag);
+  } catch (_) {}
+}
+
 export function seenThisSession(flag) {
   try {
     if (sessionStorage.getItem(flag)) return true;

@@ -10,6 +10,7 @@ import {
   onModeChange,
   startClock,
   seenThisSession,
+  forgetSession,
   forcedPhone,
 } from './state.js';
 import { createMac } from './mac/index.js';
@@ -151,8 +152,12 @@ function boot(data) {
         if (ctx.escritos && ctx.escritos.hasDetail()) ctx.escritos.list(true);
         return;
       case 'restart':
-        document.getElementById('boot').hidden = false;
-        setTimeout(() => location.reload(), 900);
+        // Um reinício a sério: o ecrã apaga-se, e o arranque que vem a
+        // seguir é o primeiro outra vez — a saudação escreve-se toda.
+        // Mostrar a saudação antes de recarregar cortava-a a meio.
+        forgetSession('helderos-booted');
+        os.classList.add('off');
+        setTimeout(() => location.reload(), 700);
         return;
       default:
         return;

@@ -321,6 +321,8 @@
 [data-motion='off'] .boot-hand .ink { stroke-dashoffset: 0; opacity: 1; }
 @keyframes fade-in { from { opacity: 0; } }
 .os.booted .boot { animation: fade-out 0.45s forwards; }
+/* A desligar: o ecrã apaga-se antes de recarregar. */
+.os.off .dim { opacity: 1; transition: opacity 0.6s ease-in; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
