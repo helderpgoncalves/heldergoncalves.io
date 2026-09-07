@@ -149,6 +149,9 @@ jobs:
           for i in $(seq 1 100); do curl -fsS http://127.0.0.1:3001/ >/dev/null; done
           curl -fsS http://127.0.0.1:3001/en/ >/dev/null
           sleep 2
+          # `tee` e não `>`: os números vão para o resumo da corrida e para
+          # o log. Uma medição que só se vê numa página web é uma medição
+          # que ninguém vai lá ver.
           {
             echo "### Peso"
             echo ""
@@ -160,5 +163,5 @@ jobs:
             echo '```'
             docker logs peso 2>&1 | grep -E 'memória|cache' || true
             echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
           docker rm -f peso
