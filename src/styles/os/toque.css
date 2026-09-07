@@ -1,0 +1,146 @@
+/* ═══════════════════════════════════════════════════════════════
+   O que separa um site de uma aplicação: o toque.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 7. Toque: o que separa um site de uma aplicação ─────────── */
+/* O iPhone dá zoom a qualquer campo com menos de 16px. Nada aqui
+   pode ter menos — e nenhum toque pode ter atraso ou halo azul. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+button, a, [role='button'], .dock-item, .row, label { touch-action: manipulation; }
+
+/* Onde há gestos nossos, o browser não pode ficar com o dedo primeiro.
+   `manipulation` deixa o browser começar a arrastar a página, e a partir
+   daí deixamos de receber eventos — era isto que impedia o deslizar
+   entre páginas do ecrã inicial. */
+.sb, .sb-pages, .sb-page, .sb-app, .sb-widgets, .widget, .w-row, .ios-dock, .sb-dots {
+  touch-action: none;
+}
+.lock, .lock button, .lock-note, .lock-action, .lock-open { touch-action: none; }
+.nc, .nc-note, .nc-inner { touch-action: pan-y; }
+.cc, .cc button, .cc-tile, .cc-slider { touch-action: none; }
+.homebar, .homebar i { touch-action: none; }
+.switcher-card, .switcher-card * { touch-action: pan-x; }
+button, a, .sb-app, .widget, .nc-note, .cc-tile { -webkit-tap-highlight-color: transparent; }
+
+input, textarea, select { font-family: inherit; }
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px; }
+}
+[data-mode='ios'] input,
+[data-mode='ios'] textarea,
+[data-mode='ios'] select { font-size: 16px; }
+[data-mode='ios'] .term { font-size: 15px; }
+[data-mode='ios'] .term-line input { font-size: 16px; }
+[data-mode='ios'] .spot-input input { font-size: 20px; }
+
+/* A moldura do sistema não se seleciona nem se arrasta; o texto sim. */
+.menubar, .dock, .statusbar, .sb, .homebar, .win-bar, .ios-view-head, .sb-dots {
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.prose, .app-lead, .bubble, .term-out, .post-desc, .card p { user-select: text; -webkit-user-select: text; }
+.dock-item svg, .sb-app svg, .widget, .desk-icon svg { -webkit-user-drag: none; user-select: none; }
+
+/* Rolagem contida: nada de arrastar a página inteira por trás. */
+.app-scroll, .post-list, .chat-log, .ios-view-body, .spot-results, .nc-inner, .term {
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+}
+
+/* Segunda página do ecrã inicial */
+.sb-widgets.one { grid-template-columns: 1fr; }
+.widget-list { gap: 2px; min-height: 150px; }
+.w-row {
+  display: grid; gap: 1px; width: 100%; text-align: left; color: #fff; padding: 9px 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.16);
+}
+.widget-list .w-row:last-of-type { border-bottom: 0; }
+.w-row-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.w-row-meta { font-size: 11px; opacity: 0.68; }
+.w-links { display: flex; gap: 12px; margin-top: 10px; }
+.w-links a {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2); color: #fff;
+}
+.w-links a:hover { background: rgba(255, 255, 255, 0.32); }
+
+/* Comutador: cartões que se arrastam para fora */
+.switcher-card { position: relative; transition: transform 0.28s var(--ease-os), opacity 0.28s; touch-action: pan-x; }
+.switcher-rail { align-items: center; }
+
+/* Encaixe de janelas e ⌘Tab */
+.snap-preview {
+  position: absolute; z-index: 19; border-radius: var(--radius-win);
+  background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  pointer-events: none; animation: menu-in 0.1s var(--ease-os);
+}
+.win.snapping { transition: left 0.2s var(--ease-os), top 0.2s var(--ease-os), width 0.2s var(--ease-os), height 0.2s var(--ease-os); }
+.cmdtab {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 750;
+  display: flex; gap: 6px; padding: 14px; border-radius: 20px;
+  background: var(--glass); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-edge); box-shadow: var(--shadow-pop);
+  max-width: 84vw; overflow: hidden;
+}
+.cmdtab-item { display: grid; justify-items: center; gap: 4px; padding: 8px; border-radius: 12px; width: 84px; color: var(--ink); }
+.cmdtab-item svg { width: 52px; height: 52px; }
+.cmdtab-item span { font-size: 11px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; opacity: 0; }
+.cmdtab-item.on { background: var(--surface-3); }
+.cmdtab-item.on span { opacity: 1; }
+
+/* Armadilha para robôs: fora do ecrã, fora do foco, fora dos leitores. */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.hintline[data-tone='ok'] { color: #12a150; }
+.hintline[data-tone='warn'] { color: #d97706; }
+
+/* ── 8. Resposta ao toque ────────────────────────────────────
+   No iOS tudo responde no instante em que o dedo pousa. */
+.row, .btn, .nc-note, .lock-note, .cc-tile, .chat-suggest button, .post-link, .w-row, .card, .spot-item {
+  transition: transform 0.14s var(--ease-os), background 0.14s;
+}
+[data-mode='ios'] .row:active,
+[data-mode='ios'] .btn:active,
+[data-mode='ios'] .nc-note:active,
+[data-mode='ios'] .lock-note:active,
+[data-mode='ios'] .cc-tile:active,
+[data-mode='ios'] .chat-suggest button:active,
+[data-mode='ios'] .post-link:active,
+[data-mode='ios'] .w-row:active { transform: scale(0.975); }
+[data-mode='ios'] .widget:active { transform: scale(0.965); }
+.dock-item:active { transform: scale(calc(var(--s, 1) * 0.94)) translateY(calc((var(--s, 1) - 1) * -6px)); }
+
+/* Caixa de escrita das Mensagens */
+.chat-compose {
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  border-top: 0.5px solid var(--line); background: var(--surface-2);
+}
+.chat-compose input {
+  flex: 1; min-width: 0; padding: 9px 15px; border-radius: 99px;
+  border: 0.5px solid var(--line); background: var(--surface-solid); color: var(--ink);
+  outline: none; font-size: 15px;
+}
+.chat-compose input:focus { border-color: var(--accent); }
+.chat-send {
+  width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: #fff; transition: transform 0.14s var(--ease-os), opacity 0.14s;
+}
+.chat-send:active { transform: scale(0.9); }
+.chat-note {
+  margin: 0; padding: 6px 16px 10px; font-size: 11px; color: var(--ink-3);
+  background: var(--surface-2); text-align: center;
+}
+
+.legal-note {
+  margin: 14px 0 0; font-size: 11px; line-height: 1.5; color: var(--ink-3);
+  padding: 12px 14px; border-radius: 10px; background: var(--surface-2);
+  border: 0.5px solid var(--line);
+}
+.doc-kicker { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 0 0 0.5rem; }
+
+/* A barra inferior avisa quando o comutador está armado */
+.homebar i { transition: transform 0.22s var(--ease-os), width 0.22s var(--ease-os), opacity 0.2s; }
+.homebar.armed i { width: 64px; opacity: 0.9; }
+
+/* As notificações percorrem-se com o dedo; o painel fecha-se pelo resto. */
+.nc-inner { overscroll-behavior: contain; }

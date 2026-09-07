@@ -46,6 +46,30 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
         ))}
       </ul>
     )}
+
+    {/* Subscrever. O campo escondido é a armadilha para robôs: fica fora
+        do ecrã e fora da ordem de tabulação, e só um robô o preenche.
+        Se o servidor não tiver o envio ligado, o JavaScript esconde
+        isto — melhor não haver campo do que haver um que não faz nada. */}
+    <form class="sub" data-subscribe>
+      <p class="sub-title">{e.subscribeTitle}</p>
+      <div class="sub-row">
+        <label class="sr" for="sub-email">{e.subscribeLabel}</label>
+        <input
+          id="sub-email"
+          class="sub-input"
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder={e.subscribePlaceholder}
+          required
+          data-subscribe-email
+        />
+        <button class="sub-go" type="submit">{e.subscribeAction}</button>
+      </div>
+      <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-subscribe-trap />
+      <p class="sub-note" data-subscribe-note>{e.subscribeNote}</p>
+    </form>
   </div>
 
   <div class="app-main">

@@ -1,0 +1,40 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os tipos de letra, e porque não são a SF.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   heldergoncalves.io — o sítio é um sistema operativo.
+   1. Fundações      2. Fundos      3. Documento sem JavaScript
+   4. macOS          5. iOS         6. Aplicações
+   Escrito à mão, sem frameworks. Ordem: nada aqui depende de JS
+   para ser legível — o JS só transforma o documento em sistema.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 0. Tipografia ───────────────────────────────────────────
+   Nos dispositivos da Apple, `-apple-system` resolve para a San
+   Francisco verdadeira — a mesma que o sistema usa. Fora deles a SF
+   não pode ser distribuída (a licença da Apple só permite desenhar
+   *para* plataformas Apple), por isso servimos a Inter, que é a
+   correspondência mais próxima e é livre (SIL OFL, ver
+   public/fonts/OFL-Inter.txt). Ficheiros nossos: a política de
+   segurança não deixa carregar tipos de letra de fora. */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}

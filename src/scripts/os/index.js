@@ -14,7 +14,7 @@ import {
 } from './state.js';
 import { createMac } from './mac.js';
 import { createPhone } from './ios.js';
-import { initApps } from './apps.js';
+import { initApps } from './apps/index.js';
 
 const node = document.getElementById('os-data');
 if (node) boot(JSON.parse(node.textContent));
@@ -64,6 +64,7 @@ function boot(data) {
     if (id === 'terminal' && ctx.focusTerminal) ctx.focusTerminal();
     if (id === 'contacto' && ctx.prepareContact) ctx.prepareContact();
     if (id === 'mensagens' && ctx.prepareChat) ctx.prepareChat();
+    if (id === 'escritos' && ctx.prepareSubscribe) ctx.prepareSubscribe();
   }
 
   function closeApp(id) {

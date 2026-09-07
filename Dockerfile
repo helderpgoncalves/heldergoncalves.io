@@ -32,6 +32,11 @@ COPY --from=build /app/dist ./dist
 COPY server ./server
 COPY knowledge ./knowledge
 
+# A lista da newsletter vive aqui. Sem um volume montado neste caminho,
+# a lista desaparece quando o container é substituído — ver DEPLOY.md.
+RUN mkdir -p /app/data && chown node:node /app/data
+VOLUME ["/app/data"]
+
 # Corre como utilizador sem privilégios.
 USER node
 

@@ -1,0 +1,70 @@
+/* ═══════════════════════════════════════════════════════════════
+   Cada aplicação responde ao seu contentor, não ao ecrã.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   12. Cada aplicação responde ao seu contentor
+   ═══════════════════════════════════════════════════════════════
+   Não ao tamanho do ecrã — ao tamanho da janela onde está. Uma
+   janela do Mac muda de largura sem a página mudar de nada, e é o
+   conteúdo dela que tem de se arrumar. É o mesmo raciocínio das
+   classes de tamanho da Apple, feito com container queries.
+   ─────────────────────────────────────────────────────────────── */
+.win-body,
+.ios-view-body {
+  container-type: inline-size;
+  container-name: app;
+}
+
+/* Escritos: lista e leitor lado a lado quando há espaço; empilhados
+   quando não há, com o leitor a entrar por cima — em qualquer um dos
+   dois mundos. */
+@container app (max-width: 640px) {
+  .app-escritos { flex-direction: column; }
+  .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
+  .app-escritos .app-main {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--surface-solid);
+    transform: translateX(100%);
+    transition: transform 0.34s var(--ease-os);
+    visibility: hidden;
+  }
+  .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
+  .app-escritos .back-btn { display: inline-flex; }
+}
+@container app (max-width: 560px) {
+  .app-pad { padding: 18px 18px 26px; }
+  .cards { grid-template-columns: 1fr; }
+  .about-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .row { flex-wrap: wrap; gap: 4px 12px; }
+  .row .k { flex: 0 0 100%; }
+  .row .v { margin-left: 0; text-align: left; }
+  .compose-field { flex-wrap: wrap; }
+  .compose-field label { flex: 0 0 100%; }
+  .walls { grid-template-columns: repeat(2, 1fr); }
+  .bubble { max-width: 88%; }
+  .btn-row { flex-direction: column; align-items: stretch; }
+  .btn-row .btn { justify-content: center; }
+}
+@container app (max-width: 400px) {
+  .app-pad { padding: 14px 14px 22px; }
+  .seg { width: 100%; }
+  .seg button { flex: 1; padding: 8px 6px; }
+  .walls { grid-template-columns: 1fr; }
+  .term { font-size: 12px; }
+  .chat-head .btn { display: none; }
+}
+@container app (min-width: 900px) {
+  .app-pad { padding: 30px 36px 40px; }
+  .app-escritos .app-side { flex: 0 0 320px; }
+}
+
+/* Durante um gesto, nada se acende como se tivesse sido tocado. */
+.gesturing button:active,
+.gesturing a:active,
+.gesturing .widget:active,
+.gesturing .glass:active { transform: none !important; }
+.gesturing .sb-app:active svg { transform: none !important; }

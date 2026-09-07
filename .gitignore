@@ -4,3 +4,7 @@ dist/
 .DS_Store
 .env
 .env.production
+
+# A lista da newsletter e o segredo que assina as ligações.
+# Vivem num volume no servidor, nunca aqui.
+data/

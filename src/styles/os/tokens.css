@@ -1,0 +1,180 @@
+/* ═══════════════════════════════════════════════════════════════
+   As cores, as medidas e as curvas. Nada aqui desenha nada.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Fundações ───────────────────────────────────────────── */
+:root {
+  --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter Variable',
+    Inter, 'Segoe UI', system-ui, 'Helvetica Neue', sans-serif;
+  /* Títulos grandes: a Apple usa a SF Pro Display, mais apertada. */
+  --display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Variable', Inter, system-ui, sans-serif;
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, 'Cascadia Mono', monospace;
+
+  /* As cores de sistema da Apple, aparência clara. Cada uma tem outro
+     valor no escuro — estão no bloco de baixo. */
+  --blue: #007aff;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --yellow: #ffcc00;
+  --purple: #af52de;
+  --teal: #30b0c7;
+  /* systemGray, do mais escuro ao mais claro. */
+  --gray: #8e8e93;
+  --gray2: #aeaeb2;
+  --gray3: #c7c7cc;
+  --gray4: #d1d1d6;
+  --gray5: #e5e5ea;
+  --gray6: #f2f2f7;
+
+  --ink: #1d1d1f;
+  --ink-2: #57575c;
+  --ink-3: var(--gray);
+  --line: rgba(0, 0, 0, 0.11);
+  --line-strong: rgba(0, 0, 0, 0.22);
+  --accent: var(--blue);
+  --accent-ink: #fff;
+  --danger: var(--red);
+
+  --surface: rgba(252, 252, 253, 0.72);
+  --surface-solid: #fff;
+  /* Os preenchimentos da Apple são cinzentos com transparência, não
+     preto: por cima de fundos com cor não escurecem, misturam-se. */
+  --surface-2: rgba(120, 120, 128, 0.08);
+  --surface-3: rgba(120, 120, 128, 0.12);
+  --sidebar: rgba(242, 242, 245, 0.6);
+  --glass: rgba(255, 255, 255, 0.5);
+  --glass-edge: rgba(255, 255, 255, 0.55);
+  --glass-ring: rgba(0, 0, 0, 0.14);
+  --shadow-win: 0 34px 70px -18px rgba(0, 0, 0, 0.44), 0 4px 14px rgba(0, 0, 0, 0.16);
+  --shadow-pop: 0 18px 40px -10px rgba(0, 0, 0, 0.34);
+
+  --menubar-h: 26px;
+  --dock-icon: 52px;
+  --radius-win: 11px;
+  --blur: saturate(180%) blur(28px);
+  --ease-os: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-pop: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --speed: 1;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --blue: #0a84ff;
+  --green: #30d158;
+  --red: #ff453a;
+  --orange: #ff9f0a;
+  --yellow: #ffd60a;
+  --purple: #bf5af2;
+  --teal: #40c8e0;
+  --gray: #8e8e93;
+  --gray2: #636366;
+  --gray3: #48484a;
+  --gray4: #3a3a3c;
+  --gray5: #2c2c2e;
+  --gray6: #1c1c1e;
+
+  --ink: #f5f5f7;
+  --ink-2: #c7c7cc;
+  --ink-3: #98989d;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.26);
+  --accent: var(--blue);
+  --danger: var(--red);
+
+  --surface: rgba(38, 38, 42, 0.74);
+  --surface-solid: var(--gray6);
+  --surface-2: rgba(120, 120, 128, 0.18);
+  --surface-3: rgba(120, 120, 128, 0.24);
+  --sidebar: rgba(30, 30, 34, 0.56);
+  --glass: rgba(46, 46, 52, 0.52);
+  --glass-edge: rgba(255, 255, 255, 0.16);
+  --glass-ring: rgba(0, 0, 0, 0.5);
+  --shadow-win: 0 34px 70px -18px rgba(0, 0, 0, 0.72), 0 4px 14px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --blue: #0a84ff;
+    --green: #30d158;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --yellow: #ffd60a;
+    --purple: #bf5af2;
+    --teal: #40c8e0;
+    --gray: #8e8e93;
+    --gray2: #636366;
+    --gray3: #48484a;
+    --gray4: #3a3a3c;
+    --gray5: #2c2c2e;
+    --gray6: #1c1c1e;
+
+    --ink: #f5f5f7;
+    --ink-2: #c7c7cc;
+    --ink-3: #98989d;
+    --line: rgba(255, 255, 255, 0.12);
+    --line-strong: rgba(255, 255, 255, 0.26);
+    --accent: var(--blue);
+    --danger: var(--red);
+    --surface: rgba(38, 38, 42, 0.74);
+    --surface-solid: var(--gray6);
+    --surface-2: rgba(120, 120, 128, 0.18);
+    --surface-3: rgba(120, 120, 128, 0.24);
+    --sidebar: rgba(30, 30, 34, 0.56);
+    --glass: rgba(46, 46, 52, 0.52);
+    --glass-edge: rgba(255, 255, 255, 0.16);
+    --glass-ring: rgba(0, 0, 0, 0.5);
+    --shadow-win: 0 34px 70px -18px rgba(0, 0, 0, 0.72), 0 4px 14px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--t-body, 14px);
+  line-height: 1.5;
+  color: var(--ink);
+  background: #0b0b0f;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.skip {
+  position: fixed; left: 8px; top: -60px; z-index: 9999;
+  padding: 8px 14px; border-radius: 8px;
+  background: var(--surface-solid); color: var(--ink); box-shadow: var(--shadow-pop);
+  transition: top 0.15s;
+}
+.skip:focus { top: 8px; }
+
+.sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Formas: o canto contínuo da Apple, quando o browser souber fazê-lo.
+   O raio dos ícones é 22,37% do lado, e num canto contínuo o canto
+   ocupa 1,6× o raio — 35,79%. Ver a secção 13. */
+.squircle { border-radius: 22.37%; }
+@supports (corner-shape: squircle) {
+  .squircle { corner-shape: squircle; border-radius: 35.79%; }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .squircle { corner-shape: superellipse(1.777); }
+}

@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════════════════════════════
+   Liquid Glass — as cinco camadas.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   9. Liquid Glass
+   ═══════════════════════════════════════════════════════════════
+   O que faz uma superfície parecer vidro não é o desfoque — é o que
+   está à volta dele. São cinco camadas, e todas contam:
+
+   1. O corpo       tinta translúcida + desfoque + saturação. Vidro
+                    concentra a cor do que está por trás.
+   2. O aro         uma linha clara e desigual à volta, mais forte onde
+                    a luz bate. É o sinal mais reconhecível de todos.
+   3. O bisel       luz no topo por dentro, reflexo no fundo. Dá
+                    espessura à borda.
+   4. A sombra      larga, baixa e suave. Diz que a peça está acima.
+   5. A refração    o fundo desloca-se junto à borda, como numa lente.
+                    Só o Chromium sabe fazer isto; os outros ficam-se
+                    pelas quatro primeiras, e ficam bem.
+
+   Tudo isto é desenhado aqui. Nada é copiado de lado nenhum.
+   ─────────────────────────────────────────────────────────────── */
+:root {
+  --glass-blur: 26px;
+  --glass-sat: 190%;
+  --glass-bright: 1.06;
+  --glass-tint: rgba(255, 255, 255, 0.42);
+  --glass-rim: rgba(255, 255, 255, 0.85);
+  --glass-rim-dim: rgba(255, 255, 255, 0.1);
+  --glass-bevel-top: rgba(255, 255, 255, 0.6);
+  --glass-bevel-bottom: rgba(255, 255, 255, 0.16);
+  --glass-hairline: rgba(0, 0, 0, 0.1);
+  --glass-drop: 0 12px 34px -8px rgba(0, 0, 0, 0.28), 0 3px 10px -3px rgba(0, 0, 0, 0.14);
+  /* De onde vem a luz. O rato move isto no Mac. */
+  --glass-angle: 145deg;
+}
+
+[data-theme='dark'] {
+  --glass-tint: rgba(40, 40, 46, 0.5);
+  --glass-rim: rgba(255, 255, 255, 0.42);
+  --glass-rim-dim: rgba(255, 255, 255, 0.05);
+  --glass-bevel-top: rgba(255, 255, 255, 0.22);
+  --glass-bevel-bottom: rgba(255, 255, 255, 0.05);
+  --glass-hairline: rgba(0, 0, 0, 0.55);
+  --glass-bright: 1.02;
+  --glass-drop: 0 14px 38px -8px rgba(0, 0, 0, 0.6), 0 3px 12px -3px rgba(0, 0, 0, 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --glass-tint: rgba(40, 40, 46, 0.5);
+    --glass-rim: rgba(255, 255, 255, 0.42);
+    --glass-rim-dim: rgba(255, 255, 255, 0.05);
+    --glass-bevel-top: rgba(255, 255, 255, 0.22);
+    --glass-bevel-bottom: rgba(255, 255, 255, 0.05);
+    --glass-hairline: rgba(0, 0, 0, 0.55);
+    --glass-bright: 1.02;
+    --glass-drop: 0 14px 38px -8px rgba(0, 0, 0, 0.6), 0 3px 12px -3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Sobre fundo escuro (a Dock do telefone, os painéis) o vidro é mais
+   claro do que aquilo que cobre, não mais escuro. */
+.glass-dark {
+  --glass-tint: rgba(255, 255, 255, 0.16);
+  --glass-hairline: rgba(255, 255, 255, 0.14);
+  --glass-rim: rgba(255, 255, 255, 0.8);
+  --glass-bevel-top: rgba(255, 255, 255, 0.5);
+}
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-bevel-top),
+    inset 0 -1px 0 0 var(--glass-bevel-bottom),
+    inset 0 0 0 0.5px var(--glass-hairline),
+    var(--glass-drop);
+}
+
+/* O aro. Um gradiente à volta, recortado só na borda: forte onde a luz
+   bate, quase invisível do lado oposto. É isto que dá o brilho. */
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--glass-angle),
+      var(--glass-rim) 0deg,
+      var(--glass-rim-dim) 60deg,
+      var(--glass-rim) 140deg,
+      var(--glass-rim-dim) 220deg,
+      var(--glass-rim) 320deg,
+      var(--glass-rim) 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s;
+  }
+}
+
+/* A refração vive numa camada própria, colocada ATRÁS do conteúdo
+   (z-index -1, dentro do contexto que o `isolation` cria). Tem de ser
+   atrás: uma camada por cima entortaria o próprio texto da superfície.
+   Como a camada leva também a tinta e o desfoque, se o filtro não
+   pintar nada continua a ser vidro — não há nada a perder. */
+.glass-lens {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
+}
+.js-refract .glass {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Em movimento reduzido, ou num ecrã que não aguente, fica o essencial. */
+[data-motion='off'] .glass-lens { display: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    --glass-blur: 0px;
+    --glass-tint: var(--surface-solid);
+  }
+  .glass-lens { display: none; }
+}
+
+/* Cada superfície tem o seu vidro: uma Dock não é uma janela, e um
+   painel que cobre o ecrã inteiro precisa de mais corpo para o texto
+   branco se ler por cima de qualquer fundo. */
+.cc, .nc {
+  --glass-tint: rgba(0, 0, 0, 0.3);
+  --glass-blur: 30px;
+  --glass-bevel-top: rgba(255, 255, 255, 0.16);
+  --glass-hairline: transparent;
+  --glass-drop: none;
+}
+.cc::before, .nc::before { display: none; }
+.win { --glass-tint: var(--surface); --glass-blur: 30px; --glass-drop: var(--shadow-win); }
+.menubar { --glass-tint: rgba(255, 255, 255, 0.3); --glass-blur: 22px; --glass-drop: none; --glass-hairline: transparent; }
+[data-theme='dark'] .menubar { --glass-tint: rgba(22, 22, 26, 0.42); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .menubar { --glass-tint: rgba(22, 22, 26, 0.42); }
+}
+.menubar::before { border-radius: 0; padding: 0 0 1px; }
+.dock { --glass-blur: 30px; }
+.ios-dock { --glass-blur: 24px; }
+.widget { --glass-blur: 22px; }
+.lock-note, .nc-note, .cc-tile, .lock-action { --glass-blur: 20px; --glass-drop: 0 6px 18px -6px rgba(0, 0, 0, 0.3); }
+.dock-tip { --glass-blur: 18px; }
+
+
+/* A refração só faz sentido em peças pequenas e com bordas curvas.
+   Num painel de ecrã inteiro não se vê e custa caro. */
+.cc .glass-lens,
+.nc .glass-lens,
+.menubar .glass-lens,
+.win .glass-lens { -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); }
