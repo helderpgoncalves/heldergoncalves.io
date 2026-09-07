@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────────────────────────────
+# Pôr o package-lock.json em dia.
+#
+# Um lockfile que não descreve a árvore que o package.json resolve não
+# tranca nada: dois builds do mesmo commit podem instalar versões
+# diferentes, e é aí que uma dependência comprometida entra sem ninguém
+# dar por ela. O `npm ci` também deixa de funcionar, e com ele a garantia
+# de que o que é construído no CI é o que vai para o ar.
+#
+# Isto corre à mão, abre um pull request, e nunca escreve no main.
+# ─────────────────────────────────────────────────────────────────────
+name: Lockfile
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actualizar:
+    name: Regenerar e abrir PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Resolver as dependências de novo
+        run: npm install --no-audit --no-fund
+
+      - name: O site continua a construir
+        run: npm run build
+
+      - name: Abrir o pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: package-lock.json
+          branch: lockfile/actualizar
+          delete-branch: true
+          commit-message: 'deps: pôr o package-lock.json em dia'
+          title: 'Pôr o package-lock.json em dia'
+          body: |
+            O lockfile tinha deixado de descrever a árvore que este
+            `package.json` resolve — trazia o `@astrojs/rss`, que já não é
+            usado, faltava-lhe o `typescript`, e a versão do `zod` não
+            batia certo.
+
+            Isto foi gerado por `npm install` seguido de `npm run build`,
+            por isso o site constrói com esta árvore.
+
+            Depois de entrar, o `npm install` do CI e do `Dockerfile`
+            podem voltar a ser `npm ci`, e os builds voltam a ser
+            reprodutíveis.
+          labels: dependências

@@ -55,7 +55,30 @@ jobs:
           node-version: 24
           cache: npm
 
-      - run: npm ci --no-audit --no-fund
+      # `npm install` e não `npm ci`, para o CI validar exactamente o que
+      # o Dockerfile faz. Quando o lockfile estiver em dia, passam os
+      # dois a `npm ci` — ver o workflow `lockfile`.
+      - run: npm install --no-audit --no-fund
+
+      - name: O lockfile está em dia?
+        continue-on-error: true
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json em dia." >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### ⚠️ package-lock.json desactualizado"
+              echo ""
+              echo "O \`npm install\` mexeu no lockfile, o que quer dizer que ele não"
+              echo "descreve a árvore que este \`package.json\` resolve. Enquanto"
+              echo "assim for, dois builds do mesmo commit podem instalar versões"
+              echo "diferentes — e o \`npm ci\` não funciona."
+              echo ""
+              echo "Correr o workflow **Lockfile** para o pôr em dia."
+            } >> "$GITHUB_STEP_SUMMARY"
+            git --no-pager diff --stat -- package-lock.json
+          fi
+          exit 0
 
       - name: Construir e comprimir
         run: npm run build
