@@ -8,7 +8,7 @@
 // no fim, com o embalo contado.
 // ─────────────────────────────────────────────────────────────────────
 import { effectiveTheme, prefs, setPref } from '../state.js';
-import { track, clamp, project } from '../gesture.js';
+import { track, clamp, project, spring } from '../gesture.js';
 
 const WALLPAPERS = ['aurora', 'sonoma', 'night', 'graphite'];
 
@@ -35,26 +35,44 @@ export function createPanels(ph) {
       el.classList.remove('open');
     };
 
+    /**
+     * Do sítio onde o dedo largou até ao destino, com o embalo que
+     * trazia — e só depois se muda a classe, já no sítio certo.
+     */
+    let settling = null;
+    const settle = (y, to, vy, then) => {
+      if (settling) settling.cancel();
+      settling = spring(y, to, vy, (v) => (el.style.transform = 'translate3d(0,' + v.toFixed(2) + 'px,0)'), {
+        response: 0.4,
+        damping: 0.95,
+      });
+      settling.then(() => {
+        settling = null;
+        then();
+      });
+    };
+
     if (hotspot)
       track(
         hotspot,
         {
           begin: () => {
+            if (settling) settling.cancel();
             el.classList.add('open', 'dragging');
             el.style.transition = 'none';
             el.style.willChange = 'transform';
             if (onOpen) onOpen();
           },
           move: (g) => {
-            const p = clamp(g.dy / (phone.clientHeight || 1), 0, 1);
-            el.style.transform = 'translate3d(0,' + (p - 1) * 100 + '%,0)';
+            const h = phone.clientHeight || 1;
+            el.style.transform = 'translate3d(0,' + (clamp(g.dy, 0, h) - h) + 'px,0)';
           },
           end: (g) => {
+            const h = phone.clientHeight || 1;
             el.classList.remove('dragging');
-            el.style.transition = '';
             el.style.willChange = '';
-            if (g.dy + project(g.vy) > (phone.clientHeight || 1) * OPEN_AT) openIt();
-            else closeIt();
+            const opens = g.dy + project(g.vy) > h * OPEN_AT;
+            settle(clamp(g.dy, 0, h) - h, opens ? 0 : -h, g.vy, opens ? openIt : closeIt);
           },
           tap: openIt,
         },
@@ -66,16 +84,17 @@ export function createPanels(ph) {
       el,
       {
         begin: () => {
+          if (settling) settling.cancel();
           el.style.transition = 'none';
         },
         move: (g) => {
-          const p = clamp(-g.dy / (phone.clientHeight || 1), 0, 1);
-          el.style.transform = 'translate3d(0,' + -p * 100 + '%,0)';
+          const h = phone.clientHeight || 1;
+          el.style.transform = 'translate3d(0,' + -clamp(-g.dy, 0, h) + 'px,0)';
         },
         end: (g) => {
-          el.style.transition = '';
-          if (-g.dy - project(g.vy) > (phone.clientHeight || 1) * CLOSE_AT) closeIt();
-          else openIt();
+          const h = phone.clientHeight || 1;
+          const closes = -g.dy - project(g.vy) > h * CLOSE_AT;
+          settle(-clamp(-g.dy, 0, h), closes ? -h : 0, g.vy, closes ? closeIt : openIt);
         },
       },
       { axis: 'y', threshold: 10, filter: (ev) => !ev.target.closest('a, .cc-slider, .nc-inner') }

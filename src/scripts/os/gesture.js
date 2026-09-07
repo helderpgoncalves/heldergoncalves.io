@@ -163,25 +163,61 @@ export function track(el, handlers, opts = {}) {
 }
 
 /**
- * Anima uma propriedade até um valor com a curva do iOS. Devolve uma
- * promessa para encadear (fechar a app depois de a animação acabar).
+ * Uma mola, como a do UIKit: `response` é o período natural em segundos
+ * e `damping` a razão de amortecimento (1 é assentar sem ressalto).
+ *
+ * O que a distingue de uma curva de tempo é a velocidade inicial: parte
+ * de `from` **com o embalo que o dedo trazia** (`v0`, em px/ms) e é a
+ * física que decide o resto. É por isso que largar depressa e largar
+ * devagar dão movimentos diferentes — como no telefone.
+ *
+ * Devolve uma promessa com `cancel()`, para um gesto novo poder
+ * interromper o assentar do anterior.
  */
-export function springTo(el, from, to, apply, duration = 380) {
-  return new Promise((resolve) => {
-    const reduce = document.documentElement.getAttribute('data-motion') === 'off';
-    if (reduce) {
+export function spring(from, to, v0, apply, opts = {}) {
+  let frame = 0;
+  const promise = new Promise((resolve) => {
+    if (reduced()) {
       apply(to);
       resolve();
       return;
     }
+    const response = opts.response || 0.42;
+    const zeta = Math.min(1, opts.damping || 0.86);
+    const w0 = (2 * Math.PI) / response;
+    const d0 = from - to;
+    const v = (v0 || 0) * 1000;
     const t0 = performance.now();
-    const ease = (t) => 1 - Math.pow(1 - t, 3.2);
+
+    // A solução analítica: sem integrar, sem acumular erro, e o quadro
+    // que se perde não muda o sítio onde se acaba.
+    let at;
+    if (zeta < 1) {
+      const wd = w0 * Math.sqrt(1 - zeta * zeta);
+      const b = (v + zeta * w0 * d0) / wd;
+      at = (t) => Math.exp(-zeta * w0 * t) * (d0 * Math.cos(wd * t) + b * Math.sin(wd * t));
+    } else {
+      const b = v + w0 * d0;
+      at = (t) => (d0 + b * t) * Math.exp(-w0 * t);
+    }
+
     const step = (now) => {
-      const p = Math.min(1, (now - t0) / duration);
-      apply(from + (to - from) * ease(p));
-      if (p < 1) requestAnimationFrame(step);
-      else resolve();
+      const t = (now - t0) / 1000;
+      const x = at(t);
+      if ((Math.abs(x) < 0.1 && t > response / 2) || t > 2) {
+        frame = 0;
+        apply(to);
+        resolve();
+        return;
+      }
+      apply(to + x);
+      frame = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    frame = requestAnimationFrame(step);
   });
+  promise.cancel = () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+  };
+  return promise;
 }

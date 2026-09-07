@@ -113,7 +113,9 @@
 .menu, .ctx { --r: 10px; --pad: 5px; }
 .menubar-item { --r: 5px; }
 .desk-icon { --r: 8px; }
-.dock { --r: 22px; --pad: 6px; }
+/* A Dock é concêntrica com os ícones que encostam à margem dela: o raio
+   é o do ícone (22,37 % do lado) mais a margem. */
+.dock { --pad: max(8px, calc(var(--dock-icon) * 0.12)); --r: calc(var(--dock-icon) * 0.2237 + var(--pad)); }
 .dock-tip { --r: 7px; }
 .spot-box { --r: 14px; }
 .spot-results { --r: 14px; --pad: 6px; }

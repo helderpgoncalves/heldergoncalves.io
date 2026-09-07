@@ -108,7 +108,8 @@ input, textarea, select { font-family: inherit; }
 [data-mode='ios'] .post-link:active,
 [data-mode='ios'] .w-row:active { transform: scale(0.975); }
 [data-mode='ios'] .widget:active { transform: scale(0.965); }
-.dock-item:active { transform: scale(calc(var(--s, 1) * 0.94)) translateY(calc((var(--s, 1) - 1) * -6px)); }
+/* Na Dock o ícone escurece ao carregar, como no macOS; não encolhe. */
+.dock-item:active svg { filter: brightness(0.72) var(--shadow); }
 
 /* Caixa de escrita das Mensagens */
 .chat-compose {

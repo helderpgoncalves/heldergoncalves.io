@@ -1,9 +1,22 @@
 ---
 // Todos os ícones num sprite só, numa caixa de 100×100.
 //
-// Nada aqui é da Apple. Os glifos são do Lucide (lucide.dev, ISC) e as
-// marcas do Simple Icons (CC0) — ver NOTICE.md. O que segue as regras
-// da Apple é a *geometria*, que é matemática e não obra protegida.
+// Os ícones do Finder, das Notas, do Mail, do Safari e do Terminal são
+// os verdadeiros, os da Apple, tal como vêm com o componente
+// mac-os-dock de 21st.dev — ver NOTICE.md. Chegam com 1024 px e são
+// reduzidos no build a 256 px em WebP (o maior que um ícone chega a
+// ter no ecrã, com a Dock ampliada num ecrã a 2×), para que em produção
+// não se calcule nada: é o `astro:assets` a fazê-lo uma vez.
+//
+// Um ícone do macOS traz a sua margem: o quadrado ocupa 824 dos 1024 px
+// da imagem, com 100 de folga a toda a volta para a sombra. Para ficar
+// do tamanho dos nossos, a imagem é desenhada a 124,27 e puxada 12,14
+// para fora; o que sobra é margem e fica de fora da caixa.
+//
+// Os outros são desenhados aqui. Os glifos são do Lucide (lucide.dev,
+// ISC) e as marcas do Simple Icons (CC0) — ver NOTICE.md. O que segue
+// as regras da Apple é a *geometria*, que é matemática e não obra
+// protegida.
 //
 // A forma: o canto contínuo, com raio de 22,37% do lado — a medida da
 // máscara dos ícones do iOS. Um canto contínuo não é um arco de
@@ -18,18 +31,34 @@
 // terços do lado, e o traço na ordem dos 6%. As cores são os valores
 // das cores de sistema do iOS, com o gradiente que a Apple usa:
 // aclarar em cima, escurecer ligeiramente em baixo.
+import { getImage } from 'astro:assets';
+import finder from '../../assets/icons/finder.png';
+import notes from '../../assets/icons/notes.png';
+import mail from '../../assets/icons/mail.png';
+import safari from '../../assets/icons/safari.png';
+import terminal from '../../assets/icons/terminal.webp';
+
+const ICON_PX = 256;
+const shrink = (src: ImageMetadata) => getImage({ src, width: ICON_PX, height: ICON_PX, format: 'webp' });
+
+/** Que ícone verdadeiro serve cada aplicação. */
+const real: Record<string, string> = {
+  sobre: (await shrink(finder)).src,
+  escritos: (await shrink(notes)).src,
+  contacto: (await shrink(mail)).src,
+  projetos: (await shrink(safari)).src,
+  terminal: (await shrink(terminal)).src,
+};
+
+/** A imagem no lugar do quadrado: 1024/824 do lado, 100/824 para fora. */
+const FIT = { size: (100 * 1024) / 824, offset: (-100 * 100) / 824 };
 ---
 <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
   <defs>
-    <linearGradient id="g-sobre" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7D7BDF"/><stop offset="1" stop-color="#5351C9"/></linearGradient>
     <linearGradient id="g-mensagens" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#61D37E"/><stop offset="1" stop-color="#31BB54"/></linearGradient>
-    <linearGradient id="g-contacto" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3897FF"/><stop offset="1" stop-color="#0073F0"/></linearGradient>
-    <linearGradient id="g-projetos" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C178E5"/><stop offset="1" stop-color="#A44DD1"/></linearGradient>
     <linearGradient id="g-definicoes" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A7A7AB"/><stop offset="1" stop-color="#85858A"/></linearGradient>
     <linearGradient id="g-disk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D3D3D7"/><stop offset="1" stop-color="#BBBBC0"/></linearGradient>
     <linearGradient id="g-doc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3897FF"/><stop offset="1" stop-color="#0073F0"/></linearGradient>
-    <linearGradient id="g-escritos" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD429"/><stop offset="1" stop-color="#E6B800"/></linearGradient>
-    <linearGradient id="g-terminal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#48484A"/><stop offset="1" stop-color="#1C1C1E"/></linearGradient>
     <linearGradient id="g-simulador" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A4A63"/><stop offset="1" stop-color="#101827"/></linearGradient>
     <radialGradient id="g-spot" cx=".32" cy=".14" r=".9">
       <stop offset="0" stop-color="#fff" stop-opacity=".20"/>
@@ -57,33 +86,9 @@
     <feDisplacementMap in="SourceGraphic" in2="mapa" scale="10" xChannelSelector="R" yChannelSelector="G" />
   </filter>
 
-  <symbol id="icon-sobre" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-sobre)"/>
-      <g transform="translate(18.00 18.00) scale(2.6667)" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20a6 6 0 0 0-12 0" /> <circle cx="12" cy="10" r="4" /> <circle cx="12" cy="12" r="10" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
-    </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
-  </symbol>
-  <symbol id="icon-contacto" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-contacto)"/>
-      <g transform="translate(20.00 20.00) scale(2.5000)" fill="none" stroke="#fff" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /> <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
-    </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
-  </symbol>
-  <symbol id="icon-projetos" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-projetos)"/>
-      <g transform="translate(19.00 19.00) scale(2.5833)" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
-    </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
-  </symbol>
+  <symbol id="icon-sobre" viewBox="0 0 100 100"><image href={real.sobre} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></symbol>
+  <symbol id="icon-contacto" viewBox="0 0 100 100"><image href={real.contacto} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></symbol>
+  <symbol id="icon-projetos" viewBox="0 0 100 100"><image href={real.projetos} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></symbol>
   <symbol id="icon-definicoes" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-definicoes)"/>
@@ -111,16 +116,7 @@
     </g>
     <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
-  <symbol id="icon-escritos" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-escritos)"/>
-      <rect width="100" height="26" fill="#FFFDF5"/>
-      <g transform="translate(21.00 21.00) scale(2.4167)" fill="none" stroke="#8A5A00" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
-    </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
-  </symbol>
+  <symbol id="icon-escritos" viewBox="0 0 100 100"><image href={real.escritos} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></symbol>
   <symbol id="icon-mensagens" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-mensagens)"/>
@@ -130,15 +126,7 @@
     </g>
     <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
-  <symbol id="icon-terminal" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-terminal)"/>
-      <g transform="translate(21.00 21.00) scale(2.4167)" fill="none" stroke="#30D158" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5" /> <line x1="12" x2="20" y1="19" y2="19" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
-    </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
-  </symbol>
+  <symbol id="icon-terminal" viewBox="0 0 100 100"><image href={real.terminal} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></symbol>
   <symbol id="icon-simulador" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-simulador)"/>

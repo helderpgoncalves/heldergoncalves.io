@@ -17,12 +17,37 @@ desenhar para plataformas Apple.
 
 ## Ícones
 
-| O quê                        | Onde                              | Licença |
-| ---------------------------- | --------------------------------- | ------- |
-| Glifos (Lucide)              | `src/components/os/IconSprite.astro` | ISC     |
-| Marcas GitHub, LinkedIn, X   | idem                              | CC0 1.0 |
+| O quê                                              | Onde                                 | Origem / licença |
+| -------------------------------------------------- | ------------------------------------ | ---------------- |
+| Finder, Notas, Mail, Safari, Terminal              | `src/assets/icons/`                  | ícones da Apple, distribuídos com o componente `mac-os-dock` de 21st.dev, usados ao abrigo da licença desse componente |
+| Glifos dos restantes ícones (Lucide)               | `src/components/os/IconSprite.astro` | ISC |
+| Marcas GitHub, LinkedIn, X (Simple Icons)          | idem                                 | CC0 1.0 |
 
-Os ícones das aplicações são desenhados aqui, a partir desses glifos.
+Os ícones do Finder, das Notas, do Mail, do Safari e do Terminal são os
+do macOS, tal como o componente de 21st.dev os traz; servem aqui as
+aplicações Sobre, Escritos, Contacto, Projetos e Terminal. Chegam com
+1024 px e são reduzidos no build a 256 px em WebP. Os restantes ícones
+são desenhados aqui, a partir dos glifos do Lucide, na geometria dos
+ícones da Apple.
+
+## Saudação do arranque
+
+| O quê            | Onde                               | Origem / licença |
+| ---------------- | ---------------------------------- | ---------------- |
+| Traçado «hello»  | `src/components/os/Saudacao.astro` | componente `apple-hello-effect` de 21st.dev, usado ao abrigo da licença desse componente |
+| Traçado «Olá»    | idem                               | desenhado aqui |
+
+O «hello» é a caligrafia que a Apple mostra ao ligar um Mac pela
+primeira vez, tal como está publicada nesse componente; o «Olá» é nosso,
+na mesma métrica. A animação (traço a traço, `stroke-dashoffset`) é
+escrita aqui, sem a biblioteca `motion` — o site não usa frameworks.
+
+## A Dock
+
+A ampliação da Dock segue a matemática do componente `mac-os-dock` de
+21st.dev (janela de cosseno, fila reposta com os tamanhos novos, Dock a
+alargar), reescrita em JavaScript sem React — ver
+`src/scripts/os/mac/dock.js`.
 
 ### Natureza deste site
 

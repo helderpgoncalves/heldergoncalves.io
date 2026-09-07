@@ -213,6 +213,10 @@ function boot(data) {
 
   if (first) {
     bootEl.hidden = false;
+    // A saudação diz quanto tempo leva a escrever-se; fica mais um
+    // instante a ver-se, e só depois se vai embora.
+    const hand = bootEl.querySelector('[data-wrote]');
+    const wrote = (hand && parseInt(hand.dataset.wrote, 10)) || 3500;
     setTimeout(() => {
       os.classList.add('booted');
       setTimeout(() => {
@@ -221,7 +225,7 @@ function boot(data) {
       }, 460);
       if (ctx.mode === 'ios') phone.showLock();
       ready();
-    }, 3150);
+    }, reducedMotion() ? 900 : wrote + 900);
   } else {
     ready();
   }

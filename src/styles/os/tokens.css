@@ -51,7 +51,9 @@
   --shadow-pop: 0 18px 40px -10px rgba(0, 0, 0, 0.34);
 
   --menubar-h: 26px;
-  --dock-icon: 52px;
+  /* O ícone da Dock cresce com o ecrã, como no macOS — nem uma Dock de
+     portátil num monitor grande, nem o contrário. */
+  --dock-icon: clamp(52px, 6vmin, 72px);
   --radius-win: 11px;
   --blur: saturate(180%) blur(28px);
   --ease-os: cubic-bezier(0.32, 0.72, 0, 1);

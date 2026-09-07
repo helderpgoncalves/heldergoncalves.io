@@ -1,7 +1,7 @@
 // O ecrã bloqueado, e o gesto que o levanta. Sobe com o dedo e vai-se
 // embora se o dedo mostrar que era essa a intenção; senão volta a
 // assentar.
-import { track, clamp, project } from '../gesture.js';
+import { track, clamp, project, spring } from '../gesture.js';
 
 /** Quanto é preciso subir para o ecrã se levantar, em píxeis. */
 const LIFT = 70;
@@ -37,10 +37,17 @@ export function createLock(ph) {
         lock.style.opacity = String(clamp(1 + g.dy / (h * 0.7), 0.15, 1));
       },
       end: (g) => {
-        lock.style.transition = '';
         lock.style.opacity = '';
-        if (-g.dy - project(g.vy) > LIFT) unlock();
-        else lock.style.transform = '';
+        if (-g.dy - project(g.vy) > LIFT) {
+          lock.style.transition = '';
+          unlock();
+          return;
+        }
+        // Volta a assentar com o embalo que trazia, como uma coisa com peso.
+        spring(Math.min(0, g.dy), 0, g.vy, (y) => (lock.style.transform = 'translate3d(0,' + y + 'px,0)')).then(() => {
+          lock.style.transition = '';
+          lock.style.transform = '';
+        });
       },
       tap: (g, ev) => {
         if (!ev || !ev.target.closest('button')) unlock();

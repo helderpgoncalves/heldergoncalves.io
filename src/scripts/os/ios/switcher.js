@@ -1,7 +1,7 @@
 // O comutador de aplicações: os cartões que se arrastam para fora.
 // Empurrar um para cima fecha a app; empurrá-lo para baixo faz
 // elástico, para não parecer partido.
-import { track, rubber, clamp, project } from '../gesture.js';
+import { track, rubber, clamp, project, spring } from '../gesture.js';
 import { esc } from '../lib/dom.js';
 import { EASE } from './motion.js';
 
@@ -30,17 +30,23 @@ export function createSwitcher(ph) {
   }
 
   function wireCard(el) {
+    let settling = null;
+    /** O cartão a uma altura `y`: encolhe um nada à medida que sobe. */
+    const place = (y) => {
+      el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0) scale(' + (1 - Math.min(0.06, Math.max(0, -y) / 2400)) + ')';
+    };
     track(
       el,
       {
         begin: () => {
+          if (settling) settling.cancel();
           el.style.transition = 'none';
           el.style.willChange = 'transform, opacity';
         },
         move: (g) => {
           const up = Math.min(0, g.dy);
           const down = g.dy > 0 ? rubber(g.dy, 90) : 0;
-          el.style.transform = 'translate3d(0,' + (up + down) + 'px,0) scale(' + (1 - Math.min(0.06, -up / 2400)) + ')';
+          place(up + down);
           el.style.opacity = String(clamp(1 + up / 520, 0.25, 1));
         },
         end: (g) => {
@@ -57,10 +63,16 @@ export function createSwitcher(ph) {
             }, 230);
             return;
           }
-          el.style.transition = 'transform .26s ' + EASE + ', opacity .2s linear';
-          el.style.transform = '';
+          // Volta ao sítio com o embalo que trazia.
+          const y = Math.min(0, g.dy) + (g.dy > 0 ? rubber(g.dy, 90) : 0);
+          el.style.transition = 'opacity .2s linear';
           el.style.opacity = '';
-          setTimeout(() => (el.style.transition = ''), 280);
+          settling = spring(y, 0, g.vy, place);
+          settling.then(() => {
+            settling = null;
+            el.style.transition = '';
+            el.style.transform = '';
+          });
         },
       },
       { axis: 'y', threshold: 10 }
