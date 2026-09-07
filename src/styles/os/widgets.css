@@ -4,7 +4,12 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* Widgets do ecrã inicial */
-.sb-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 4px; }
+/* Os widgets assentam nas colunas dos ícones: o pequeno ocupa duas, o
+   médio ocupa as quatro, e a folga entre eles é a mesma da grelha. */
+.sb-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 33px; padding-top: 4px; }
+.sb-widgets .widget.small { aspect-ratio: 1; min-height: 0; }
+.sb-widgets .widget.medium { aspect-ratio: 339 / 155; min-height: 0; }
+@media (max-width: 360px) { .sb-widgets { column-gap: 22px; } }
 /* O widget é vidro Clear (a classe vem do molde): o corpo, o aro e a
    sombra são de vidro.css. Aqui só a forma e o que vai lá dentro.
    Os tamanhos de texto são os dos widgets, iguais nos dois sistemas —

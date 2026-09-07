@@ -70,6 +70,8 @@ const osData = {
     // As perguntas guardadas já estão no HTML — não se repetem aqui.
     chat: { ...c.mensagens, chat: undefined },
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
+    bolsa: c.bolsa,
+    calendario: c.calendario,
   },
   posts: posts.map((p) => ({
     slug: postSlug(p),

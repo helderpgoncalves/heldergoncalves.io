@@ -125,7 +125,7 @@
 .skip { --r: 8px; }
 
 /* iOS */
-.ios-dock { --r: 32px; }
+.ios-dock { --r: 38px; }
 .widget { --r: 22px; --pad: 14px; }
 .lock-note { --r: 20px; }
 .nc-note { --r: 20px; --pad: 13px; }

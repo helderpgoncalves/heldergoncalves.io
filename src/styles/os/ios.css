@@ -39,44 +39,59 @@
 .island.wide .island-text { opacity: 1; }
 [data-device='1'] .island, .in-frame .island { top: 10px; }
 
-/* Ecrã inicial */
+/* Ecrã inicial
+   ─────────────────────────────────────────────────────────────
+   A métrica é a do iPhone: ícones de 60 pontos em quatro colunas com
+   27 de margem, e a folga entre eles é o que sobra — é assim que o
+   iOS os espalha em qualquer largura. A etiqueta é 11 pontos a 500,
+   4 abaixo do ícone. A Dock tem 96 de altura, 8 de margem aos lados e
+   os ícones alinhados com as colunas da grelha (19 por dentro). Os
+   pontos das páginas têm 7 e ficam a 18 da Dock. */
 .sb {
+  --sb-x: 27px;
+  --sb-icon: 60px;
   position: absolute; inset: var(--sb-h) 0 0 0; z-index: 100;
   display: flex; flex-direction: column; overflow: hidden;
-  padding: 10px 0 calc(var(--home-h) + 6px);
+  padding: 6px 0 calc(var(--home-h) + 2px);
   transition: transform 0.5s var(--ease-os), opacity 0.35s var(--ease-os), filter 0.5s var(--ease-os);
   user-select: none; -webkit-user-select: none;
 }
 .sb-pages { flex: 1; min-height: 0; display: flex; align-items: stretch; touch-action: pan-y; }
-.sb-page { flex: 0 0 100%; min-width: 100%; display: flex; flex-direction: column; gap: 16px; padding: 0 18px; }
+.sb-page { flex: 0 0 100%; min-width: 100%; display: flex; flex-direction: column; gap: 18px; padding: 0 var(--sb-x); }
 .sb.pushed { transform: scale(0.92); opacity: 0; filter: blur(6px); pointer-events: none; }
 .sb-grid {
   flex: 1; align-content: start;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 12px; padding-top: 8px;
+  display: grid; grid-template-columns: repeat(4, var(--sb-icon)); justify-content: space-between;
+  row-gap: 18px; padding-top: 4px;
 }
 .sb-app {
-  display: grid; justify-items: center; gap: 6px; color: #fff;
+  display: grid; justify-items: center; gap: 4px; width: var(--sb-icon); color: #fff;
   -webkit-tap-highlight-color: transparent;
 }
 /* Sem sombra: no iPhone os ícones assentam no fundo, não flutuam. */
-.sb-app svg { --shadow: none; width: 100%; max-width: 60px; height: auto; display: block; }
+.sb-app svg { --shadow: none; width: var(--sb-icon); height: var(--sb-icon); display: block; }
 .sb-app .label {
-  font-size: 11px; font-weight: 450; letter-spacing: -0.01em; text-align: center;
+  font-size: 11px; font-weight: 500; letter-spacing: 0; text-align: center; line-height: 1.2;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; max-width: 84px;
+  overflow: hidden; text-overflow: ellipsis; max-width: calc(var(--sb-icon) + 22px);
 }
 .sb-app:active svg { transform: scale(0.9); filter: brightness(0.7); transition: transform 0.12s, filter 0.12s; }
-.sb-dots { display: flex; justify-content: center; gap: 7px; padding: 14px 0 16px; margin: 0 18px; }
+.sb-dots { display: flex; justify-content: center; gap: 9px; padding: 12px 0 18px; margin: 0 var(--sb-x); }
 .sb-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); cursor: pointer; transition: background 0.2s; }
 .sb-dots i.on { background: #fff; }
 .ios-dock {
-  margin: 0 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-  padding: 12px; border-radius: 32px;
+  margin: 0 8px 8px; height: 96px; padding: 18px calc(var(--sb-x) - 8px);
+  display: grid; grid-template-columns: repeat(4, var(--sb-icon)); justify-content: space-between; align-items: center;
   background: rgba(255, 255, 255, 0.18);
   -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
   border: 0.5px solid rgba(255, 255, 255, 0.24);
 }
 .ios-dock .sb-app .label { display: none; }
+/* Em ecrãs estreitos (320–360) os 60 não cabem quatro vezes com 27 de
+   margem: encolhe-se a margem antes do ícone, como o iOS faz. */
+@media (max-width: 360px) {
+  .sb { --sb-x: 20px; }
+}
 
 /* Vistas de aplicação */
 .ios-views { position: absolute; inset: 0; z-index: 200; pointer-events: none; }
