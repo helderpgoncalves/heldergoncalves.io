@@ -52,7 +52,9 @@ async def google_start(request: Request) -> RedirectResponse | JSONResponse:
             "client_id": GOOGLE.client_id,
             "redirect_uri": GOOGLE_REDIRECT_URI,
             "response_type": "code",
-            "scope": "openid email profile",
+            # Só o email — é só o que se usa. Pedir "profile" para o
+            # deitar fora sem ler seria pedir mais do que o necessário.
+            "scope": "openid email",
             "state": state,
             # Sem conta escolhida de propósito nenhuma vez: quem tem mais
             # do que uma conta Google aberta escolhe sempre, em vez de

@@ -92,7 +92,7 @@ export const EN = {
   },
 
   calendario: {
-    lead: 'Book a 30-minute conversation with me. Sign in with your email — you get a code, no password — and pick a free time. Times are Lisbon time.',
+    lead: 'Book a 30-minute conversation with me. Sign in with your email — you get a code, no password — and pick a free time. Times show in your own timezone.',
     month: 'Month',
     day: 'Day',
     today: 'Today',
@@ -104,6 +104,8 @@ export const EN = {
     pickDay: 'Pick a day with free times.',
     signIn: 'Sign in',
     signInHint: 'Only signed-in people see availability. The code goes to your email; there is no password.',
+    signInGoogle: 'Continue with Google',
+    signInOr: 'or',
     email: 'Email',
     sendCode: 'Send code',
     code: 'Code',

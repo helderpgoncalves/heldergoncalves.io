@@ -1,0 +1,58 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { SITE } from '../../config/site';
+---
+<Legal
+  lang="en"
+  title="Terms of use"
+  description="The short rules that make this site possible to maintain."
+  altPath="/termos/"
+  back={SITE.name}
+>
+  <p>
+    This is the personal, non-commercial website of {SITE.name}. By using it — including the contact
+    form, the newsletter, the Calendar, the Messages assistant, or comments — you accept these
+    rules, kept short on purpose.
+  </p>
+
+  <h2>The content</h2>
+  <p>
+    The writing, code, and design of this site are © {SITE.name}. Read, learn, and reuse ideas
+    freely; if you want to use a whole chunk of it, ask first.
+  </p>
+
+  <h2>The Messages assistant</h2>
+  <p>
+    It is a language model, not {SITE.name}. It answers from the site's own knowledge base, but it
+    can be wrong — it is not professional advice of any kind, and nothing it says binds me.
+  </p>
+
+  <h2>Comments</h2>
+  <p>
+    A comment goes live as soon as you publish it — there is no approval queue. That means you are
+    responsible for what you write. I remove anything that is spam, abusive, illegal, or that
+    violates someone's privacy, without prior notice.
+  </p>
+
+  <h2>The Calendar</h2>
+  <p>
+    Booking a conversation does not guarantee it happens — I may cancel or reschedule if needed, and
+    I will email you if that happens.
+  </p>
+
+  <h2>No warranties</h2>
+  <p>
+    This site is maintained by one person, in their spare time. I do my best to keep it up and
+    correct, but I make no guarantees about uptime or the absence of errors.
+  </p>
+
+  <h2>Changes</h2>
+  <p>I may change these terms; the version that applies is always the one published on this page.</p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about these terms: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+  </p>
+
+  <p><em>Last updated: September 2026.</em></p>
+</Legal>

@@ -1,0 +1,93 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { SITE } from '../../config/site';
+---
+<Legal
+  lang="en"
+  title="Privacy policy"
+  description="What this site stores, why, and how to ask to see or delete it."
+  altPath="/privacidade/"
+  back={SITE.name}
+>
+  <p>
+    This site (<strong>{SITE.url}</strong>) has no advertising or visit tracking — no Google
+    Analytics, no pixels, no third-party cookies. What follows is only what the site's own features
+    need in order to work.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    If you use the contact form, your email and message are sent to me by email (via
+    <a href="https://resend.com">Resend</a>) and are not stored on the server.
+  </p>
+
+  <h2>Blog subscription</h2>
+  <p>
+    I store your email, chosen language, and subscription status, in a simple list on the server.
+    You can leave whenever you want, from the link in any email I send you — I never share or sell
+    this list.
+  </p>
+
+  <h2>Signing in (Calendar and comments)</h2>
+  <p>There are two ways to sign in, and both land in the same place — a session identified only by your email:</p>
+  <ul>
+    <li><strong>A code by email:</strong> there is no password to store.</li>
+    <li>
+      <strong>Sign in with Google:</strong> Google confirms the inbox is yours and hands me back your
+      email — nothing else. I do not request or store your name, photo, or any other profile data.
+    </li>
+  </ul>
+  <p>
+    While you are signed in, a cookie stores your email in signed form. If you book a conversation on
+    the Calendar, I store the time, the subject, and any note you write, so I can honour it and email
+    you about it.
+  </p>
+
+  <h2>Messages (the assistant)</h2>
+  <p>
+    Conversations with the site's assistant are stored — who started them (your email, if you were
+    signed in; otherwise an anonymous fingerprint of your visit) and the text of each message — so I
+    can read the context of anyone who has talked to me before. This is the one exception to the rest
+    of this site: everywhere else, what you type does not stay stored once your request is done.
+  </p>
+  <p>
+    Text you send to the assistant is also processed by a language model, through
+    <a href="https://openrouter.ai">OpenRouter</a>.
+  </p>
+
+  <h2>Comments and reactions on writing</h2>
+  <p>
+    A comment shows your name and the text you wrote, publicly, underneath the post. Your email is
+    stored but <strong>never shown to anyone else</strong> — it exists only so I can reply, if that
+    makes sense. A reaction (👍 ❤️ 💡) shows nothing about you, only the total count per post.
+  </p>
+
+  <h2>A fingerprint of your visit</h2>
+  <p>
+    To prevent abuse (bots, bulk submissions), the server stores a fingerprint of your visit — never
+    your raw IP address, always a signature (HMAC) that changes on every server restart and cannot be
+    reversed back to the original IP. It is not shared, not sold, and disappears on its own.
+  </p>
+
+  <h2>Stocks</h2>
+  <p>
+    Your symbol list in the Stocks app stays only on your device (browser <code>localStorage</code>)
+    — it never reaches the server. Quotes come from Yahoo Finance.
+  </p>
+
+  <h2>Where all of this lives</h2>
+  <p>
+    The data described above lives on a server in Europe, and is never sold or shared with anyone
+    beyond the providers already named (Resend, OpenRouter, Google, Yahoo Finance), each only with
+    what it needs for its own role.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    You can ask to see, correct, or delete what this site stores about you — write to
+    <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. I answer myself, directly; there is no support
+    team.
+  </p>
+
+  <p><em>Last updated: September 2026.</em></p>
+</Legal>

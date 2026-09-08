@@ -1,0 +1,59 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { SITE } from '../config/site';
+---
+<Legal
+  lang="pt"
+  title="Termos de utilização"
+  description="As regras simples que tornam este site possível de manter."
+  altPath="/en/terms/"
+  back={SITE.name}
+>
+  <p>
+    Este é o site pessoal de {SITE.name}, sem fins comerciais. Ao usá-lo — incluindo o formulário de
+    contacto, a newsletter, o Calendário, o assistente das Mensagens ou os comentários — aceitas
+    estas regras, curtas de propósito.
+  </p>
+
+  <h2>O conteúdo</h2>
+  <p>
+    Os escritos, o código e o desenho deste site são © {SITE.name}. Podes ler, aprender e reutilizar
+    ideias; se quiseres usar um trecho inteiro, escreve primeiro.
+  </p>
+
+  <h2>O assistente das Mensagens</h2>
+  <p>
+    É um modelo de linguagem, não {SITE.name}. Responde com o que sabe da base de conhecimento do
+    site, mas pode errar — não é aconselhamento profissional de nenhum tipo, e nada do que disser te
+    vincula a mim.
+  </p>
+
+  <h2>Comentários</h2>
+  <p>
+    Um comentário fica visível assim que o publicas — não há fila de aprovação. Isso quer dizer que
+    tu és responsável pelo que escreves. Removo o que for spam, ofensivo, ilegal, ou que viole a
+    privacidade de alguém, sem aviso prévio.
+  </p>
+
+  <h2>O Calendário</h2>
+  <p>
+    Marcar uma conversa não garante que ela aconteça — posso cancelar ou reagendar se for preciso, e
+    aviso-te por email se isso acontecer.
+  </p>
+
+  <h2>Sem garantias</h2>
+  <p>
+    Este site é mantido por uma pessoa, no seu tempo livre. Faço o possível para o manter no ar e
+    correcto, mas não dou garantias de disponibilidade nem de ausência de erros.
+  </p>
+
+  <h2>Mudanças</h2>
+  <p>Posso alterar estes termos; a versão que vale é sempre a que está publicada nesta página.</p>
+
+  <h2>Contacto</h2>
+  <p>
+    Dúvidas sobre estes termos: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+  </p>
+
+  <p><em>Última actualização: setembro de 2026.</em></p>
+</Legal>

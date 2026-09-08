@@ -39,3 +39,28 @@ export async function requestToken() {
  * @returns {{contact: boolean, chat: boolean, subscribe: boolean}|null}
  */
 export const serverFeatures = () => features;
+
+/** Quem está com sessão — o mesmo login serve o Calendário, os
+ * comentários e, um dia, o resto do sistema. `null` sem sessão. */
+let who = undefined;
+
+/**
+ * @returns {Promise<string|null>} o email de quem está com sessão, ou null
+ */
+export async function whoAmI() {
+  if (who !== undefined) return who;
+  try {
+    const res = await fetch('/api/auth/me', { headers: { Accept: 'application/json' } });
+    const data = await res.json().catch(() => ({}));
+    who = res.ok && data.ok ? data.email : null;
+  } catch (_) {
+    who = null;
+  }
+  return who;
+}
+
+/** Esquece o que se sabia — depois de entrar ou sair, para a próxima
+ * pergunta ir mesmo ao servidor. */
+export const forgetWho = () => {
+  who = undefined;
+};

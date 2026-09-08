@@ -1,0 +1,57 @@
+---
+// Uma página legal — política de privacidade, termos — vive fora do
+// sistema operativo, de propósito: tem de se ler sem esperar por
+// nenhum arranque, e continuar legível mesmo que o JavaScript do resto
+// do site alguma vez rebente. HTML simples, sem Shell.astro.
+import { SITE } from '../config/site';
+
+interface Props {
+  lang: 'pt' | 'en';
+  title: string;
+  description: string;
+  altPath: string;
+  back: string;
+}
+const { lang, title, description, altPath, back } = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+---
+
+<!doctype html>
+<html lang={lang === 'pt' ? 'pt-PT' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — {SITE.name}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang === 'pt' ? 'en' : 'pt-PT'} href={new URL(altPath, SITE.url).href} />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0; padding: 40px 24px 80px; max-width: 68ch; margin-inline: auto;
+        font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+        color: #1d1d1f; background: #fff;
+      }
+      @media (prefers-color-scheme: dark) { body { color: #f5f5f7; background: #1c1c1e; } }
+      h1 { font-size: 28px; letter-spacing: -0.02em; margin: 0 0 6px; }
+      h2 { font-size: 19px; letter-spacing: -0.01em; margin: 32px 0 8px; }
+      p, li { color: inherit; }
+      .lead { color: #8e8e93; margin: 0 0 32px; }
+      a { color: #007aff; }
+      @media (prefers-color-scheme: dark) { a { color: #0a84ff; } }
+      .back { display: inline-block; margin-top: 40px; font-size: 15px; }
+      ul { padding-left: 20px; }
+      li { margin-bottom: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>{title}</h1>
+    <p class="lead">{description}</p>
+    <slot />
+    <p class="back"><a href={back}>← {SITE.name}</a></p>
+  </body>
+</html>

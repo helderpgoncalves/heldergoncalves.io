@@ -1,4 +1,4 @@
-import { requestToken, serverFeatures } from '../lib/session.js';
+import { requestToken, serverFeatures, whoAmI } from '../lib/session.js';
 
 // O envio passa pelo nosso servidor, que é quem tem a chave. Se o
 // servidor não tiver email configurado, ou se falhar, abre-se o
@@ -29,6 +29,14 @@ export function initCompose(ctx) {
     token = await requestToken();
     const features = serverFeatures();
     enabled = !!(features && features.contact);
+
+    // Quem já tem sessão (Calendário, comentários) não precisa de
+    // escrever o email outra vez — só se ainda não tinha escrito nada.
+    const from = form.querySelector('#c-from');
+    if (from && !from.value) {
+      const email = await whoAmI();
+      if (email) from.value = email;
+    }
   }
   ctx.prepareContact = prepare;
 

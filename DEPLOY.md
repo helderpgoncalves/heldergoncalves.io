@@ -176,9 +176,8 @@ Limites: 5 códigos por IP por hora, 15 tentativas de código por IP em
 
 ### O dono
 
-`OWNER_EMAIL` diz qual é o teu email. Entrar com ele — o mesmo código por
-email de qualquer visitante, não há uma segunda porta — dá dois poderes
-que mais ninguém tem:
+`OWNER_EMAIL` diz qual é o teu email. Entrar com ele — por código ou pela
+Google, não há uma segunda porta — dá três poderes que mais ninguém tem:
 
 | Endpoint | Para quê |
 | --- | --- |
@@ -186,6 +185,9 @@ que mais ninguém tem:
 | `GET /api/reunioes/bloqueios` | os bloqueios e aberturas em vigor |
 | `POST /api/reunioes/bloqueios` | cria um `bloqueio` (tira uma hora que seria livre — férias, uma manhã ocupada) ou uma `abertura` (dá uma hora extra fora das janelas de `MEETINGS_WINDOWS` — um sábado, uma excepção) |
 | `POST /api/reunioes/bloqueios/remover` | remove um dos dois, pelo `id` |
+| `GET /api/mensagens` | a lista de conversas das Mensagens, mais recente primeiro |
+| `GET /api/mensagens/{conversa}` | uma conversa, do início ao fim |
+| `POST /api/comentarios/remover` | remove um comentário de um escrito, pelo `id` |
 
 Um bloqueio ou uma abertura contam para toda a gente que vê o Calendário,
 não só para ti — é o que os torna «criar disponibilidade» a sério, e não
@@ -193,11 +195,38 @@ uma vista diferente da mesma agenda. Um bloqueio ganha sempre a uma
 abertura que caia por cima da mesma hora.
 
 Sem `OWNER_EMAIL` configurado, nenhuma sessão tem este papel — nem a tua,
-se entrares sem a variável estar definida. O Calendário fica só no modo
-de visitante, exactamente como antes desta funcionalidade existir.
+se entrares sem a variável estar definida. Tudo fica só no modo de
+visitante, exactamente como antes desta funcionalidade existir.
 
-Os bloqueios e aberturas vivem em `/app/data/availability.ndjson`, o
-mesmo formato append-only da lista de subscritores e das reuniões.
+Os bloqueios e aberturas vivem em `/app/data/availability.ndjson`, as
+conversas em `/app/data/conversas.ndjson`, os comentários em
+`/app/data/comentarios.ndjson` e as reações em `/app/data/reacoes.ndjson`
+— todos NDJSON append-only, no mesmo volume que a lista de subscritores e
+as reuniões.
+
+### Entrar com a Google
+
+Opcional — sem `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, só o código por
+email funciona, e nada se nota no resto do site.
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → um projecto
+   → **APIs & Services → OAuth consent screen**: nome, o teu email de
+   suporte, e um **link de política de privacidade**
+   (`https://heldergoncalves.io/privacidade/`).
+2. **Credentials → Create OAuth client ID** → *Web application* → URI de
+   redireccionamento autorizado:
+   `https://heldergoncalves.io/api/auth/google/callback`.
+3. Copia o *Client ID* e o *Client Secret* para as variáveis no Coolify.
+
+Só se pede o scope `openid email` — nem perfil, nem foto. A sessão que
+sai daqui é exactamente igual à do código por email; `is_owner`, o
+Calendário, os comentários, nada distingue por onde entraste.
+
+**Não é preciso passar pela revisão da Google.** Essa só é exigida para
+scopes sensíveis ou para publicar além de 100 utilizadores de teste com
+certas condições — um simples "confirma o teu email" não entra nesse
+caso. Chega ter o *consent screen* preenchido e o link da política de
+privacidade.
 
 ## O healthcheck
 
@@ -282,7 +311,27 @@ mensagem custa dinheiro:
 - **Saída limitada**: 400 tokens por resposta e um corte rígido aos 3000
   caracteres, para que nada corra em aberto.
 - **O texto do modelo entra na página como texto**, nunca como HTML.
-- **Nada é registado**: nem perguntas, nem respostas.
+- **A conversa fica guardada** — a única excepção deliberada a «nada é
+  registado» no resto do site — em `CHAT_LOG_FILE`
+  (`/app/data/conversas.ndjson` por omissão). Só o dono a lê, em
+  `/api/mensagens`; a política de privacidade diz que existe.
+
+## O que protege os comentários
+
+Os mesmos portões do formulário de contacto — origem, token, armadilha,
+limites — e mais um princípio: **não há fila de moderação.** Um
+comentário fica visível assim que sai do `POST /api/comentarios`; o dono
+tira-o depois se for preciso (`POST /api/comentarios/remover`).
+
+- **Limites**: 5 comentários por IP por hora, 80 no total por hora; 60
+  reações por IP em dez minutos (é um toque, não um formulário).
+- **O email nunca sai.** Fica guardado (para o dono poder responder), mas
+  nenhuma resposta o devolve — nem a de quem o escreveu.
+- **Com sessão, o email vem dela.** Não se pede outra vez, e não se
+  confia no que o formulário mandasse em vez disso.
+- **Uma reação é um `toggle` por impressão digital** — a mesma sessão ou
+  o mesmo fingerprint de IP não conta duas vezes, e tocar outra vez
+  desliga.
 
 ## O que o agente sabe
 

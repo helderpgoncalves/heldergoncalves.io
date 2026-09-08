@@ -40,6 +40,10 @@ export function initEscritos(ctx) {
     mark(slug);
     document.title = p.title + ' — ' + ctx.data.site.name;
     if (push) history.pushState({ app: 'escritos', post: slug }, '', p.url);
+    // Através do objecto partilhado, nunca por importação directa — ver
+    // .claude/rules/cliente.md. `comentarios.js` já tratou do escrito
+    // servido no arranque sozinho; isto é só para as trocas seguintes.
+    if (ctx.comentarios) ctx.comentarios.onShow(slug);
   }
 
   function list(push) {

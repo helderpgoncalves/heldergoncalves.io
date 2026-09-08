@@ -11,6 +11,7 @@
 // janela abre ou fecha.
 // ─────────────────────────────────────────────────────────────────────
 import { initEscritos } from './escritos.js';
+import { initComentarios } from './comentarios.js';
 import { initSubscribe } from './subscrever.js';
 import { initTerminal } from './terminal.js';
 import { initChat } from './mensagens.js';
@@ -20,7 +21,11 @@ import { initSimulator } from './simulador.js';
 import { initBolsa } from './bolsa.js';
 import { initCalendario } from './calendario.js';
 
-const APPS = [initEscritos, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator, initBolsa, initCalendario];
+// `initComentarios` depois de `initEscritos`, de propósito: precisa do
+// `[data-comments]` que já vem servido no arranque, e lê-o assim que
+// arranca — mas nunca precisa de nada que só `initEscritos` ponha no
+// objecto partilhado, por isso a ordem não é uma dependência a sério.
+const APPS = [initEscritos, initComentarios, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator, initBolsa, initCalendario];
 
 export function initApps(ctx) {
   for (const init of APPS) init(ctx);

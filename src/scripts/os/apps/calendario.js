@@ -6,7 +6,7 @@
 // desenha está em calendario-vista.js; aqui decide-se o que se pede e
 // quando.
 // ─────────────────────────────────────────────────────────────────────
-import { requestToken } from '../lib/session.js';
+import { forgetWho, requestToken } from '../lib/session.js';
 import { createView } from './calendario-vista.js';
 
 const post = (path, body) =>
@@ -30,6 +30,7 @@ export function initCalendario(ctx) {
 
   const state = {
     email: null,
+    owner: false,
     enabled: true,
     month: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     selected: dayKey(new Date()),
@@ -89,8 +90,10 @@ export function initCalendario(ctx) {
       const data = await res.json().catch(() => ({}));
       state.enabled = data.enabled !== false;
       state.email = res.ok && data.ok ? data.email : null;
+      state.owner = data.owner === true;
     } catch (_) {
       state.email = null;
+      state.owner = false;
     }
   }
 
@@ -127,8 +130,10 @@ export function initCalendario(ctx) {
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         state.email = data.email;
+        state.owner = data.owner === true;
         state.step = 'email';
         state.hint = '';
+        forgetWho(); // outras apps (comentários, contacto) já não sabem quem estava antes
         ctx.notify(t.signedAs + ' ' + data.email);
         await loadMonth();
         return;
@@ -144,8 +149,10 @@ export function initCalendario(ctx) {
   async function signOut() {
     await post('/api/auth/logout', {}).catch(() => {});
     state.email = null;
+    state.owner = false;
     state.slots = [];
     state.mine = [];
+    forgetWho();
     view.render();
   }
 

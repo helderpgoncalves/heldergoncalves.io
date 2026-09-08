@@ -116,7 +116,9 @@ export function createView(el, t, ctx, state) {
         (state.step === 'email'
           ? '<form data-cal-email><label class="sr" for="cal-email">' + esc(t.email) + '</label>' +
             '<input id="cal-email" type="email" name="email" required autocomplete="email" placeholder="' + esc(t.email) + '" />' +
-            '<button class="btn btn-primary" type="submit"' + (state.busy ? ' disabled' : '') + '>' + esc(t.sendCode) + '</button></form>'
+            '<button class="btn btn-primary" type="submit"' + (state.busy ? ' disabled' : '') + '>' + esc(t.sendCode) + '</button></form>' +
+            '<p class="cal-or">' + esc(t.signInOr) + '</p>' +
+            '<a class="btn" href="/api/auth/google/start">' + esc(t.signInGoogle) + '</a>'
           : '<form data-cal-code><p class="cal-mail">' + esc(state.pendingEmail) + '</p>' +
             '<label class="sr" for="cal-code">' + esc(t.code) + '</label>' +
             '<input id="cal-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required />' +

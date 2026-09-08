@@ -13,16 +13,21 @@ I'll acknowledge within 72 hours and tell you what I'm doing about it.
 The static site is not the interesting part. The API is
 ([`api/app/`](api/app/), FastAPI): it takes form submissions, sends email,
 talks to a language model, keeps a subscriber list, signs people into the
-Calendar, and exposes an MCP endpoint.
+Calendar (by email code or Google), stores conversations and comments, and
+exposes an MCP endpoint.
 
 Things I'd want to know about:
 
 - a way past the origin, token, honeypot or rate-limit gates on
-  `/api/contact`, `/api/subscribe` or `/api/chat`;
+  `/api/contact`, `/api/subscribe`, `/api/chat` or `/api/comentarios`;
 - a way to read or enumerate the subscriber list, or to subscribe
   someone without their confirmation;
 - a way to sign into the Calendar as someone else, forge or replay a
-  session cookie, or see another person's bookings;
+  session cookie or an OAuth `state`, or see another person's bookings;
+- a way to reach `/api/reunioes/todas`, `/api/mensagens`, or any other
+  owner-only endpoint without being signed in as `OWNER_EMAIL`;
+- a way to see another person's email through the comments API — it is
+  stored, but every response is checked to make sure it never goes out;
 - a path traversal or a way to serve a file outside `dist/`;
 - a prompt injection that makes the assistant send email, book a meeting,
   or reveal its instructions;
@@ -44,6 +49,19 @@ Not bugs, by design:
   it is a language model. What matters is what it can *do* — and its
   three tools are search, book, and send-a-message, each behind the same
   limits as the forms.
+- **Messages conversations are stored — on purpose, and it says so.**
+  This is the one deliberate exception to "nothing is logged" elsewhere
+  on the site; see [`privacidade`](https://heldergoncalves.io/privacidade/) /
+  [`privacy`](https://heldergoncalves.io/en/privacy/). Only the owner
+  (`OWNER_EMAIL`) can read the inbox.
+- **Comments go live immediately — there is no moderation queue.** A
+  small site doesn't need one; the owner can remove a comment after the
+  fact instead. The commenter's email is stored but never returned by
+  any endpoint.
+- **Google sign-in only ever sees `openid email`.** No profile scope is
+  requested, and nothing beyond the verified email is stored — the
+  session that comes out of it is identical to the one from an email
+  code.
 
 ## Scope
 

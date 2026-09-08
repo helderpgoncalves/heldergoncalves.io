@@ -1,0 +1,96 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { SITE } from '../config/site';
+---
+<Legal
+  lang="pt"
+  title="Política de privacidade"
+  description="O que este site guarda, porquê, e como pedir para o veres ou apagares."
+  altPath="/en/privacy/"
+  back={SITE.name}
+>
+  <p>
+    Este site (<strong>{SITE.url}</strong>) não tem publicidade nem seguimento de visitas — não há
+    Google Analytics, nem pixels, nem cookies de terceiros. O que aqui fica descrito é só o que as
+    próprias funcionalidades do site precisam para funcionar.
+  </p>
+
+  <h2>Contacto</h2>
+  <p>
+    Se usares o formulário de contacto, o teu email e a mensagem são enviados a mim por email (via
+    <a href="https://resend.com">Resend</a>) e não ficam guardados no servidor.
+  </p>
+
+  <h2>Subscrição do blog</h2>
+  <p>
+    Guardo o teu email, a língua escolhida e o estado da subscrição, numa lista simples no servidor.
+    Sais quando quiseres, a partir da ligação em qualquer email que te mande — nunca partilho nem
+    vendo esta lista.
+  </p>
+
+  <h2>Entrar (Calendário e comentários)</h2>
+  <p>Há duas formas de entrar, e as duas chegam ao mesmo sítio — uma sessão identificada só pelo teu email:</p>
+  <ul>
+    <li><strong>Um código por email:</strong> não há palavra-passe nenhuma a guardar.</li>
+    <li>
+      <strong>Entrar com a Google:</strong> a Google confirma que a caixa de correio é tua e devolve-me
+      o teu email — nada mais. Não peço nem guardo o teu nome, foto ou qualquer outro dado do teu
+      perfil Google.
+    </li>
+  </ul>
+  <p>
+    Enquanto tens sessão, um cookie guarda o teu email de forma assinada. Se marcares uma conversa no
+    Calendário, guardo a hora, o assunto e a nota que escreveres, para a poder honrar e para te
+    avisar por email.
+  </p>
+
+  <h2>As Mensagens (o assistente)</h2>
+  <p>
+    As conversas com o assistente do site ficam guardadas — quem as começou (o teu email, se tinhas
+    sessão; senão, uma impressão digital anónima do teu acesso) e o texto de cada mensagem — para eu
+    poder ler o contexto de quem já falou comigo antes. É a única excepção ao resto deste site: em
+    todo o lado mais, o que escreves não fica guardado depois de feito o que pediste.
+  </p>
+  <p>
+    O texto que envias ao assistente é também processado por um modelo de linguagem, através da
+    <a href="https://openrouter.ai">OpenRouter</a>.
+  </p>
+
+  <h2>Comentários e reações nos escritos</h2>
+  <p>
+    Um comentário mostra o teu nome e o texto que escreveste, publicamente, por baixo do escrito. O
+    teu email fica guardado mas <strong>nunca é mostrado a mais ninguém</strong> — serve só para eu
+    poder responder, se for caso disso. Uma reação (👍 ❤️ 💡) não mostra nada teu, só o número total
+    por escrito.
+  </p>
+
+  <h2>A impressão digital do teu acesso</h2>
+  <p>
+    Para impedir abuso (robôs, envios em massa), o servidor guarda uma impressão digital do teu
+    acesso — nunca o endereço IP em claro, sempre uma assinatura (HMAC) que muda a cada reinício do
+    servidor e que não dá para reverter ao IP original. Não é partilhada, não é vendida, e desaparece
+    sozinha.
+  </p>
+
+  <h2>A Bolsa</h2>
+  <p>
+    A tua lista de símbolos na aplicação Bolsa fica só no teu dispositivo (<code>localStorage</code>
+    do browser) — nunca chega ao servidor. As cotações vêm do Yahoo Finance.
+  </p>
+
+  <h2>Onde tudo isto vive</h2>
+  <p>
+    Os dados descritos acima ficam num servidor na Europa, e nunca são vendidos nem partilhados com
+    ninguém além dos fornecedores já nomeados (Resend, OpenRouter, Google, Yahoo Finance), cada um
+    só com o que precisa para o seu papel.
+  </p>
+
+  <h2>Os teus direitos</h2>
+  <p>
+    Podes pedir para ver, corrigir ou apagar o que este site guarda sobre ti — escreve para
+    <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. Respondo eu, directamente; não há uma equipa
+    de apoio.
+  </p>
+
+  <p><em>Última actualização: setembro de 2026.</em></p>
+</Legal>

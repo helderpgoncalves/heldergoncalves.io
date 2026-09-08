@@ -29,10 +29,13 @@ Cada ficheiro tem um assunto, e só um.
 | `sessions.py` | o código por email, e a sessão |
 | `meetings.py` / `availability.py` | as reuniões marcadas, e quando há vaga |
 | `availability_store.py` | os bloqueios e aberturas que o dono cria por cima das janelas fixas |
+| `chat_store.py` | as conversas das Mensagens, guardadas — a excepção deliberada ao resto |
+| `comments_store.py` / `reactions_store.py` | os comentários e as reações dos escritos |
+| `owner_guard.py` | o portão `require_owner` — todo o endpoint só-do-dono começa por ele |
 | `copy.py` | o texto das páginas e emails que não passam pelo Astro |
 | `agent/` | o prompt e as ferramentas do assistente |
 | `bolsa/` | o que a Bolsa sabe — cliente do Yahoo (`client.py`) e a sua cache (`cache.py`) |
-| `routers/` | uma família de rotas, um ficheiro |
+| `routers/` | uma família de rotas, um ficheiro (`oauth_google.py` é o entrar com a Google) |
 | `main.py` | a aplicação FastAPI: inclui os routers, e mais nada de lógica |
 
 ## Invariantes
@@ -63,6 +66,14 @@ Cada ficheiro tem um assunto, e só um.
 - **Um bloqueio ou uma abertura do dono valem para toda a gente.**
   `availability.free_slots` já os inclui por omissão — não é preciso
   (nem se deve) filtrar por `email` para decidir quem os vê.
+- **As conversas das Mensagens são a única excepção a «nada fica
+  guardado».** É deliberado — `chat_store.py` — e a política de
+  privacidade diz que existe. Não acrescentes outro registo de texto de
+  visitantes sem fazer o mesmo: dizê-lo, e dar ao dono uma forma de o
+  ler e a mais ninguém.
+- **O email de quem comenta nunca sai de `comments_store.py`.**
+  `for_post` e qualquer resposta nova têm de continuar a devolver só
+  `id`, `name`, `body`, `at` — nunca `email`.
 - **O servidor fala sempre em UTC; o fuso é de quem vê.** Nenhuma rota
   formata uma hora para mostrar a um visitante — devolve o instante ISO
   e deixa o browser decidir. A excepção é o email: o da pessoa usa o

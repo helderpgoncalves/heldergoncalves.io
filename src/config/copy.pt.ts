@@ -94,7 +94,7 @@ export const PT = {
   },
 
   calendario: {
-    lead: 'Marca uma conversa de 30 minutos comigo. Entra com o teu email — recebes um código, sem palavra-passe — e escolhe uma hora livre. As horas são as de Lisboa.',
+    lead: 'Marca uma conversa de 30 minutos comigo. Entra com o teu email — recebes um código, sem palavra-passe — e escolhe uma hora livre. As horas mostram-se no teu fuso.',
     month: 'Mês',
     day: 'Dia',
     today: 'Hoje',
@@ -106,6 +106,8 @@ export const PT = {
     pickDay: 'Escolhe um dia com horários livres.',
     signIn: 'Iniciar sessão',
     signInHint: 'Só quem entra vê a disponibilidade. O código vai para o teu email; não há palavra-passe.',
+    signInGoogle: 'Continuar com a Google',
+    signInOr: 'ou',
     email: 'Email',
     sendCode: 'Enviar código',
     code: 'Código',

@@ -24,8 +24,8 @@ speculative.
 | --- | --- |
 | **macOS** | The full menu bar — Apple, File, Edit, View, Window, Help, Wi‑Fi, battery, Control Centre — with real dropdowns and every shortcut they promise; a Dock with the real magnification maths (cosine window, the row re-laid with the new sizes, the Dock widening to fit) and right-click menus; windows that cascade, drag, resize, snap to edges, minimise into their Dock icon and stack by z-order; desktop icons you select with one click and open with two; desktop widgets; ⌘K search; ⌘Tab |
 | **iOS** | Lock screen you swipe away, home screen with pages you flick between, widgets you edit by touching and holding (the icons jiggle), pull down to search, apps that open out of their own icon, the home-bar gesture with all three of its destinations, Control Centre, Notification Centre with notifications you swipe away, tap the status bar to scroll to top, app switcher with cards you flick away, edge-swipe back — every settle is a spring that starts with the finger's velocity |
-| **Apps** | Profile, Blog (shaped like Notes, with search and month groups), Messages, Mail, Projects, Terminal, Settings, **Stocks** with live quotes, **Calendar** where you sign in with an emailed code and book a conversation in a free slot — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
-| **API** | Static files with Brotli, a contact form, double opt-in newsletter, passwordless sign-in (a six-digit code by email), availability and bookings, live quotes via `yfinance` with a one-minute cache, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
+| **Apps** | Profile, Blog (shaped like Notes, with search, month groups, comments and reactions), Messages, Mail, Projects, Terminal, Settings, **Stocks** with live quotes, **Calendar** where you sign in with an emailed code or Google and book a conversation in a free slot, shown in your own timezone — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
+| **API** | Static files with Brotli, a contact form, double opt-in newsletter, sign-in by emailed code or Google, an owner role that manages availability and reads the Messages inbox, comments and reactions on posts, live quotes via `yfinance` with a one-minute cache, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
 
 It works without JavaScript. Every word on the screen is ordinary HTML
 underneath — search engines and screen readers get the document, the
@@ -196,11 +196,16 @@ that counts.
 ## The Calendar
 
 There are no passwords. You type your email, a six-digit code arrives, you
-type it back — whoever controls the inbox is whoever signs in. The session
-is a signed cookie, not a table: the server keeps nothing but a secret that
+type it back — or you sign in with Google, which lands in the exact same
+session. Whoever controls the inbox is whoever signs in. The session is a
+signed cookie, not a table: the server keeps nothing but a secret that
 survives restarts. Only signed-in people see availability, which is computed
-in Lisbon time from configurable days and windows, minus what is booked,
-minus what is too soon. Booking emails both sides; cancelling tells the owner.
+from configurable days and windows in Lisbon time, minus what is booked,
+minus what is too soon — and shown to each visitor in *their own* timezone,
+the way Calendly does it, with the confirmation email to match. One person
+(`OWNER_EMAIL`) sees the full calendar and can block or open extra time on
+top of the fixed windows; that changes what everyone else can book, not just
+what the owner sees. Booking emails both sides; cancelling tells the owner.
 Bookings are the same append-only NDJSON as the newsletter.
 
 ## The Stocks
@@ -209,6 +214,19 @@ Quotes come from Yahoo Finance through the API, never from the browser
 (the content-security policy would not allow it, and should not). Each answer
 is cached for a minute, so a hundred people watching the same ticker are one
 request out, not a hundred. The watchlist is yours and stays on your device.
+
+## Messages and comments
+
+The Messages assistant remembers who it talked to — conversations are
+stored, keyed by session email when signed in and by an anonymous
+fingerprint otherwise, so the owner has an inbox to reread
+(`/api/mensagens`, owner-only). It is the one deliberate exception to how
+the rest of the site handles what visitors type; the [privacy
+policy](https://heldergoncalves.io/privacidade/) says so. Posts can be
+commented on and reacted to (👍 ❤️ 💡) — no moderation queue, a comment goes
+live immediately and the owner can remove it after the fact; the
+commenter's email is stored so the owner can reply but is never returned
+by any endpoint.
 
 ## The site as an API
 

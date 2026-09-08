@@ -79,6 +79,13 @@
 .cal-login #cal-code { font-size: var(--t-title2); letter-spacing: 0.3em; text-align: center; font-variant-numeric: tabular-nums; }
 .cal-mail { font-weight: 600; color: var(--ink); }
 
+.cal-or {
+  display: flex; align-items: center; gap: 10px; margin: 10px 0;
+  font-size: var(--t-caption); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.cal-or::before, .cal-or::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
+.cal-login > .btn { width: 100%; justify-content: center; text-decoration: none; }
+
 /* A folha da marcação, por cima do mês. */
 .cal-sheet { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: rgba(0, 0, 0, 0.28); padding: 16px; }
 .cal-sheet[hidden] { display: none; }
