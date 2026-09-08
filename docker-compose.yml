@@ -17,8 +17,41 @@
 # interna, que fala com o container — reservar a porta do host aqui
 # colidiria com qualquer outra aplicação do mesmo host que também sirva
 # na 3000.
+#
+# `postgres` guarda os utilizadores da plataforma (contas por Google
+# ou magic link) — ver docs/arquitetura.md. O `site` só arranca depois
+# de saudável (`depends_on: condition: service_healthy`), e a
+# migração do Alembic corre sozinha no arranque do `site` (ver
+# Dockerfile) — nunca é preciso correr nada à mão. Tudo o que a base
+# de dados guarda vive no volume `postgres-data`: sobrevive a
+# `docker compose up` a mais, só desaparece com `docker compose down -v`.
+#
+# `POSTGRES_PASSWORD` vem do recurso Coolify (ou do `.env` local), como
+# `RESEND_API_KEY` e o resto — nunca corrido à mão neste ficheiro. Sem
+# ela definida, cai no valor de desenvolvimento (`helder`), que é
+# inofensivo porque o Postgres só fala com o `site` dentro da rede
+# interna do Compose — nunca fica exposto ao anfitrião nem à internet.
 # ─────────────────────────────────────────────────────────────────────
 services:
+  postgres:
+    image: postgres:17-alpine
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      POSTGRES_USER: helder
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-helder}
+      POSTGRES_DB: heldergoncalves
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helder -d heldergoncalves"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    mem_limit: 512m
+
   site:
     build:
       context: .
@@ -34,11 +67,15 @@ services:
       STATIC_DIR: /app/dist
       DATA_DIR: /app/data
       KNOWLEDGE_DIR: /app/knowledge
+      DATABASE_URL: postgresql+asyncpg://helder:${POSTGRES_PASSWORD:-helder}@postgres:5432/heldergoncalves
     volumes:
       # A lista da newsletter, as reuniões marcadas e os segredos que
       # assinam ligações e sessões. Sem isto, tudo desaparece no
       # próximo `docker compose up`.
       - site-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)"]
       interval: 30s
@@ -53,3 +90,4 @@ services:
 
 volumes:
   site-data:
+  postgres-data:

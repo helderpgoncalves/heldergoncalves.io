@@ -7,14 +7,43 @@ contacto, da newsletter, das Mensagens, do MCP, da Bolsa e do Calendário.
 Porta 3000. Também há um `docker-compose.yml` na raiz, para correr o mesmo
 localmente ou num host que prefira compose a um recurso Dockerfile simples.
 
-1. Novo recurso → **Public Repository** → `https://github.com/helderpgoncalves/heldergoncalves.io`
-2. Build pack: **Dockerfile** (deteta o `EXPOSE 3000`) — ou **Docker Compose**,
-   apontando ao `docker-compose.yml` da raiz
-3. Domínio: `https://heldergoncalves.io`
+1. Novo recurso → **Docker Compose**, apontando ao `docker-compose.yml` da
+   raiz — precisa de ser Compose e não Dockerfile simples, porque este
+   ficheiro já traz o `postgres` da plataforma de contas ao lado do `site`
+   (ver «Postgres e as contas» abaixo)
+2. Domínio: `https://heldergoncalves.io`, no serviço `site`
+   (`docker_compose_domains`)
 
 Cada push para `main` refaz o site. Não há mais um segundo recurso para a
 Bolsa: o que antes era uma API Python à parte (`api/`) agora corre no mesmo
 processo — ver «Calendário e Bolsa» abaixo.
+
+## Postgres e as contas
+
+Entrar (por Google ou por ligação no email) grava a conta em Postgres —
+`api/app/models/user.py`, `api/app/users_repo.py`. O `docker-compose.yml`
+já traz o serviço `postgres` ao lado do `site`, com um volume próprio
+(`postgres-data`): o Coolify não precisa de nenhum recurso de base de
+dados à parte.
+
+| Variável            | Exemplo        | Para quê                                                  |
+| -------------------- | -------------- | ---------------------------------------------------------- |
+| `POSTGRES_PASSWORD`  | uma frase longa e aleatória | a palavra-passe do Postgres — ver abaixo    |
+
+**Sem `POSTGRES_PASSWORD` definida**, o `docker-compose.yml` usa `helder`
+por omissão — inofensivo aqui, porque o Postgres nunca fica exposto ao
+anfitrião nem à internet, só à rede interna do Compose que liga aos dois
+serviços. Definir a variável no Coolify é mais seguro e não custa nada.
+
+**A migração corre sozinha.** O `Dockerfile` já traz `alembic upgrade head`
+antes de arrancar o `uvicorn` — a primeira vez cria a tabela `users`; um
+deploy com a base de dados já em dia não faz nada. Nunca é preciso correr
+`alembic` à mão.
+
+**Sem o serviço `postgres` no ar, o site não arranca** — o `alembic upgrade
+head` do arranque falha, porque não há a quem ligar. É por isso que o
+`docker-compose.yml` tem os dois serviços: um recurso "Dockerfile" simples,
+sem Postgres ao lado, deixou de chegar.
 
 ## Variáveis de ambiente
 
@@ -138,10 +167,11 @@ Cada tipo de resposta guarda-se em memória por um tempo diferente —
 cotações um minuto, a ficha dez, a procura uma hora — em `api/app/bolsa/client.py`,
 sem variável de ambiente própria: não há um segundo serviço a apontar.
 
-**O Calendário** deixa uma pessoa entrar com o email — recebe um código
-de seis algarismos, sem palavra-passe — e marcar uma conversa numa hora
-livre. Precisa do email ligado (é por onde vai o código) e do volume
-em `/app/data` (é onde ficam as reuniões).
+**O Calendário** deixa uma pessoa entrar com o email — recebe uma ligação
+de sessão única (magic link), sem palavra-passe — e marcar uma conversa
+numa hora livre. Precisa do email ligado (é por onde vai a ligação), do
+Postgres (é onde fica a conta — ver «Postgres e as contas» acima) e do
+volume em `/app/data` (é onde ficam as reuniões).
 
 | Variável                 | Exemplo                        | Para quê                                          |
 | ------------------------ | ------------------------------ | ------------------------------------------------- |
@@ -171,13 +201,14 @@ confirmação da pessoa usa o fuso que o browser dela mandou (`tz` no
 pedido de `POST /api/reunioes`); o teu, do lado do dono, fica sempre em
 hora de Lisboa — é o teu fuso, e não muda consoante quem marcou.
 
-Limites: 5 códigos por IP por hora, 15 tentativas de código por IP em
-15 minutos e 5 por código, 3 reuniões por pessoa por dia.
+Limites: 5 ligações pedidas por IP por hora, 15 aberturas de ligação por
+IP em 15 minutos, 3 reuniões por pessoa por dia.
 
 ### O dono
 
-`OWNER_EMAIL` diz qual é o teu email. Entrar com ele — por código ou pela
-Google, não há uma segunda porta — dá três poderes que mais ninguém tem:
+`OWNER_EMAIL` diz qual é o teu email. Entrar com ele — pela ligação no
+email ou pela Google, não há uma segunda porta — dá três poderes que
+mais ninguém tem:
 
 | Endpoint | Para quê |
 | --- | --- |
@@ -206,7 +237,7 @@ as reuniões.
 
 ### Entrar com a Google
 
-Opcional — sem `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, só o código por
+Opcional — sem `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, só a ligação por
 email funciona, e nada se nota no resto do site.
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → um projecto
@@ -218,9 +249,12 @@ email funciona, e nada se nota no resto do site.
    `https://heldergoncalves.io/api/auth/google/callback`.
 3. Copia o *Client ID* e o *Client Secret* para as variáveis no Coolify.
 
-Só se pede o scope `openid email` — nem perfil, nem foto. A sessão que
-sai daqui é exactamente igual à do código por email; `is_owner`, o
-Calendário, os comentários, nada distingue por onde entraste.
+Pede-se o scope `openid email profile` — o `profile` só para o avatar,
+que fica na conta em Postgres e aparece na app Pessoas. A sessão que sai
+daqui é exactamente igual à da ligação por email; `is_owner`, o
+Calendário, os comentários, nada distingue por onde entraste. Se a
+pessoa já tinha entrado por email antes, é a mesma conta — só ganha o
+avatar que não tinha.
 
 **Não é preciso passar pela revisão da Google.** Essa só é exigida para
 scopes sensíveis ou para publicar além de 100 utilizadores de teste com

@@ -39,6 +39,8 @@ COPY api/requirements.txt ./api/requirements.txt
 RUN pip install --no-cache-dir -r api/requirements.txt
 
 COPY api/app ./app
+COPY api/alembic ./alembic
+COPY api/alembic.ini ./alembic.ini
 COPY --from=build /app/dist ./dist
 COPY knowledge ./knowledge
 
@@ -62,5 +64,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)" || exit 1
 
 # Um processo só: os limites por visitante e as caches vivem em
-# memória, e mais do que um worker deixava de os partilhar.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--no-access-log"]
+# memória, e mais do que um worker deixava de os partilhar. As
+# migrações do Alembic correm sempre antes — `upgrade head` é
+# idempotente, por isso um arranque com a base de dados já em dia não
+# faz nada.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 3000 --workers 1 --no-access-log"]
