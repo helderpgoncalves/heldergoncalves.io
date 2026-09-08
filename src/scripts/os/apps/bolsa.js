@@ -53,10 +53,14 @@ export function initBolsa(ctx) {
     return v.toLocaleString(ctx.data.intlLocale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
   };
   const signed = (v, suffix) => (typeof v !== 'number' ? '—' : (v > 0 ? '+' : '') + money(v) + (suffix || ''));
+  // Uma percentagem é sempre duas casas, nunca quatro: `money()` sobe
+  // para quatro casas abaixo de 1 porque é o que faz sentido num preço
+  // (0,0012 dólares não é zero), mas -0,03% não pode virar -0,0300%.
+  const pct = (v) => (typeof v !== 'number' ? '—' : (v > 0 ? '+' : '') + v.toLocaleString(ctx.data.intlLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%');
   const tone = (q) => (typeof q.change !== 'number' || q.change === 0 ? 'flat' : q.change > 0 ? 'up' : 'down');
 
   const detalhe = createDetalhe(ctx, money, signed, tone);
-  const portfolio = createPortfolio(ctx, money, signed, tone);
+  const portfolio = createPortfolio(ctx, money, signed, tone, pct);
   portfolio.wireInputs(portfolioList, () => portfolio.renderTotals(totals, portfolioEntries, quotes));
 
   async function load(syms, r) {
@@ -82,11 +86,11 @@ export function initBolsa(ctx) {
         return (
           '<li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode=\'ios\']_&]:py-3' + (s === current ? ' on bg-(--accent) text-white' : '') + '" data-symbol="' + esc(s) + '">' +
           (editing ? '<button class="stk-remove relative grid h-[22px] w-[22px] place-items-center rounded-full bg-(--red) text-lg leading-none text-white" type="button" aria-label="' + esc(t.remove) + '">−</button>' : '') +
-          '<span class="stk-id grid min-w-0 gap-px"><span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(s) + '</span>' +
+          '<span class="stk-id grid min-w-0 gap-px"><span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(s) + '</span>' +
           '<span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">' + esc(q ? q.name : t.loading) + '</span></span>' +
           '<span class="stk-spark [&_svg]:block">' + (q ? sparkline(q.points, k) : '') + '</span>' +
           '<span class="stk-quote grid justify-items-end gap-0.5"><span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + (q ? money(q.price) : '—') + '</span>' +
-          '<span class="stk-pill ' + k + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (q ? signed(q.percent, '%') : '…') + '</span></span>' +
+          '<span class="stk-pill ' + k + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (q ? pct(q.percent) : '…') + '</span></span>' +
           '</li>'
         );
       })
@@ -178,7 +182,7 @@ export function initBolsa(ctx) {
         .map(
           (r) =>
             '<button type="button" class="stk-suggest-item flex w-full flex-col items-start gap-px px-2.5 py-2 text-left hover:bg-(--surface-3)" data-add="' + esc(r.symbol) + '">' +
-            '<span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(r.symbol) + '</span>' +
+            '<span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(r.symbol) + '</span>' +
             '<span class="stk-name text-[length:var(--t-foot)] text-(--ink-3)">' + esc(r.name) + (r.exchange ? ' · ' + esc(r.exchange) : '') + '</span>' +
             '</button>'
         )

@@ -17,5 +17,5 @@ const posts = await getPosts(lang);
   ogType="profile"
   jsonLd={[personLd(lang), websiteLd(lang)]}
 >
-  <Shell lang={lang} posts={posts} bootMac="sobre" docTitle={SITE.name} docLead={c.description} />
+  <Shell lang={lang} posts={posts} docTitle={SITE.name} docLead={c.description} />
 </OS>

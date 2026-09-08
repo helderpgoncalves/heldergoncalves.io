@@ -39,7 +39,7 @@ from app.comments_store import init_comments_store
 from app.db import close_db, init_db
 from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
-from app.routers import agenda, auth, bolsa, chat, comments, contact, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
+from app.routers import agenda, auth, bolsa, chat, comments, contact, health, inbox, mcp, mensagens, oauth_google, pessoas, reunioes, subscribe, token
 from app.security import SECURITY_HEADERS
 from app.sessions import init_sessions
 from app.static_files import cache_stats, handle_static, warm_cache
@@ -129,6 +129,7 @@ for router in (
     inbox.router,
     comments.router,
     pessoas.router,
+    mensagens.router,
     mcp.router,
 ):
     app.include_router(router)

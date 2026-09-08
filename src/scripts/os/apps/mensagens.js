@@ -1,4 +1,5 @@
-import { requestToken, serverFeatures } from '../lib/session.js';
+import { esc } from '../lib/dom.js';
+import { amIOwner, requestToken, serverFeatures } from '../lib/session.js';
 
 // Conversa a sério quando o servidor tem uma chave de modelo, e as
 // respostas guardadas quando não tem. O texto do modelo entra sempre
@@ -11,10 +12,116 @@ export function initChat(ctx) {
   const form = el.querySelector('[data-chat-form]');
   const input = el.querySelector('[data-chat-input]');
   const note = el.querySelector('[data-chat-note]');
+  const title = el.querySelector('[data-chat-title]');
+  const subtitle = el.querySelector('[data-chat-subtitle]');
   const t = ctx.data.strings.chat;
   const canned = [...el.querySelectorAll('.chat-canned')];
   const opening = log.innerHTML;
+  const openingTitle = title ? title.textContent : '';
+  const openingSubtitle = subtitle ? subtitle.textContent : '';
   canned.forEach((c) => c.remove());
+
+  // ── A lista de conversas, só para o dono ────────────────────────────
+  // O backend já recusa /api/mensagens a quem não é o dono — isto é só
+  // a camada visual: sem sessão de dono, a barra nem chega a pedir a
+  // lista, e a app funciona exactamente como antes (a conversa única).
+  const sidebar = el.querySelector('[data-msg-sidebar]');
+  const convList = el.querySelector('[data-msg-conv-list]');
+  const convEmpty = el.querySelector('[data-msg-conv-empty]');
+  const search = el.querySelector('[data-msg-search]');
+  let conversations = [];
+  let ownConversationId = null;
+
+  const weekdayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { weekday: 'long' });
+  const timeFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { hour: '2-digit', minute: '2-digit' });
+  const dayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { day: 'numeric', month: 'short' });
+  function relativeWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const days = Math.round((startOfDay(new Date()) - startOfDay(d)) / (24 * 60 * 60 * 1000));
+    if (days <= 0) return timeFmt.format(d);
+    if (days === 1) return t.yesterday || weekdayFmt.format(d);
+    if (days < 7) return weekdayFmt.format(d);
+    return dayFmt.format(d);
+  }
+
+  function initials(text) {
+    return (text || '?').slice(0, 2).toUpperCase();
+  }
+
+  function renderConversations() {
+    const q = (search && search.value.trim().toLowerCase()) || '';
+    const rows = conversations.filter((c) => !q || (c.email || c.conversation).toLowerCase().includes(q));
+    convEmpty.hidden = rows.length > 0;
+    convList.innerHTML = rows
+      .map((c) => {
+        const label = c.email || c.conversation.replace(/^visitante:/, '');
+        const active = c.conversation === ownConversationId;
+        return (
+          '<li>' +
+          '<button type="button" data-conv="' + esc(c.conversation) + '" class="msg-conv-row flex w-full flex-col gap-0.5 border-b-[0.5px] border-(--line) px-3.5 py-2.5 text-left' +
+          (active ? ' bg-(--accent) text-white' : ' text-(--ink) hover:bg-(--surface-3)') + '">' +
+          '<span class="flex items-center gap-2">' +
+          '<span class="grid h-7 w-7 flex-none place-items-center rounded-full bg-(--surface-3) text-[11px] font-semibold' + (active ? ' bg-white/25 text-white' : ' text-(--ink-2)') + '">' + esc(initials(label)) + '</span>' +
+          '<strong class="min-w-0 flex-1 truncate text-[13px] font-semibold">' + esc(label) + '</strong>' +
+          '<span class="flex-none text-[11px]' + (active ? ' text-white/80' : ' text-(--ink-3)') + '">' + esc(relativeWhen(c.last)) + '</span>' +
+          '</span>' +
+          '<span class="truncate pl-9 text-[12px]' + (active ? ' text-white/80' : ' text-(--ink-3)') + '">' + esc(String(c.turns)) + ' ' + esc(t.turns || '') + '</span>' +
+          '</button></li>'
+        );
+      })
+      .join('');
+  }
+
+  async function openConversation(convId) {
+    ownConversationId = convId;
+    renderConversations();
+    const found = conversations.find((c) => c.conversation === convId);
+    if (title) title.textContent = (found && (found.email || found.conversation)) || openingTitle;
+    if (subtitle) subtitle.textContent = t.withAssistant || openingSubtitle;
+    try {
+      const res = await fetch('/api/mensagens/' + encodeURIComponent(convId), { headers: { Accept: 'application/json' } });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.ok) return;
+      log.innerHTML = '';
+      // Aqui é o dono a ler: quem fala é o visitante ("them"), quem
+      // responde é o assistente em nome do Hélder ("me") — o inverso
+      // da conversa normal, onde quem está a ver é o próprio visitante.
+      (data.turns || []).forEach((turn) => bubble(turn.role === 'assistant' ? 'me' : 'them', turn.text));
+    } catch (_) {
+      // A conversa fica com o que já lá estava — sem partir a vista.
+    }
+  }
+
+  async function loadConversations() {
+    try {
+      const res = await fetch('/api/mensagens', { headers: { Accept: 'application/json' } });
+      if (!res.ok) return;
+      const data = await res.json().catch(() => null);
+      if (!data || !data.ok) return;
+      conversations = data.conversations || [];
+      renderConversations();
+    } catch (_) {
+      // Sem lista, a app continua a funcionar como conversa única.
+    }
+  }
+
+  async function prepareSidebar() {
+    if (!sidebar) return;
+    const owner = await amIOwner();
+    if (!owner) return;
+    sidebar.hidden = false;
+    sidebar.removeAttribute('aria-hidden');
+    await loadConversations();
+  }
+
+  if (search) search.addEventListener('input', renderConversations);
+  if (convList)
+    convList.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('[data-conv]');
+      if (btn) openConversation(btn.dataset.conv);
+    });
 
   let token = null;
   let live = false;
@@ -23,12 +130,16 @@ export function initChat(ctx) {
   let history = [];
 
   async function prepare() {
-    if (asked) return;
-    asked = true;
-    token = await requestToken();
-    const features = serverFeatures();
-    live = !!(features && features.chat);
-    if (note) note.textContent = live && token ? t.ai : t.aiOff;
+    if (!asked) {
+      asked = true;
+      token = await requestToken();
+      const features = serverFeatures();
+      live = !!(features && features.chat);
+      if (note) note.textContent = live && token ? t.ai : t.aiOff;
+    }
+    // A sidebar (só do dono) pede sempre de novo ao reabrir: pode ter
+    // chegado gente nova a falar com o assistente desde a última vez.
+    await prepareSidebar();
   }
   ctx.prepareChat = prepare;
 

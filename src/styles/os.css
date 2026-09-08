@@ -66,6 +66,13 @@
   button, input, textarea, select { font: inherit; color: inherit; }
   button { background: none; border: 0; padding: 0; }
   a { color: var(--accent); text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  /* Todas as apps são coluna por omissão, menos a Bolsa (duas colunas
+     lado a lado) — que o diz com `flex-row` no próprio elemento, em
+     Bolsa.astro. Aqui, não em apps.css, para essa utility conseguir
+     vencer: a mesma regra na camada `handwritten` ganharia sempre por
+     ordem de `@layer`, mesmo com Tailwind a favor da especificidade. */
+  .app-shell { flex-direction: column; }
 }
 
 @import 'tailwindcss/theme.css' layer(tailwind-theme);

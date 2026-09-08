@@ -166,7 +166,7 @@
 }
 .win.focused .win-title { color: var(--ink); }
 .win-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
-.win-body > .app-shell { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.win-body > .app-shell { flex: 1; min-width: 0; display: flex; }
 
 .grip { position: absolute; z-index: 3; touch-action: none; }
 .grip-n { inset: -3px 10px auto; height: 8px; cursor: ns-resize; }

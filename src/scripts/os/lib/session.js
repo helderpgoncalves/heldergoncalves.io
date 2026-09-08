@@ -43,6 +43,7 @@ export const serverFeatures = () => features;
 /** Quem está com sessão — o mesmo login serve o Calendário, os
  * comentários e, um dia, o resto do sistema. `null` sem sessão. */
 let who = undefined;
+let owner = undefined;
 
 /**
  * @returns {Promise<string|null>} o email de quem está com sessão, ou null
@@ -53,16 +54,26 @@ export async function whoAmI() {
     const res = await fetch('/api/auth/me', { headers: { Accept: 'application/json' } });
     const data = await res.json().catch(() => ({}));
     who = res.ok && data.ok ? data.email : null;
+    owner = res.ok && data.ok ? data.owner === true : false;
   } catch (_) {
     who = null;
+    owner = false;
   }
   return who;
+}
+
+/** É a sessão do dono? Pede `whoAmI()` primeiro se ainda não se sabe —
+ * a mesma chamada a `/api/auth/me` responde às duas perguntas. */
+export async function amIOwner() {
+  if (owner === undefined) await whoAmI();
+  return owner === true;
 }
 
 /** Esquece o que se sabia — depois de entrar ou sair, para a próxima
  * pergunta ir mesmo ao servidor. */
 export const forgetWho = () => {
   who = undefined;
+  owner = undefined;
 };
 
 // ── Entrar por magic link ────────────────────────────────────────────

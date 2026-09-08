@@ -92,6 +92,8 @@ export function startClock(locale) {
     document.querySelectorAll('[data-lock-date]').forEach((el) => (el.textContent = dateFmt.format(now)));
     document.querySelectorAll('[data-widget-day]').forEach((el) => (el.textContent = dayFmt.format(now)));
     document.querySelectorAll('[data-widget-date]').forEach((el) => (el.textContent = String(now.getDate())));
+    const icDia = document.getElementById('ic-calendario-dia');
+    if (icDia) icDia.textContent = String(now.getDate());
   };
 
   tick();

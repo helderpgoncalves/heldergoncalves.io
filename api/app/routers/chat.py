@@ -27,8 +27,11 @@ AGENT_ROUNDS = 2
 
 
 async def _call_model(messages: list[dict], use_tools: bool) -> dict:
+    # `models` (não `model`) deixa o OpenRouter tentar o próximo da lista
+    # sozinho se o primeiro estiver em baixo ou sobrecarregado — sem isto,
+    # uma falha do modelo principal derrubava a conversa inteira.
     body: dict = {
-        "model": CHAT.model,
+        "models": [CHAT.model, *CHAT.fallback_models][:3],
         "max_tokens": LIMITS.chat_out_tokens,
         "temperature": 0.3,
         "messages": messages,

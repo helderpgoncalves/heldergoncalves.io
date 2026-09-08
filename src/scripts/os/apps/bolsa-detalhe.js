@@ -19,7 +19,7 @@ export function createDetalhe(ctx, money, signed, tone) {
 
   const compact = (v) =>
     typeof v === 'number' ? new Intl.NumberFormat(ctx.data.intlLocale, { notation: 'compact', maximumFractionDigits: 2 }).format(v) : '—';
-  const pct = (v) => (typeof v === 'number' ? v.toFixed(2) + '%' : '—');
+  const pct = (v) => (typeof v !== 'number' ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%');
 
   async function fetchDetails(symbol) {
     if (details.has(symbol)) return details.get(symbol);
@@ -92,7 +92,7 @@ export function createDetalhe(ctx, money, signed, tone) {
       '<div class="stk-detail grid gap-4.5 px-6.5 pb-7.5 pt-5.5">' +
       '<header class="stk-title flex items-start justify-between gap-4"><div><h2 class="m-0 text-[length:var(--t-title)] font-bold tracking-[-0.02em]">' + esc(label || q.symbol) + '</h2><p class="mb-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(q.name) + '</p></div>' +
       '<div class="stk-big grid justify-items-end gap-0.5"><span class="stk-bigprice text-[length:var(--t-large)] font-bold tracking-[-0.02em] tabular-nums" data-stk-price>' + money(q.price) + '</span>' +
-      '<span class="stk-change ' + k + ' text-[length:var(--t-subhead)] font-semibold tabular-nums" data-stk-change>' + signed(q.change) + ' (' + signed(q.percent, '%') + ')</span></div></header>' +
+      '<span class="stk-change ' + k + ' text-[length:var(--t-subhead)] font-semibold tabular-nums" data-stk-change>' + signed(q.change) + ' (' + pct(q.percent) + ')</span></div></header>' +
       '<div class="seg stk-ranges justify-self-start" role="tablist">' +
       ranges.map((r) => '<button type="button" role="tab" data-range="' + r + '" aria-pressed="' + (r === range) + '">' + esc(t.ranges[r]) + '</button>').join('') +
       '</div>' +
@@ -116,7 +116,7 @@ export function createDetalhe(ctx, money, signed, tone) {
     const priceEl = main.querySelector('[data-stk-price]');
     const changeEl = main.querySelector('[data-stk-change]');
     const basePrice = money(q.price);
-    const baseChange = signed(q.change) + ' (' + signed(q.percent, '%') + ')';
+    const baseChange = signed(q.change) + ' (' + pct(q.percent) + ')';
     wireChart(chartHost, chartData ? chartData.points : q.points, { session: chartData ? chartData.session : q.session, range, locale: ctx.data.intlLocale }, (point) => {
       if (!priceEl) return;
       if (point) {
@@ -124,7 +124,7 @@ export function createDetalhe(ctx, money, signed, tone) {
         if (changeEl && typeof q.previous === 'number') {
           const change = point[1] - q.previous;
           const percent = q.previous ? (change / q.previous) * 100 : null;
-          changeEl.textContent = signed(change) + ' (' + signed(percent, '%') + ')';
+          changeEl.textContent = signed(change) + ' (' + pct(percent) + ')';
         }
       } else {
         priceEl.textContent = basePrice;

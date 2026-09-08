@@ -38,7 +38,7 @@ const PORTFOLIO = [
         <ul class="stk-list m-0 list-none px-2" data-stk-list="watch">
           {DEFAULT.map((s) => (
             <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={s}>
-              <span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{s}</span>
+              <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{s}</span>
               <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
             </li>
           ))}
@@ -50,7 +50,7 @@ const PORTFOLIO = [
         <ul class="stk-list stk-portfolio m-0 list-none px-2" data-stk-list="portfolio">
           {PORTFOLIO.map((p) => (
             <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={p.symbol} data-label={p.label}>
-              <span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{p.label}</span>
+              <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{p.label}</span>
               <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
             </li>
           ))}

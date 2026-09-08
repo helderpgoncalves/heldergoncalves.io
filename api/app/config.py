@@ -54,6 +54,14 @@ MAIL_READY = (MAIL.provider == "resend" and len(MAIL.key) > 10) or (
 class Chat:
     key: str = _env("OPENROUTER_API_KEY")
     model: str = _env("OPENROUTER_MODEL", "anthropic/claude-opus-5")
+    # Se o modelo principal cair ou estiver sobrecarregado no OpenRouter,
+    # estes entram sem o visitante notar — têm de suportar chamada de
+    # ferramentas, senão a conversa continua mas as três ferramentas do
+    # agente deixam de funcionar em silêncio. Configurável porque o
+    # `OPENROUTER_MODEL` também é.
+    fallback_models: tuple[str, ...] = tuple(
+        m.strip() for m in _env("OPENROUTER_FALLBACK_MODELS", "anthropic/claude-sonnet-5,openai/gpt-5.1").split(",") if m.strip()
+    )
 
 
 CHAT = Chat()

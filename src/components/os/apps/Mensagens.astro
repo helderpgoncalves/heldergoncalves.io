@@ -6,15 +6,32 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const m = c.mensagens;
 ---
-<section class="app-shell app-mensagens relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="mensagens" aria-label={c.apps.mensagens.name}>
+<section class="app-shell app-mensagens relative flex min-h-0 flex-row overflow-hidden bg-(--surface-solid)" data-content="mensagens" aria-label={c.apps.mensagens.name}>
+  {/* A lista de conversas — só existe para o dono. O JS (mensagens.js)
+      revela isto (remove [hidden]) depois de confirmar `amIOwner()`;
+      um visitante nunca a vê, nem sequer no HTML entregue, porque o
+      conteúdo vem de /api/mensagens, que o backend já recusa a quem
+      não é o dono. */}
+  <aside class="msg-sidebar hidden w-[280px] flex-none flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [&:not([hidden])]:flex" data-msg-sidebar hidden aria-hidden="true">
+    <div class="flex-none px-2.5 pb-2 pt-2.5">
+      <label class="msg-search flex items-center gap-1.5 rounded-lg bg-(--surface-3) px-2.5 py-1.5 text-(--ink-3)">
+        <Icon id="ui-search" size={13} />
+        <span class="sr">{m.search}</span>
+        <input type="search" data-msg-search placeholder={m.search} autocomplete="off" class="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-(--ink) outline-hidden placeholder:text-(--ink-3)" />
+      </label>
+    </div>
+    <ul class="msg-conv-list m-0 min-h-0 flex-1 list-none overflow-auto p-0" data-msg-conv-list aria-label={m.conversations}></ul>
+    <p class="msg-conv-empty m-0 px-4 py-6 text-center text-[13px] text-(--ink-3) [&[hidden]]:hidden" data-msg-conv-empty hidden>{m.noConversations}</p>
+  </aside>
+
   <div class="chat flex min-h-0 flex-1 flex-col">
     <div class="chat-head flex items-center gap-2.5 border-b-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
       <span class="avatar grid h-8.5 w-8.5 flex-none place-items-center rounded-full bg-[linear-gradient(150deg,#7f7fd5,#3b6bd6_55%,#1b3f8f)] text-[15px] font-semibold tracking-[-0.02em] text-white" aria-hidden="true">H</span>
-      <div>
-        <strong class="text-[14px]">{m.contactName}</strong>
-        <span class="block text-[11px] text-(--ink-3)">{m.status}</span>
+      <div class="min-w-0 flex-1">
+        <strong class="block truncate text-[14px]" data-chat-title>{m.contactName}</strong>
+        <span class="block truncate text-[11px] text-(--ink-3)" data-chat-subtitle>{m.status}</span>
       </div>
-      <button class="btn ml-auto" type="button" data-chat-reset>{m.restart}</button>
+      <button class="btn ml-auto flex-none" type="button" data-chat-reset>{m.restart}</button>
     </div>
 
     <div class="chat-log flex min-h-0 flex-1 flex-col gap-2 overflow-auto px-4 py-4.5" data-chat-log aria-live="polite">

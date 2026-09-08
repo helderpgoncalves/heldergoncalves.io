@@ -69,8 +69,20 @@
   --glass-bevel-top: rgba(255, 255, 255, 0.5);
 }
 
-.glass {
+/* `position: relative` só entra por `:where()` (especificidade zero):
+   é só um valor por omissão, para o `::before` (o aro) ter em que se
+   posicionar quando a peça de vidro não pediu `position` nenhum. Uma
+   peça que precise de `absolute`/`fixed` — `.menu`, `.ctx`, `.spot` —
+   continua a ganhar com a sua própria regra de uma classe só, seja
+   qual for a ordem de import; com `position: relative` direto aqui,
+   ganhava sempre por vir depois na cascata (foi o que aconteceu ao
+   `.ctx`: herdava `relative` do `.glass` e o `top` deixava de ser
+   contado a partir do canto do ecrã, e sim de onde ficaria em fluxo
+   normal — daí o menu de contexto nascer sempre desviado do rato). */
+:where(.glass) {
   position: relative;
+}
+.glass {
   isolation: isolate;
   background: var(--glass-tint);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));

@@ -62,6 +62,24 @@ const walls = [
         </div>
       </div>
 
+      <div class="set-group mb-6.5 hidden" data-admin-group hidden>
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.admin}</h3>
+        <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.adminHint}</p>
+        <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0">
+            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.apps.calendario.name}</span>
+            <span class="v ml-auto text-right text-[13px] text-(--ink)" data-admin-meetings>—</span>
+          </div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0">
+            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{s.adminBlocks}</span>
+            <span class="v ml-auto text-right text-[13px] text-(--ink)" data-admin-blocks>—</span>
+          </div>
+        </div>
+        <div class="btn-row mt-4.5 flex flex-wrap gap-2.5">
+          <button class="btn" type="button" data-open="calendario">{s.adminOpenCalendar}</button>
+        </div>
+      </div>
+
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.about}</h3>
         <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">

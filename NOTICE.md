@@ -17,29 +17,37 @@ desenhar para plataformas Apple.
 
 ## Ícones
 
-| O quê                                              | Onde                                 | Origem / licença |
-| -------------------------------------------------- | ------------------------------------ | ---------------- |
-| Finder, Notas, Mail, Safari, Terminal              | `src/assets/icons/`                  | ícones da Apple, distribuídos com o componente `mac-os-dock` de 21st.dev, usados ao abrigo da licença desse componente |
-| Definições do Sistema                              | `src/assets/icons/settings.png`      | ícone da Apple, da Wikipédia (`System_Preferences_icon.png`) |
-| Bolsa                                              | `src/assets/icons/stocks.jpg`        | ícone da Apple, do Wikimedia Commons (`Stocks_2025_logo.jpg`) |
-| Mensagens                                          | `src/components/os/IconSprite.astro` | logótipo em vector, do Wikimedia Commons (`IMessage_logo.svg`) |
-| Calendário                                         | idem                                 | ícone em vector, do Wikimedia Commons (`Apple_Calendar_(iOS).svg`) |
-| Contactos, Notas e Mail do iOS                     | `src/assets/icons/ios/`              | ícones da Apple, do Wikimedia Commons (`Contacts_iOS.svg`, `Apple_Notes_(iOS).png`, `Mail_(iOS).svg`) |
-| Safari 26                                          | `src/assets/icons/safari26.png`      | ícone da Apple, da Wikipédia (`Safari_Liquid_Glass_icon.png`) |
-| Glifos dos restantes ícones (Lucide)               | `src/components/os/IconSprite.astro` | ISC |
-| Marcas GitHub, LinkedIn, X (Simple Icons)          | idem                                 | CC0 1.0 |
+| O quê                                                        | Onde                                  | Origem / licença |
+| ------------------------------------------------------------- | -------------------------------------- | ---------------- |
+| Finder, Notas, Mail, Terminal, Ações (Bolsa), Mensagens, Calendário, Contactos | `src/assets/icons/`  | ícones da Apple, extraídos com `iconutil` dos `.icns` das aplicações correspondentes, do macOS do próprio Hélder |
+| Simulador                                                    | `src/assets/icons/simulator.png`      | ícone da Apple, extraído do `.icns` do Simulator (dentro do Xcode) |
+| Safari                                                       | `src/assets/icons/safari.png`         | ícone da Apple, distribuído com o componente `mac-os-dock` de 21st.dev, usado ao abrigo da licença desse componente |
+| Definições do Sistema                                        | `src/assets/icons/settings.png`       | ícone da Apple, da Wikipédia (`System_Preferences_icon.png`) |
+| Contactos, Notas e Mail do iOS                               | `src/assets/icons/ios/`               | ícones da Apple, do Wikimedia Commons (`Contacts_iOS.svg`, `Apple_Notes_(iOS).png`, `Mail_(iOS).svg`) |
+| Safari 26                                                    | `src/assets/icons/safari26.png`       | ícone da Apple, da Wikipédia (`Safari_Liquid_Glass_icon.png`) |
+| Glifos dos restantes ícones (Lucide)                         | `src/components/os/IconSprite.astro`  | ISC |
+| Marcas GitHub, LinkedIn, X (Simple Icons)                    | idem                                   | CC0 1.0 |
 
-Os ícones das aplicações da Apple são os da Apple, obtidos de fontes
-públicas: o componente de 21st.dev, a Wikipédia e o Wikimedia Commons.
-Servem aqui as aplicações Sobre (Finder no Mac, Contactos no iPhone),
-Escritos (Notas), Contacto (Mail), Projetos (Safari), Terminal,
-Definições, Bolsa, Mensagens e Calendário. No iPhone mostram-se as
-versões do iOS onde existem; o Terminal e o Simulador não existem no
-iOS, e as Definições do iOS não estão em fonte pública — nesses três
-casos o iPhone mostra o ícone do Mac sem a margem. Os ficheiros de imagem são reduzidos no build a 256 px em
-WebP. Os restantes ícones (Simulador, Reciclagem, o disco e o documento
-do ambiente de trabalho) são desenhados aqui, a partir dos glifos do
-Lucide, na geometria dos ícones da Apple.
+Os ícones das aplicações da Apple são os da Apple. A maioria vem de uma
+fonte tão directa quanto possível: o `.icns` de cada aplicação, dentro
+do próprio `.app`, no Mac do Hélder — nenhum ficheiro da Apple é
+distribuído por nós, e o que está no repositório é uma extracção local
+de um sistema licenciado, tal como uma captura de ecrã. Servem aqui as
+aplicações Sobre (Finder no Mac, Contactos no iPhone), Escritos
+(Notas), Contacto (Mail), Projetos (Safari), Terminal, Definições,
+Bolsa, Mensagens, Calendário e Pessoas (Contactos). No iPhone mostram-se
+as versões do iOS onde existem; o Terminal e o Simulador não existem no
+iOS, e as Definições do iOS não estão em fonte pública — nesses casos o
+iPhone mostra o ícone do Mac sem a margem. O número do dia no ícone do
+Calendário é desenhado por nós em tempo real (`state.js`), como a
+Apple faz no seu próprio sistema — o `.icns` só traz a grelha vazia.
+Os ficheiros de imagem são reduzidos no build a 256 px em WebP — o
+maior tamanho que estes `.icns` trazem no macOS actual, por isso não
+há perda. Os restantes ícones (Reciclagem, o disco e o documento do
+ambiente de trabalho) são desenhados aqui, a partir dos glifos do
+Lucide, na geometria dos ícones da Apple — o cesto de lixo real da Dock
+vive num asset catalog compilado (`Assets.car`) sem `.icns` extraível,
+por isso fica como excepção desenhada à mão.
 
 ## Saudação do arranque
 

@@ -1,22 +1,71 @@
 ---
-// Pessoas — só o dono. Sem JavaScript, ou sem ser o dono, fica só o
-// aviso; com JavaScript e sessão de dono, a lista de quem já entrou.
+// Pessoas — só o dono. Desenhada como o Finder: uma coluna de secções
+// à esquerda, uma barra de ferramentas com pesquisa, a lista ao meio,
+// e o detalhe de quem está seleccionado à direita — o mesmo desenho
+// que o Finder usa para um ficheiro. Sem JavaScript, ou sem ser o
+// dono, fica só o aviso.
 import { COPY, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.pessoas;
 ---
-<section class="app-shell app-pessoas relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="pessoas" aria-label={c.apps.pessoas.name}>
-  <div class="app-scroll min-h-0 flex-1 overflow-auto [-webkit-overflow-scrolling:touch]">
-    <div class="app-pad px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
-      <p class="ppl-lead m-0 mb-4 text-(--ink-3)" data-ppl-lead>{k.lead}</p>
-      <p class="ppl-only flex items-center gap-3 text-(--ink-3) [&[hidden]]:hidden" data-ppl-only hidden>
-        {k.onlyOwner}
-        <button type="button" class="btn" data-action="entrar">{k.signIn}</button>
-      </p>
-      <ul class="ppl-list grid gap-2 [&[hidden]]:hidden" data-ppl-list hidden></ul>
-      <p class="ppl-empty text-(--ink-3) [&[hidden]]:hidden" data-ppl-empty hidden>{k.empty}</p>
+<section class="app-shell app-pessoas flex min-h-0 flex-row overflow-hidden bg-(--surface-solid)" data-content="pessoas" aria-label={c.apps.pessoas.name}>
+  <p class="ppl-only m-auto flex flex-col items-center gap-3 p-8 text-center text-(--ink-3) [&[hidden]]:hidden" data-ppl-only hidden>
+    {k.onlyOwner}
+    <button type="button" class="btn" data-action="entrar">{k.signIn}</button>
+  </p>
+
+  <div class="ppl-shell flex min-h-0 flex-1 flex-row [&[hidden]]:hidden" data-ppl-shell hidden>
+    <nav class="ppl-side w-[190px] flex-none overflow-y-auto border-r-[0.5px] border-(--line) bg-(--surface-2) px-2.5 py-3.5">
+      <p class="m-0 mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-[0.07em] text-(--ink-3)">{k.sectionAll}</p>
+      <button type="button" class="ppl-nav-item post-link flex w-full items-center px-2 py-1.5 text-left text-[13px] text-(--ink) aria-pressed:bg-(--accent) aria-pressed:text-white" data-ppl-filter="all" aria-pressed="true">
+        {k.everyone}
+      </button>
+      <button type="button" class="ppl-nav-item post-link flex w-full items-center px-2 py-1.5 text-left text-[13px] text-(--ink) aria-pressed:bg-(--accent) aria-pressed:text-white" data-ppl-filter="recent" aria-pressed="false">
+        {k.recent}
+      </button>
+    </nav>
+
+    <div class="ppl-main flex min-h-0 min-w-0 flex-1 flex-col">
+      <div class="ppl-toolbar flex flex-none items-center gap-2.5 border-b-[0.5px] border-(--line) px-3.5 py-2">
+        <h2 class="m-0 flex-1 truncate text-[13px] font-semibold" data-ppl-title>{k.everyone}</h2>
+        <label class="ppl-search flex h-6.5 w-[150px] flex-none items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2.5 text-(--ink-3) focus-within:border-(--accent)">
+          <Icon id="ui-search" size={12} />
+          <span class="sr">{k.search}</span>
+          <input type="search" data-ppl-search placeholder={k.search} autocomplete="off" class="min-w-0 flex-1 border-0 bg-transparent text-[12px] text-(--ink) outline-none placeholder:text-(--ink-3)" />
+        </label>
+      </div>
+
+      <div class="ppl-cols flex min-h-0 flex-1 flex-row">
+        <div class="ppl-list-pane min-h-0 flex-1 overflow-y-auto p-2">
+          <ul class="ppl-list rows m-0 grid list-none gap-px border-[0.5px] border-(--line) bg-(--surface-2) p-0 [&[hidden]]:hidden" data-ppl-list hidden></ul>
+          <div class="ppl-empty m-auto flex h-full flex-col items-center justify-center gap-2.5 p-8 text-center text-(--ink-3) [&[hidden]]:hidden" data-ppl-empty hidden>
+            <span class="grid h-14 w-14 place-items-center rounded-[23%] bg-(--surface-3) text-(--ink-3) opacity-60" aria-hidden="true">
+              <Icon id="ui-search" size={26} />
+            </span>
+            <p class="m-0 text-[13px]" data-ppl-empty-text>{k.empty}</p>
+          </div>
+        </div>
+
+        <aside class="ppl-detail hidden w-[240px] flex-none flex-col items-center gap-3 overflow-y-auto border-l-[0.5px] border-(--line) p-6 text-center [&:not([hidden])]:flex" data-ppl-detail hidden>
+          <img class="ppl-detail-avatar hidden h-20 w-20 rounded-full object-cover bg-(--surface-3) [&:not([hidden])]:block" data-ppl-detail-avatar alt="" loading="lazy" referrerpolicy="no-referrer" hidden />
+          <span class="ppl-detail-avatar h-20 w-20 rounded-full bg-(--gray4) [&[hidden]]:hidden" data-ppl-detail-placeholder aria-hidden="true"></span>
+          <p class="m-0 max-w-full truncate text-[15px] font-semibold" data-ppl-detail-email></p>
+          <div class="rows w-full border-[0.5px] border-(--line) bg-(--surface-2) text-left">
+            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0">
+              <span class="k flex-none text-[11px] text-(--ink-3)">{k.firstSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-first></span>
+            </div>
+            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0">
+              <span class="k flex-none text-[11px] text-(--ink-3)">{k.lastSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-last></span>
+            </div>
+            <div class="row flex w-full items-center gap-2.5 px-3 py-2 text-left">
+              <span class="k flex-none text-[11px] text-(--ink-3)">{k.visits}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-visits></span>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </section>

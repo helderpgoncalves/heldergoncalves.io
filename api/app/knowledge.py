@@ -92,7 +92,11 @@ def search(query: str) -> str:
     sections = best(KNOWLEDGE, lambda k: k.title + " " + k.text, 2)
     posts = best(POSTS, lambda p: p["title"] + " " + p["description"] + " " + " ".join(p.get("tags", [])), 4)
 
-    parts = [f"## {k.title}\n{k.text[:3000]}" for k in sections]
+    # 1200 caracteres por secção, não 3000: o modelo lê isto a cada volta
+    # de ferramenta, e uma resposta mais curta é tokens a menos sem
+    # perder o que interessa — a secção mais relevante costuma dizer o
+    # essencial nas primeiras linhas.
+    parts = [f"## {k.title}\n{k.text[:1200]}" for k in sections]
     if posts:
         parts.append("## Escritos relacionados\n" + "\n".join(post_line(p) for p in posts))
     return "\n\n".join(parts) if parts else "Nada encontrado sobre isso na base de conhecimento."

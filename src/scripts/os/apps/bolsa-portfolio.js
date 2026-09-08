@@ -11,7 +11,7 @@ import { prefs, setPref } from '../state.js';
 import { esc } from '../lib/dom.js';
 import { sparkline } from './bolsa-grafico.js';
 
-export function createPortfolio(ctx, money, signed, tone) {
+export function createPortfolio(ctx, money, signed, tone, pct) {
   const t = ctx.data.strings.bolsa;
 
   const holdings = () => prefs.portfolioHoldings || {};
@@ -81,7 +81,7 @@ export function createPortfolio(ctx, money, signed, tone) {
             : '<span class="stk-spark [&_svg]:block">' + (q ? sparkline(q.points, k) : '') + '</span>' +
               '<span class="stk-quote grid justify-items-end gap-0.5">' +
               (fig
-                ? '<span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + money(fig.value) + '</span><span class="stk-pill ' + (fig.gain == null ? 'flat' : fig.gain >= 0 ? 'up' : 'down') + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (fig.gain == null ? '—' : signed(fig.percent, '%')) + '</span>'
+                ? '<span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + money(fig.value) + '</span><span class="stk-pill ' + (fig.gain == null ? 'flat' : fig.gain >= 0 ? 'up' : 'down') + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (fig.gain == null ? '—' : pct(fig.percent)) + '</span>'
                 : '<span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + (q ? money(q.price) : '—') + '</span><span class="stk-pill flat min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + esc(t.noHoldings ? '·' : '') + '</span>') +
               '</span>') +
           '</li>'
@@ -101,7 +101,7 @@ export function createPortfolio(ctx, money, signed, tone) {
     el.innerHTML =
       '<span class="stk-total-label flex-[0_0_100%] text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.totalValue) + '</span>' +
       '<span class="stk-total-value text-[length:var(--t-headline)] font-bold tabular-nums">' + money(sum.value) + '</span>' +
-      (sum.gain != null ? '<span class="stk-total-gain ' + tone_ + ' text-[length:var(--t-foot)] font-semibold tabular-nums">' + esc(t.totalGain) + ' ' + signed(sum.gain) + ' (' + signed(sum.percent, '%') + ')</span>' : '');
+      (sum.gain != null ? '<span class="stk-total-gain ' + tone_ + ' text-[length:var(--t-foot)] font-semibold tabular-nums">' + esc(t.totalGain) + ' ' + signed(sum.gain) + ' (' + pct(sum.percent) + ')</span>' : '');
   }
 
   /** `onChange` corre depois de guardar — é quem chama que actualiza o total. */
