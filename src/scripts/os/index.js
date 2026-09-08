@@ -163,6 +163,9 @@ function boot(data) {
       case 'back':
         if (ctx.escritos && ctx.escritos.hasDetail()) ctx.escritos.list(true);
         return;
+      case 'toggleSidebar':
+        if (ctx.escritos) ctx.escritos.toggleSidebar();
+        return;
       case 'restart':
         // Um reinício a sério: o ecrã apaga-se, e o arranque que vem a
         // seguir é o primeiro outra vez — a saudação escreve-se toda.

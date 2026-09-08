@@ -244,15 +244,21 @@ export function createWindows(desk) {
     if (!win) return;
     const { w: W, h: H } = desk.area();
 
-    if (win.classList.contains('zoomed')) {
-      win.classList.remove('zoomed');
-      // Volta ao que era antes de encher o ecrã.
-      if (win.dataset.rect) setRect(win, JSON.parse(win.dataset.rect));
+    const target = win.classList.contains('zoomed')
+      ? (win.dataset.rect ? JSON.parse(win.dataset.rect) : rectOf(win))
+      : { x: 0, y: 0, w: W, h: H };
+
+    if (!win.classList.contains('zoomed')) win.dataset.rect = JSON.stringify(rectOf(win));
+    win.classList.toggle('zoomed');
+
+    // O retângulo estica-se até ao novo tamanho — não troca de repente.
+    if (reducedMotion()) {
+      setRect(win, target);
       return;
     }
-    win.dataset.rect = JSON.stringify(rectOf(win));
-    win.classList.add('zoomed');
-    setRect(win, { x: 0, y: 0, w: W, h: H });
+    win.classList.add('zooming');
+    setRect(win, target);
+    win.addEventListener('transitionend', () => win.classList.remove('zooming'), { once: true });
   }
 
   /** Arruma as janelas abertas numa grelha, sem sobreposição. */

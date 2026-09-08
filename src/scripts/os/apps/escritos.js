@@ -61,6 +61,8 @@ export function initEscritos(ctx) {
     if (push) history.pushState({ app: 'escritos' }, '', ctx.data.routes[ctx.data.lang].blog);
   }
 
+  const toggleSidebar = () => el.classList.toggle('side-hidden');
+
   el.addEventListener('click', (ev) => {
     const link = ev.target.closest('.post-link');
     if (link) {
@@ -69,25 +71,29 @@ export function initEscritos(ctx) {
       return;
     }
     if (ev.target.closest('[data-back-list]')) list(true);
-    else if (ev.target.closest('[data-notes-sidebar]')) el.classList.toggle('side-hidden');
+    else if (ev.target.closest('[data-notes-sidebar]')) toggleSidebar();
     else {
       const act = ev.target.closest('[data-action]');
       if (act) ctx.run(act.dataset.action);
     }
   });
 
-  // ── A pesquisa da lista ────────────────────────────────────────────
-  // Filtra ao escrever, esconde os meses que ficam vazios, e diz quando
-  // não sobra nada. Os dois campos (Mac e telefone) andam a par.
+  // ── A pesquisa da lista, cruzada com a pasta ────────────────────────
+  // Filtra ao escrever e ao trocar de pasta, esconde os meses que ficam
+  // vazios, e diz quando não sobra nada. Os dois campos (Mac e
+  // telefone) andam a par.
   const fields = [...el.querySelectorAll('[data-notes-search]')];
   const empty = el.querySelector('[data-notes-empty]');
-  function filter(query) {
+  let currentFolder = 'all';
+  function filter(query, folder) {
+    if (folder !== undefined) currentFolder = folder;
     const q = query.trim().toLowerCase();
     let left = 0;
     el.querySelectorAll('.post-group').forEach((group) => {
       let kept = 0;
       group.querySelectorAll('.post-link').forEach((a) => {
-        const hit = !q || a.textContent.toLowerCase().includes(q);
+        const inFolder = currentFolder === 'all' || (a.dataset.tags || '').split('|').includes(currentFolder);
+        const hit = inFolder && (!q || a.textContent.toLowerCase().includes(q));
         a.parentElement.hidden = !hit;
         if (hit) kept += 1;
       });
@@ -105,11 +111,23 @@ export function initEscritos(ctx) {
     })
   );
 
+  const folders = el.querySelector('.notes-folders');
+  if (folders) {
+    folders.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.folder-item');
+      if (!btn) return;
+      folders.querySelectorAll('.folder-item').forEach((f) => f.removeAttribute('aria-current'));
+      btn.setAttribute('aria-current', 'true');
+      filter(fields[0] ? fields[0].value : '', btn.dataset.folder);
+    });
+  }
+
   ctx.escritos = {
     show,
     list,
     hasDetail: () => el.dataset.detail === '1',
     pane: () => el.querySelector('.app-main'),
     currentSlug: () => currentSlug,
+    toggleSidebar,
   };
 }

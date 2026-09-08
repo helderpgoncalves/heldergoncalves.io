@@ -21,6 +21,7 @@ desenhar para plataformas Apple.
 | ------------------------------------------------------------- | -------------------------------------- | ---------------- |
 | Finder, Notas, Mail, Terminal, Ações (Bolsa), Mensagens, Calendário, Contactos | `src/assets/icons/`  | ícones da Apple, extraídos com `iconutil` dos `.icns` das aplicações correspondentes, do macOS do próprio Hélder |
 | Simulador                                                    | `src/assets/icons/simulator.png`      | ícone da Apple, extraído do `.icns` do Simulator (dentro do Xcode) |
+| Currículo.pdf (documento genérico)                           | `src/assets/icons/document.png`       | ícone da Apple, extraído do `GenericDocumentIcon.icns` do sistema (o mesmo que a Apple usa para qualquer ficheiro sem ícone próprio) |
 | Safari                                                       | `src/assets/icons/safari.png`         | ícone da Apple, distribuído com o componente `mac-os-dock` de 21st.dev, usado ao abrigo da licença desse componente |
 | Definições do Sistema                                        | `src/assets/icons/settings.png`       | ícone da Apple, da Wikipédia (`System_Preferences_icon.png`) |
 | Contactos, Notas e Mail do iOS                               | `src/assets/icons/ios/`               | ícones da Apple, do Wikimedia Commons (`Contacts_iOS.svg`, `Apple_Notes_(iOS).png`, `Mail_(iOS).svg`) |
@@ -43,11 +44,15 @@ Calendário é desenhado por nós em tempo real (`state.js`), como a
 Apple faz no seu próprio sistema — o `.icns` só traz a grelha vazia.
 Os ficheiros de imagem são reduzidos no build a 256 px em WebP — o
 maior tamanho que estes `.icns` trazem no macOS actual, por isso não
-há perda. Os restantes ícones (Reciclagem, o disco e o documento do
-ambiente de trabalho) são desenhados aqui, a partir dos glifos do
-Lucide, na geometria dos ícones da Apple — o cesto de lixo real da Dock
-vive num asset catalog compilado (`Assets.car`) sem `.icns` extraível,
-por isso fica como excepção desenhada à mão.
+há perda. O Currículo.pdf usa o mesmo mecanismo do sistema real: o
+ícone genérico de documento (`GenericDocumentIcon.icns`, real) com um
+emblema "PDF" desenhado por cima, à semelhança do que o macOS faz para
+tipos de ficheiro reconhecidos. Os restantes ícones (Reciclagem e o
+disco do ambiente de trabalho) são desenhados aqui, a partir dos
+glifos do Lucide, na geometria dos ícones da Apple — o cesto de lixo
+real da Dock vive num asset catalog compilado (`Assets.car`) sem
+`.icns` extraível, e não há `.icns` de disco de arranque a esta
+resolução; ficam como excepções desenhadas à mão.
 
 ## Saudação do arranque
 

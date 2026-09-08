@@ -58,7 +58,7 @@ export interface AppMeta {
 
 export const APPS: AppMeta[] = [
   { id: 'sobre', win: { w: 720, h: 520, minW: 420, minH: 360 }, dock: true, iosDock: false },
-  { id: 'escritos', win: { w: 940, h: 620, minW: 560, minH: 380 }, dock: true, iosDock: true },
+  { id: 'escritos', win: { w: 940, h: 620, minW: 720, minH: 380 }, dock: true, iosDock: true },
   { id: 'mensagens', win: { w: 700, h: 560, minW: 420, minH: 380 }, dock: true, iosDock: true },
   { id: 'contacto', win: { w: 660, h: 540, minW: 420, minH: 380 }, dock: true, iosDock: true },
   { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false },

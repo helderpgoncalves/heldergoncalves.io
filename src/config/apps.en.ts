@@ -160,6 +160,8 @@ export const APPS_EN = {
     pick: 'Pick something from the list.',
     feed: 'Subscribe via RSS',
     all: 'All posts',
+    allFolders: 'All Notes',
+    folders: 'Folders',
     count: 'pieces',
     readingTime: 'min read',
     search: 'Search',

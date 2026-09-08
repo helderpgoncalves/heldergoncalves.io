@@ -20,6 +20,11 @@
 /* Escritos: lista e leitor lado a lado quando há espaço; empilhados
    quando não há, com o leitor a entrar por cima — em qualquer um dos
    dois mundos. */
+/* A coluna de pastas é a primeira a ceder espaço: some-se logo abaixo
+   de 820px, antes de a lista e o leitor empilharem a 640px. */
+@container app (max-width: 820px) {
+  .app-escritos .notes-folders { display: none; }
+}
 @container app (max-width: 640px) {
   .app-escritos { flex-direction: column; }
   .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
