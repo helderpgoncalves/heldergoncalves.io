@@ -38,7 +38,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY api/requirements.txt ./api/requirements.txt
 RUN pip install --no-cache-dir -r api/requirements.txt
 
-COPY api/app ./api/app
+COPY api/app ./app
 COPY --from=build /app/dist ./dist
 COPY knowledge ./knowledge
 
@@ -63,4 +63,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Um processo só: os limites por visitante e as caches vivem em
 # memória, e mais do que um worker deixava de os partilhar.
-CMD ["uvicorn", "api.app.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--no-access-log"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--no-access-log"]
