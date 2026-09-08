@@ -43,6 +43,7 @@ export const EN = {
     bolsa: { name: 'Stocks', subtitle: 'Live quotes', window: 'Stocks' },
     calendario: { name: 'Calendar', subtitle: 'Book a conversation with me', window: 'Calendar' },
     simulador: { name: 'Simulator', subtitle: 'An iPhone inside the site', window: 'Simulator — iPhone' },
+    pessoas: { name: 'People', subtitle: 'Who has signed in', window: 'People' },
   },
 
   bolsa: {
@@ -139,6 +140,23 @@ export const EN = {
     },
   },
 
+  pessoas: {
+    lead: 'Who has signed in, most recent first.',
+    onlyOwner: 'Only the owner sees this. Sign in as the owner to continue.',
+    signIn: 'Sign In',
+    empty: 'No one has signed in yet.',
+    email: 'Email',
+    via: 'Via',
+    viaGoogle: 'Google',
+    viaCodigo: 'Email code',
+    firstSeen: 'First seen',
+    lastSeen: 'Last seen',
+    visits: 'Visits',
+    errors: {
+      generic: 'That did not work. Try again.',
+    },
+  },
+
   sobre: {
     lead: 'Software engineer in Barcelos. I build products with language models inside them.',
     specs: 'Specifications',
@@ -206,6 +224,8 @@ export const EN = {
       short: 'Write a little more.',
       identity: 'You need a name and a valid email.',
       limit: 'Enough comments have gone out from here for now. Try later.',
+      signInFirst: 'Sign in to comment and react.',
+      signIn: 'Sign In',
     },
   },
 

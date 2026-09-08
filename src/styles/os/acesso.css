@@ -18,7 +18,7 @@
   }
   .glass::before { display: none; }
   .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
-  .notes-foot, .ios-view-head, .spotlight { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot, .ios-view-head, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .notes-foot, .ios-view-head { background: var(--surface-solid); }
 }
 
@@ -33,9 +33,9 @@
     --glass-tint: var(--surface-solid);
   }
   .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.94); }
-  .notes-foot, .ios-view-head, .spotlight { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot, .ios-view-head, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .notes-foot, .ios-view-head { background: var(--surface-solid); }
-  .spotlight { background: rgba(0, 0, 0, 0.5); }
+  .spotlight, .entrar { background: rgba(0, 0, 0, 0.5); }
 }
 
 /* REGRA: sem desfoque, sem vidro.
@@ -48,6 +48,6 @@
   .glass, .win, .dock { --glass-tint: var(--surface-solid); }
   .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.9); }
   .notes-foot, .ios-view-head { background: var(--surface-solid); }
-  .spotlight { background: rgba(0, 0, 0, 0.5); }
+  .spotlight, .entrar { background: rgba(0, 0, 0, 0.5); }
 }
 

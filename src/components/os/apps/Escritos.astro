@@ -164,14 +164,13 @@ for (const p of posts) {
             <ul class="comments-list" data-comments-list></ul>
             <p class="comments-empty" data-comments-empty hidden>{e.comments.empty}</p>
 
+            <div class="comments-signin" data-comments-signin hidden>
+              <p>{e.comments.signInFirst}</p>
+              <button type="button" class="btn" data-action="entrar">{e.comments.signIn}</button>
+            </div>
+
             <form class="comments-form" data-comments-form>
               <p class="comments-form-title">{e.comments.formTitle}</p>
-              <div class="comments-row" data-comments-identity>
-                <label class="sr" for="comment-name">{e.comments.name}</label>
-                <input id="comment-name" class="comments-input" type="text" name="name" maxlength="80" placeholder={e.comments.name} data-comments-name />
-                <label class="sr" for="comment-email">{e.comments.email}</label>
-                <input id="comment-email" class="comments-input" type="email" name="email" maxlength="160" placeholder={e.comments.email} data-comments-email />
-              </div>
               <label class="sr" for="comment-body">{e.comments.placeholder}</label>
               <textarea id="comment-body" class="comments-textarea" name="body" rows="3" maxlength="2000" placeholder={e.comments.placeholder} required data-comments-body></textarea>
               <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-comments-trap />

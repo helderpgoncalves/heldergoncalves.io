@@ -18,6 +18,7 @@ import Definicoes from './apps/Definicoes.astro';
 import Simulador from './apps/Simulador.astro';
 import Bolsa from './apps/Bolsa.astro';
 import Calendario from './apps/Calendario.astro';
+import Pessoas from './apps/Pessoas.astro';
 
 interface Props {
   lang: Lang;
@@ -39,7 +40,7 @@ const c = COPY[lang];
 const alt = other(lang);
 const dockApps = APPS.filter((a) => a.dock);
 const iosDock = APPS.filter((a) => a.iosDock);
-const iosGrid = APPS.filter((a) => !a.iosDock && !a.macOnly);
+const iosGrid = APPS.filter((a) => !a.iosDock && !a.macOnly && !a.hidden);
 
 // Tudo o que o JavaScript precisa de saber, já traduzido.
 const osData = {
@@ -73,6 +74,7 @@ const osData = {
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime },
     bolsa: c.bolsa,
     calendario: c.calendario,
+    pessoas: c.pessoas,
   },
   posts: posts.map((p) => ({
     slug: postSlug(p),
@@ -308,6 +310,47 @@ const osData = {
 
   <Widgets lang={lang} posts={posts} />
 
+  <!-- Entrar: um item do menu Apple (Mac) e do menu de sistema (iOS),
+       por isso vive fora dos dois, como o Spotlight. -->
+  <div class="entrar" id="entrar" hidden>
+    <div class="entrar-box glass" role="dialog" aria-label={c.os.entrar.title}>
+      <div class="entrar-avatars" data-entrar-avatars>
+        <button type="button" class="entrar-avatar-btn" data-entrar-guest>
+          <span class="entrar-avatar" aria-hidden="true"><Icon id="ui-lock" size={32} /></span>
+          <span class="entrar-name">{c.os.entrar.guest}</span>
+          <span class="entrar-hint">{c.os.entrar.guestHint}</span>
+        </button>
+        <button type="button" class="entrar-avatar-btn" data-entrar-signin>
+          <span class="entrar-avatar" aria-hidden="true"><Icon id="ui-mail" size={32} /></span>
+          <span class="entrar-name">{c.os.entrar.signIn}</span>
+          <span class="entrar-hint">{c.os.entrar.signInHint}</span>
+        </button>
+      </div>
+      <div class="entrar-signed" data-entrar-signed hidden>
+        <span class="entrar-avatar" aria-hidden="true"><Icon id="ui-mail" size={32} /></span>
+        <p class="entrar-name">{c.os.entrar.signedInAs}<br /><strong data-entrar-email-out></strong></p>
+        <button type="button" class="btn" data-entrar-signout>{c.calendario.signOut}</button>
+      </div>
+      <div class="entrar-form" data-entrar-form hidden>
+        <form data-entrar-email>
+          <label class="sr" for="entrar-email">{c.calendario.email}</label>
+          <input id="entrar-email" type="email" name="email" required autocomplete="email" placeholder={c.calendario.email} />
+          <button class="btn btn-primary" type="submit">{c.calendario.sendCode}</button>
+        </form>
+        <p class="entrar-or">{c.calendario.signInOr}</p>
+        <a class="btn" href="/api/auth/google/start">{c.calendario.signInGoogle}</a>
+        <form data-entrar-code hidden>
+          <p class="entrar-mail" data-entrar-pending></p>
+          <label class="sr" for="entrar-code">{c.calendario.code}</label>
+          <input id="entrar-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required />
+          <button class="btn btn-primary" type="submit">{c.calendario.verify}</button>
+        </form>
+        <p class="entrar-hint-text" data-entrar-hint></p>
+      </div>
+      <button type="button" class="entrar-close" data-entrar-close>{c.os.done}</button>
+    </div>
+  </div>
+
   <!-- A pesquisa serve os dois mundos: ⌘K no Mac, puxar o ecrã inicial
        para baixo no telefone. Por isso vive fora dos dois. -->
   <div class="spotlight" id="spotlight" hidden>
@@ -342,6 +385,7 @@ const osData = {
   <Simulador lang={lang} />
   <Bolsa lang={lang} />
   <Calendario lang={lang} />
+  <Pessoas lang={lang} />
 </div>
 
 <script type="application/json" id="os-data" is:inline set:html={JSON.stringify(osData).replace(/</g, "\\u003c")}></script>

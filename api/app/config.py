@@ -115,6 +115,16 @@ class Auth:
 AUTH = Auth()
 AUTH_READY = MAIL_READY
 
+# Quem já entrou — não é a sessão em si (essa é `Auth`, sem estado),
+# é o registo para o dono ver, na app Pessoas: email, por onde entrou,
+# primeira e última vez.
+@dataclass(frozen=True)
+class Users:
+    file: Path = field(default_factory=lambda: Path(_env("USERS_FILE", str(DATA_DIR / "pessoas.ndjson"))).resolve())
+
+
+USERS = Users()
+
 # O dono do Calendário: quem entra com este email vê a agenda cheia e
 # pode gerir a disponibilidade. Sem esta variável, ninguém tem esse
 # papel — o Calendário continua a funcionar só no modo de visitante.

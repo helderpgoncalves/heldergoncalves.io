@@ -58,6 +58,8 @@ export const OS_EN = {
       { label: 'About This Mac', action: 'open:sobre' },
       { label: 'System Settings…', action: 'open:definicoes' },
       { label: '—', action: '' },
+      { label: 'Sign In…', action: 'entrar' },
+      { label: '—', action: '' },
       { label: 'Write to Hélder…', action: 'mail' },
       { label: 'GitHub', action: 'link:github' },
       { label: '—', action: '' },
@@ -123,4 +125,13 @@ export const OS_EN = {
   },
   battery: 'Battery',
   wifi: 'Wi‑Fi',
+  entrar: {
+    title: 'Sign In',
+    guest: 'Guest',
+    guestHint: 'Browse everything, no sign-in',
+    signIn: 'Sign In',
+    signInHint: 'Commenting and booking meetings need a session',
+    signedInAs: 'Signed in as',
+    continue: 'Continue',
+  },
 };

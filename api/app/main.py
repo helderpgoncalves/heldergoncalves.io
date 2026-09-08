@@ -38,11 +38,12 @@ from app.chat_store import init_chat_store
 from app.comments_store import init_comments_store
 from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
-from app.routers import agenda, auth, bolsa, chat, comments, contact, health, inbox, mcp, oauth_google, reunioes, subscribe, token
+from app.routers import agenda, auth, bolsa, chat, comments, contact, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
 from app.security import SECURITY_HEADERS
 from app.sessions import init_sessions
 from app.static_files import cache_stats, handle_static, warm_cache
 from app.subscribers import init_subscribers
+from app.users_store import init_users_store
 
 # A limpeza periódica dos limites por visitante e dos códigos por
 # arranque. Cinco minutos chegam: nada aqui é urgente, e o que fica por
@@ -61,6 +62,7 @@ async def _sweeper() -> None:
 async def lifespan(app: FastAPI):
     await init_subscribers()
     await init_sessions()
+    await init_users_store()
     await init_meetings()
     await init_availability_store()
     await init_chat_store()
@@ -123,6 +125,7 @@ for router in (
     agenda.router,
     inbox.router,
     comments.router,
+    pessoas.router,
     mcp.router,
 ):
     app.include_router(router)

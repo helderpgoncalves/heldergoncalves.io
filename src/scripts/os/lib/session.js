@@ -64,3 +64,48 @@ export async function whoAmI() {
 export const forgetWho = () => {
   who = undefined;
 };
+
+// ── Entrar por código ──────────────────────────────────────────────
+// O Calendário e o ecrã de entrada do sistema pedem a mesma coisa: um
+// código de seis algarismos por email, e a troca desse código por uma
+// sessão. Uma função só, para não haver dois `fetch` a divergir.
+
+const post = (path, body) =>
+  fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+/**
+ * Pede um código de seis algarismos para este email.
+ * @returns {Promise<{ok: boolean, status: number, error?: string}>}
+ */
+export async function requestCode(email, lang) {
+  const token = await requestToken();
+  try {
+    const res = await post('/api/auth/start', { email, token, company: '', lang });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok && data.ok === true, status: res.status, error: data.error };
+  } catch (_) {
+    return { ok: false, status: 0 };
+  }
+}
+
+/**
+ * Troca o código pela sessão.
+ * @returns {Promise<{ok: boolean, status: number, email?: string, owner?: boolean}>}
+ */
+export async function verifyCode(email, code) {
+  try {
+    const res = await post('/api/auth/verify', { email, code });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      forgetWho(); // outras apps já não sabem quem estava antes
+      return { ok: true, status: res.status, email: data.email, owner: data.owner === true };
+    }
+    return { ok: false, status: res.status };
+  } catch (_) {
+    return { ok: false, status: 0 };
+  }
+}

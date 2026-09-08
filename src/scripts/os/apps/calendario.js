@@ -6,7 +6,7 @@
 // desenha está em calendario-vista.js; aqui decide-se o que se pede e
 // quando.
 // ─────────────────────────────────────────────────────────────────────
-import { forgetWho, requestToken } from '../lib/session.js';
+import { requestCode, verifyCode } from '../lib/session.js';
 import { createView } from './calendario-vista.js';
 
 const post = (path, body) =>
@@ -105,17 +105,13 @@ export function initCalendario(ctx) {
     state.busy = true;
     state.hint = t.sending;
     view.render();
-    const token = await requestToken();
-    try {
-      const res = await post('/api/auth/start', { email, token, company: '', lang: ctx.data.lang });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
-        state.step = 'code';
-        state.pendingEmail = email;
-        state.hint = t.codeHint;
-      } else state.hint = failure(res, data);
-    } catch (_) {
-      state.hint = t.errors.generic;
+    const res = await requestCode(email, ctx.data.lang);
+    if (res.ok) {
+      state.step = 'code';
+      state.pendingEmail = email;
+      state.hint = t.codeHint;
+    } else {
+      state.hint = res.status === 429 ? t.errors.limit : res.status === 503 ? t.errors.off : res.error === 'email' ? t.errors.email : t.errors.generic;
     }
     state.busy = false;
     view.render();
@@ -125,22 +121,16 @@ export function initCalendario(ctx) {
     state.busy = true;
     state.hint = t.sending;
     view.render();
-    try {
-      const res = await post('/api/auth/verify', { email: state.pendingEmail, code });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
-        state.email = data.email;
-        state.owner = data.owner === true;
-        state.step = 'email';
-        state.hint = '';
-        forgetWho(); // outras apps (comentários, contacto) já não sabem quem estava antes
-        ctx.notify(t.signedAs + ' ' + data.email);
-        await loadMonth();
-        return;
-      }
+    const res = await verifyCode(state.pendingEmail, code);
+    if (res.ok) {
+      state.email = res.email;
+      state.owner = res.owner;
+      state.step = 'email';
+      state.hint = '';
+      ctx.notify(t.signedAs + ' ' + res.email);
+      await loadMonth();
+    } else {
       state.hint = res.status === 429 ? t.errors.limit : t.errors.code;
-    } catch (_) {
-      state.hint = t.errors.generic;
     }
     state.busy = false;
     view.render();

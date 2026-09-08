@@ -22,6 +22,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 from app.config import GOOGLE, GOOGLE_READY, GOOGLE_REDIRECT_URI, LIMITS, SITE_ORIGIN
 from app.security import bump, check_token, ip_key, issue_token
 from app.sessions import session_cookie
+from app.users_store import record_visit
 
 router = APIRouter()
 
@@ -113,6 +114,7 @@ async def google_callback(request: Request) -> RedirectResponse:
         return _redirect_with_error("email")
 
     print("[sessoes] sessão iniciada (Google)")
+    await record_visit(email, "google")
     response = RedirectResponse(SITE_ORIGIN + "/?entrar=ok", status_code=302)
     response.headers["Set-Cookie"] = session_cookie(email)
     return response

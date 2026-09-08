@@ -45,6 +45,7 @@ export const PT = {
     bolsa: { name: 'Bolsa', subtitle: 'Cotações ao vivo', window: 'Bolsa' },
     calendario: { name: 'Calendário', subtitle: 'Marca uma conversa comigo', window: 'Calendário' },
     simulador: { name: 'Simulador', subtitle: 'Um iPhone dentro do site', window: 'Simulador — iPhone' },
+    pessoas: { name: 'Pessoas', subtitle: 'Quem já entrou', window: 'Pessoas' },
   },
 
   bolsa: {
@@ -141,6 +142,23 @@ export const PT = {
     },
   },
 
+  pessoas: {
+    lead: 'Quem já entrou no site, mais recente primeiro.',
+    onlyOwner: 'Só o dono vê isto. Inicia sessão como o dono para continuar.',
+    signIn: 'Entrar',
+    empty: 'Ainda ninguém entrou.',
+    email: 'Email',
+    via: 'Por onde',
+    viaGoogle: 'Google',
+    viaCodigo: 'Código por email',
+    firstSeen: 'Primeira vez',
+    lastSeen: 'Última vez',
+    visits: 'Visitas',
+    errors: {
+      generic: 'Não deu. Tenta outra vez.',
+    },
+  },
+
   sobre: {
     lead: 'Engenheiro de software em Barcelos. Construo produtos com modelos de linguagem lá dentro.',
     specs: 'Especificações',
@@ -208,6 +226,8 @@ export const PT = {
       short: 'Escreve mais um pouco.',
       identity: 'Precisas de um nome e de um email válido.',
       limit: 'Já foram publicados comentários que cheguem daqui. Tenta mais tarde.',
+      signInFirst: 'Só quem tem sessão comenta e reage.',
+      signIn: 'Entrar',
     },
   },
 

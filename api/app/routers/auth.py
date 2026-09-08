@@ -19,6 +19,7 @@ from app.http import read_json
 from app.mail import send_mail
 from app.security import bump, check_token, ip_key, wrong_origin
 from app.sessions import clear_cookie, is_owner, issue_code, read_session, session_cookie, verify_code
+from app.users_store import record_visit
 from app.validation import EMAIL_RE, clean, one_line
 
 router = APIRouter()
@@ -85,6 +86,7 @@ async def auth_verify(request: Request) -> JSONResponse:
     if not verify_code(email, code):
         return JSONResponse({"ok": False, "error": "codigo"}, status_code=400)
     print("[sessoes] sessão iniciada")
+    await record_visit(email, "codigo")
     response = JSONResponse({"ok": True, "email": email, "owner": is_owner(email)})
     response.headers["Set-Cookie"] = session_cookie(email)
     return response

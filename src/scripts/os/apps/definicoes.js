@@ -32,6 +32,8 @@ export function initSettings(ctx) {
       resetPrefs();
       location.reload();
     }
+    const action = ev.target.closest('[data-action]');
+    if (action) ctx.run(action.dataset.action);
   });
 
   ctx.syncSettings = () => {

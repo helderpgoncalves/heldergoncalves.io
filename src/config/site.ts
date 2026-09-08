@@ -29,7 +29,8 @@ export type AppId =
   | 'definicoes'
   | 'simulador'
   | 'bolsa'
-  | 'calendario';
+  | 'calendario'
+  | 'pessoas';
 
 /**
  * Estrutura de cada aplicação: onde vive, que tamanho tem a janela no
@@ -48,6 +49,10 @@ export interface AppMeta {
   bare?: boolean;
   /** Só no Mac: no telefone não aparece nem se abre (o Simulador, que é um iPhone). */
   macOnly?: boolean;
+  /** Fora da Dock e da grelha dos dois mundos — só pela pesquisa (⌘K).
+   * Para apps só do dono (a Pessoas), que não fazem sentido no ecrã
+   * inicial de quem visita. */
+  hidden?: boolean;
   /** Abre no arranque do Mac. */
 }
 
@@ -62,6 +67,9 @@ export const APPS: AppMeta[] = [
   { id: 'simulador', win: { w: 420, h: 780, minW: 340, minH: 620 }, dock: true, iosDock: false, bare: true, macOnly: true },
   { id: 'bolsa', win: { w: 900, h: 600, minW: 520, minH: 400 }, dock: true, iosDock: false, bare: true },
   { id: 'calendario', win: { w: 960, h: 640, minW: 560, minH: 420 }, dock: true, iosDock: false, bare: true },
+  // Só o dono a usa — fora da Dock e da grelha do telefone, alcançável
+  // pela pesquisa (⌘K no Mac, puxar o ecrã inicial no telefone).
+  { id: 'pessoas', win: { w: 720, h: 540, minW: 480, minH: 380 }, dock: false, iosDock: false, hidden: true },
 ];
 
 export const appMeta = (id: AppId): AppMeta => APPS.find((a) => a.id === id) as AppMeta;

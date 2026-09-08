@@ -20,12 +20,13 @@ import { initSettings } from './definicoes.js';
 import { initSimulator } from './simulador.js';
 import { initBolsa } from './bolsa.js';
 import { initCalendario } from './calendario.js';
+import { initPessoas } from './pessoas.js';
 
 // `initComentarios` depois de `initEscritos`, de propósito: precisa do
 // `[data-comments]` que já vem servido no arranque, e lê-o assim que
 // arranca — mas nunca precisa de nada que só `initEscritos` ponha no
 // objecto partilhado, por isso a ordem não é uma dependência a sério.
-const APPS = [initEscritos, initComentarios, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator, initBolsa, initCalendario];
+const APPS = [initEscritos, initComentarios, initSubscribe, initTerminal, initChat, initCompose, initSettings, initSimulator, initBolsa, initCalendario, initPessoas];
 
 export function initApps(ctx) {
   for (const init of APPS) init(ctx);

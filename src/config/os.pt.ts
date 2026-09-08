@@ -58,6 +58,8 @@ export const OS_PT = {
       { label: 'Sobre este Mac', action: 'open:sobre' },
       { label: 'Definições do Sistema…', action: 'open:definicoes' },
       { label: '—', action: '' },
+      { label: 'Entrar…', action: 'entrar' },
+      { label: '—', action: '' },
       { label: 'Escrever ao Hélder…', action: 'mail' },
       { label: 'GitHub', action: 'link:github' },
       { label: '—', action: '' },
@@ -123,4 +125,13 @@ export const OS_PT = {
   },
   battery: 'Bateria',
   wifi: 'Wi‑Fi',
+  entrar: {
+    title: 'Entrar',
+    guest: 'Visitante',
+    guestHint: 'Ver tudo, sem sessão',
+    signIn: 'Entrar',
+    signInHint: 'Comentar e marcar reuniões pede sessão',
+    signedInAs: 'Sessão iniciada como',
+    continue: 'Continuar',
+  },
 };

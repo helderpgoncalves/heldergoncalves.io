@@ -150,6 +150,9 @@
 .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea { --r: 8px; }
 .cal-form { --r: 16px; }
 .bubble { --r: 18px; }
+.ppl-row { --r: 10px; }
+.entrar-box { --r: 16px; }
+.entrar-form input { --r: 10px; }
 
 /* Conteúdo */
 .rows, .post-group > ul { --r: 12px; }
@@ -185,8 +188,9 @@
 .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
   .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
 .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
-.rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
+.rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note, .ppl-row,
 .prose pre, .prose img, .prose code,
+.entrar-box, .entrar-form input,
 .sim-device, .sim-screen { border-radius: var(--r); }
 
 @supports (corner-shape: squircle) {
@@ -197,8 +201,9 @@
   .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
   .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
   .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
-  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
+  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note, .ppl-row,
   .prose pre, .prose img, .prose code,
+  .entrar-box, .entrar-form input,
   .sim-device, .sim-screen {
     corner-shape: squircle;
     border-radius: calc(var(--r) * 1.6);
@@ -217,8 +222,9 @@
   .switcher-card, .bubble, .wgal-sheet, .wgal-item, .stk-add, .stk-row, .stk-pill, .stk-stats div,
   .stk-suggest, .stk-suggest-item, .stk-news-thumb, .stk-hold-edit input,
   .cal-arrow, .cal-today, .cal-ev, .cal-free, .cal-slot, .cal-list.mine li, .cal-login input, .cal-form input, .cal-form textarea, .cal-form,
-  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note,
+  .rows, .post-group > ul, .card, .post-link, .wall-pick, .legal-note, .ppl-row,
   .prose pre, .prose img, .prose code,
+  .entrar-box, .entrar-form input,
   .sim-device, .sim-screen { corner-shape: superellipse(1.777); }
 }
 

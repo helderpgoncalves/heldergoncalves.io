@@ -17,6 +17,7 @@ import { createMac } from './mac/index.js';
 import { createPhone } from './ios/index.js';
 import { initApps } from './apps/index.js';
 import { createWidgets } from './widgets.js';
+import { createEntrar } from './lib/entrar.js';
 
 const node = document.getElementById('os-data');
 if (node) boot(JSON.parse(node.textContent));
@@ -55,6 +56,11 @@ function boot(data) {
   ctx.phone = phone;
   ctx.notify = (text) => phone.notify(text);
   ctx.widgets = createWidgets(ctx);
+  ctx.entrar = createEntrar(ctx);
+  ctx.onSessionChange = () => {
+    if (ctx.pessoas && ctx.pessoas.refresh) ctx.pessoas.refresh();
+    if (ctx.comentarios && ctx.comentarios.refresh) ctx.comentarios.refresh();
+  };
 
   // ── Abrir e fechar ────────────────────────────────────────────
   function openApp(id, from) {
@@ -73,6 +79,7 @@ function boot(data) {
     if (id === 'escritos' && ctx.prepareSubscribe) ctx.prepareSubscribe();
     if (id === 'bolsa' && ctx.prepareStocks) ctx.prepareStocks();
     if (id === 'calendario' && ctx.prepareCalendar) ctx.prepareCalendar();
+    if (id === 'pessoas' && ctx.preparePessoas) ctx.preparePessoas();
   }
 
   function closeApp(id) {
@@ -123,6 +130,8 @@ function boot(data) {
       case 'mail':
         location.href = 'mailto:' + data.site.email;
         return;
+      case 'entrar':
+        return ctx.entrar.open();
       case 'theme':
         setPref('theme', effectiveTheme() === 'dark' ? 'light' : 'dark');
         return ctx.syncSettings();

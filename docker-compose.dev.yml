@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────
+# heldergoncalves.io — variante local de desenvolvimento do
+# docker-compose.yml, para correr ao lado de outros projectos sem
+# disputar a porta 3000 (já ocupada nesta máquina).
+#
+# Uso:
+#   cp .env.example .env   # preenche o que precisares — tudo é opcional
+#   docker compose -f docker-compose.dev.yml up --build
+#
+# Fica em http://localhost:3900. O nome do projecto Compose
+# ("heldergoncalvesio-dev") isola a rede e os volumes dos de produção.
+# ─────────────────────────────────────────────────────────────────────
+name: heldergoncalvesio-dev
+
+services:
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3900:3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      STATIC_DIR: /app/dist
+      DATA_DIR: /app/data
+      KNOWLEDGE_DIR: /app/knowledge
+    volumes:
+      - site-data-dev:/app/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    restart: unless-stopped
+    mem_limit: 256m
+
+volumes:
+  site-data-dev:

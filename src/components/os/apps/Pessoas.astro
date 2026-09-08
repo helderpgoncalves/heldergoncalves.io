@@ -1,0 +1,22 @@
+---
+// Pessoas — só o dono. Sem JavaScript, ou sem ser o dono, fica só o
+// aviso; com JavaScript e sessão de dono, a lista de quem já entrou.
+import { COPY, type Lang } from '../../../siteConfig';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const k = c.pessoas;
+---
+<section class="app-shell app-pessoas" data-content="pessoas" aria-label={c.apps.pessoas.name}>
+  <div class="app-scroll">
+    <div class="app-pad">
+      <p class="ppl-lead" data-ppl-lead>{k.lead}</p>
+      <p class="ppl-only" data-ppl-only hidden>
+        {k.onlyOwner}
+        <button type="button" class="btn" data-action="entrar">{k.signIn}</button>
+      </p>
+      <ul class="ppl-list" data-ppl-list hidden></ul>
+      <p class="ppl-empty" data-ppl-empty hidden>{k.empty}</p>
+    </div>
+  </div>
+</section>

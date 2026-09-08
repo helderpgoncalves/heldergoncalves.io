@@ -6,9 +6,9 @@
 #   POST /api/comentarios/reagir            ligar ou desligar uma reação
 #   POST /api/comentarios/remover           remove um comentário — só o dono
 #
-# Com sessão, o nome e o email vêm dela — sem inventar dados. Sem
-# sessão, tal como o formulário de contacto: nome e email a pedir, os
-# mesmos portões (origem, token, armadilha, limites).
+# Comentar e reagir pedem sessão — só navegar e ler não. O nome e o
+# email vêm sempre da sessão, nunca de um formulário: sem inventar
+# dados, e sem um visitante poder assinar como quem quiser.
 # ─────────────────────────────────────────────────────────────────────
 import re
 
@@ -22,7 +22,7 @@ from app.owner_guard import require_owner
 from app.reactions_store import KINDS, counts_for, mine_for, toggle
 from app.security import bump, check_token, ip_key, wrong_origin
 from app.sessions import read_session
-from app.validation import EMAIL_RE, clean, one_line
+from app.validation import clean, one_line
 
 router = APIRouter()
 
@@ -54,6 +54,10 @@ async def listar(request: Request) -> JSONResponse:
 
 @router.post("/api/comentarios")
 async def comentar(request: Request) -> JSONResponse:
+    session_email = read_session(request.headers.get("cookie", ""))
+    if not session_email:
+        return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:
         return JSONResponse({"ok": False, "error": bad}, status_code=403 if bad == "origem" else 415)
@@ -82,23 +86,18 @@ async def comentar(request: Request) -> JSONResponse:
     if not post or len(body) < 3:
         return JSONResponse({"ok": False, "error": "dados"}, status_code=400)
 
-    session_email = read_session(request.headers.get("cookie", ""))
-    if session_email:
-        name = one_line(payload.get("name"), COMMENTS.name_max) or session_email.split("@")[0]
-        email = session_email
-    else:
-        name = one_line(payload.get("name"), COMMENTS.name_max)
-        email = one_line(payload.get("email"), LIMITS.email)
-        if not name or not EMAIL_RE.match(email):
-            return JSONResponse({"ok": False, "error": "identidade"}, status_code=400)
-
-    row = await add_comment(post, lang, name, email, body)
+    name = one_line(payload.get("name"), COMMENTS.name_max) or session_email.split("@")[0]
+    row = await add_comment(post, lang, name, session_email, body)
     print("[comentarios] comentário novo")
     return JSONResponse({"ok": True, "comment": {"id": row["id"], "name": row["name"], "body": row["body"], "at": row["at"]}})
 
 
 @router.post("/api/comentarios/reagir")
 async def reagir(request: Request) -> JSONResponse:
+    email = read_session(request.headers.get("cookie", ""))
+    if not email:
+        return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:
         return JSONResponse({"ok": False, "error": bad}, status_code=403 if bad == "origem" else 415)
@@ -116,9 +115,7 @@ async def reagir(request: Request) -> JSONResponse:
     if not post or kind not in KINDS:
         return JSONResponse({"ok": False, "error": "dados"}, status_code=400)
 
-    email = read_session(request.headers.get("cookie", ""))
-    fingerprint = email or key
-    active = await toggle(post, kind, fingerprint)
+    active = await toggle(post, kind, email)
     return JSONResponse({"ok": True, "active": active, "reactions": counts_for(post)})
 
 

@@ -51,13 +51,15 @@ export function initComentarios(ctx) {
     });
   }
 
-  /** Prepara o formulário para quem tem sessão: o email já não se pede. */
+  /** Comentar e reagir pedem sessão — sem ela, mostra-se o convite a
+   * entrar em vez do formulário, e os botões de reação abrem o mesmo
+   * ecrã em vez de tentar o pedido. */
   async function prepareForm(sec) {
     const form = sec.querySelector('[data-comments-form]');
-    if (!form) return;
-    const identity = form.querySelector('[data-comments-identity]');
+    const signin = sec.querySelector('[data-comments-signin]');
     const email = await whoAmI();
-    if (identity) identity.hidden = Boolean(email);
+    if (form) form.hidden = !email;
+    if (signin) signin.hidden = Boolean(email);
   }
 
   async function load(slug) {
@@ -79,16 +81,29 @@ export function initComentarios(ctx) {
     currentSlug = slug;
     load(slug);
   }
-  ctx.comentarios = { onShow };
+  ctx.comentarios = {
+    onShow,
+    refresh: () => currentSlug && prepareForm(section()),
+  };
 
   // O escrito já podia vir servido no arranque — carrega os comentários
   // dele sem esperar por nenhuma navegação.
   const seeded = section();
   if (seeded) onShow(seeded.dataset.comments);
 
-  el.addEventListener('click', (ev) => {
+  el.addEventListener('click', async (ev) => {
+    const signIn = ev.target.closest('[data-action="entrar"]');
+    if (signIn) {
+      ctx.run('entrar');
+      return;
+    }
+
     const btn = ev.target.closest('[data-reaction]');
     if (!btn || !currentSlug) return;
+    if (!(await whoAmI())) {
+      ctx.run('entrar');
+      return;
+    }
     const kind = btn.dataset.reaction;
     post('/api/comentarios/reagir', { post: currentSlug, kind })
       .then((res) => res.json())
