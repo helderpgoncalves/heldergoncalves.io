@@ -37,7 +37,7 @@ def _redirect_with_error(reason: str) -> RedirectResponse:
     return RedirectResponse(SITE_ORIGIN + "/?" + query, status_code=302)
 
 
-@router.get("/api/auth/google/start")
+@router.get("/api/auth/google/start", response_model=None)
 async def google_start(request: Request) -> RedirectResponse | JSONResponse:
     if not GOOGLE_READY:
         return JSONResponse({"ok": False, "error": "indisponivel"}, status_code=503)
