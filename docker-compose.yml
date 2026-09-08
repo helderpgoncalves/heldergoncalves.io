@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────────────
+# heldergoncalves.io — um serviço só: o Astro é servido pela mesma API
+# em FastAPI que trata do contacto, da newsletter, das Mensagens, do
+# MCP, da Bolsa e do Calendário (ver Dockerfile e api/app/main.py).
+#
+# Uso local:
+#   cp .env.example .env   # preenche o que precisares — tudo é opcional
+#   docker compose up --build
+#
+# Em produção (Coolify), este ficheiro é o que o recurso "docker
+# compose" lê; o domínio público vem de `docker_compose_domains` — ver
+# DEPLOY.md — e as variáveis de ambiente vão no recurso, nunca aqui.
+# ─────────────────────────────────────────────────────────────────────
+services:
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    # Segredos e chaves vêm de um ficheiro fora do repositório — nunca
+    # entram na imagem nem neste ficheiro. Ver .env.example.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      STATIC_DIR: /app/dist
+      DATA_DIR: /app/data
+      KNOWLEDGE_DIR: /app/knowledge
+    volumes:
+      # A lista da newsletter, as reuniões marcadas e os segredos que
+      # assinam ligações e sessões. Sem isto, tudo desaparece no
+      # próximo `docker compose up`.
+      - site-data:/app/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    restart: unless-stopped
+    # 128 MB chegam com folga: a API segura alguns megabytes de
+    # ficheiros em cache e mais nada. Sem tecto, um pico de tráfego
+    # rouba memória aos serviços vizinhos — ver ~/CLAUDE.md.
+    mem_limit: 256m
+
+volumes:
+  site-data:

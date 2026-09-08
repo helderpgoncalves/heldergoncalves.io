@@ -19,3 +19,12 @@ CLAUDE.local.md
 .github
 data
 __pycache__
+*.pyc
+.pytest_cache
+.venv
+api/tests
+api/requirements-dev.txt
+api/pytest.ini
+docker-compose.yml
+docker-compose.override.yml
+.env.compose

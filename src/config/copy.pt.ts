@@ -127,7 +127,7 @@ export const PT = {
     cancelled: 'Reunião desmarcada.',
     booked: 'Marcado. Enviei-te a confirmação por email.',
     sending: 'A enviar…',
-    tz: 'Horas em Lisboa',
+    tz: 'Horário local',
     minutes: 'min',
     errors: {
       email: 'Esse email não parece certo.',
@@ -189,6 +189,24 @@ export const PT = {
     subscribeBad: 'Esse email não parece estar certo.',
     subscribeFail: 'Não deu. Tenta outra vez daqui a bocado.',
     subscribeOff: 'A subscrição está desligada de momento.',
+    comments: {
+      heading: 'Comentários',
+      reactGosto: 'Gosto',
+      reactAdorei: 'Adorei',
+      reactIdeia: 'Deu-me uma ideia',
+      formTitle: 'Deixa um comentário',
+      name: 'O teu nome',
+      email: 'O teu email',
+      placeholder: 'O que achaste?',
+      submit: 'Comentar',
+      sending: 'A enviar…',
+      sent: 'Comentário publicado.',
+      empty: 'Ainda ninguém comentou. Sê o primeiro.',
+      fail: 'Não deu. Tenta outra vez daqui a bocado.',
+      short: 'Escreve mais um pouco.',
+      identity: 'Precisas de um nome e de um email válido.',
+      limit: 'Já foram publicados comentários que cheguem daqui. Tenta mais tarde.',
+    },
   },
 
   contacto: {

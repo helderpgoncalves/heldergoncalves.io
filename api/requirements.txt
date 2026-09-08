@@ -1,5 +1,10 @@
-# A API da Bolsa. Versões fixas: o yfinance muda de forma com frequência,
-# e um build reprodutível vale mais do que a última.
+# A API de heldergoncalves.io. Versões fixas: um build reprodutível vale
+# mais do que a última — o yfinance em particular muda de forma com
+# frequência.
 fastapi==0.141.1
-uvicorn==0.52.4
+uvicorn[standard]==0.52.4
+httpx==0.28.1
 yfinance==1.7.0
+# `zoneinfo` (biblioteca padrão) precisa da base de fusos horários; nem
+# toda a imagem base a traz instalada ao sistema.
+tzdata==2025.2

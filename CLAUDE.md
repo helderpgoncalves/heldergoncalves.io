@@ -1,7 +1,8 @@
 # heldergoncalves.io
 
 Um site pessoal que é um sistema operativo: macOS no computador, iOS no
-telemóvel. Astro gera HTML estático; o resto é JavaScript escrito à mão.
+telemóvel. Astro gera HTML estático; a interface é JavaScript escrito à mão;
+a API é FastAPI (Python) — um processo só, em `api/app/`.
 
 <!--
   Este ficheiro é o que tem de estar em contexto em TODAS as sessões.
@@ -26,13 +27,16 @@ pode correr aqui. Em caso de conflito, ganha esse.
 
 Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
 
-1. **Zero dependências em produção.** `server/` importa só módulos
-   internos do Node, e nada mais. Antes de acrescentar um `import`
-   externo ao servidor: não. Escreve-se.
+1. **Dependências mínimas e todas justificadas.** `api/app/` só traz
+   `fastapi`, `uvicorn`, `httpx`, `yfinance` e `tzdata` — cada uma por
+   uma razão que se explica numa frase. O que se resolve com a
+   biblioteca padrão do Python (segurança, datas) resolve-se com ela.
+   Antes de acrescentar uma dependência nova: seria mesmo mais barato
+   escrevê-lo?
 2. **O site funciona sem JavaScript.** Todo o texto é HTML normal por
    baixo. O JS transforma o documento em sistema; não o cria.
 3. **Nenhuma chave chega ao browser.** Segredos vivem em variáveis de
-   ambiente, lidas só em `server/config.mjs`.
+   ambiente, lidas só em `api/app/config.py`.
 4. **As duas línguas andam a par.** `src/config/copy.pt.ts` e
    `copy.en.ts` têm exactamente as mesmas chaves. O TypeScript obriga.
 5. **A geometria da Apple não se negoceia.** Cantos, escala de tipos e
@@ -51,15 +55,17 @@ Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
 
 | | |
 | --- | --- |
-| `npm run dev` | servidor de desenvolvimento (4321) |
+| `npm run dev` | servidor de desenvolvimento do frontend (4321) |
 | `npm run build` | gera `dist/` |
-| `npm start` | serve `dist/` com o servidor a sério (3000) |
+| `docker compose up --build` | o site a sério: `dist/` servido pela API, na 3000 |
+| `cd api && pytest` | a suite de testes da API — **não corre nesta máquina**, ver `~/CLAUDE.md` |
 | `/verificar` | as verificações estáticas deste repo — **usa isto** |
 
-Não há suite de testes. `/verificar` é o que faz as vezes dela: confere
-tamanhos de ficheiro, se os imports batem certo com os exports, se o CSS
-está equilibrado, se as duas línguas têm as mesmas chaves, e se não
-entrou nenhum segredo. Custa uma execução curta de Python.
+`/verificar` corre em menos de um segundo, sem instalar nada: confere
+tamanhos de ficheiro, se os imports batem certo com os exports (incluindo
+os da API, em Python, via `ast`), se o CSS está equilibrado, se as duas
+línguas têm as mesmas chaves, e se não entrou nenhum segredo. É o que se
+corre nesta máquina; os testes a sério (`pytest`) correm no CI.
 
 ## Onde se acrescenta uma coisa
 
@@ -68,7 +74,7 @@ Está tudo feito para que a resposta seja aborrecida.
 | Quero… | Uso |
 | --- | --- |
 | uma aplicação nova | `/nova-app` |
-| um endpoint novo no servidor | `/nova-rota` |
+| um endpoint novo na API | `/nova-rota` |
 | um escrito novo no blog | `/novo-escrito` |
 | ensinar uma coisa ao assistente | criar um `.md` em `knowledge/` — não há código a mexer |
 | mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` (os do sistema em `os.pt.ts` e `os.en.ts`) |
@@ -107,3 +113,12 @@ Está tudo feito para que a resposta seja aborrecida.
 - **`prefers-reduced-motion` e `prefers-reduced-transparency` são para
   respeitar**, não para ignorar. Já estão ligados; não os desfaças ao
   acrescentar animações.
+- **Uma chamada bloqueante na API trava a API inteira**, não só quem a
+  pediu — só há um processo `uvicorn` (`--workers 1`, de propósito: os
+  limites por visitante vivem em memória). O `yfinance` é bloqueante;
+  por isso `api/app/bolsa/client.py` só se chama de dentro de
+  `asyncio.to_thread(...)`.
+- **`Limits`, em `api/app/config.py`, não é `frozen` como os outros
+  blocos de configuração** — de propósito, para os testes lhe mexerem
+  (`token_min_age`, sobretudo) sem esperar pelo relógio a sério. Não é
+  para se lhe mexer fora dos testes.

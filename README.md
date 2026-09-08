@@ -11,10 +11,10 @@ Centre whose sliders actually change something. It boots with the same
 
 **[heldergoncalves.io →](https://heldergoncalves.io)**
 
-Astro renders static HTML. Everything else is hand-written JavaScript:
-**no frameworks, no animation libraries, no tracking** — and in production,
-**no third-party dependencies running at all**. The server is Node and
-nothing else.
+Astro renders static HTML. The frontend is hand-written JavaScript: **no
+frameworks, no animation libraries, no tracking**. The API is a small
+FastAPI service — one process, minimal and justified dependencies, nothing
+speculative.
 
 ---
 
@@ -25,7 +25,7 @@ nothing else.
 | **macOS** | The full menu bar — Apple, File, Edit, View, Window, Help, Wi‑Fi, battery, Control Centre — with real dropdowns and every shortcut they promise; a Dock with the real magnification maths (cosine window, the row re-laid with the new sizes, the Dock widening to fit) and right-click menus; windows that cascade, drag, resize, snap to edges, minimise into their Dock icon and stack by z-order; desktop icons you select with one click and open with two; desktop widgets; ⌘K search; ⌘Tab |
 | **iOS** | Lock screen you swipe away, home screen with pages you flick between, widgets you edit by touching and holding (the icons jiggle), pull down to search, apps that open out of their own icon, the home-bar gesture with all three of its destinations, Control Centre, Notification Centre with notifications you swipe away, tap the status bar to scroll to top, app switcher with cards you flick away, edge-swipe back — every settle is a spring that starts with the finger's velocity |
 | **Apps** | Profile, Blog (shaped like Notes, with search and month groups), Messages, Mail, Projects, Terminal, Settings, **Stocks** with live quotes, **Calendar** where you sign in with an emailed code and book a conversation in a free slot — and a Simulator that runs this same site inside an iPhone, inside itself, two levels deep before it says enough |
-| **Server** | Static files with Brotli, a contact form, double opt-in newsletter, passwordless sign-in (a six-digit code by email), availability and bookings, a quotes proxy with a one-minute cache, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
+| **API** | Static files with Brotli, a contact form, double opt-in newsletter, passwordless sign-in (a six-digit code by email), availability and bookings, live quotes via `yfinance` with a one-minute cache, an AI assistant with tools, and an MCP endpoint so other agents can query the site without parsing HTML |
 
 It works without JavaScript. Every word on the screen is ordinary HTML
 underneath — search engines and screen readers get the document, the
@@ -78,20 +78,23 @@ rather than frames, so it is the same on a 60 Hz and a 120 Hz screen.
 
 → [`src/scripts/os/mac/dock.js`](src/scripts/os/mac/dock.js)
 
-### A server with no dependencies
+### An API with nothing speculative in it
 
-`server/` imports nothing but Node built-ins, and it never compresses
-anything: the build writes a Brotli and a gzip copy next to every file, at
-maximum quality, so serving a page is reading bytes and sending them. Files
-are hashed and cached in memory on first read, and the cache is warmed at
-boot so the first visitor after a deploy waits for nothing.
+`api/app/` never compresses anything at request time: the Astro build writes
+a Brotli and a gzip copy next to every file, at maximum quality, so serving a
+page is reading bytes and sending them. Files are hashed and cached in memory
+on first read, and the cache is warmed at boot so the first visitor after a
+deploy waits for nothing.
 
 Rate limits are sliding windows. Form tokens are HMACs that prove the form was
 opened on this server, by this visitor, and how long ago — a bot posting
 directly has none of the three. Visitor IPs are never stored in the clear,
-only as an in-memory fingerprint that dies with the process.
+only as an in-memory fingerprint that dies with the process. All of it is
+built on the Python standard library (`hmac`, `hashlib`, `secrets`,
+`zoneinfo`) — FastAPI, `uvicorn`, `httpx` and `yfinance` are the only
+third-party dependencies, and each earns its place.
 
-→ [`server/`](server/)
+→ [`api/app/`](api/app/)
 
 ---
 
@@ -124,17 +127,20 @@ src/
   styles/
     os.css              the index — nothing but the order things load in
     os/*.css            tokens · mac · ios · apps · notes · widgets · stocks · calendar · glass · apple · access
-server/
-  index.mjs           the route table, and nothing else
-  routes/             one file per endpoint: contact · subscribe · chat · mcp · stocks · auth · meetings
-  agent/              the assistant's prompt and its tools
-  *.mjs               config · http · security · static · mail · knowledge · subscribers · sessions · availability · meetings
+api/
+  app/
+    main.py           the FastAPI app: includes the routers, nothing else
+    routers/          one file per endpoint family: contact · subscribe · chat · mcp · bolsa · auth · reunioes
+    agent/            the assistant's prompt and its tools
+    bolsa/            the Yahoo Finance client (`yfinance`) and its cache
+    *.py              config · http · validation · security · static_files · mail · knowledge · subscribers · sessions · meetings · availability · copy
+  tests/              pytest — unit tests for the pure logic, integration tests against the app
 knowledge/*.md        what the assistant knows — edit a file, deploy, done
 ```
 
 **Adding things is meant to be boring.** A new app is a file in
 `scripts/os/apps/` and a line in its index. A new endpoint is a file in
-`server/routes/` and a line in the route table. A new thing the assistant
+`api/app/routers/` included from `main.py`. A new thing the assistant
 knows is a new Markdown file in `knowledge/` — no code at all.
 
 No file in this repository is over 400 lines.
@@ -145,17 +151,26 @@ No file in this repository is over 400 lines.
 
 ```bash
 npm install
-npm run dev          # http://localhost:4321
+npm run dev          # http://localhost:4321 — the frontend alone
 ```
 
-For the real thing — static build plus the Node server that fronts it:
+For the real thing — static build plus the FastAPI service that fronts it —
+see `docker-compose.yml`:
 
 ```bash
-npm run build
-npm start            # http://localhost:3000
+cp .env.example .env    # optional: fill in only what you need
+docker compose up --build   # http://localhost:3000
 ```
 
-Deployment is a single `Dockerfile` (Astro in stage one, the server in stage
+The API's own tests run separately, with Python installed:
+
+```bash
+cd api
+pip install -r requirements-dev.txt
+pytest
+```
+
+Deployment is a single `Dockerfile` (Astro in stage one, the API in stage
 two) built for Coolify. Everything the container needs is in
 [`DEPLOY.md`](DEPLOY.md), including the one volume it wants: `/app/data`, where
 the newsletter list, the bookings and the session secret live.
@@ -190,7 +205,7 @@ Bookings are the same append-only NDJSON as the newsletter.
 
 ## The Stocks
 
-Quotes come from Yahoo Finance through the server, never from the browser
+Quotes come from Yahoo Finance through the API, never from the browser
 (the content-security policy would not allow it, and should not). Each answer
 is cached for a minute, so a hundred people watching the same ticker are one
 request out, not a hundred. The watchlist is yours and stays on your device.

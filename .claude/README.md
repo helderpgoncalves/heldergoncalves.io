@@ -12,7 +12,7 @@ CLAUDE.md               sempre em contexto        ~130 linhas
 .claude/
   rules/                quando se toca nos ficheiros que o `paths:` nomeia
     apple.md              src/styles/**, src/components/os/**
-    server.md             server/**
+    api.md                api/app/**, api/tests/**
     cliente.md            src/scripts/**
     texto.md              copy.*.ts, os.*.ts, content/blog/**, knowledge/**
   skills/               quando se invocam com /

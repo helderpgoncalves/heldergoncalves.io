@@ -1,65 +1,66 @@
 # ─────────────────────────────────────────────────────────────
-# heldergoncalves.io — Astro no stage 1, servido no stage 2 por um
-# servidor Node escrito à mão (server/index.mjs): ficheiros estáticos,
-# cabeçalhos de segurança e o endpoint de contacto, sem dependências.
-# Pronto para Coolify (build pack: Dockerfile — deteta o EXPOSE 3000).
+# heldergoncalves.io — Astro no stage 1, a API em FastAPI (api/) no
+# stage 2: ficheiros estáticos, cabeçalhos de segurança, contacto,
+# newsletter, o assistente das Mensagens, MCP, a Bolsa e o Calendário —
+# um processo só. Pronto para Coolify (build pack: Dockerfile — deteta
+# o EXPOSE 3000).
 # ─────────────────────────────────────────────────────────────
 
-# ── Stage 1 — build ──────────────────────────────────────────
+# ── Stage 1 — o site estático ────────────────────────────────
 FROM node:24-alpine AS build
 WORKDIR /app
 
-# Instala dependências. `npm install` (não `npm ci`) resolve de forma
-# tolerante deps opcionais específicas da plataforma linux do container
-# — o lockfile pode ter sido gerado noutra plataforma. Para um site
-# estático é seguro e mantém o build reprodutível em qualquer host.
+# `npm install` (não `npm ci`) resolve de forma tolerante deps
+# opcionais específicas da plataforma linux do container — o lockfile
+# pode ter sido gerado noutra plataforma. Para um site estático é
+# seguro e mantém o build reprodutível em qualquer host.
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund
 
 # Copia o resto e gera o site estático em /app/dist. O `npm run build`
 # corre o Astro e a seguir a compressão: o `.br` e o `.gz` de cada
-# ficheiro ficam prontos aqui, para o servidor nunca ter de comprimir.
-COPY . .
+# ficheiro ficam prontos aqui, para a API nunca ter de comprimir nada
+# em tempo de pedido.
+COPY astro.config.mjs tsconfig.json ./
+COPY public ./public
+COPY src ./src
+COPY scripts ./scripts
 RUN npm run build
 
-# ── Stage 2 — runtime (o nosso servidor, zero dependências) ──
-FROM node:24-alpine AS runtime
+# ── Stage 2 — a API (FastAPI + uvicorn) ──────────────────────
+FROM python:3.12-slim AS runtime
 WORKDIR /app
-# O V8 dimensiona a heap a partir da memória da máquina: num host grande,
-# deixa-a crescer para centenas de megabytes antes de se dar ao trabalho
-# de recolher. Este servidor segura alguns megabytes de ficheiros e mais
-# nada, por isso 128 MB é folgado — e transforma o pior caso de RSS num
-# número conhecido em vez de um número que depende do host.
-ENV NODE_ENV=production \
-    NODE_OPTIONS="--max-old-space-size=128"
 
-# Só o output estático e o servidor. Nada de npm install aqui: o
-# servidor usa apenas módulos internos do Node, o que significa zero
-# dependências de terceiros a correr em produção.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HOME=/app
+
+COPY api/requirements.txt ./api/requirements.txt
+RUN pip install --no-cache-dir -r api/requirements.txt
+
+COPY api/app ./api/app
 COPY --from=build /app/dist ./dist
-COPY server ./server
 COPY knowledge ./knowledge
 
-# O npm não corre nada em produção: o CMD é `node` e mais nada. Tirá-lo
-# poupa ~15 MB e deixa a imagem sem gestor de pacotes lá dentro.
-RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
-
-# A lista da newsletter vive aqui. Sem um volume montado neste caminho,
-# a lista desaparece quando o container é substituído — ver DEPLOY.md.
-RUN mkdir -p /app/data && chown node:node /app/data
+# A lista da newsletter e as reuniões vivem aqui. Sem um volume montado
+# neste caminho, desaparecem quando o container é substituído — ver
+# DEPLOY.md.
+RUN useradd --system --uid 1001 site \
+    && mkdir -p /app/data \
+    && chown -R site /app
 VOLUME ["/app/data"]
 
-# Corre como utilizador sem privilégios.
-USER node
+USER site
 
 # Coolify lê o EXPOSE para detetar a porta.
 EXPOSE 3000
 
 # `/healthz` confirma que há um index.html para servir — não só que o
-# processo está vivo. São dois bytes de resposta. O start-period é curto
-# porque o servidor atende antes de aquecer a cache: fica verde no
-# segundo em que está mesmo pronto, e não dez depois.
+# processo está vivo. O start-period é curto porque a API atende antes
+# de aquecer a cache: fica verde no segundo em que está mesmo pronta.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
+  CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)" || exit 1
 
-CMD ["node", "server/index.mjs"]
+# Um processo só: os limites por visitante e as caches vivem em
+# memória, e mais do que um worker deixava de os partilhar.
+CMD ["uvicorn", "api.app.main:app", "--host", "0.0.0.0", "--port", "3000", "--workers", "1", "--no-access-log"]

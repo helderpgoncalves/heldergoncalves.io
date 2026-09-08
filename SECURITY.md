@@ -10,9 +10,10 @@ I'll acknowledge within 72 hours and tell you what I'm doing about it.
 
 ## What is worth looking at
 
-The static site is not the interesting part. The server is
-([`server/`](server/)): it takes form submissions, sends email, talks to
-a language model, keeps a subscriber list, and exposes an MCP endpoint.
+The static site is not the interesting part. The API is
+([`api/app/`](api/app/), FastAPI): it takes form submissions, sends email,
+talks to a language model, keeps a subscriber list, signs people into the
+Calendar, and exposes an MCP endpoint.
 
 Things I'd want to know about:
 
@@ -20,6 +21,8 @@ Things I'd want to know about:
   `/api/contact`, `/api/subscribe` or `/api/chat`;
 - a way to read or enumerate the subscriber list, or to subscribe
   someone without their confirmation;
+- a way to sign into the Calendar as someone else, forge or replay a
+  session cookie, or see another person's bookings;
 - a path traversal or a way to serve a file outside `dist/`;
 - a prompt injection that makes the assistant send email, book a meeting,
   or reveal its instructions;
@@ -29,8 +32,9 @@ Things I'd want to know about:
 
 Not bugs, by design:
 
-- **No authentication anywhere.** There are no accounts. There is nothing
-  to log into.
+- **No passwords, anywhere.** Signing into the Calendar is a one-time
+  code sent by email — whoever controls the inbox is who signs in. There
+  is no account to compromise beyond the inbox itself.
 - **The site tells you what it is.** `/llms.txt`, `/posts.json` and `/mcp`
   publish the content on purpose.
 - **Rate limits are per-IP-fingerprint and in memory.** A restart clears

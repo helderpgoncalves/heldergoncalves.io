@@ -1,19 +1,20 @@
 # ─────────────────────────────────────────────────────────────────────
-# O Dependabot, para as três coisas que este repositório tem versões de.
+# O Dependabot, para as dependências deste repositório.
 #
-# Em produção não corre nenhuma dependência de terceiros — o servidor usa
-# só módulos internos do Node. As dependências que aqui estão são de
-# build (o Astro) e de infraestrutura (a imagem base, as actions), e é
-# por isso que os grupos são poucos e as janelas são largas: não há aqui
-# uma vulnerabilidade em produção à espera de um patch semanal.
+# O Astro e o `@astrojs/sitemap` só correm no build — geram `dist/`, e a
+# imagem de produção nunca os vê. As dependências de `api/` **correm a
+# sério em produção**, por isso têm janela própria e mais apertada: uma
+# vulnerabilidade ali é uma vulnerabilidade no site, não um incómodo de
+# build.
 #
-# O que **não** pode esperar são os avisos de segurança. Esses o
-# Dependabot abre logo, fora desta agenda, e têm de ser tratados no dia.
+# O que **não** pode esperar, nos dois casos, são os avisos de
+# segurança. Esses o Dependabot abre logo, fora desta agenda, e têm de
+# ser tratados no dia.
 # ─────────────────────────────────────────────────────────────────────
 version: 2
 
 updates:
-  # ── As dependências de build ──────────────────────────────────────
+  # ── As dependências de build (Astro) ────────────────────────────────
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -30,6 +31,22 @@ updates:
       minor-e-patch:
         update-types: [minor, patch]
     labels: [dependências]
+
+  # ── As dependências da API — correm a sério em produção ────────────
+  - package-ecosystem: pip
+    directory: /api
+    schedule:
+      interval: weekly
+      day: monday
+      time: '07:00'
+      timezone: Europe/Lisbon
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps(api)
+    groups:
+      minor-e-patch:
+        update-types: [minor, patch]
+    labels: [dependências, produção]
 
   # ── A imagem base do container ────────────────────────────────────
   - package-ecosystem: docker

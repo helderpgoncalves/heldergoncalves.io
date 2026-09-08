@@ -125,7 +125,7 @@ export const EN = {
     cancelled: 'Meeting cancelled.',
     booked: 'Booked. I sent you a confirmation by email.',
     sending: 'Sending…',
-    tz: 'Lisbon time',
+    tz: 'Local time',
     minutes: 'min',
     errors: {
       email: 'That email does not look right.',
@@ -187,6 +187,24 @@ export const EN = {
     subscribeBad: 'That email does not look right.',
     subscribeFail: 'That did not work. Try again in a moment.',
     subscribeOff: 'Subscribing is switched off right now.',
+    comments: {
+      heading: 'Comments',
+      reactGosto: 'Like',
+      reactAdorei: 'Loved it',
+      reactIdeia: 'Gave me an idea',
+      formTitle: 'Leave a comment',
+      name: 'Your name',
+      email: 'Your email',
+      placeholder: 'What did you think?',
+      submit: 'Comment',
+      sending: 'Sending…',
+      sent: 'Comment published.',
+      empty: 'No comments yet. Be the first.',
+      fail: 'That did not work. Try again in a moment.',
+      short: 'Write a little more.',
+      identity: 'You need a name and a valid email.',
+      limit: 'Enough comments have gone out from here for now. Try later.',
+    },
   },
 
   contacto: {

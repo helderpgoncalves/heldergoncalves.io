@@ -1,0 +1,5 @@
+# Só para correr `/verificar`-equivalente e a suite de testes — nunca
+# entra na imagem de produção (ver Dockerfile).
+-r requirements.txt
+pytest==8.3.4
+pytest-asyncio==0.25.2

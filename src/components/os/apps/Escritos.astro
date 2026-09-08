@@ -141,6 +141,44 @@ for (const p of posts) {
             )}
             <p>{e.talk} <a href={`mailto:${SITE.email}?subject=${encodeURIComponent(post.data.title)}`}>{e.talkLink}</a></p>
           </footer>
+
+          {/* Preenchido por comentarios.js depois de cada troca de escrito —
+              sem JavaScript, fica só o convite a comentar por email acima. */}
+          <section class="comments" data-comments={postSlug(post)}>
+            <h2 class="comments-heading">{e.comments.heading}</h2>
+            <div class="comments-reactions" data-comments-reactions role="group" aria-label={e.comments.heading}>
+              <button type="button" class="reaction" data-reaction="gosto">
+                <span aria-hidden="true">👍</span> {e.comments.reactGosto}
+                <span class="reaction-count" data-reaction-count>0</span>
+              </button>
+              <button type="button" class="reaction" data-reaction="adorei">
+                <span aria-hidden="true">❤️</span> {e.comments.reactAdorei}
+                <span class="reaction-count" data-reaction-count>0</span>
+              </button>
+              <button type="button" class="reaction" data-reaction="ideia">
+                <span aria-hidden="true">💡</span> {e.comments.reactIdeia}
+                <span class="reaction-count" data-reaction-count>0</span>
+              </button>
+            </div>
+
+            <ul class="comments-list" data-comments-list></ul>
+            <p class="comments-empty" data-comments-empty hidden>{e.comments.empty}</p>
+
+            <form class="comments-form" data-comments-form>
+              <p class="comments-form-title">{e.comments.formTitle}</p>
+              <div class="comments-row" data-comments-identity>
+                <label class="sr" for="comment-name">{e.comments.name}</label>
+                <input id="comment-name" class="comments-input" type="text" name="name" maxlength="80" placeholder={e.comments.name} data-comments-name />
+                <label class="sr" for="comment-email">{e.comments.email}</label>
+                <input id="comment-email" class="comments-input" type="email" name="email" maxlength="160" placeholder={e.comments.email} data-comments-email />
+              </div>
+              <label class="sr" for="comment-body">{e.comments.placeholder}</label>
+              <textarea id="comment-body" class="comments-textarea" name="body" rows="3" maxlength="2000" placeholder={e.comments.placeholder} required data-comments-body></textarea>
+              <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-comments-trap />
+              <button class="btn btn-primary" type="submit">{e.comments.submit}</button>
+              <p class="comments-hint" data-comments-hint></p>
+            </form>
+          </section>
         </article>
       ) : (
         <div class="app-main-empty">

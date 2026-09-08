@@ -19,6 +19,10 @@ const post = (path, body) =>
 const pad = (n) => String(n).padStart(2, '0');
 const dayKey = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 
+// O fuso de quem marca — vai no pedido, para o email de confirmação
+// dela usar a mesma hora que ela viu no ecrã, não a de Lisboa.
+const visitorTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export function initCalendario(ctx) {
   const el = ctx.contentNode('calendario');
   if (!el) return;
@@ -41,10 +45,17 @@ export function initCalendario(ctx) {
 
   const view = createView(el, t, ctx, state);
 
-  /** Do primeiro ao último dia do mês à vista. */
+  /**
+   * Do primeiro ao último dia do mês à vista — com um dia de folga de
+   * cada lado. Os horários vêm do servidor em UTC e mostram-se no fuso
+   * de quem os vê: perto da meia-noite, um horário pode cair no dia
+   * anterior ou seguinte do calendário de Lisboa mas no deste mês (ou
+   * vice-versa). A folga garante que esse horário chega, mesmo que
+   * apareça numa célula "fora do mês" na grelha.
+   */
   function range() {
-    const from = state.month;
-    const to = new Date(from.getFullYear(), from.getMonth() + 1, 0);
+    const from = new Date(state.month.getFullYear(), state.month.getMonth(), 0);
+    const to = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1);
     return { from: dayKey(from), to: dayKey(to) };
   }
 
@@ -143,7 +154,7 @@ export function initCalendario(ctx) {
     state.busy = true;
     view.sheetHint(t.sending);
     try {
-      const res = await post('/api/reunioes', { start, title, note, lang: ctx.data.lang });
+      const res = await post('/api/reunioes', { start, title, note, lang: ctx.data.lang, tz: visitorTz });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         view.closeSheet();

@@ -8,7 +8,6 @@
     "build": "astro build && node scripts/icones.mjs && node scripts/precompress.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "start": "node server/index.mjs",
     "precompress": "node scripts/precompress.mjs"
   },
   "dependencies": {

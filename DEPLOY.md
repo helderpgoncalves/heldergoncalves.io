@@ -1,15 +1,20 @@
 # Deploy
 
 Um container. O `Dockerfile` faz o build do Astro no primeiro stage e, no
-segundo, corre `server/index.mjs` — um servidor Node **sem dependências**
-que serve o `dist/`, põe os cabeçalhos de segurança e recebe o formulário
-de contacto. Porta 3000.
+segundo, corre a API — `api/app/`, em FastAPI e `uvicorn`, com dependências
+mínimas — que serve o `dist/`, põe os cabeçalhos de segurança, e trata do
+contacto, da newsletter, das Mensagens, do MCP, da Bolsa e do Calendário.
+Porta 3000. Também há um `docker-compose.yml` na raiz, para correr o mesmo
+localmente ou num host que prefira compose a um recurso Dockerfile simples.
 
 1. Novo recurso → **Public Repository** → `https://github.com/helderpgoncalves/heldergoncalves.io`
-2. Build pack: **Dockerfile** (deteta o `EXPOSE 3000`)
+2. Build pack: **Dockerfile** (deteta o `EXPOSE 3000`) — ou **Docker Compose**,
+   apontando ao `docker-compose.yml` da raiz
 3. Domínio: `https://heldergoncalves.io`
 
-Cada push para `main` refaz o site.
+Cada push para `main` refaz o site. Não há mais um segundo recurso para a
+Bolsa: o que antes era uma API Python à parte (`api/`) agora corre no mesmo
+processo — ver «Calendário e Bolsa» abaixo.
 
 ## Variáveis de ambiente
 
@@ -86,11 +91,17 @@ ao fim. O estado de cada email é o da última linha que fala dele.
 
 ```bash
 # quem está mesmo subscrito, sem repetições
-docker exec -it <container> node -e '
-  const fs = require("fs"), m = new Map();
-  for (const l of fs.readFileSync("/app/data/subscribers.ndjson","utf8").split("\n"))
-    if (l.trim()) { const r = JSON.parse(l); m.set(r.email, r); }
-  for (const r of m.values()) if (r.status === "active") console.log(r.email, r.lang);
+docker exec -it <container> python3 -c '
+import json
+people = {}
+with open("/app/data/subscribers.ndjson") as f:
+    for line in f:
+        if line.strip():
+            row = json.loads(line)
+            people[row["email"]] = row
+for row in people.values():
+    if row["status"] == "active":
+        print(row["email"], row["lang"])
 '
 ```
 
@@ -115,25 +126,17 @@ O mesmo que protege o contacto, mais uma coisa que é a que interessa:
 
 ## Calendário e Bolsa
 
-**A Bolsa** tem dois níveis. Sem nada configurado, o servidor Node vai
-ele próprio buscar o gráfico ao Yahoo Finance (sem chave) e guarda cada
-resposta um minuto — dá cotações e séries, mas não a ficha nem as
-notícias. Com a API da Bolsa ligada (`api/`, um serviço em Python à
-parte, com FastAPI e o `yfinance`), o servidor passa a perguntar-lhe a
-ela, e a aplicação fica completa: estatísticas, «Acerca» e notícias.
+**A Bolsa** corre no mesmo processo que o resto da API — `api/app/bolsa/`,
+sobre o `yfinance`, sem chave nenhuma. Deixou de ser um segundo recurso no
+Coolify: até à migração para FastAPI era um serviço Python à parte, na rede
+interna, e o servidor Node perguntava-lhe por HTTP; agora é só uma chamada a
+uma função Python, feita num `asyncio.to_thread` para não bloquear o resto
+da API enquanto espera pelo Yahoo. Um deploy a menos para gerir, e uma
+chamada de rede a menos por pedido.
 
-**A API não tem domínio público.** É um segundo recurso no Coolify —
-*Public Repository*, o mesmo repositório, *Build pack* Dockerfile, com
-o directório base `/api` — sem domínio à frente. Os dois recursos
-partilham a rede interna do projecto Coolify; `BOLSA_API_URL` é o nome
-interno desse serviço, na porta 8000. Se a variável faltar ou a API não
-responder, o servidor Node volta sozinho ao Yahoo directo — nada parte.
-
-| Variável         | Exemplo                                              | Para quê                                    |
-| ---------------- | ----------------------------------------------------- | -------------------------------------------- |
-| `BOLSA_API_URL`  | `http://bolsa-api:8000`                              | a API da Bolsa, na rede interna do Coolify  |
-| `STOCKS_SOURCE`  | `https://query1.finance.yahoo.com/v8/finance/chart/` | o recuo directo; é esta por omissão         |
-| `STOCKS_TTL_MS`  | `60000`                                              | quanto tempo cada resposta do recuo vale    |
+Cada tipo de resposta guarda-se em memória por um tempo diferente —
+cotações um minuto, a ficha dez, a procura uma hora — em `api/app/bolsa/client.py`,
+sem variável de ambiente própria: não há um segundo serviço a apontar.
 
 **O Calendário** deixa uma pessoa entrar com o email — recebe um código
 de seis algarismos, sem palavra-passe — e marcar uma conversa numa hora
@@ -156,8 +159,45 @@ Cada marcação manda dois emails: um a ti, com o email da pessoa em
 quem entrou vê a disponibilidade; quem não entrou vê o mês vazio e o
 pedido do email.
 
+**O fuso, como no Calendly.** O servidor fala sempre em UTC — cada
+horário é um instante, sem opinião nenhuma sobre fuso. É o browser de
+quem vê que o mostra no seu próprio relógio, detectado sozinho
+(`Intl.DateTimeFormat().resolvedOptions().timeZone`), incluindo o dia em
+que cai na grelha — perto da meia-noite, um horário pode ser hoje para
+Lisboa e amanhã para quem o vê de outro fuso, e é isso que aparece. O
+pedido ao servidor pede sempre um dia a mais de cada lado do mês à
+vista, para nenhum horário se perder nessa fronteira. O email de
+confirmação da pessoa usa o fuso que o browser dela mandou (`tz` no
+pedido de `POST /api/reunioes`); o teu, do lado do dono, fica sempre em
+hora de Lisboa — é o teu fuso, e não muda consoante quem marcou.
+
 Limites: 5 códigos por IP por hora, 15 tentativas de código por IP em
 15 minutos e 5 por código, 3 reuniões por pessoa por dia.
+
+### O dono
+
+`OWNER_EMAIL` diz qual é o teu email. Entrar com ele — o mesmo código por
+email de qualquer visitante, não há uma segunda porta — dá dois poderes
+que mais ninguém tem:
+
+| Endpoint | Para quê |
+| --- | --- |
+| `GET /api/reunioes/todas?from=&to=` | a agenda cheia do intervalo: quem marcou, quando, o assunto e a nota — não só «ocupado» |
+| `GET /api/reunioes/bloqueios` | os bloqueios e aberturas em vigor |
+| `POST /api/reunioes/bloqueios` | cria um `bloqueio` (tira uma hora que seria livre — férias, uma manhã ocupada) ou uma `abertura` (dá uma hora extra fora das janelas de `MEETINGS_WINDOWS` — um sábado, uma excepção) |
+| `POST /api/reunioes/bloqueios/remover` | remove um dos dois, pelo `id` |
+
+Um bloqueio ou uma abertura contam para toda a gente que vê o Calendário,
+não só para ti — é o que os torna «criar disponibilidade» a sério, e não
+uma vista diferente da mesma agenda. Um bloqueio ganha sempre a uma
+abertura que caia por cima da mesma hora.
+
+Sem `OWNER_EMAIL` configurado, nenhuma sessão tem este papel — nem a tua,
+se entrares sem a variável estar definida. O Calendário fica só no modo
+de visitante, exactamente como antes desta funcionalidade existir.
+
+Os bloqueios e aberturas vivem em `/app/data/availability.ndjson`, o
+mesmo formato append-only da lista de subscritores e das reuniões.
 
 ## O healthcheck
 
@@ -286,30 +326,37 @@ pedido, e melhor rácio do que era possível com alguém à espera.
 HTML, o CSS e o JS para memória (com tectos: 120 ficheiros, 24 MB). Quem
 chegar primeiro depois de um deploy não espera por I/O nenhum.
 
-**A memória tem tectos, e todos.** O V8 dimensiona a heap a partir da
-memória da máquina, por isso o container leva `--max-old-space-size=128`:
-o pior caso passa a ser um número conhecido em vez de um número que
-depende do host. A cache de ficheiros tem um orçamento de 24 MB e deita
-fora o que há mais tempo não é pedido — sem isso, bastava o site crescer
-para o processo ficar a segurar o disco inteiro. Os mapas de limites por
-visitante têm tecto de 20 000 chaves, que é o que impede um ataque
-distribuído de os fazer crescer entre duas limpezas.
+**A memória tem tectos, e todos.** A cache de ficheiros tem um orçamento de
+24 MB e deita fora o que há mais tempo não é pedido — sem isso, bastava o
+site crescer para o processo ficar a segurar o disco inteiro. Os mapas de
+limites por visitante têm tecto de 20 000 chaves, que é o que impede um
+ataque distribuído de os fazer crescer entre duas limpezas.
 
-O arranque diz quanto está a gastar:
+O arranque diz quanto pré-carregou:
 
 ```
-memória:    52.4 MB no total, 11.2 MB de heap, 1.8 MB em 23 ficheiros
+cache:      18 ficheiros, 412 KB pré-carregados (18 em cache, 412 KB) — RSS 61 MB
 ```
 
 **Chega bem com 256 MB.** No Coolify, em *Resource Limits*, `256m` de
-memória é folgado e `0.5` de CPU chega. Pôr um limite não é só arrumação:
-sem ele, um pico leva a máquina toda em vez de levar só o container.
+memória é folgado e `0.5` de CPU chega — é o mesmo limite que o
+`docker-compose.yml` local já traz (`mem_limit: 256m`). Pôr um limite não é
+só arrumação: sem ele, um pico leva a máquina toda em vez de levar só o
+container.
 
-**A imagem não tem npm.** O `CMD` é `node` e mais nada, por isso o npm é
-apagado da camada final: menos ~15 MB e sem gestor de pacotes dentro do
-container de produção. Zero dependências de terceiros a correr.
+**Um processo só.** O `uvicorn` corre com `--workers 1` de propósito: os
+limites por visitante e as caches vivem em memória, e mais do que um
+worker deixava de os partilhar — cada um veria só uma fracção dos pedidos.
+Para escalar a sério, escala-se o container inteiro (mais réplicas), não o
+número de workers dentro de um.
 
-**A imagem base é `node:24-alpine`**, a LTS activa. Sobe por Dependabot.
+**A imagem final não tem Node.** O Astro só corre no primeiro stage do
+build; o `python:3.12-slim` do segundo stage nunca o vê. Só as dependências
+de `api/requirements.txt` entram na imagem que corre em produção — nada de
+`requirements-dev.txt` (o `pytest`), que fica de fora do `.dockerignore`.
+
+**A imagem base é `python:3.12-slim`**, sobre `node:24-alpine` para o
+build. Sobem por Dependabot.
 
 Se quiseres confirmar que a compressão está mesmo a sair do disco:
 

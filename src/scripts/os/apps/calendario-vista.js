@@ -23,20 +23,20 @@ export function createView(el, t, ctx, state) {
   const when = el.querySelector('[data-cal-when]');
   const sheetHintEl = el.querySelector('[data-cal-hint]');
 
+  // Os horários mostram-se sempre no fuso de quem os vê — como o
+  // Calendly, e não no de Lisboa: o servidor manda instantes UTC
+  // (`...Z`), sem opinião nenhuma sobre fuso, e é o browser que os lê
+  // no seu próprio relógio só por não lhe dizermos um `timeZone`.
+  const visitorTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const monthFmt = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' });
-  const timeFmt = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Lisbon' });
-  const longFmt = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Lisbon' });
+  const timeFmt = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
+  const longFmt = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' });
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  /** O dia de Lisboa a que um instante pertence. */
-  const lisbonKey = (iso) => {
-    const p = {};
-    new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit' })
-      .formatToParts(new Date(iso))
-      .forEach((x) => (p[x.type] = x.value));
-    return p.year + '-' + p.month + '-' + p.day;
-  };
+  /** O dia local (de quem vê o Calendário) a que um instante pertence —
+   * a mesma regra que agrupa os dias na grelha, `keyOf`. */
+  const localKey = (iso) => keyOf(new Date(iso));
 
   let pendingStart = null;
   let handlers = {};
@@ -44,12 +44,12 @@ export function createView(el, t, ctx, state) {
   function byDay() {
     const free = new Map();
     state.slots.forEach((iso) => {
-      const k = lisbonKey(iso);
+      const k = localKey(iso);
       free.set(k, (free.get(k) || []).concat(iso));
     });
     const mine = new Map();
     state.mine.forEach((m) => {
-      const k = lisbonKey(m.start);
+      const k = localKey(m.start);
       mine.set(k, (mine.get(k) || []).concat(m));
     });
     return { free, mine };
@@ -132,7 +132,7 @@ export function createView(el, t, ctx, state) {
     const d = new Date(state.selected + 'T12:00:00');
     side.innerHTML =
       '<h3 class="cal-dayname">' + esc(cap(dayFmt.format(d))) + '</h3>' +
-      '<p class="cal-tz">' + esc(t.tz) + ' · ' + state.minutes + ' ' + esc(t.minutes) + '</p>' +
+      '<p class="cal-tz">' + esc(t.tz) + ' (' + esc(visitorTz) + ') · ' + state.minutes + ' ' + esc(t.minutes) + '</p>' +
       (m.length
         ? '<ul class="cal-list mine">' +
           m.map((x) => '<li><span class="cal-time">' + esc(timeFmt.format(new Date(x.start))) + '</span><span class="cal-what">' + esc(x.title || t.bookTitle) + '</span>' +

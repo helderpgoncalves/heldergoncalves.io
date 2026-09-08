@@ -3,7 +3,8 @@ dist/
 .astro/
 .DS_Store
 .env
-.env.production
+.env.*
+!.env.example
 
 # A lista da newsletter e o segredo que assina as ligações.
 # Vivem num volume no servidor, nunca aqui.
@@ -14,3 +15,8 @@ data/
 .claude/settings.local.json
 CLAUDE.local.md
 __pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+api/tests/.tmp-data/
+api/tests/.tmp-dist/

@@ -7,19 +7,21 @@ um segundo, não constrói nada, não instala nada e não abre browser
 nenhum, o que é a razão de existir: a máquina onde isto costuma correr
 está a servir produção.
 
-Oito verificações:
+Nove verificações:
   1. tamanho de ficheiro           nenhum passa das 400 linhas
   2. imports do cliente            batem certo com os exports
-  3. imports do servidor           idem
-  4. imports dos scripts de build  idem
+  3. imports dos scripts de build  idem
+  4. imports da API                idem, em Python, com `ast`
   5. chavetas do CSS               nenhuma regra ficou partida
   6. paridade das línguas          pt e en têm as mesmas chaves
   7. segredos                      nada que pareça uma chave
   8. ficheiros órfãos              nada importa o que já não existe
+  9. `data/` fora do repositório   e fora da imagem, via .dockerignore
 
 Saída 0 se está tudo bem, 1 se não.
 """
 
+import ast
 import json
 import os
 import re
@@ -41,10 +43,13 @@ def rel(path):
     return os.path.relpath(path, ROOT)
 
 
+EXCLUDED_DIRS = ('node_modules', 'dist', '.astro', '.git', '__pycache__', '.pytest_cache', '.venv')
+
+
 def walk(subdir, *exts):
     base = os.path.join(ROOT, subdir)
     for dirpath, dirnames, filenames in os.walk(base):
-        dirnames[:] = [d for d in dirnames if d not in ('node_modules', 'dist', '.astro', '.git')]
+        dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS and not d.startswith('.tmp-')]
         for name in filenames:
             if name.endswith(exts):
                 yield os.path.join(dirpath, name)
@@ -57,9 +62,9 @@ def read(path):
 
 # ── 1. Tamanho de ficheiro ───────────────────────────────────────────
 def check_sizes():
-    watched = ('.ts', '.js', '.mjs', '.astro', '.css')
+    watched = ('.ts', '.js', '.mjs', '.astro', '.css', '.py')
     biggest = []
-    for sub in ('src', 'server', 'scripts'):
+    for sub in ('src', 'scripts', 'api/app', 'api/tests'):
         for path in walk(sub, *watched):
             n = len(read(path).split('\n'))
             biggest.append((n, rel(path)))
@@ -196,15 +201,96 @@ def check_orphans():
             fail('órfãos', '%s aponta para %s, que não existe' % (rel(path), target))
 
 
+# ── 8. Imports da API (Python) ────────────────────────────────────────
+def _module_path(module):
+    """'app.routers.contact' → api/app/routers/contact.py (ou __init__.py
+    se for uma pasta)."""
+    base = os.path.join(ROOT, 'api', *module.split('.'))
+    if os.path.isfile(base + '.py'):
+        return base + '.py'
+    if os.path.isdir(base):
+        return os.path.join(base, '__init__.py')
+    return None
+
+
+def _defined_names(path):
+    """O que um módulo Python expõe: funções, classes, atribuições de
+    topo, e o que ele próprio importa (pode ser reexportado)."""
+    try:
+        tree = ast.parse(read(path), filename=path)
+    except SyntaxError:
+        return None
+    names = set()
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, (ast.Assign,)):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    names.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            names.add(node.target.id)
+        elif isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                names.add(alias.asname or alias.name)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                names.add((alias.asname or alias.name).split('.')[0])
+    return names
+
+
+def check_python_imports():
+    files = list(walk('api/app', '.py')) + list(walk('api/tests', '.py'))
+    for path in files:
+        try:
+            tree = ast.parse(read(path), filename=path)
+        except SyntaxError as err:
+            fail('imports da API', '%s não é Python válido: %s' % (rel(path), err))
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ImportFrom) or node.level or not node.module:
+                continue
+            if not (node.module == 'app' or node.module.startswith('app.')):
+                continue  # só o que é deste projecto — não conferimos bibliotecas
+            target = _module_path(node.module)
+            if target is None or not os.path.exists(target):
+                fail('imports da API', '%s importa de `%s`, que não existe' % (rel(path), node.module))
+                continue
+            exported = _defined_names(target)
+            if exported is None:
+                continue
+            for alias in node.names:
+                if alias.name == '*' or alias.name in exported:
+                    continue
+                # Também é válido se for um submódulo: `from app import security`
+                # importa o ficheiro `app/security.py`, não um nome definido
+                # dentro de `app/__init__.py`.
+                if _module_path(node.module + '.' + alias.name) is not None:
+                    continue
+                fail('imports da API', '%s importa `%s` de `%s`, que não o define' % (rel(path), alias.name, node.module))
+
+
+# ── 9. `data/` fica de fora da imagem ──────────────────────────────────
+def check_dockerignore():
+    path = os.path.join(ROOT, '.dockerignore')
+    if not os.path.exists(path):
+        fail('imagem', 'falta o .dockerignore')
+        return
+    lines = {line.strip() for line in read(path).splitlines()}
+    if 'data' not in lines:
+        fail('imagem', '.dockerignore não exclui `data` — os dados locais podiam ir parar à imagem')
+
+
 def main():
     check_sizes()
     check_imports('imports do cliente', list(walk('src/scripts', '.js')))
-    check_imports('imports do servidor', list(walk('server', '.mjs')))
     check_imports('imports dos scripts', list(walk('scripts', '.mjs')))
+    check_python_imports()
     check_css()
     check_copy()
     check_secrets()
     check_orphans()
+    check_dockerignore()
 
     for note in notes:
         print('  ' + note)

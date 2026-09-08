@@ -124,9 +124,17 @@ marca da Apple. Tira-se numa linha se for preciso.
 | ----------------- | ------- |
 | Astro             | MIT     |
 | @astrojs/sitemap  | MIT     |
+| FastAPI           | MIT     |
+| Starlette         | BSD-3-Clause |
+| Uvicorn           | BSD-3-Clause |
+| httpx             | BSD-3-Clause |
+| yfinance          | Apache-2.0 |
 
-Em produção não corre nenhuma dependência: o servidor (`server/index.mjs`)
-usa só módulos internos do Node.
+O Astro e o `@astrojs/sitemap` só correm no build — geram `dist/`, e não
+entram na imagem que corre em produção. Em produção corre só a API
+(`api/app/`), com dependências mínimas e todas justificadas: nenhuma delas
+é especulativa, e a segurança (`hmac`, `hashlib`, `secrets`) e as datas
+(`zoneinfo`) usam só a biblioteca padrão do Python.
 
 ## O resto
 

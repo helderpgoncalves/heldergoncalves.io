@@ -1,9 +1,10 @@
 # ─────────────────────────────────────────────────────────────────────
 # Análise estática de segurança.
 #
-# Vale a pena aqui porque este repositório não é só um site: tem um
-# servidor que recebe formulários, manda email e guarda uma lista de
-# pessoas. É esse código que interessa analisar.
+# Vale a pena aqui porque este repositório não é só um site: tem uma API
+# que recebe formulários, manda email, guarda uma lista de pessoas e fala
+# com um modelo. É esse código que interessa analisar — em Python
+# (`api/app/`) e no JavaScript/TypeScript do frontend.
 #
 # Corre nos pull requests e uma vez por semana — as regras do CodeQL
 # mudam sem o código mudar, e uma corrida semanal apanha isso.
@@ -24,22 +25,26 @@ permissions:
 
 jobs:
   analisar:
-    name: JavaScript e TypeScript
+    name: ${{ matrix.language }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       security-events: write
       actions: read
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: github/codeql-action/init@fddeee1a7ece751b577e409a89057319e3172939 # v4
         with:
-          languages: javascript-typescript
+          languages: ${{ matrix.language }}
           queries: security-and-quality
 
       - uses: github/codeql-action/analyze@fddeee1a7ece751b577e409a89057319e3172939 # v4
         with:
-          category: /language:javascript-typescript
+          category: /language:${{ matrix.language }}

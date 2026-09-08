@@ -1,14 +1,16 @@
 # ─────────────────────────────────────────────────────────────────────
 # O que corre a cada alteração.
 #
-# Três coisas, e por esta ordem — da mais barata para a mais cara, para
-# que um erro tolo falhe em segundos e não em minutos:
+# Da mais barata para a mais cara, para que um erro tolo falhe em
+# segundos e não em minutos:
 #
 #   1. verificar   as invariantes do repositório, em Python, sem instalar
 #                  nada. Segundos.
 #   2. build       o site constrói mesmo, e a compressão corre. Minuto.
-#   3. imagem      o Dockerfile constrói. Só em pull requests e no main,
-#                  porque é o mais caro dos três.
+#   3. api         a suite de testes da API (pytest). Meio minuto.
+#   4. imagem      o Dockerfile constrói a sério — Astro e a API juntos —
+#                  e o container arranca e responde. Só em pull requests
+#                  e no main, porque é o mais caro dos quatro.
 # ─────────────────────────────────────────────────────────────────────
 name: CI
 
@@ -43,7 +45,7 @@ jobs:
         run: python3 .claude/skills/verificar/verificar.py
 
   build:
-    name: Build
+    name: Build (Astro)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: verificar
@@ -93,20 +95,28 @@ jobs:
             | awk '{ printf "  %6.1f KB  %s\n", $1/1024, $2 }' >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: O servidor arranca e responde
-        run: |
-          npm start &
-          for i in $(seq 1 30); do
-            sleep 1
-            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
-          done
-          curl -fsS http://127.0.0.1:3000/healthz | grep -qx ok
-          curl -fsS http://127.0.0.1:3000/ >/dev/null
-          # E o brotli sai mesmo do disco, sem o servidor comprimir nada.
-          curl -fsS -H 'Accept-Encoding: br' -o /dev/null -D - http://127.0.0.1:3000/ \
-            | grep -qi 'content-encoding: br'
-        env:
-          STATIC_DIR: ./dist
+  api:
+    name: Testes da API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verificar
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Por tag, e não por SHA fixo como as outras — Dependabot
+      # (.github/dependabot.yml) trata de a manter em dia; fixar aqui um
+      # SHA por adivinhação seria pior do que não fixar nenhum.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/requirements-dev.txt
+
+      - run: pip install -r api/requirements-dev.txt
+
+      - name: pytest
+        run: pytest -q
+        working-directory: api
 
   imagem:
     name: Imagem
@@ -134,6 +144,10 @@ jobs:
             curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
           done
           curl -fsS http://127.0.0.1:3000/healthz | grep -qx ok
+          curl -fsS http://127.0.0.1:3000/ >/dev/null
+          # E o brotli sai mesmo do disco, sem a API comprimir nada.
+          curl -fsS -H 'Accept-Encoding: br' -o /dev/null -D - http://127.0.0.1:3000/ \
+            | grep -qi 'content-encoding: br'
           docker logs site
           docker rm -f site
 
@@ -161,7 +175,7 @@ jobs:
             echo "| memória, depois de 100 pedidos | $(docker stats peso --no-stream --format '{{.MemUsage}}') |"
             echo ""
             echo '```'
-            docker logs peso 2>&1 | grep -E 'memória|cache' || true
+            docker logs peso 2>&1 | grep -E 'cache:|origem:' || true
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
           docker rm -f peso
