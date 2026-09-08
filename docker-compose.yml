@@ -3,21 +3,28 @@
 # em FastAPI que trata do contacto, da newsletter, das Mensagens, do
 # MCP, da Bolsa e do Calendário (ver Dockerfile e api/app/main.py).
 #
-# Uso local:
+# Uso local (com a porta acessível em localhost, num host onde a 3000
+# esteja livre):
 #   cp .env.example .env   # preenche o que precisares — tudo é opcional
 #   docker compose up --build
+# Para correr ao lado de outros projectos que já usam a 3000, ver
+# docker-compose.dev.yml (porta 3900).
 #
 # Em produção (Coolify), este ficheiro é o que o recurso "docker
 # compose" lê; o domínio público vem de `docker_compose_domains` — ver
-# DEPLOY.md — e as variáveis de ambiente vão no recurso, nunca aqui.
+# DEPLOY.md — e as variáveis de ambiente vão no recurso, nunca aqui. A
+# porta fica só `expose`, não `ports`: é o Traefik do Coolify, na rede
+# interna, que fala com o container — reservar a porta do host aqui
+# colidiria com qualquer outra aplicação do mesmo host que também sirva
+# na 3000.
 # ─────────────────────────────────────────────────────────────────────
 services:
   site:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     # Segredos e chaves vêm de um ficheiro fora do repositório — nunca
     # entram na imagem nem neste ficheiro. Ver .env.example.
     env_file:
