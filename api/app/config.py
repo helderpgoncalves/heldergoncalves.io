@@ -28,6 +28,11 @@ TESTING = os.environ.get("TESTING") == "1"
 # Sempre `asyncpg` — nunca um driver síncrono. Ver app/db.py.
 DATABASE_URL = _env("DATABASE_URL", "postgresql+asyncpg://helder:helder@localhost:5432/heldergoncalves")
 
+# ── Bolsa ────────────────────────────────────────────────────────────
+# As últimas cotações conhecidas, para um reinício não começar vazio —
+# ver app/bolsa/cache.py.
+BOLSA_SNAPSHOT_FILE = Path(_env("BOLSA_SNAPSHOT_FILE", str(DATA_DIR / "bolsa-cotacoes.json"))).resolve()
+
 
 # ── Email ────────────────────────────────────────────────────────────
 # Nenhuma chave chega ao browser: vive só aqui. Sem fornecedor

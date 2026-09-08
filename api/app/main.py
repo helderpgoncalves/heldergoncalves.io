@@ -23,6 +23,7 @@ from starlette.responses import JSONResponse, Response
 
 from app import security, sessions
 from app.config import (
+    BOLSA_SNAPSHOT_FILE,
     CHAT,
     CHAT_READY,
     GOOGLE_READY,
@@ -34,6 +35,7 @@ from app.config import (
     SITE_ORIGIN,
 )
 from app.availability_store import init_availability_store
+from app.bolsa.cache import init_snapshot as init_bolsa_snapshot
 from app.chat_store import init_chat_store
 from app.comments_store import init_comments_store
 from app.db import close_db, init_db
@@ -69,6 +71,7 @@ async def lifespan(app: FastAPI):
     await init_chat_store()
     await init_comments_store()
     await init_reactions_store()
+    init_bolsa_snapshot(BOLSA_SNAPSHOT_FILE)
     health.prime_health()
 
     estado = lambda ligado, como_ligado, como_desligado: f"ativo ({como_ligado})" if ligado else como_desligado
