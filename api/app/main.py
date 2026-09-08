@@ -79,9 +79,9 @@ async def lifespan(app: FastAPI):
     print("contacto:   " + estado(MAIL_READY, MAIL.provider, "inativo, o site usa mailto:"))
     print("newsletter: " + estado(NEWSLETTER_READY, MAIL.provider, "inativa, precisa do email configurado"))
     print("conversa:   " + estado(CHAT_READY, CHAT.model, "inativa, as Mensagens usam respostas guardadas"))
-    print("reuniões:   " + estado(MAIL_READY, "código por email", "inativas, precisam do email configurado"))
+    print("reuniões:   " + estado(MAIL_READY, "magic link", "inativas, precisam do email configurado"))
     print("dono:       " + estado(bool(OWNER_EMAIL), "configurado", "ninguém — sem OWNER_EMAIL, o Calendário fica só no modo de visitante"))
-    print("google:     " + estado(GOOGLE_READY, "cliente configurado", "inativo, só o código por email entra"))
+    print("google:     " + estado(GOOGLE_READY, "cliente configurado", "inativo, só o magic link entra"))
     print("bolsa:      ativa (yfinance)")
 
     files, bytes_ = await asyncio.to_thread(warm_cache)

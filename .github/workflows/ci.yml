@@ -123,6 +123,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: verificar
+    # A imagem de produção migra a base de dados no arranque (Dockerfile:
+    # `alembic upgrade head` antes do uvicorn) — sem um Postgres a
+    # responder, o container nunca chega a ficar saudável. O serviço
+    # aqui é a mesma imagem que docker-compose.yml usa em produção.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: helder
+          POSTGRES_PASSWORD: helder
+          POSTGRES_DB: heldergoncalves
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U helder -d heldergoncalves"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -136,9 +154,11 @@ jobs:
           load: true
           tags: heldergoncalves:ci
 
-      - name: A imagem arranca e responde
+      - name: A imagem arranca, migra, e responde
         run: |
-          docker run -d --name site -p 3000:3000 heldergoncalves:ci
+          docker run -d --name site --network host \
+            -e DATABASE_URL="postgresql+asyncpg://helder:helder@127.0.0.1:5432/heldergoncalves" \
+            heldergoncalves:ci
           for i in $(seq 1 30); do
             sleep 1
             curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
@@ -148,20 +168,25 @@ jobs:
           # E o brotli sai mesmo do disco, sem a API comprimir nada.
           curl -fsS -H 'Accept-Encoding: br' -o /dev/null -D - http://127.0.0.1:3000/ \
             | grep -qi 'content-encoding: br'
+          # A migração correu, e a API sabe-o.
+          docker logs site 2>&1 | grep -q 'Running upgrade'
+          docker logs site 2>&1 | grep -qx 'postgres:   ligado'
           docker logs site
           docker rm -f site
 
       - name: Quanto pesa, em disco e em memória
         run: |
-          docker run -d --name peso -p 3001:3000 heldergoncalves:ci
+          docker run -d --name peso --network host \
+            -e DATABASE_URL="postgresql+asyncpg://helder:helder@127.0.0.1:5432/heldergoncalves" \
+            heldergoncalves:ci
           for i in $(seq 1 30); do
             sleep 1
-            curl -fsS http://127.0.0.1:3001/healthz >/dev/null 2>&1 && break
+            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
           done
           # Uma centena de pedidos, para a cache encher com o que
           # realmente se serve.
-          for i in $(seq 1 100); do curl -fsS http://127.0.0.1:3001/ >/dev/null; done
-          curl -fsS http://127.0.0.1:3001/en/ >/dev/null
+          for i in $(seq 1 100); do curl -fsS http://127.0.0.1:3000/ >/dev/null; done
+          curl -fsS http://127.0.0.1:3000/en/ >/dev/null
           sleep 2
           # `tee` e não `>`: os números vão para o resumo da corrida e para
           # o log. Uma medição que só se vê numa página web é uma medição
