@@ -5,7 +5,7 @@
 # raiz é que faz esse build, sem Node no runtime — ver esse
 # ficheiro para o porquê.
 # ─────────────────────────────────────────────────────────────
-FROM node:24-alpine
+FROM node:26-alpine
 WORKDIR /app
 
 # `build-base` e `python3-dev`: o `asyncpg` compila uma extensão C — sem

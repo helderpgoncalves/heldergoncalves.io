@@ -7,7 +7,7 @@
 # ─────────────────────────────────────────────────────────────
 
 # ── Stage 1 — o site estático ────────────────────────────────
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 # `npm install` (não `npm ci`) resolve de forma tolerante deps
