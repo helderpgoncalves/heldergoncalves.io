@@ -34,9 +34,15 @@ export function initChat(ctx) {
 
   const scroll = () => (log.scrollTop = log.scrollHeight);
 
+  const BUBBLE_BASE = 'bubble max-w-[78%] rounded-[19px] px-3.5 py-2.25 text-[15px] leading-[1.42] [animation:bubble-in_0.3s_var(--ease-pop)]';
+  const BUBBLE_SIDE = {
+    them: 'them self-start rounded-bl-[6px] bg-(--surface-3) text-(--ink)',
+    me: "me self-end rounded-br-[6px] bg-(--green) text-white [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f]",
+  };
+
   function bubble(side, text) {
     const p = document.createElement('p');
-    p.className = 'bubble ' + side;
+    p.className = BUBBLE_BASE + ' ' + BUBBLE_SIDE[side];
     p.textContent = text || '';
     log.appendChild(p);
     scroll();
@@ -45,7 +51,7 @@ export function initChat(ctx) {
 
   function typing() {
     const p = document.createElement('p');
-    p.className = 'bubble them typing';
+    p.className = BUBBLE_BASE + ' ' + BUBBLE_SIDE.them + ' typing flex gap-1 px-3.5 py-3 [&_i]:h-1.75 [&_i]:w-1.75 [&_i]:rounded-full [&_i]:bg-(--ink-3) [&_i]:[animation:dot_1.1s_infinite] [&_i:nth-child(2)]:[animation-delay:0.15s] [&_i:nth-child(3)]:[animation-delay:0.3s]';
     p.setAttribute('aria-label', t.typing);
     p.innerHTML = '<i></i><i></i><i></i>';
     log.appendChild(p);

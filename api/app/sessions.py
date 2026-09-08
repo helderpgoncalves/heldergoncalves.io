@@ -1,15 +1,23 @@
 # ─────────────────────────────────────────────────────────────────────
-# Quem está a falar connosco: o código por email, e a sessão.
+# Quem está a falar connosco: o magic link por email, e a sessão.
 #
-# Não há palavras-passe. Entrar é pedir um código de seis algarismos,
-# que vai para o email, e devolvê-lo. Quem controla a caixa de correio
-# é quem entra — é o segundo factor a fazer de primeiro, e é o que se
-# quer para marcar uma reunião sem criar mais uma conta no mundo.
+# Não há palavras-passe. Entrar é pedir uma ligação, que vai para o
+# email, e abri-la. Quem controla a caixa de correio é quem entra — é o
+# segundo factor a fazer de primeiro, e é o que se quer para marcar uma
+# reunião sem criar mais uma conta no mundo.
 #
-# A sessão é uma assinatura, não uma tabela: o cookie leva o email, o
-# prazo e um HMAC dos dois. O segredo tem de sobreviver a reinícios,
-# senão um deploy deitava toda a gente fora — vem da configuração ou é
-# gerado uma vez e guardado ao lado dos dados.
+# A ligação é assinada, sem tabela — o mesmo desenho de
+# `subscribers.link_for`/`read_link`: leva o email, o instante e um HMAC
+# dos dois, e reiniciar o processo não a invalida. O que muda em relação
+# à newsletter é que esta TEM de valer uma vez só (é como entrar, não
+# como confirmar uma subscrição) — por isso `_used_links`, um registo
+# leve em memória das assinaturas já gastas, do mesmo formato que
+# `security._used_tokens`.
+#
+# A sessão em si continua uma assinatura, não uma tabela: o cookie leva
+# o email, o prazo e um HMAC dos dois. O segredo tem de sobreviver a
+# reinícios, senão um deploy deitava toda a gente fora — vem da
+# configuração ou é gerado uma vez e guardado ao lado dos dados.
 # ─────────────────────────────────────────────────────────────────────
 import asyncio
 import base64
@@ -19,14 +27,16 @@ import re
 import secrets
 import time
 from typing import Optional
+from urllib.parse import urlencode
 
-from app.config import AUTH, DATA_DIR, LIMITS, OWNER_EMAIL, SITE_ORIGIN
+from app.config import AUTH, DATA_DIR, OWNER_EMAIL, SITE_ORIGIN
 
 _secret: Optional[bytes] = None
 
-# Os códigos à espera de resposta, por email. Poucos, e morrem depressa.
-_codes: dict[str, dict] = {}
-MAX_CODES = 5000
+# As assinaturas de ligações já usadas — só a assinatura, nunca o email
+# em claro. Poucas, e morrem depressa (ver MAGIC_LINK_TTL).
+_used_links: dict[str, float] = {}
+MAX_USED_LINKS = 5000
 
 _COOKIE_RE = None  # construído depois de AUTH.cookie ser conhecido
 
@@ -60,36 +70,58 @@ def _hmac(value: str) -> str:
     return base64.urlsafe_b64encode(hmac.new(_secret, value.encode(), hashlib.sha256).digest()).decode().rstrip("=")
 
 
-# ── O código ─────────────────────────────────────────────────────────
-def issue_code(email: str) -> str:
-    """Gera um código para este email e guarda só a impressão dele."""
-    code = f"{secrets.randbelow(1_000_000):06d}"
-    _codes[email] = {"hash": _hmac(f"code.{email}.{code}"), "exp": time.monotonic() + AUTH.code_ttl, "tries": 0}
-    if len(_codes) > MAX_CODES:
-        _codes.pop(next(iter(_codes)))
-    return code
+# ── O magic link ─────────────────────────────────────────────────────
+def magic_link_for(email: str) -> str:
+    """A ligação que entra. `SITE_ORIGIN` porque é o email que a lê, não
+    o browser — precisa de ser um URL completo."""
+    key = email.strip().lower()
+    stamp = str(int(time.time() * 1000))
+    query = urlencode(
+        {
+            "e": base64.urlsafe_b64encode(key.encode()).decode().rstrip("="),
+            "t": stamp,
+            "s": _hmac(f"magic.{key}.{stamp}"),
+        }
+    )
+    return f"{SITE_ORIGIN}/api/auth/magic?{query}"
 
 
-def verify_code(email: str, code: str) -> bool:
-    """Confere o código. Cada um vale uma vez, e poucas tentativas."""
-    row = _codes.get(email)
-    if not row:
-        return False
-    if row["exp"] < time.monotonic() or row["tries"] >= LIMITS.auth_tries:
-        _codes.pop(email, None)
-        return False
-    row["tries"] += 1
-    if not hmac.compare_digest(row["hash"], _hmac(f"code.{email}.{code}")):
-        return False
-    _codes.pop(email, None)
-    return True
+def verify_magic_link(params: dict) -> Optional[str]:
+    """Confere a ligação e devolve o email — ou None. Uma vez só: a
+    segunda tentativa com a mesma assinatura falha, mesmo dentro da
+    janela de validade."""
+    if _secret is None:
+        return None
+    raw = params.get("e", "")
+    stamp = params.get("t", "")
+    given = params.get("s", "")
+    if len(raw) > 300 or len(given) > 100 or not stamp.isdigit() or not (10 <= len(stamp) <= 16):
+        return None
+    try:
+        padded = raw + "=" * (-len(raw) % 4)
+        email = base64.urlsafe_b64decode(padded).decode("utf-8")
+    except (ValueError, UnicodeDecodeError):
+        return None
+    if not email or len(email) > 160:
+        return None
+    expected = _hmac(f"magic.{email}.{stamp}")
+    if not hmac.compare_digest(given, expected):
+        return None
+    if (time.time() * 1000 - int(stamp)) > AUTH.magic_link_ttl * 1000:
+        return None
+    if given in _used_links:
+        return None
+    _used_links[given] = time.monotonic() + AUTH.magic_link_ttl
+    if len(_used_links) > MAX_USED_LINKS:
+        _used_links.pop(next(iter(_used_links)))
+    return email
 
 
-def sweep_codes() -> None:
+def sweep_magic_links() -> None:
     now = time.monotonic()
-    for email, row in list(_codes.items()):
-        if row["exp"] < now:
-            _codes.pop(email, None)
+    for sig, exp in list(_used_links.items()):
+        if exp < now:
+            _used_links.pop(sig, None)
 
 
 # ── A sessão ─────────────────────────────────────────────────────────

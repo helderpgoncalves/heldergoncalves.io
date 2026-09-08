@@ -130,7 +130,7 @@ export async function postsJson(): Promise<Response> {
     (out.posts as unknown[]).push(
       ...posts.map((p) => ({
         lang,
-        slug: p.slug.replace(/^(pt|en)\//, ''),
+        slug: p.id.replace(/^(pt|en)\//, ''),
         title: p.data.title,
         description: p.data.description,
         date: p.data.date.toISOString().slice(0, 10),

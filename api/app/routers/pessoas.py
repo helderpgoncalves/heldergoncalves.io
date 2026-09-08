@@ -7,7 +7,7 @@ from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
 from app.owner_guard import require_owner
-from app.users_store import list_people
+from app.users_repo import list_people
 
 router = APIRouter()
 
@@ -17,4 +17,4 @@ async def pessoas(request: Request) -> JSONResponse:
     _, error = require_owner(request)
     if error:
         return error
-    return JSONResponse({"ok": True, "people": list_people()})
+    return JSONResponse({"ok": True, "people": await list_people()})

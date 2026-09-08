@@ -77,16 +77,16 @@ NEWSLETTER_COPY = {
 
 AUTH_COPY = {
     "pt": {
-        "subject": "O teu código para entrar em heldergoncalves.io",
-        "body": lambda code: "\n".join(
+        "subject": "A tua ligação para entrar em heldergoncalves.io",
+        "body": lambda link: "\n".join(
             [
                 "Olá,",
                 "",
-                "O teu código para entrar no Calendário é:",
+                "Para entrar, abre esta ligação:",
                 "",
-                "    " + code,
+                link,
                 "",
-                "Vale dez minutos, e uma vez só. Se não foste tu a pedir, ignora este email — sem o código não entra ninguém.",
+                "Vale dez minutos, e uma vez só. Se não foste tu a pedir, ignora este email — sem esta ligação não entra ninguém.",
                 "",
                 "Hélder Gonçalves",
                 "https://heldergoncalves.io",
@@ -94,16 +94,16 @@ AUTH_COPY = {
         ),
     },
     "en": {
-        "subject": "Your code to sign in at heldergoncalves.io",
-        "body": lambda code: "\n".join(
+        "subject": "Your link to sign in at heldergoncalves.io",
+        "body": lambda link: "\n".join(
             [
                 "Hello,",
                 "",
-                "Your code to sign in to the Calendar is:",
+                "To sign in, open this link:",
                 "",
-                "    " + code,
+                link,
                 "",
-                "It is valid for ten minutes, once. If you did not ask for it, ignore this email — nobody gets in without the code.",
+                "It is valid for ten minutes, once. If you did not ask for it, ignore this email — nobody gets in without this link.",
                 "",
                 "Hélder Gonçalves",
                 "https://heldergoncalves.io",

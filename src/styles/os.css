@@ -25,21 +25,70 @@
    sem se dar por isso. `acesso` vem mesmo no fim, porque um recuo tem
    de ganhar a tudo.
 
-   Escrito à mão, sem frameworks. Nada aqui depende de JavaScript para
-   ser legível — o JS só transforma o documento em sistema.
+   Tailwind entra em migração, componente a componente. O Tailwind 4
+   usa `@layer` nativo do CSS a sério (ao contrário do 3, que só
+   ordenava fisicamente o output) — por isso a ordem das camadas é
+   declarada já aqui, explícita: `handwritten` depois de `utilities`,
+   para o CSS à mão continuar a ganhar numa colisão de especificidade
+   igual enquanto a migração não cobrir um componente. Um componente
+   passa a Tailwind apagando aqui as regras equivalentes, não
+   sobrepondo as duas — nunca é preciso mexer nesta ordem por causa
+   disso.
+
+   `@utility` (as três folhas `apple-cantos-*.css`, que substituem a
+   tabela de cantos que era só CSS) tem de vir FORA de `@layer
+   handwritten` — o Tailwind recusa `@utility` dentro de qualquer
+   `@layer`, mesmo indirectamente via `@import`. Isso não muda a
+   ordem que interessa: `@utility` já entra sozinho na camada
+   `tailwind-utilities`, que continua a perder contra `handwritten`
+   pela ordem declarada acima.
+
+   Sem Preflight: o reset do Tailwind zera margens e bordos em todo o
+   documento — só é seguro ligá-lo quando a migração cobrir o
+   suficiente do site para essa base valer para toda a gente, não só
+   para o componente da vez. Até lá, o reset mínimo que fazia falta
+   (tipo e cor herdados nos campos, bordo e preenchimento de `button`,
+   a cor por omissão de `a` — o que já estava em tokens.css) vive na
+   camada `reset`, ANTES de
+   `tailwind-utilities` — para perder sempre contra uma utility, sem
+   precisar de excepções `:not()` por componente à medida que a
+   migração avança. Cada regra que segue este padrão soma-se aqui, não
+   ao lado dela em tokens.css. Por isso `theme`+`utilities` são
+   importados à mão (não `@import "tailwindcss"`, que traria o
+   `preflight` também).
+
+   Nada aqui depende de JavaScript para ser legível — o JS só transforma
+   o documento em sistema.
    ═══════════════════════════════════════════════════════════════ */
-@import './os/tipografia.css';
-@import './os/tokens.css';
-@import './os/ambiente.css';
-@import './os/mac.css';
-@import './os/ios.css';
-@import './os/apps.css';
-@import './os/notas.css';
-@import './os/widgets.css';
-@import './os/bolsa.css';
-@import './os/calendario.css';
-@import './os/toque.css';
-@import './os/vidro.css';
-@import './os/apple.css';
-@import './os/contentor.css';
-@import './os/acesso.css';
+@layer reset, tailwind-theme, tailwind-utilities, handwritten;
+
+@layer reset {
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { background: none; border: 0; padding: 0; }
+  a { color: var(--accent); text-decoration: none; }
+}
+
+@import 'tailwindcss/theme.css' layer(tailwind-theme);
+@import 'tailwindcss/utilities.css' layer(tailwind-utilities);
+
+@import './os/apple-cantos-mac.css';
+@import './os/apple-cantos-ios.css';
+@import './os/apple-cantos-conteudo.css';
+
+@layer handwritten {
+  @import './os/tipografia.css';
+  @import './os/tokens.css';
+  @import './os/ambiente.css';
+  @import './os/mac.css';
+  @import './os/ios.css';
+  @import './os/apps.css';
+  @import './os/notas.css';
+  @import './os/widgets.css';
+  @import './os/bolsa.css';
+  @import './os/calendario.css';
+  @import './os/toque.css';
+  @import './os/vidro.css';
+  @import './os/apple.css';
+  @import './os/contentor.css';
+  @import './os/acesso.css';
+}

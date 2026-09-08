@@ -1,0 +1,248 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os cantos são contínuos — conteúdo, e o que `@utility` não pode
+   expressar (selectors compostos, concentricidade entre pai e
+   filho). Ver apple-cantos-mac.css para a explicação completa.
+   ═══════════════════════════════════════════════════════════════ */
+
+@utility rows {
+  --r: 12px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility card {
+  --r: 14px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility post-link {
+  --r: 9px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility wall-pick {
+  --r: 12px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility legal-note {
+  --r: 10px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility sim-screen {
+  --r: 42px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility sim-device {
+  --r: 53px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+/* ── O que `@utility` não pode expressar ──────────────────────────
+   Selectors compostos (uma classe dentro de outra, ou um elemento
+   sem classe própria) não são um selector de classe simples — ficam
+   CSS normal, exactamente como antes. */
+
+/* Dentro do grupo arredondado do telefone a linha não tem raio seu: 12 − 0. */
+[data-mode='ios'] .post-link { --r: 0px; }
+
+/* O widget no ambiente de trabalho do Mac tem menos margem interna do
+   que no ecrã inicial do telefone — sobrescreve o --pad de `@utility
+   widget` (apple-cantos-ios.css), o raio (--r) continua o mesmo. */
+.desk-widgets .widget { --pad: 11px; }
+
+.stk-stats-item {
+  --r: 10px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .stk-stats-item { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .stk-stats-item { corner-shape: superellipse(1.777); }
+}
+
+.stk-hold-edit input {
+  --r: 6px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .stk-hold-edit input { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .stk-hold-edit input { corner-shape: superellipse(1.777); }
+}
+
+.cal-list.mine li,
+.cal-login input,
+.cal-form input,
+.cal-form textarea {
+  --r: 8px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .cal-list.mine li,
+  .cal-login input,
+  .cal-form input,
+  .cal-form textarea {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .cal-list.mine li,
+  .cal-login input,
+  .cal-form input,
+  .cal-form textarea { corner-shape: superellipse(1.777); }
+}
+
+.entrar-form input {
+  --r: 10px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .entrar-form input { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .entrar-form input { corner-shape: superellipse(1.777); }
+}
+
+.post-group > ul {
+  --r: 12px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .post-group > ul { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .post-group > ul { corner-shape: superellipse(1.777); }
+}
+
+.prose pre, .prose img {
+  --r: 10px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .prose pre, .prose img { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .prose pre, .prose img { corner-shape: superellipse(1.777); }
+}
+
+.prose code {
+  --r: 5px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .prose code { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .prose code { corner-shape: superellipse(1.777); }
+}
+
+.comment {
+  --r: 12px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .comment { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .comment { corner-shape: superellipse(1.777); }
+}
+
+.comments-textarea {
+  --r: 10px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .comments-textarea { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .comments-textarea { corner-shape: superellipse(1.777); }
+}
+
+/* Concentricidade: raio de dentro = raio de fora menos a margem. É a
+   fórmula da Apple, e é o que faz as formas assentarem umas dentro
+   das outras à volta do mesmo centro. Como o canto contínuo se
+   desloca por igual quando se afasta da borda, a conta continua a
+   valer depois do 1,6×. `--r-out` vem de `.menu`/`.ctx`/`.spot-results`/
+   `.stk-suggest` (ver as `@utility` acima) por herança normal de CSS —
+   o filho lê a variável do pai sem precisar de a repetir. */
+.menu button, .ctx button,
+.spot-item, .stk-suggest-item {
+  --r: calc(var(--r-out) - var(--pad));
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .menu button, .ctx button,
+  .spot-item, .stk-suggest-item {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .menu button, .ctx button,
+  .spot-item, .stk-suggest-item { corner-shape: superellipse(1.777); }
+}
+
+.widget .w-row:first-of-type {
+  border-top-left-radius: calc(var(--r) - var(--pad));
+  border-top-right-radius: calc(var(--r) - var(--pad));
+}
+@supports (corner-shape: squircle) {
+  .widget .w-row:first-of-type {
+    border-top-left-radius: calc((var(--r) - var(--pad)) * 1.6);
+    border-top-right-radius: calc((var(--r) - var(--pad)) * 1.6);
+  }
+}

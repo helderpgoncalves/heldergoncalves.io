@@ -8,6 +8,8 @@ export function initEscritos(ctx) {
   const seeded = el.querySelector('[data-post-body]');
   if (seeded) cache.set(seeded.dataset.postBody, seeded.outerHTML);
 
+  let currentSlug = seeded ? seeded.dataset.postBody : null;
+
   const post = (slug) => ctx.data.posts.find((p) => p.slug === slug);
 
   function mark(slug) {
@@ -37,6 +39,7 @@ export function initEscritos(ctx) {
     reader.innerHTML = cache.get(slug);
     reader.scrollTop = 0;
     el.dataset.detail = '1';
+    currentSlug = slug;
     mark(slug);
     document.title = p.title + ' — ' + ctx.data.site.name;
     if (push) history.pushState({ app: 'escritos', post: slug }, '', p.url);
@@ -48,6 +51,7 @@ export function initEscritos(ctx) {
 
   function list(push) {
     el.dataset.detail = '0';
+    currentSlug = null;
     reader.innerHTML =
       '<div class="app-main-empty"><svg viewBox="0 0 100 100" width="42" height="42" aria-hidden="true">' +
       '<use href="#ui-note"/></svg><p>' +
@@ -106,5 +110,6 @@ export function initEscritos(ctx) {
     list,
     hasDetail: () => el.dataset.detail === '1',
     pane: () => el.querySelector('.app-main'),
+    currentSlug: () => currentSlug,
   };
 }

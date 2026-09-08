@@ -43,7 +43,7 @@ export function createDetalhe(ctx, money, signed, tone) {
       ['yield', typeof stats.yield === 'number' ? pct(stats.yield) : '—'],
       ['avgVolume', compact(stats.avgVolume)],
     ];
-    return rows.map(([key, value]) => '<div><dt>' + esc(t.stats[key]) + '</dt><dd>' + esc(value) + '</dd></div>').join('');
+    return rows.map(([key, value]) => '<div class="stk-stats-item bg-(--surface-2) px-3 py-2.5"><dt class="text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.stats[key]) + '</dt><dd class="mt-0.5 mb-0 text-[length:var(--t-body)] font-semibold tabular-nums">' + esc(value) + '</dd></div>').join('');
   }
 
   function aboutSection(profile) {
@@ -51,10 +51,10 @@ export function createDetalhe(ctx, money, signed, tone) {
     const meta = [profile.sector, profile.industry].filter(Boolean).join(' · ');
     return (
       '<section class="stk-about">' +
-      '<h3>' + esc(t.about) + '</h3>' +
-      (meta ? '<p class="stk-about-meta">' + esc(meta) + '</p>' : '') +
-      (profile.summary ? '<p class="stk-about-text">' + esc(profile.summary) + '</p>' : '') +
-      (profile.website ? '<a class="stk-about-link" href="' + esc(profile.website) + '" target="_blank" rel="noopener">' + esc(t.visitWebsite) + '</a>' : '') +
+      '<h3 class="m-0 mb-2 text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(t.about) + '</h3>' +
+      (meta ? '<p class="stk-about-meta m-0 mb-1.5 text-[length:var(--t-foot)] text-(--ink-3)">' + esc(meta) + '</p>' : '') +
+      (profile.summary ? '<p class="stk-about-text m-0 mb-2.5 text-[length:var(--t-subhead)] leading-[1.55] text-(--ink-2)">' + esc(profile.summary) + '</p>' : '') +
+      (profile.website ? '<a class="stk-about-link text-[length:var(--t-subhead)] font-medium" href="' + esc(profile.website) + '" target="_blank" rel="noopener">' + esc(t.visitWebsite) + '</a>' : '') +
       '</section>'
     );
   }
@@ -67,15 +67,15 @@ export function createDetalhe(ctx, money, signed, tone) {
         : '';
     return (
       '<section class="stk-news">' +
-      '<h3>' + esc(t.news) + '</h3>' +
-      '<ul class="stk-news-list">' +
+      '<h3 class="m-0 mb-2 text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(t.news) + '</h3>' +
+      '<ul class="stk-news-list m-0 grid list-none gap-0.5 p-0">' +
       news
         .map(
           (n) =>
-            '<li><a href="' + esc(n.url) + '" target="_blank" rel="noopener">' +
-            (n.thumb ? '<img class="stk-news-thumb" src="' + esc(n.thumb) + '" alt="" loading="lazy" />' : '<span class="stk-news-thumb stk-news-thumb-empty"></span>') +
-            '<span class="stk-news-body"><strong>' + esc(n.title) + '</strong>' +
-            '<span class="stk-news-meta">' + esc(n.provider) + (when(n.at) ? ' · ' + when(n.at) : '') + '</span></span>' +
+            '<li class="[&+&]:border-t-[0.5px] [&+&]:border-(--line)"><a class="flex items-center gap-3 py-2.5 text-inherit no-underline hover:no-underline [&:hover_strong]:underline" href="' + esc(n.url) + '" target="_blank" rel="noopener">' +
+            (n.thumb ? '<img class="stk-news-thumb h-16 w-16 flex-none object-cover bg-(--surface-3)" src="' + esc(n.thumb) + '" alt="" loading="lazy" />' : '<span class="stk-news-thumb stk-news-thumb-empty block h-16 w-16 flex-none bg-(--surface-3)"></span>') +
+            '<span class="stk-news-body grid min-w-0 gap-0.75"><strong class="text-[length:var(--t-subhead)] font-semibold leading-[1.3]">' + esc(n.title) + '</strong>' +
+            '<span class="stk-news-meta text-[length:var(--t-caption)] text-(--ink-3)">' + esc(n.provider) + (when(n.at) ? ' · ' + when(n.at) : '') + '</span></span>' +
             '</a></li>'
         )
         .join('') +
@@ -89,27 +89,27 @@ export function createDetalhe(ctx, money, signed, tone) {
     const when = new Date().toLocaleTimeString(ctx.data.intlLocale, { hour: '2-digit', minute: '2-digit' });
     const ranges = RANGE_ORDER.filter((r) => t.ranges[r]);
     main.innerHTML =
-      '<div class="stk-detail">' +
-      '<header class="stk-title"><div><h2>' + esc(label || q.symbol) + '</h2><p>' + esc(q.name) + '</p></div>' +
-      '<div class="stk-big"><span class="stk-bigprice" data-stk-price>' + money(q.price) + '</span>' +
-      '<span class="stk-change ' + k + '" data-stk-change>' + signed(q.change) + ' (' + signed(q.percent, '%') + ')</span></div></header>' +
-      '<div class="seg stk-ranges" role="tablist">' +
+      '<div class="stk-detail grid gap-4.5 px-6.5 pb-7.5 pt-5.5">' +
+      '<header class="stk-title flex items-start justify-between gap-4"><div><h2 class="m-0 text-[length:var(--t-title)] font-bold tracking-[-0.02em]">' + esc(label || q.symbol) + '</h2><p class="mb-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(q.name) + '</p></div>' +
+      '<div class="stk-big grid justify-items-end gap-0.5"><span class="stk-bigprice text-[length:var(--t-large)] font-bold tracking-[-0.02em] tabular-nums" data-stk-price>' + money(q.price) + '</span>' +
+      '<span class="stk-change ' + k + ' text-[length:var(--t-subhead)] font-semibold tabular-nums" data-stk-change>' + signed(q.change) + ' (' + signed(q.percent, '%') + ')</span></div></header>' +
+      '<div class="seg stk-ranges justify-self-start" role="tablist">' +
       ranges.map((r) => '<button type="button" role="tab" data-range="' + r + '" aria-pressed="' + (r === range) + '">' + esc(t.ranges[r]) + '</button>').join('') +
       '</div>' +
-      '<div class="stk-chart" data-stk-chart>' + chart(chartData ? chartData.points : q.points, k, {
+      '<div class="stk-chart relative" data-stk-chart>' + chart(chartData ? chartData.points : q.points, k, {
         session: chartData ? chartData.session : q.session,
         previous: chartData ? chartData.previous : q.previous,
         range,
         locale: ctx.data.intlLocale,
       }) + '</div>' +
-      '<dl class="stk-stats" data-stk-stats>' +
-      '<div><dt>' + esc(t.previous) + '</dt><dd>' + money(q.previous) + '</dd></div>' +
-      '<div><dt>' + esc(t.currency) + '</dt><dd>' + esc(q.currency || '—') + '</dd></div>' +
-      '<div><dt>' + esc(t.market) + '</dt><dd>' + esc(q.market === 'REGULAR' ? t.marketOpen : t.marketClosed) + '</dd></div>' +
-      '<div><dt>' + esc(t.updated) + '</dt><dd>' + esc(when) + '</dd></div>' +
+      '<dl class="stk-stats m-0 grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2.5" data-stk-stats>' +
+      '<div class="stk-stats-item bg-(--surface-2) px-3 py-2.5"><dt class="text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.previous) + '</dt><dd class="mt-0.5 mb-0 text-[length:var(--t-body)] font-semibold tabular-nums">' + money(q.previous) + '</dd></div>' +
+      '<div class="stk-stats-item bg-(--surface-2) px-3 py-2.5"><dt class="text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.currency) + '</dt><dd class="mt-0.5 mb-0 text-[length:var(--t-body)] font-semibold tabular-nums">' + esc(q.currency || '—') + '</dd></div>' +
+      '<div class="stk-stats-item bg-(--surface-2) px-3 py-2.5"><dt class="text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.market) + '</dt><dd class="mt-0.5 mb-0 text-[length:var(--t-body)] font-semibold tabular-nums">' + esc(q.market === 'REGULAR' ? t.marketOpen : t.marketClosed) + '</dd></div>' +
+      '<div class="stk-stats-item bg-(--surface-2) px-3 py-2.5"><dt class="text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.updated) + '</dt><dd class="mt-0.5 mb-0 text-[length:var(--t-body)] font-semibold tabular-nums">' + esc(when) + '</dd></div>' +
       '</dl>' +
       '<div data-stk-extra></div>' +
-      '<p class="stk-source">' + esc(t.source) + ' ' + esc(t.live) + '</p>' +
+      '<p class="stk-source m-0 text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.source) + ' ' + esc(t.live) + '</p>' +
       '</div>';
 
     const chartHost = main.querySelector('[data-stk-chart]');
@@ -144,7 +144,7 @@ export function createDetalhe(ctx, money, signed, tone) {
 
   function empty(main) {
     main.innerHTML =
-      '<div class="stk-empty"><svg viewBox="0 0 100 100" width="44" height="44" aria-hidden="true"><use href="#icon-bolsa"/></svg><p>' + esc(t.pick) + '</p></div>';
+      '<div class="stk-empty grid h-full place-content-center justify-items-center gap-2 text-(--ink-3)"><svg class="opacity-60" viewBox="0 0 100 100" width="44" height="44" aria-hidden="true"><use href="#icon-bolsa"/></svg><p>' + esc(t.pick) + '</p></div>';
   }
 
   return { render, empty, ranges: RANGE_ORDER };

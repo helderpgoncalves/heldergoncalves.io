@@ -11,8 +11,10 @@
     "precompress": "node scripts/precompress.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "3.2.1",
-    "astro": "4.16.19"
+    "@astrojs/sitemap": "3.7.4",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.3.2",
+    "tailwindcss": "4.3.3"
   },
   "engines": {
     "node": ">=22"

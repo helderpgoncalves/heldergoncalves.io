@@ -7,42 +7,42 @@ const c = COPY[lang];
 const k = c.contacto;
 const links = socialLinks(lang).filter((l) => l.id !== 'email');
 ---
-<section class="app-shell app-contacto" data-content="contacto" aria-label={c.apps.contacto.name}>
-  <form class="compose" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
-    <div class="compose-fields">
-      <div class="compose-field">
-        <label for="c-to">{k.to}</label>
-        <input id="c-to" name="to" value={SITE.email} readonly />
+<section class="app-shell app-contacto relative flex min-h-0 flex-col overflow-auto bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
+  <form class="compose flex min-h-0 flex-1 flex-col" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
+    <div class="compose-fields flex-none border-b-[0.5px] border-(--line)">
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-to">{k.to}</label>
+        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-to" name="to" value={SITE.email} readonly />
       </div>
-      <div class="compose-field">
-        <label for="c-from">{k.from}</label>
-        <input id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-from">{k.from}</label>
+        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
       </div>
-      <div class="compose-field">
-        <label for="c-subject">{k.subject}</label>
-        <input id="c-subject" name="subject" value={k.subjectValue} />
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-subject">{k.subject}</label>
+        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-subject" name="subject" value={k.subjectValue} />
       </div>
     </div>
     <div class="hp" aria-hidden="true">
       <label for="c-company">{k.honeypot}</label>
       <input id="c-company" name="company" type="text" tabindex="-1" autocomplete="off" />
     </div>
-    <textarea class="compose-body" id="c-body" name="body" placeholder={k.placeholder} rows="8" required minlength="10"></textarea>
-    <div class="compose-bar">
+    <textarea class="compose-body min-h-[140px] w-full flex-1 resize-none border-0 bg-transparent p-4 text-[15px] leading-[1.6] text-(--ink) outline-hidden" id="c-body" name="body" placeholder={k.placeholder} rows="8" required minlength="10"></textarea>
+    <div class="compose-bar flex items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-3">
       <button class="btn btn-primary" type="submit">
         <Icon id="ui-arrow" size={12} />{k.send}
       </button>
       <button class="btn" type="button" data-copy-email>{k.copy}</button>
-      <span class="hintline" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
+      <span class="hintline ml-auto text-[12px] text-(--ink-3)" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
     </div>
   </form>
-  <div class="app-pad compose-intro">
-    <h3 class="app-eyebrow">{k.elsewhere}</h3>
-    <div class="rows">
+  <div class="app-pad compose-intro flex-none px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
+    <h3 class="app-eyebrow m-0 mb-1 text-[11px] uppercase tracking-[0.08em] text-(--ink-3)">{k.elsewhere}</h3>
+    <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
       {links.map((l) => (
-        <a class="row" href={l.href} target="_blank" rel="noopener me">
-          <span class="k">{l.label}</span><span class="v">{l.value}</span>
-          <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow" size={15} />
+        <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline" href={l.href} target="_blank" rel="noopener me">
+          <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{l.value}</span>
+          <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow text-(--ink-3)" size={15} />
         </a>
       ))}
     </div>

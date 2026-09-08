@@ -8,16 +8,15 @@
 // importação directa (ver .claude/rules/cliente.md). Os cliques e o
 // envio do formulário ligam-se por delegação ao nó da app, que esse
 // sim é estável — por isso não é preciso religar nada.
+//
+// Comentar e reagir pedem sessão, mas o formulário está sempre visível
+// — é o padrão do sistema (ver lib/retomar.js): tenta-se sempre, e só
+// se faltar sessão é que se guarda o que se ia enviar e se abre
+// "Entrar". Ninguém perde o que já tinha escrito.
 // ─────────────────────────────────────────────────────────────────────
 import { esc } from '../lib/dom.js';
-import { requestToken, whoAmI } from '../lib/session.js';
-
-const post = (path, body) =>
-  fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(body),
-  });
+import { requestToken } from '../lib/session.js';
+import { chamarComSessao } from '../lib/retomar.js';
 
 export function initComentarios(ctx) {
   const el = ctx.contentNode('escritos');
@@ -35,8 +34,8 @@ export function initComentarios(ctx) {
     list.innerHTML = comments
       .map(
         (c) =>
-          '<li class="comment"><p class="comment-head">' + esc(c.name) + '</p>' +
-          '<p class="comment-body">' + esc(c.body) + '</p></li>'
+          '<li class="comment border-[0.5px] border-(--line) bg-(--surface-solid) px-3.5 py-3"><p class="comment-head m-0 mb-1 text-[length:var(--t-caption)] font-semibold text-(--ink-2)">' + esc(c.name) + '</p>' +
+          '<p class="comment-body m-0 whitespace-pre-wrap text-[length:var(--t-subhead)] leading-[1.5] text-(--ink)">' + esc(c.body) + '</p></li>'
       )
       .join('');
     if (empty) empty.hidden = comments.length > 0;
@@ -51,21 +50,9 @@ export function initComentarios(ctx) {
     });
   }
 
-  /** Comentar e reagir pedem sessão — sem ela, mostra-se o convite a
-   * entrar em vez do formulário, e os botões de reação abrem o mesmo
-   * ecrã em vez de tentar o pedido. */
-  async function prepareForm(sec) {
-    const form = sec.querySelector('[data-comments-form]');
-    const signin = sec.querySelector('[data-comments-signin]');
-    const email = await whoAmI();
-    if (form) form.hidden = !email;
-    if (signin) signin.hidden = Boolean(email);
-  }
-
   async function load(slug) {
     const sec = section();
     if (!sec) return;
-    prepareForm(sec);
     try {
       const res = await fetch('/api/comentarios?post=' + encodeURIComponent(slug), { headers: { Accept: 'application/json' } });
       const data = await res.json().catch(() => null);
@@ -83,7 +70,10 @@ export function initComentarios(ctx) {
   }
   ctx.comentarios = {
     onShow,
-    refresh: () => currentSlug && prepareForm(section()),
+    // Chamado por ctx.onSessionChange — depois de entrar (e, sobretudo,
+    // depois de lib/retomar.js repetir um comentário/reacção pendente),
+    // a lista tem de reflectir o que acabou de ser gravado.
+    refresh: () => currentSlug && load(currentSlug),
   };
 
   // O escrito já podia vir servido no arranque — carrega os comentários
@@ -92,32 +82,18 @@ export function initComentarios(ctx) {
   if (seeded) onShow(seeded.dataset.comments);
 
   el.addEventListener('click', async (ev) => {
-    const signIn = ev.target.closest('[data-action="entrar"]');
-    if (signIn) {
-      ctx.run('entrar');
-      return;
-    }
-
     const btn = ev.target.closest('[data-reaction]');
     if (!btn || !currentSlug) return;
-    if (!(await whoAmI())) {
-      ctx.run('entrar');
-      return;
-    }
     const kind = btn.dataset.reaction;
-    post('/api/comentarios/reagir', { post: currentSlug, kind })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data || !data.ok) return;
-        const sec = section();
-        if (!sec) return;
-        btn.setAttribute('aria-pressed', String(data.active));
-        sec.querySelectorAll('[data-reaction]').forEach((b) => {
-          const countEl = b.querySelector('[data-reaction-count]');
-          if (countEl) countEl.textContent = String((data.reactions && data.reactions[b.dataset.reaction]) || 0);
-        });
-      })
-      .catch(() => {});
+    const res = await chamarComSessao(ctx, { url: '/api/comentarios/reagir', body: { post: currentSlug, kind } });
+    if (res.needsAuth || !res.ok) return;
+    const sec = section();
+    if (!sec) return;
+    btn.setAttribute('aria-pressed', String(res.data.active));
+    sec.querySelectorAll('[data-reaction]').forEach((b) => {
+      const countEl = b.querySelector('[data-reaction-count]');
+      if (countEl) countEl.textContent = String((res.data.reactions && res.data.reactions[b.dataset.reaction]) || 0);
+    });
   });
 
   el.addEventListener('submit', async (ev) => {
@@ -140,27 +116,32 @@ export function initComentarios(ctx) {
       return say(t.fail);
     }
 
-    try {
-      const res = await post('/api/comentarios', {
+    const res = await chamarComSessao(ctx, {
+      url: '/api/comentarios',
+      body: {
         post: currentSlug,
         name: (form.querySelector('[data-comments-name]') || {}).value || '',
-        email: (form.querySelector('[data-comments-email]') || {}).value || '',
         body,
         lang: ctx.data.lang,
         token,
         company: (form.querySelector('[data-comments-trap]') || {}).value || '',
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
-        form.reset();
-        say(t.sent);
-        load(currentSlug);
-      } else {
-        say(res.status === 429 ? t.limit : data.error === 'identidade' ? t.identity : t.fail);
-      }
-    } catch (_) {
-      say(t.fail);
-    }
+      },
+    });
     form.dataset.busy = '';
+
+    if (res.needsAuth) {
+      // O texto fica no formulário — ninguém o perde. lib/retomar.js
+      // repete este mesmo pedido sozinho assim que a sessão existir, e
+      // `load(currentSlug)` mostra o resultado quando o retrato reabrir
+      // este escrito (ver retomar() em lib/retomar.js).
+      return say(t.signInFirst);
+    }
+    if (res.ok) {
+      form.reset();
+      say(t.sent);
+      load(currentSlug);
+    } else {
+      say(res.status === 429 ? t.limit : t.fail);
+    }
   });
 }

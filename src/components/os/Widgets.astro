@@ -28,64 +28,67 @@ const TYPES = ['date', 'clock', 'post', 'list', 'links'] as const;
      abre-se a si próprio; na lista e nas ligações cada linha já é o
      seu destino. -->
 <template data-widget="date">
-  <button class="widget glass glass-clear widget-date" type="button" data-open="calendario">
-    <span class="w-day" data-widget-day></span>
-    <span class="w-date" data-widget-date></span>
+  <button class="widget glass glass-clear widget-date flex flex-col gap-[3px] p-(--pad) text-left text-white active:scale-96 active:transition-transform active:duration-120" type="button" data-open="calendario">
+    <span class="text-[13px] font-semibold uppercase tracking-[0.03em] text-(--red)" data-widget-day></span>
+    <span class="font-(family-name:--display) text-[34px] leading-[1.05] font-semibold tracking-[-0.02em]" data-widget-date></span>
   </button>
 </template>
 <template data-widget="clock">
-  <button class="widget glass glass-clear widget-clock" type="button" data-open="calendario">
-    <span class="w-kicker" data-widget-day></span>
-    <span class="w-time" data-clock-ios></span>
+  <button class="widget glass glass-clear widget-clock flex flex-col gap-[3px] p-(--pad) text-left text-white active:scale-96 active:transition-transform active:duration-120" type="button" data-open="calendario">
+    <span class="text-[11px] uppercase tracking-[0.07em] opacity-75" data-widget-day></span>
+    <span class="font-(family-name:--display) text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] tabular-nums" data-clock-ios></span>
   </button>
 </template>
 <template data-widget="post">
   {latest ? (
-    <button class="widget glass glass-clear widget-post" type="button" data-open-post={postSlug(latest)}>
-      <span class="w-kicker">{c.escritos.heading}</span>
-      <span class="w-title">{latest.data.title}</span>
-      <span class="w-meta">{formatDate(latest.data.date, lang)}</span>
+    <button class="widget glass glass-clear widget-post flex flex-col gap-[3px] p-(--pad) text-left text-white active:scale-96 active:transition-transform active:duration-120" type="button" data-open-post={postSlug(latest)}>
+      <span class="text-[11px] uppercase tracking-[0.07em] opacity-75">{c.escritos.heading}</span>
+      <span class="mt-0.5 text-[15px] font-semibold leading-[1.25]">{latest.data.title}</span>
+      <span class="mt-auto text-[11px] opacity-70">{formatDate(latest.data.date, lang)}</span>
     </button>
   ) : (
-    <div class="widget glass glass-clear widget-post"><span class="w-kicker">{c.escritos.heading}</span><span class="w-meta">{c.escritos.empty}</span></div>
+    <div class="widget glass glass-clear widget-post flex flex-col gap-[3px] p-(--pad) text-left text-white">
+      <span class="text-[11px] uppercase tracking-[0.07em] opacity-75">{c.escritos.heading}</span>
+      <span class="mt-auto text-[11px] opacity-70">{c.escritos.empty}</span>
+    </div>
   )}
 </template>
 <template data-widget="list">
-  <div class="widget glass glass-clear widget-list">
-    <span class="w-kicker">{c.escritos.heading}</span>
+  <div class="widget glass glass-clear widget-list flex min-h-[150px] flex-col gap-0.5 p-(--pad) text-left text-white">
+    <span class="text-[11px] uppercase tracking-[0.07em] opacity-75">{c.escritos.heading}</span>
     {posts.slice(0, 3).map((p) => (
-      <button class="w-row" type="button" data-open-post={postSlug(p)}>
-        <span class="w-row-title">{p.data.title}</span>
-        <span class="w-row-meta">{formatDate(p.data.date, lang)}</span>
+      <button class="w-row grid gap-px py-2.25 text-left text-white border-b-[0.5px] border-white/16 last-of-type:border-b-0" type="button" data-open-post={postSlug(p)}>
+        <span class="text-[13px] font-semibold leading-[1.2]">{p.data.title}</span>
+        <span class="text-[11px] opacity-68">{formatDate(p.data.date, lang)}</span>
       </button>
     ))}
-    {posts.length === 0 && <span class="w-meta">{c.escritos.empty}</span>}
+    {posts.length === 0 && <span class="mt-auto text-[11px] opacity-70">{c.escritos.empty}</span>}
   </div>
 </template>
 <template data-widget="links">
-  <div class="widget glass glass-clear widget-links">
-    <span class="w-kicker">{c.contacto.elsewhere}</span>
-    <div class="w-links">
-      <a href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
-      <a href={SITE.github} target="_blank" rel="noopener me" aria-label={c.labels.github}><Icon id="ui-github" size={20} /></a>
-      <a href={SITE.linkedin} target="_blank" rel="noopener me" aria-label={c.labels.linkedin}><Icon id="ui-linkedin" size={20} /></a>
-      <a href={SITE.twitter} target="_blank" rel="noopener me" aria-label={c.labels.twitter}><Icon id="ui-twitter" size={20} /></a>
+  <div class="widget glass glass-clear widget-links flex flex-col gap-[3px] p-(--pad) text-left text-white">
+    <span class="text-[11px] uppercase tracking-[0.07em] opacity-75">{c.contacto.elsewhere}</span>
+    <div class="mt-2.5 flex gap-3">
+      <a class="grid h-11 w-11 place-items-center rounded-full bg-white/20 text-white hover:bg-white/32" href={`mailto:${SITE.email}`} aria-label={c.labels.email}><Icon id="ui-mail" size={20} /></a>
+      <a class="grid h-11 w-11 place-items-center rounded-full bg-white/20 text-white hover:bg-white/32" href={SITE.github} target="_blank" rel="noopener me" aria-label={c.labels.github}><Icon id="ui-github" size={20} /></a>
+      <a class="grid h-11 w-11 place-items-center rounded-full bg-white/20 text-white hover:bg-white/32" href={SITE.linkedin} target="_blank" rel="noopener me" aria-label={c.labels.linkedin}><Icon id="ui-linkedin" size={20} /></a>
+      <a class="grid h-11 w-11 place-items-center rounded-full bg-white/20 text-white hover:bg-white/32" href={SITE.twitter} target="_blank" rel="noopener me" aria-label={c.labels.twitter}><Icon id="ui-twitter" size={20} /></a>
     </div>
   </div>
 </template>
 
-<div class="wgal" id="wgal" hidden>
-  <div class="wgal-sheet glass" role="dialog" aria-label={c.os.widgets.title}>
-    <div class="wgal-head">
-      <h2>{c.os.widgets.title}</h2>
-      <button class="wgal-close" type="button" data-wgal-close>{c.os.widgets.done}</button>
+<div class="wgal absolute inset-0 z-[810] grid content-end bg-black/35 [[data-mode='mac']_&]:content-center [[data-mode='mac']_&]:justify-items-center [&[hidden]]:hidden" id="wgal" hidden>
+  <div class="wgal-sheet glass flex max-h-[78%] flex-col overflow-hidden rounded-b-none [[data-mode='mac']_&]:max-h-[70vh] [[data-mode='mac']_&]:w-[min(520px,92vw)]" role="dialog" aria-label={c.os.widgets.title}>
+    <div class="flex flex-none items-center justify-between px-[18px] pb-2.5 pt-3.5">
+      <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em]">{c.os.widgets.title}</h2>
+      <button class="min-h-11 text-[length:var(--t-body)] font-semibold text-(--accent)" type="button" data-wgal-close>{c.os.widgets.done}</button>
     </div>
-    <div class="wgal-list">
+    <div class="grid min-h-0 flex-1 gap-3 overflow-auto px-[18px] pb-[18px] pt-1">
       {TYPES.map((type) => (
-        <div class="wgal-item" data-wgal-type={type}>
-          <div class="wgal-preview" aria-hidden="true"></div>
-          <span class="wgal-name">{c.os.widgets.names[type]}</span>
-          <button class="wgal-add" type="button" data-widget-add={type}>{c.os.widgets.add}</button>
+        <div class="wgal-item grid grid-cols-1 justify-items-center gap-2 bg-(--surface-2) p-3.5" data-wgal-type={type}>
+          <div class="wgal-preview w-full max-w-[300px] pointer-events-none [&_.widget]:min-h-24 [&_.widget]:bg-(--surface-3) [&_.widget]:text-(--ink) [&_.widget]:shadow-none [&_.widget]:backdrop-blur-none [&_.widget::before]:hidden [&_.widget::after]:hidden [&_.w-links_a]:bg-(--surface-3) [&_.w-links_a]:text-(--ink) [&_.w-row]:border-(--line)" aria-hidden="true"></div>
+          <span class="text-[length:var(--t-subhead)] text-(--ink-2)">{c.os.widgets.names[type]}</span>
+          <button class="min-h-9 rounded-full bg-(--accent) px-[18px] py-2 text-[length:var(--t-subhead)] font-semibold text-white" type="button" data-widget-add={type}>{c.os.widgets.add}</button>
         </div>
       ))}
     </div>

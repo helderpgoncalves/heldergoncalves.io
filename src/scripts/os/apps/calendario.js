@@ -5,8 +5,14 @@
 // vê, e que horários há nesse mês — os livres e os meus. Tudo o que
 // desenha está em calendario-vista.js; aqui decide-se o que se pede e
 // quando.
+//
+// Entrar não tem ecrã próprio — usa o painel "Entrar" do sistema (ver
+// lib/entrar.js), como o resto das apps. `ctx.onSessionChange` já
+// chama `refresh()` depois de uma sessão nova; é o que recarrega o mês
+// aqui, quer se tenha entrado pelo painel quer se tenha voltado de um
+// magic link com o Calendário no retrato (lib/retomar.js).
 // ─────────────────────────────────────────────────────────────────────
-import { requestCode, verifyCode } from '../lib/session.js';
+import { forgetWho } from '../lib/session.js';
 import { createView } from './calendario-vista.js';
 
 const post = (path, body) =>
@@ -40,8 +46,6 @@ export function initCalendario(ctx) {
     view: 'month',
     busy: false,
     hint: '',
-    step: 'email',
-    pendingEmail: '',
   };
 
   const view = createView(el, t, ctx, state);
@@ -101,39 +105,8 @@ export function initCalendario(ctx) {
     res.status === 429 ? t.errors.limit : res.status === 503 ? t.errors.off : data.error === 'email' ? t.errors.email : t.errors.generic;
 
   // ── Entrar ─────────────────────────────────────────────────────────
-  async function sendCode(email) {
-    state.busy = true;
-    state.hint = t.sending;
-    view.render();
-    const res = await requestCode(email, ctx.data.lang);
-    if (res.ok) {
-      state.step = 'code';
-      state.pendingEmail = email;
-      state.hint = t.codeHint;
-    } else {
-      state.hint = res.status === 429 ? t.errors.limit : res.status === 503 ? t.errors.off : res.error === 'email' ? t.errors.email : t.errors.generic;
-    }
-    state.busy = false;
-    view.render();
-  }
-
-  async function verify(code) {
-    state.busy = true;
-    state.hint = t.sending;
-    view.render();
-    const res = await verifyCode(state.pendingEmail, code);
-    if (res.ok) {
-      state.email = res.email;
-      state.owner = res.owner;
-      state.step = 'email';
-      state.hint = '';
-      ctx.notify(t.signedAs + ' ' + res.email);
-      await loadMonth();
-    } else {
-      state.hint = res.status === 429 ? t.errors.limit : t.errors.code;
-    }
-    state.busy = false;
-    view.render();
+  function signIn() {
+    ctx.run('entrar');
   }
 
   async function signOut() {
@@ -201,16 +174,21 @@ export function initCalendario(ctx) {
       state.view = v;
       view.render();
     },
-    sendCode,
-    verify,
+    signIn,
     signOut,
     book,
     cancelMeeting,
-    resend: () => {
-      state.step = 'email';
-      view.render();
-    },
   });
+
+  ctx.calendario = {
+    // Depois de entrar (painel global, ou o retomar de um magic link) a
+    // sessão já existe mas o estado aqui ainda não sabe — refaz-se do
+    // zero, como no primeiro arranque da app.
+    refresh: async () => {
+      await whoAmI();
+      await loadMonth();
+    },
+  };
 
   let prepared = false;
   ctx.prepareCalendar = async () => {

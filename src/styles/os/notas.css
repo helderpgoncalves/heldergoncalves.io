@@ -1,125 +1,28 @@
 /* ═══════════════════════════════════════════════════════════════
-   O Blog, com a forma das Notas da Apple.
+   O Blog: o que o Tailwind não alcança daqui — o recuo de
+   transparência (não é uma superfície `.glass`, por isso não passa
+   pelo sistema de `acesso.css`), o fallback de `:has()`, o layout
+   sem container queries, e a cor local da aplicação no iOS. O resto
+   já é utility, em Escritos.astro e comentarios.js.
    Parte de os.css — ver o índice lá.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Blog — a forma é a das Notas da Apple.
-   ─────────────────────────────────────────────────────────────
-   Duas colunas: a lista e o texto. Na lista, cada entrada são duas
-   linhas — o título e, por baixo, a data seguida do princípio do
-   texto — e as duas cortam-se onde a coluna acaba, nunca quebram. O
-   que separa as entradas é um fio que começa onde começa o texto,
-   não na borda da coluna; e a entrada escolhida enche-se, o fio
-   desaparece à volta dela. */
-/* A única aplicação que abre uma janela para o vidro: a coluna da
-   lista fica transparente e deixa passar a moldura, o texto continua
-   em cima de opaco. É a barra lateral do macOS. */
-.app-escritos { flex-direction: column; background: transparent; }
-.notes-panes { flex: 1; min-height: 0; display: flex; flex-direction: row; }
-.app-side {
-  flex: 0 0 268px; min-width: 0; display: flex; flex-direction: column;
-  border-right: 0.5px solid var(--line); background: transparent;
-}
-.app-main { background: var(--surface-solid); }
-
-/* Sem vidro por trás — no telefone, ou quando alguém pediu menos
-   transparência — a coluna volta a ter fundo próprio. */
-[data-mode='ios'] .app-side { background: var(--surface-2); }
+/* Sem vidro por trás — quando alguém pediu menos transparência — a
+   coluna volta a ter fundo próprio. `.app-escritos`/`.app-side` não
+   são `.glass` (deixam passar o papel de parede por trás, não
+   desfocam-no), por isso este recuo é local, não o de acesso.css. */
 @media (prefers-reduced-transparency: reduce) {
   .app-escritos { background: var(--surface-solid); }
   .app-side { background: var(--surface-2); }
 }
-.app-side-head { padding: 14px 16px 10px; border-bottom: 0.5px solid var(--line); }
-.app-side-head h2 { margin: 0; font-size: 17px; letter-spacing: -0.02em; }
-.app-side-head p { margin: 2px 0 0; font-size: 12px; color: var(--ink-3); }
-.post-list { flex: 1; min-height: 0; overflow: auto; padding: 6px 8px; margin: 0; list-style: none; }
-.post-link {
-  position: relative; display: grid; gap: 1px; width: 100%;
-  padding: 7px 10px; text-align: left; color: inherit; text-decoration: none;
-}
-/* O fio entre entradas, encostado ao texto. */
-.post-list li + li .post-link::before {
-  content: ''; position: absolute; left: 10px; right: 10px; top: -0.5px;
-  height: 0.5px; background: var(--line);
-}
-.post-link:hover { background: var(--surface-3); text-decoration: none; }
-/* O fio some-se dos dois lados da entrada cheia: o de cima é o dela,
-   o de baixo pertence à entrada seguinte. */
-.post-link:hover::before,
-.post-link[aria-current='true']::before { opacity: 0; }
-/* Em regra à parte: um browser que não conheça `:has()` deita fora a
-   regra inteira, e a de cima tem de sobreviver. */
+
+/* O fio entre entradas desaparece à volta da entrada cheia — o de
+   cima é dela, o de baixo é da seguinte. Em regra à parte: um
+   browser que não conheça `:has()` deita fora a regra inteira, e a
+   de cima (Tailwind, `hover:before:opacity-0` e
+   `aria-current:before:opacity-0`) tem de sobreviver sozinha. */
 .post-list li:has(.post-link:hover) + li .post-link::before,
 .post-list li:has(.post-link[aria-current='true']) + li .post-link::before { opacity: 0; }
-.post-link[aria-current='true'] { background: var(--accent); color: #fff; }
-.post-link[aria-current='true'] .post-sub,
-.post-link[aria-current='true'] .post-sub time { color: rgba(255, 255, 255, 0.82); }
-.post-link h3 {
-  margin: 0; font-size: var(--t-headline, 13px); font-weight: 600; letter-spacing: -0.01em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.post-sub {
-  display: flex; align-items: baseline; gap: 6px; min-width: 0;
-  font-size: var(--t-foot, 11px); color: var(--ink-3);
-  white-space: nowrap; overflow: hidden;
-}
-.post-sub time { flex: none; color: var(--ink-2); }
-.post-preview { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.post-meta { font-size: 11px; color: var(--ink-3); }
-
-/* No telefone a lista é a das Notas do iPhone: linhas mais altas,
-   texto do tamanho do sistema, e o fio a atravessar a largura toda
-   menos a margem de leitura. */
-[data-mode='ios'] .post-link { padding: 10px 12px; gap: 2px; }
-
-/* Subscrever — o rodapé da coluna da lista.
-   ─────────────────────────────────────────────────────────────
-   Assenta no fundo, separado por um fio, e não rola com a lista: é
-   parte da moldura, não do conteúdo. O campo e o botão são uma peça
-   só, como a barra de escrever das Mensagens. */
-.sub {
-  flex: none; padding: 12px 14px 14px; border-top: 0.5px solid var(--line);
-  background: var(--surface-2);
-}
-.sub[hidden] { display: none; }
-.sub-title { margin: 0 0 8px; font-size: var(--t-foot, 11px); font-weight: 600; color: var(--ink-2); }
-.sub-row {
-  display: flex; align-items: center; gap: 6px; padding: 3px 3px 3px 12px;
-  border-radius: 999px; background: var(--surface-solid);
-  border: 0.5px solid var(--line);
-  transition: border-color 0.15s;
-}
-.sub-row:focus-within { border-color: var(--accent); }
-.sub-input {
-  flex: 1; min-width: 0; border: 0; background: none; outline: none;
-  font-size: var(--t-foot, 12px); color: var(--ink);
-}
-.sub-input::placeholder { color: var(--ink-3); }
-.sub-go {
-  flex: none; padding: 6px 14px; border-radius: 999px;
-  background: var(--accent); color: #fff; font-size: var(--t-caption, 11px); font-weight: 590;
-  transition: opacity 0.15s, transform 0.12s var(--ease-os);
-}
-.sub-go:active { transform: scale(0.96); }
-.sub[data-busy='1'] .sub-go { opacity: 0.5; pointer-events: none; }
-.sub[data-done='1'] .sub-row { display: none; }
-.sub-note { margin: 8px 2px 0; font-size: var(--t-caption, 11px); line-height: 1.4; color: var(--ink-3); }
-.sub-note[data-tone='good'] { color: var(--green); }
-.sub-note[data-tone='bad'] { color: var(--danger); }
-
-/* No telefone o alvo tem de dar para o dedo. */
-[data-mode='ios'] .sub-input { font-size: var(--t-subhead); }
-[data-mode='ios'] .sub-go { min-height: 36px; font-size: var(--t-foot); }
-.app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.app-main-empty { flex: 1; display: grid; place-content: center; justify-items: center; gap: 8px; color: var(--ink-3); }
-.app-main-empty svg { width: 42px; height: 42px; opacity: 0.5; }
-
-/* O arrasto de voltar atrás, em qualquer largura. */
-.app-escritos .app-main.dragging {
-  transition: none;
-  visibility: visible;
-  box-shadow: -14px 0 34px rgba(0, 0, 0, 0.22);
-}
 
 /* Alternativa para browsers sem container queries: decide-se pelo modo. */
 @supports not (container-type: inline-size) {
@@ -132,141 +35,9 @@
   [data-mode='ios'] .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
   [data-mode='ios'] .app-escritos .back-btn { display: inline-flex; }
 }
-.back-btn { display: none; align-items: center; gap: 4px; padding: 10px 16px; color: var(--accent); font-size: 15px; }
 
-/* A barra das Notas, no Mac.
-   ─────────────────────────────────────────────────────────────
-   Por cima das duas colunas, como na aplicação: esconder a lista à
-   esquerda, escrever e partilhar no meio, e o campo de pesquisa à
-   direita. Os botões são só os que fazem alguma coisa. No telefone
-   não existe — lá a pesquisa está debaixo do título grande. */
-.notes-toolbar {
-  flex: none; display: flex; align-items: center; gap: 4px; padding: 5px 10px;
-  border-bottom: 0.5px solid var(--line);
-}
-.notes-toolbar .spacer { flex: 1; }
-.notes-tool {
-  display: grid; place-items: center; width: 30px; height: 24px; color: var(--ink-2);
-  transition: background 0.12s;
-}
-.notes-tool svg { width: 16px; height: 16px; }
-.notes-tool:hover { background: var(--surface-3); }
-.notes-search {
-  display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; width: 170px;
-  border-radius: 999px; background: var(--surface-2); border: 0.5px solid var(--line);
-  color: var(--ink-3); transition: border-color 0.15s, width 0.2s var(--ease-os);
-}
-.notes-search:focus-within { border-color: var(--accent); width: 220px; }
-.notes-search svg { width: 13px; height: 13px; flex: none; }
-.notes-search input {
-  flex: 1; min-width: 0; border: 0; background: none; outline: none;
-  font-size: var(--t-body, 13px); color: var(--ink);
-}
-.notes-search input::placeholder { color: var(--ink-3); }
-.notes-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
-.app-escritos.side-hidden .app-side { display: none; }
-[data-mode='ios'] .notes-toolbar { display: none; }
-[data-mode='ios'] .app-escritos.side-hidden .app-side { display: flex; }
-
-/* A lista por meses, como as Notas agrupam o que já não é de hoje. */
-.post-group { list-style: none; }
-.post-group > h4 {
-  margin: 0; padding: 10px 10px 3px; font-size: var(--t-subhead, 11px); font-weight: 600;
-  color: var(--ink-3);
-}
-.post-group > ul { margin: 0; padding: 0; list-style: none; }
-.post-group[hidden], .post-list li[hidden] { display: none; }
-.notes-empty { padding: 20px 10px; text-align: center; color: var(--ink-3); font-size: var(--t-foot, 11px); }
-.notes-empty[hidden] { display: none; }
-
-/* O texto: a data em cima ao meio, pequena e cinzenta, e o título por
-   baixo — é assim que uma nota começa. */
-.article-head .app-eyebrow { text-align: center; margin-bottom: 14px; }
-
-/* No telefone.
-   ─────────────────────────────────────────────────────────────
-   O título grande (34) no topo da lista, o campo de pesquisa por
-   baixo, os grupos com o mês em título, e em baixo a barra com a
-   contagem ao meio e o escrever à direita. A cor da aplicação é o
-   amarelo do sistema, como nas Notas. */
+/* A cor da aplicação no telefone é o amarelo do sistema, como nas
+   Notas — só ali; no Mac segue o azul do resto do sistema. */
 [data-mode='ios'] .ios-view[data-app='escritos'] { --accent: var(--yellow); }
 [data-mode='ios'] .ios-view[data-app='escritos'] .ios-view-head h2 { opacity: 0; transition: opacity 0.2s; }
 [data-mode='ios'] .ios-view[data-app='escritos'].scrolled .ios-view-head h2 { opacity: 1; }
-[data-mode='ios'] .app-side { border-right: 0; }
-[data-mode='ios'] .app-side-head { padding: 4px 16px 6px; border-bottom: 0; }
-[data-mode='ios'] .app-side-head h2 { font-size: var(--t-large); font-weight: 700; letter-spacing: -0.02em; }
-[data-mode='ios'] .app-side-head p { display: none; }
-.notes-search-ios { display: none; }
-[data-mode='ios'] .notes-search-ios {
-  display: flex; margin: 0 16px 6px; width: auto; height: 36px; padding: 0 10px;
-  background: var(--surface-3); border: 0; font-size: var(--t-body);
-}
-[data-mode='ios'] .notes-search-ios:focus-within { width: auto; }
-/* O campo mostra 36, mas dá 44 ao dedo. */
-[data-mode='ios'] .notes-search-ios input { font-size: var(--t-body); min-height: 44px; margin: -4px 0; }
-[data-mode='ios'] .post-list { padding: 0 16px; }
-[data-mode='ios'] .post-group > h4 { padding: 14px 0 6px; font-size: var(--t-title3); font-weight: 700; color: var(--ink); }
-[data-mode='ios'] .post-group > ul { background: var(--surface-2); overflow: hidden; }
-[data-mode='ios'] .post-link { padding: 10px 16px; gap: 2px; }
-[data-mode='ios'] .post-link h3 { font-size: var(--t-headline); }
-[data-mode='ios'] .post-sub { font-size: var(--t-subhead); }
-[data-mode='ios'] .post-list li + li .post-link::before { left: 16px; right: 0; }
-[data-mode='ios'] .post-link[aria-current='true'] { background: var(--surface-3); color: var(--ink); }
-[data-mode='ios'] .post-link[aria-current='true'] .post-sub,
-[data-mode='ios'] .post-link[aria-current='true'] .post-sub time { color: var(--ink-3); }
-.notes-foot { display: none; }
-[data-mode='ios'] .notes-foot {
-  flex: none; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
-  padding: 6px 12px; border-top: 0.5px solid var(--line);
-  background: var(--surface); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-}
-[data-mode='ios'] .notes-foot .count { grid-column: 2; text-align: center; font-size: var(--t-caption2); color: var(--ink-2); }
-[data-mode='ios'] .notes-foot .notes-tool { grid-column: 3; width: 44px; height: 44px; color: var(--accent); }
-[data-mode='ios'] .notes-foot .notes-tool svg { width: 22px; height: 22px; }
-[data-mode='ios'] .notes-foot .notes-tool:hover { background: none; }
-
-/* Comentários e reações, por baixo de cada escrito.
-   ─────────────────────────────────────────────────────────────
-   O mesmo vocabulário do resto do sistema: cápsulas para os botões,
-   `surface-solid` para os campos, o mesmo fio que já separa o rodapé
-   do artigo (`article-foot`) a separar isto dele. */
-.comments { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line); }
-.comments-heading { font-size: var(--t-title3); margin: 0 0 14px; }
-
-.comments-reactions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.reaction {
-  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-  border-radius: 999px; background: var(--surface-solid); border: 0.5px solid var(--line);
-  font-size: var(--t-caption); color: var(--ink-2); transition: background 0.15s, border-color 0.15s;
-}
-.reaction:hover { background: var(--surface-2); }
-.reaction[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); background: var(--surface-3); }
-.reaction-count { font-variant-numeric: tabular-nums; color: var(--ink-3); }
-.reaction[aria-pressed='true'] .reaction-count { color: var(--accent); }
-
-.comments-list { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 14px; }
-.comment { padding: 12px 14px; background: var(--surface-solid); border: 0.5px solid var(--line); border-radius: 12px; }
-.comment-head { margin: 0 0 4px; font-size: var(--t-caption); font-weight: 600; color: var(--ink-2); }
-.comment-body { margin: 0; font-size: var(--t-subhead); color: var(--ink); line-height: 1.5; white-space: pre-wrap; }
-.comments-empty { margin: 0 0 20px; font-size: var(--t-subhead); color: var(--ink-3); }
-
-.comments-signin { display: flex; align-items: center; gap: 12px; margin: 0 0 20px; }
-.comments-signin p { margin: 0; font-size: var(--t-subhead); color: var(--ink-3); }
-.comments-form[hidden], .comments-signin[hidden] { display: none; }
-
-.comments-form { display: grid; gap: 8px; max-width: 44ch; }
-.comments-form-title { margin: 0 0 4px; font-size: var(--t-foot, 11px); font-weight: 600; color: var(--ink-2); }
-.comments-input, .comments-textarea {
-  width: 100%; padding: 9px 12px; background: var(--surface-solid); border: 0.5px solid var(--line);
-  border-radius: 10px; color: var(--ink); outline: none; font: inherit; font-size: var(--t-subhead);
-  transition: border-color 0.15s;
-}
-.comments-textarea { resize: vertical; min-height: 4.5em; }
-.comments-input:focus, .comments-textarea:focus { border-color: var(--accent); }
-.comments-form .btn { justify-self: start; }
-.comments-form[data-busy='1'] .btn { opacity: 0.5; pointer-events: none; }
-.comments-hint { margin: 0; font-size: var(--t-caption, 11px); color: var(--ink-3); min-height: 1.2em; }
-
-@media (max-width: 480px) {
-  .comments-signin { flex-direction: column; align-items: flex-start; }
-}

@@ -7,16 +7,16 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.pessoas;
 ---
-<section class="app-shell app-pessoas" data-content="pessoas" aria-label={c.apps.pessoas.name}>
-  <div class="app-scroll">
-    <div class="app-pad">
-      <p class="ppl-lead" data-ppl-lead>{k.lead}</p>
-      <p class="ppl-only" data-ppl-only hidden>
+<section class="app-shell app-pessoas relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="pessoas" aria-label={c.apps.pessoas.name}>
+  <div class="app-scroll min-h-0 flex-1 overflow-auto [-webkit-overflow-scrolling:touch]">
+    <div class="app-pad px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
+      <p class="ppl-lead m-0 mb-4 text-(--ink-3)" data-ppl-lead>{k.lead}</p>
+      <p class="ppl-only flex items-center gap-3 text-(--ink-3) [&[hidden]]:hidden" data-ppl-only hidden>
         {k.onlyOwner}
         <button type="button" class="btn" data-action="entrar">{k.signIn}</button>
       </p>
-      <ul class="ppl-list" data-ppl-list hidden></ul>
-      <p class="ppl-empty" data-ppl-empty hidden>{k.empty}</p>
+      <ul class="ppl-list grid gap-2 [&[hidden]]:hidden" data-ppl-list hidden></ul>
+      <p class="ppl-empty text-(--ink-3) [&[hidden]]:hidden" data-ppl-empty hidden>{k.empty}</p>
     </div>
   </div>
 </section>

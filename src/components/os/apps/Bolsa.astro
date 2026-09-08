@@ -19,49 +19,49 @@ const PORTFOLIO = [
   { symbol: 'MSFT', label: 'MSFT' },
 ];
 ---
-<section class="app-shell app-bolsa" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')} data-portfolio={PORTFOLIO.map((p) => p.symbol).join(',')}>
-  <div class="stk-side">
-    <div class="stk-head">
-      <h2>{c.apps.bolsa.name}</h2>
-      <button class="stk-edit" type="button" data-stk-edit>{b.edit}</button>
+<section class="app-shell app-bolsa flex-row" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')} data-portfolio={PORTFOLIO.map((p) => p.symbol).join(',')}>
+  <div class="stk-side flex min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid)">
+    <div class="stk-head flex items-center justify-between px-4 pb-1.5 pt-3.5">
+      <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.bolsa.name}</h2>
+      <button class="stk-edit min-h-7 text-[length:var(--t-body)] font-medium text-(--accent)" type="button" data-stk-edit>{b.edit}</button>
     </div>
-    <div class="stk-add">
+    <div class="stk-add relative mx-3 mb-2 mt-1 flex h-[30px] items-center gap-1.5 bg-(--surface-3) px-2.5 text-(--ink-3) [[data-mode='ios']_&]:h-9">
       <Icon id="ui-search" size={13} />
       <label class="sr" for="stk-symbol">{b.add}</label>
-      <input id="stk-symbol" type="search" placeholder={b.addPlaceholder} autocomplete="off" autocapitalize="characters" spellcheck="false" data-stk-search />
-      <div class="stk-suggest" data-stk-suggest hidden></div>
+      <input id="stk-symbol" type="search" placeholder={b.addPlaceholder} autocomplete="off" autocapitalize="characters" spellcheck="false" data-stk-search class="min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden [&::-webkit-search-cancel-button]:appearance-none" />
+      <div class="stk-suggest absolute inset-x-0 top-[calc(100%+6px)] z-6 max-h-[260px] overflow-auto bg-(--surface-solid) p-1 border-[0.5px] border-(--line) shadow-(--shadow-pop) [&[hidden]]:hidden" data-stk-suggest hidden></div>
     </div>
 
-    <div class="stk-groups" data-stk-scroll>
-      <div class="stk-group">
-        <p class="stk-group-name">{b.list}</p>
-        <ul class="stk-list" data-stk-list="watch">
+    <div class="stk-groups min-h-0 flex-1 overflow-auto pb-2" data-stk-scroll>
+      <div class="stk-group [&+&]:mt-1.5">
+        <p class="stk-group-name m-0 mb-0.5 mt-1.5 px-4 text-[length:var(--t-caption)] font-semibold uppercase tracking-[0.06em] text-(--ink-3)">{b.list}</p>
+        <ul class="stk-list m-0 list-none px-2" data-stk-list="watch">
           {DEFAULT.map((s) => (
-            <li class="stk-row" data-symbol={s}>
-              <span class="stk-sym">{s}</span>
-              <span class="stk-name">—</span>
+            <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={s}>
+              <span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{s}</span>
+              <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div class="stk-group">
-        <p class="stk-group-name">{b.portfolio}</p>
-        <ul class="stk-list stk-portfolio" data-stk-list="portfolio">
+      <div class="stk-group [&+&]:mt-1.5">
+        <p class="stk-group-name m-0 mb-0.5 mt-1.5 px-4 text-[length:var(--t-caption)] font-semibold uppercase tracking-[0.06em] text-(--ink-3)">{b.portfolio}</p>
+        <ul class="stk-list stk-portfolio m-0 list-none px-2" data-stk-list="portfolio">
           {PORTFOLIO.map((p) => (
-            <li class="stk-row" data-symbol={p.symbol} data-label={p.label}>
-              <span class="stk-sym">{p.label}</span>
-              <span class="stk-name">—</span>
+            <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={p.symbol} data-label={p.label}>
+              <span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{p.label}</span>
+              <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
             </li>
           ))}
         </ul>
-        <div class="stk-totals" data-stk-totals hidden></div>
+        <div class="stk-totals flex flex-wrap items-baseline gap-x-2.5 gap-y-1 px-4 pb-2 pt-0.5 [&[hidden]]:hidden" data-stk-totals hidden></div>
       </div>
     </div>
-    <p class="stk-note" data-stk-note>{b.lead}</p>
+    <p class="stk-note m-0 border-t-[0.5px] border-(--line) px-4 pb-3 pt-2.5 text-[length:var(--t-caption)] text-(--ink-3)" data-stk-note>{b.lead}</p>
   </div>
-  <div class="stk-main" data-stk-main>
-    <button class="stk-back" type="button" data-stk-back><Icon id="ui-chevron" size={14} />{b.list}</button>
-    <div class="stk-empty"><Icon id="bolsa" size={44} /><p>{b.pick}</p></div>
+  <div class="stk-main min-w-0 flex-1 overflow-auto bg-(--surface-solid)" data-stk-main>
+    <button class="stk-back hidden" type="button" data-stk-back><Icon id="ui-chevron" size={14} />{b.list}</button>
+    <div class="stk-empty grid h-full place-content-center justify-items-center gap-2 text-(--ink-3)"><Icon id="bolsa" size={44} /><p>{b.pick}</p></div>
   </div>
 </section>

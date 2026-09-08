@@ -36,6 +36,7 @@ from app.config import (
 from app.availability_store import init_availability_store
 from app.chat_store import init_chat_store
 from app.comments_store import init_comments_store
+from app.db import close_db, init_db
 from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
 from app.routers import agenda, auth, bolsa, chat, comments, contact, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
@@ -43,11 +44,11 @@ from app.security import SECURITY_HEADERS
 from app.sessions import init_sessions
 from app.static_files import cache_stats, handle_static, warm_cache
 from app.subscribers import init_subscribers
-from app.users_store import init_users_store
 
-# A limpeza periódica dos limites por visitante e dos códigos por
-# arranque. Cinco minutos chegam: nada aqui é urgente, e o que fica por
-# limpar entre corridas está limitado por MAX_KEYS de qualquer forma.
+# A limpeza periódica dos limites por visitante e das ligações de
+# entrada já gastas. Cinco minutos chegam: nada aqui é urgente, e o que
+# fica por limpar entre corridas está limitado por MAX_KEYS/
+# MAX_USED_LINKS de qualquer forma.
 SWEEP_INTERVAL = 300
 
 
@@ -55,14 +56,14 @@ async def _sweeper() -> None:
     while True:
         await asyncio.sleep(SWEEP_INTERVAL)
         security.sweep(SWEEP_INTERVAL)
-        sessions.sweep_codes()
+        sessions.sweep_magic_links()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()
     await init_subscribers()
     await init_sessions()
-    await init_users_store()
     await init_meetings()
     await init_availability_store()
     await init_chat_store()
@@ -74,6 +75,7 @@ async def lifespan(app: FastAPI):
 
     print(f"heldergoncalves.io a servir {ROOT}")
     print(f"origem:     {SITE_ORIGIN}")
+    print("postgres:   ligado")
     print("contacto:   " + estado(MAIL_READY, MAIL.provider, "inativo, o site usa mailto:"))
     print("newsletter: " + estado(NEWSLETTER_READY, MAIL.provider, "inativa, precisa do email configurado"))
     print("conversa:   " + estado(CHAT_READY, CHAT.model, "inativa, as Mensagens usam respostas guardadas"))
@@ -96,6 +98,7 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         sweeper.cancel()
+        await close_db()
 
 
 app = FastAPI(title="heldergoncalves.io", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)

@@ -22,7 +22,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 from app.config import GOOGLE, GOOGLE_READY, GOOGLE_REDIRECT_URI, LIMITS, SITE_ORIGIN
 from app.security import bump, check_token, ip_key, issue_token
 from app.sessions import session_cookie
-from app.users_store import record_visit
+from app.users_repo import record_visit
 
 router = APIRouter()
 
@@ -53,9 +53,9 @@ async def google_start(request: Request) -> RedirectResponse | JSONResponse:
             "client_id": GOOGLE.client_id,
             "redirect_uri": GOOGLE_REDIRECT_URI,
             "response_type": "code",
-            # Só o email — é só o que se usa. Pedir "profile" para o
-            # deitar fora sem ler seria pedir mais do que o necessário.
-            "scope": "openid email",
+            # "profile" além de "email": a foto de perfil vai para
+            # `users.avatar_url` — a app Pessoas/Contactos mostra-a.
+            "scope": "openid email profile",
             "state": state,
             # Sem conta escolhida de propósito nenhuma vez: quem tem mais
             # do que uma conta Google aberta escolhe sempre, em vez de
@@ -113,8 +113,10 @@ async def google_callback(request: Request) -> RedirectResponse:
     if not email or not info.get("email_verified"):
         return _redirect_with_error("email")
 
+    avatar_url = str(info.get("picture") or "").strip() or None
+
     print("[sessoes] sessão iniciada (Google)")
-    await record_visit(email, "google")
+    await record_visit(email, avatar_url)
     response = RedirectResponse(SITE_ORIGIN + "/?entrar=ok", status_code=302)
     response.headers["Set-Cookie"] = session_cookie(email)
     return response

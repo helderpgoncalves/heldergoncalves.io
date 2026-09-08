@@ -1,0 +1,36 @@
+# Contexto de build para Dockerfile.dev — o ambiente de desenvolvimento
+# local. Ao contrário de .dockerignore (que serve o Dockerfile de
+# produção e exclui tudo o que é só de teste/dev), aqui precisamos de
+# `api/tests`, `requirements-dev.txt` e `pytest.ini` para instalar
+# pytest na imagem — ver docker-compose.dev.yml.
+#
+# O código em si (src/, api/app/) é montado como volume por cima disto
+# em desenvolvimento; o que interessa ao build são as dependências.
+node_modules
+dist
+.astro
+.git
+.gitignore
+.DS_Store
+.env
+.env.*
+npm-debug.log*
+Dockerfile
+Dockerfile.dev
+.dockerignore
+Dockerfile.dev.dockerignore
+README.md
+DEPLOY.md
+NOTICE.md
+CLAUDE.md
+CLAUDE.local.md
+.claude
+.github
+data
+__pycache__
+*.pyc
+.pytest_cache
+.venv
+docker-compose.yml
+docker-compose.override.yml
+.env.compose

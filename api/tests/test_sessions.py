@@ -1,3 +1,5 @@
+from urllib.parse import parse_qs, urlparse
+
 import pytest
 
 from app import sessions
@@ -8,28 +10,57 @@ async def _init():
     await sessions.init_sessions()
 
 
-def test_issue_and_verify_code():
+def _params_of(link: str) -> dict:
+    return {k: v[0] for k, v in parse_qs(urlparse(link).query).items()}
+
+
+def test_magic_link_round_trip():
     email = "alguem@example.test"
-    code = sessions.issue_code(email)
-    assert len(code) == 6 and code.isdigit()
-    assert sessions.verify_code(email, code) is True
+    link = sessions.magic_link_for(email)
+    assert sessions.verify_magic_link(_params_of(link)) == email
 
 
-def test_a_code_is_single_use():
+def test_a_magic_link_is_single_use():
     email = "alguem@example.test"
-    code = sessions.issue_code(email)
-    assert sessions.verify_code(email, code) is True
-    assert sessions.verify_code(email, code) is False
+    params = _params_of(sessions.magic_link_for(email))
+    assert sessions.verify_magic_link(params) == email
+    assert sessions.verify_magic_link(params) is None
 
 
-def test_wrong_code_is_rejected():
+def test_a_tampered_magic_link_is_rejected():
+    params = _params_of(sessions.magic_link_for("alguem@example.test"))
+    params["s"] = params["s"][:-1] + ("x" if params["s"][-1] != "x" else "y")
+    assert sessions.verify_magic_link(params) is None
+
+
+def test_a_magic_link_for_another_email_is_rejected():
+    params = _params_of(sessions.magic_link_for("alguem@example.test"))
+    # a assinatura vale para o email que a pediu, não para outro qualquer
+    params_outro = _params_of(sessions.magic_link_for("outra-pessoa@example.test"))
+    assert sessions.verify_magic_link({**params, "s": params_outro["s"]}) is None
+
+
+def test_an_expired_magic_link_is_rejected():
+    import time
+
+    from app.config import AUTH
+
     email = "alguem@example.test"
-    sessions.issue_code(email)
-    assert sessions.verify_code(email, "000000") is False
+    # Um `stamp` de fora da janela de validade, assinado como se fosse
+    # genuíno — `AUTH` é `frozen`, não se lhe mexe para simular o tempo
+    # a passar (ver config.py: só `Limits` é feito para isso).
+    stale_stamp = str(int(time.time() * 1000) - (AUTH.magic_link_ttl + 5) * 1000)
+    params = {
+        "e": sessions._encode(email),
+        "t": stale_stamp,
+        "s": sessions._hmac(f"magic.{email}.{stale_stamp}"),
+    }
+    assert sessions.verify_magic_link(params) is None
 
 
-def test_verify_without_a_pending_code_fails():
-    assert sessions.verify_code("ninguem-pediu@example.test", "123456") is False
+def test_verify_magic_link_rejects_malformed_params():
+    assert sessions.verify_magic_link({}) is None
+    assert sessions.verify_magic_link({"e": "x", "t": "não-é-número", "s": "x"}) is None
 
 
 def test_session_cookie_round_trip():

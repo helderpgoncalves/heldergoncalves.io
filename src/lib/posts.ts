@@ -5,7 +5,7 @@ import { ROUTES, type Lang } from '../siteConfig';
 export type Post = CollectionEntry<'blog'>;
 
 /** 'pt/porque-voltei-a-escrever' → 'porque-voltei-a-escrever' */
-export const postSlug = (post: Post): string => post.slug.replace(/^(pt|en)\//, '');
+export const postSlug = (post: Post): string => post.id.replace(/^(pt|en)\//, '');
 
 export const postPath = (post: Post, lang: Lang): string =>
   `${ROUTES[lang].blog}${postSlug(post)}/`;

@@ -1,41 +1,105 @@
 # ─────────────────────────────────────────────────────────────────────
-# heldergoncalves.io — variante local de desenvolvimento do
-# docker-compose.yml, para correr ao lado de outros projectos sem
-# disputar a porta 3000 (já ocupada nesta máquina).
+# heldergoncalves.io — ambiente de desenvolvimento local, com hot
+# reload a sério nos dois lados: o Astro com o seu próprio HMR (Vite) e
+# a API FastAPI com `uvicorn --reload`. Uma porta só — o Astro faz de
+# proxy para /api, por trás do mesmo servidor de dev.
 #
 # Uso:
 #   cp .env.example .env   # preenche o que precisares — tudo é opcional
 #   docker compose -f docker-compose.dev.yml up --build
 #
-# Fica em http://localhost:3900. O nome do projecto Compose
-# ("heldergoncalvesio-dev") isola a rede e os volumes dos de produção.
+# Fica em http://localhost:3900. Muda um ficheiro em src/ ou api/app/ e
+# recarrega sozinho — nada de rebuild de imagem. O nome do projecto
+# Compose ("heldergoncalvesio-dev") isola a rede e os volumes dos de
+# produção; a porta é a 3900 para não disputar a 3000 com outro
+# projecto na mesma máquina.
+#
+# `postgres` e `minio` são a base de dados e o armazenamento de
+# anexos da plataforma — ver docs/arquitetura.md. Os dois guardam
+# tudo em volumes nomeados, como `site-data-dev`: apagar o container
+# não apaga o que lá está, só `docker compose down -v` o faz.
 # ─────────────────────────────────────────────────────────────────────
 name: heldergoncalvesio-dev
 
 services:
-  site:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: helder
+      POSTGRES_PASSWORD: helder
+      POSTGRES_DB: heldergoncalves
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+      - ./api/docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helder -d heldergoncalves"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 512m
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: helder
+      MINIO_ROOT_PASSWORD: helder123
+    volumes:
+      - minio-data-dev:/data
+    ports:
+      - "9001:9001"   # consola do MinIO — só em desenvolvimento
+    mem_limit: 512m
+
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3900:3000"
+      dockerfile: Dockerfile.dev
+    command: >
+      sh -c "cd api && PYTHONPATH=/app/api uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload"
     env_file:
       - path: .env
         required: false
     environment:
-      STATIC_DIR: /app/dist
       DATA_DIR: /app/data
       KNOWLEDGE_DIR: /app/knowledge
+      DATABASE_URL: postgresql+asyncpg://helder:helder@postgres:5432/heldergoncalves
+      TEST_DATABASE_URL: postgresql+asyncpg://helder:helder@postgres:5432/heldergoncalves_test
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: helder
+      MINIO_SECRET_KEY: helder123
     volumes:
+      - ./api/app:/app/api/app
+      - ./api/alembic:/app/api/alembic
+      - ./api/alembic.ini:/app/api/alembic.ini
+      - ./api/tests:/app/api/tests
+      - ./api/pytest.ini:/app/api/pytest.ini
+      - ./knowledge:/app/knowledge
       - site-data-dev:/app/data
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)"]
-      interval: 30s
-      timeout: 3s
-      start_period: 5s
-      retries: 3
-    restart: unless-stopped
-    mem_limit: 256m
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 512m
+
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: sh -c "npx astro dev --host 0.0.0.0 --port 3000"
+    ports:
+      - "3900:3000"
+    environment:
+      API_PROXY_TARGET: http://api:3000
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./astro.config.mjs:/app/astro.config.mjs
+      - ./tailwind.config.mjs:/app/tailwind.config.mjs
+      - ./tsconfig.json:/app/tsconfig.json
+    depends_on:
+      - api
+    mem_limit: 512m
 
 volumes:
   site-data-dev:
+  postgres-data-dev:
+  minio-data-dev:

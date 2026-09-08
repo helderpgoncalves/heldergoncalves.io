@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os cantos são contínuos, e a tabela deles vive num sítio só.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Um canto da Apple não é um arco de círculo. O arco cobre apenas
+   36° no meio do canto; de cada lado dele entram duas curvas de
+   Bézier que o entregam ao lado a direito sem salto de curvatura.
+   Daí o nome que a Apple lhe dá: *continuous*.
+
+   Duas consequências, e são as duas que interessam:
+
+   1. O canto ocupa 1,6× o raio ao longo de cada lado. Num ícone de
+      100, com raio de 22,37, o canto vai até 35,79 e o lado a
+      direito só existe entre 35,79 e 64,21.
+   2. A fundura é a mesma de um canto circular do mesmo raio —
+      0,2929 × r nos dois casos. Por isso os raios nominais abaixo
+      são os de sempre: o que muda é a passagem, não o tamanho.
+
+   `corner-shape` desenha isto no browser. O raio que ele recebe é o
+   *comprimento do canto*, não o raio do arco — por isso leva o 1,6×.
+   O expoente 1,777 é o que reproduz a curva da Apple: a superelipse
+   de grau 2^1,777 ≈ 3,43 passa exactamente pelos dois pontos acima.
+   Onde o browser não souber, fica o canto circular do mesmo raio
+   nominal, que é a aproximação mais próxima que resta.
+
+   Uma classe, uma `@utility`: `@utility` só aceita um selector de
+   classe simples, nunca um composto (".menu button" não pode ser
+   `@utility`) — por isso é uma entrada por classe, cada uma com a
+   sua própria cópia do par `@supports`. É mais volume do que a
+   tabela antiga (uma linha por classe, três blocos partilhados),
+   mas o resultado computado é byte a byte o mesmo: o mesmo `--r`,
+   o mesmo `corner-shape`, a mesma passagem de fallback. Os
+   selectors compostos que `@utility` não aceita ficam no fim deste
+   ficheiro, como CSS normal — não há alternativa técnica para eles
+   em Tailwind 4.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* macOS */
+@utility win {
+  --r: 11px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility snap-preview {
+  --r: 11px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility menu {
+  --r: 10px;
+  --pad: 5px;
+  --r-out: var(--r);
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility ctx {
+  --r: 10px;
+  --pad: 5px;
+  --r-out: var(--r);
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility menubar-item {
+  --r: 4px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility notes-tool {
+  --r: 5px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility desk-icon {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+/* A Dock é concêntrica com os ícones que encostam à margem dela: o raio
+   é o do ícone (22,37 % do lado) mais a margem. */
+@utility dock {
+  --pad: max(8px, calc(var(--dock-icon) * 0.12));
+  --r: calc(var(--dock-icon) * 0.2237 + var(--pad));
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility dock-tip {
+  --r: 7px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility spot-box {
+  --r: 14px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility spot-results {
+  --r: 14px;
+  --pad: 6px;
+  --r-out: var(--r);
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cmdtab {
+  --r: 20px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cmdtab-item {
+  --r: 12px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility skip {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}

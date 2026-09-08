@@ -18,6 +18,8 @@ import { createPhone } from './ios/index.js';
 import { initApps } from './apps/index.js';
 import { createWidgets } from './widgets.js';
 import { createEntrar } from './lib/entrar.js';
+import { retomar, temRetrato } from './lib/retomar.js';
+import { whoAmI, forgetWho } from './lib/session.js';
 
 const node = document.getElementById('os-data');
 if (node) boot(JSON.parse(node.textContent));
@@ -60,6 +62,7 @@ function boot(data) {
   ctx.onSessionChange = () => {
     if (ctx.pessoas && ctx.pessoas.refresh) ctx.pessoas.refresh();
     if (ctx.comentarios && ctx.comentarios.refresh) ctx.comentarios.refresh();
+    if (ctx.calendario && ctx.calendario.refresh) ctx.calendario.refresh();
   };
 
   // ── Abrir e fechar ────────────────────────────────────────────
@@ -262,11 +265,38 @@ function boot(data) {
     });
   }
 
+  // ── Voltar de entrar (Google, ou o magic link) ──────────────────
+  // Os dois caminhos de autenticação são um redirect do servidor de
+  // volta para `/?entrar=ok` ou `/?entrar=erro&motivo=...` — nunca há
+  // rota própria para isto, é sempre a concha do sistema. Se havia um
+  // retrato (ver lib/retomar.js), esta é a vez de o repor; sem
+  // retrato, `?entrar=ok` só limpa a URL e segue o arranque normal.
+  async function afterSignInRedirect() {
+    const params = new URLSearchParams(location.search);
+    const state = params.get('entrar');
+    if (!state) return false;
+
+    history.replaceState(history.state, '', location.pathname + location.hash);
+    if (state !== 'ok') return false;
+
+    forgetWho();
+    const email = await whoAmI();
+    if (!email) return false;
+
+    ctx.onSessionChange && ctx.onSessionChange();
+    if (temRetrato()) {
+      await retomar(ctx);
+      return true;
+    }
+    return false;
+  }
+
   // ── Sequência de arranque ─────────────────────────────────────
   const first = !seenThisSession('helderos-booted') && !forcedPhone;
   const bootEl = document.getElementById('boot');
 
-  function ready() {
+  async function ready() {
+    if (await afterSignInRedirect()) return;
     const start = data.boot || (ctx.mode === 'mac' ? data.bootMac : null);
     if (start) {
       openApp(start);

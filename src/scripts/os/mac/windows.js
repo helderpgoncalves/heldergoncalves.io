@@ -35,7 +35,6 @@ export function createWindows(desk) {
   const { layer, menuApp } = els;
 
   let zTop = Z_FLOOR;
-  let cascade = 0;
 
   // ── Onde e de que tamanho ──────────────────────────────────────────
 
@@ -49,13 +48,19 @@ export function createWindows(desk) {
     return Math.max(Math.min(want, max), Math.min(min, avail - 24));
   }
 
+  /**
+   * Sempre perto do centro: o degrau da cascata conta-se pelas janelas
+   * que estão mesmo abertas agora (`wins.size`), nunca por um contador
+   * histórico — senão, ao fim de uma sessão longa a abrir e fechar
+   * janelas, o degrau ia fugindo do centro sem que houvesse ali
+   * sobreposição nenhuma para justificar.
+   */
   function place(w, h) {
     const { w: W, h: H } = desk.area();
     const baseX = Math.max(12, Math.min(W - w - 12, Math.round((W - w) / 2) - 60));
     const baseY = 22;
     const steps = Math.max(1, Math.floor(Math.min(W - w - baseX - 16, H - h - baseY - 72) / STEP));
-    const i = cascade % steps;
-    cascade += 1;
+    const i = wins.size % steps;
     return {
       x: Math.max(12, Math.min(W - w - 12, baseX + i * STEP)),
       y: Math.max(8, Math.min(H - h - 56, baseY + i * STEP)),
@@ -147,11 +152,7 @@ export function createWindows(desk) {
       ctx.setOpen(id, false);
       const next = topmost();
       if (next) focus(next);
-      else {
-        setActiveLabel(null);
-        // Sem janelas abertas, a escada recomeça do primeiro degrau.
-        cascade = 0;
-      }
+      else setActiveLabel(null);
       desk.dock.sync();
     };
     if (reducedMotion()) done();
@@ -299,7 +300,6 @@ export function createWindows(desk) {
       wins.delete(id);
     });
     setActiveLabel(null);
-    cascade = 0;
     desk.dock.sync();
   }
 

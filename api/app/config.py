@@ -20,6 +20,13 @@ KNOWLEDGE_DIR = Path(_env("KNOWLEDGE_DIR", "./knowledge")).resolve()
 DATA_DIR = Path(_env("DATA_DIR", "./data")).resolve()
 TRUST_PROXY = os.environ.get("TRUST_PROXY") != "0"
 SITE_ORIGIN = _env("SITE_ORIGIN", "https://heldergoncalves.io").rstrip("/")
+# `conftest.py` põe isto antes de qualquer módulo da app ser importado.
+# Sem excepção fora dos testes: nunca lido de outro sítio — ver db.py.
+TESTING = os.environ.get("TESTING") == "1"
+
+# ── Postgres ─────────────────────────────────────────────────────────
+# Sempre `asyncpg` — nunca um driver síncrono. Ver app/db.py.
+DATABASE_URL = _env("DATABASE_URL", "postgresql+asyncpg://helder:helder@localhost:5432/heldergoncalves")
 
 
 # ── Email ────────────────────────────────────────────────────────────
@@ -102,13 +109,17 @@ COMMENTS = Comments()
 
 
 # ── Sessões e reuniões ───────────────────────────────────────────────
-# Entrar é um código por email — precisa do email ligado, como a
-# newsletter. A agenda vale no fuso de Lisboa, seja quem for que marque.
+# Entrar é uma ligação por email (magic link) — precisa do email ligado,
+# como a newsletter. A agenda vale no fuso de Lisboa, seja quem for que
+# marque.
 @dataclass(frozen=True)
 class Auth:
     secret: str = _env("SESSION_SECRET")
     cookie: str = "hs"
-    code_ttl: int = 10 * 60
+    # Curta de propósito: ao contrário da confirmação da newsletter (que
+    # tem de sobreviver dias, porque ninguém confirma um email na hora),
+    # entrar é um gesto imediato — quem pediu a ligação está mesmo ali.
+    magic_link_ttl: int = 10 * 60
     session_ttl: int = 30 * 24 * 60 * 60
 
 
@@ -213,14 +224,17 @@ class Limits:
 
     mcp_per_ip: int = 60
 
-    # Sessões: cada pedido de código é um email; as tentativas são poucas.
+    # Sessões: cada pedido de magic link é um email — poucos por IP, um
+    # tecto global. Não há tentativas a limitar: a ligação em si é a
+    # prova, não um código a adivinhar.
     auth_per_ip: int = 5
     auth_per_ip_window: int = 60 * 60
     auth_global: int = 200
     auth_global_window: int = 60 * 60
-    auth_verify_per_ip: int = 15
-    auth_verify_window: int = 15 * 60
-    auth_tries: int = 5
+    # Abrir a ligação: raro por IP, mas alguém pode abri-la duas vezes
+    # sem querer (o próprio Mail a pré-carregar, por exemplo).
+    magic_verify_per_ip: int = 15
+    magic_verify_window: int = 15 * 60
 
     # Entrar com a Google: só o pedido do `state` e a troca do código —
     # não há tentativas para limitar, é a Google que faz essa parte.

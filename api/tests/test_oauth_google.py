@@ -37,9 +37,12 @@ class _FakeGoogleClient:
         return self._userinfo_response
 
 
-def _mock_google(monkeypatch, *, email="visitante@example.test", verified=True, token_ok=True):
+def _mock_google(monkeypatch, *, email="visitante@example.test", verified=True, token_ok=True, picture=None):
     token_res = _FakeResponse(200 if token_ok else 400, {"access_token": "fake-token"} if token_ok else {})
-    info_res = _FakeResponse(200, {"email": email, "email_verified": verified})
+    info = {"email": email, "email_verified": verified}
+    if picture:
+        info["picture"] = picture
+    info_res = _FakeResponse(200, info)
     monkeypatch.setattr(
         "app.routers.oauth_google.httpx.AsyncClient",
         lambda *a, **kw: _FakeGoogleClient(token_res, info_res),
@@ -75,6 +78,17 @@ def test_callback_signs_in_on_success(client, monkeypatch):
     assert res.status_code == 302
     assert "entrar=ok" in res.headers["location"]
     assert "hs=" in res.headers["set-cookie"]
+
+
+async def test_callback_saves_the_google_avatar(client, monkeypatch):
+    from app import users_repo
+
+    _mock_google(monkeypatch, email="visitante@example.test", picture="https://exemplo.test/foto.jpg")
+    state = _state_from_start(client)
+    client.get("/api/auth/google/callback", params={"state": state, "code": "abc123"}, follow_redirects=False)
+
+    people = await users_repo.list_people()
+    assert people[0]["avatar_url"] == "https://exemplo.test/foto.jpg"
 
 
 def test_callback_rejects_a_missing_or_wrong_state(client, monkeypatch):

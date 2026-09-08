@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────────────────────
+# Imagem de desenvolvimento local — Node e Python lado a lado,
+# só para correr `astro dev` (HMR) e `uvicorn --reload` (a API)
+# no mesmo container. NUNCA usada em produção: o Dockerfile da
+# raiz é que faz esse build, sem Node no runtime — ver esse
+# ficheiro para o porquê.
+# ─────────────────────────────────────────────────────────────
+FROM node:24-alpine
+WORKDIR /app
+
+# `build-base` e `python3-dev`: o `asyncpg` compila uma extensão C — sem
+# compilador nem cabeçalhos, o pip falha a construir o wheel em Alpine.
+RUN apk add --no-cache python3 py3-pip build-base python3-dev
+
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY api/requirements.txt api/requirements-dev.txt ./api/
+RUN pip install --no-cache-dir --break-system-packages -r api/requirements-dev.txt || pip install --no-cache-dir -r api/requirements-dev.txt
+
+COPY package.json package-lock.json* ./
+RUN npm install --no-audit --no-fund
+
+EXPOSE 4321 3000

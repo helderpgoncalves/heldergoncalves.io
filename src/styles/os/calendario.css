@@ -1,105 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
-   O Calendário: a grelha do mês, o dia ao lado, e a marcação.
+   O Calendário: o que o Tailwind não alcança daqui — o layout
+   dependente de contentor (`@container`) e o ajuste por sistema
+   (`[data-mode='ios']`). O resto (toolbar, grelha, marcação) já é
+   utility, em Calendario.astro e calendario-vista.js.
    Parte de os.css — ver o índice lá.
    ═══════════════════════════════════════════════════════════════ */
-.app-calendario { background: var(--surface-solid); }
-.cal-toolbar {
-  flex: none; display: flex; align-items: center; gap: 12px; padding: 8px 14px;
-  border-bottom: 0.5px solid var(--line);
-}
-.cal-nav { display: flex; align-items: center; gap: 2px; margin-left: auto; }
-.cal-arrow { width: 28px; height: 24px; display: grid; place-items: center; color: var(--ink-2); }
-.cal-arrow.flip svg { transform: rotate(180deg); }
-.cal-arrow:hover, .cal-today:hover { background: var(--surface-3); }
-.cal-today { padding: 0 10px; height: 24px; font-size: var(--t-body); color: var(--ink); }
-.cal-session { display: flex; align-items: center; gap: 10px; font-size: var(--t-foot); color: var(--ink-3); margin-left: auto; }
-.cal-nav + .cal-session { margin-left: 0; }
-.cal-session strong { color: var(--ink); font-weight: 600; }
-.cal-link { color: var(--accent); font-size: var(--t-foot); font-weight: 500; min-height: 24px; }
-.cal-off { color: var(--orange); }
-
-.cal-body { flex: 1; min-height: 0; display: flex; }
-.cal-month { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 14px 16px 16px; }
-.cal-title { margin: 0 0 10px 6px; font-size: var(--t-title2); font-weight: 700; letter-spacing: -0.02em; }
-.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); padding: 0 0 4px; }
-.cal-week span { text-align: right; padding: 0 8px; font-size: var(--t-caption); font-weight: 600; color: var(--ink-3); text-transform: uppercase; }
-.cal-grid {
-  flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr;
-  border-top: 0.5px solid var(--line); border-left: 0.5px solid var(--line);
-}
-.cal-cell {
-  position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-height: 64px;
-  padding: 4px 6px; border-right: 0.5px solid var(--line); border-bottom: 0.5px solid var(--line);
-  text-align: left; color: var(--ink); font-size: var(--t-caption); overflow: hidden;
-}
-.cal-cell.out { color: var(--ink-3); background: var(--surface-2); }
-.cal-cell.on { background: var(--surface-3); }
-.cal-num {
-  align-self: flex-end; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
-  font-size: var(--t-foot); font-weight: 600;
-}
-.cal-cell.today .cal-num { background: var(--red); color: #fff; }
-.cal-ev {
-  padding: 1px 6px; background: var(--accent); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font-weight: 500;
-}
-.cal-free { padding: 1px 6px; background: var(--green-tint); color: var(--green); font-weight: 600; white-space: nowrap; }
-
-.cal-side {
-  flex: 0 0 300px; min-width: 0; overflow: auto; padding: 16px 18px;
-  border-left: 0.5px solid var(--line); background: var(--surface-2);
-}
-.cal-lead { margin: 0 0 12px; font-size: var(--t-subhead); color: var(--ink-2); line-height: 1.45; }
-.cal-dayname { margin: 0; font-size: var(--t-headline); font-weight: 700; }
-.cal-tz { margin: 2px 0 12px; font-size: var(--t-caption); color: var(--ink-3); }
-.cal-list { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; }
-.cal-list li { display: flex; align-items: center; gap: 10px; }
-.cal-slot {
-  flex: 1; display: flex; align-items: center; gap: 10px; padding: 9px 12px; text-align: left;
-  background: var(--surface-solid); border: 0.5px solid var(--line); color: var(--ink);
-  transition: background 0.12s, transform 0.12s var(--ease-os);
-}
-.cal-slot:hover { background: var(--surface-3); }
-.cal-slot:active { transform: scale(0.98); }
-.cal-list.mine li { padding: 9px 12px; background: var(--accent); color: #fff; }
-.cal-list.mine .cal-link { color: rgba(255, 255, 255, 0.9); margin-left: auto; }
-.cal-time { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 46px; }
-.cal-what { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--t-subhead); }
-.cal-empty { margin: 0; color: var(--ink-3); font-size: var(--t-subhead); }
-.cal-hint { margin: 10px 0 0; font-size: var(--t-caption); color: var(--ink-3); min-height: 1.2em; }
-
-.cal-login h3 { margin: 0 0 4px; font-size: var(--t-headline); }
-.cal-login p { margin: 0 0 12px; font-size: var(--t-subhead); color: var(--ink-2); }
-.cal-login form { display: grid; gap: 8px; }
-.cal-login input {
-  width: 100%; padding: 9px 12px; background: var(--surface-solid); border: 0.5px solid var(--line);
-  color: var(--ink); outline: none; font-size: var(--t-body);
-}
-.cal-login input:focus { border-color: var(--accent); }
-.cal-login #cal-code { font-size: var(--t-title2); letter-spacing: 0.3em; text-align: center; font-variant-numeric: tabular-nums; }
-.cal-mail { font-weight: 600; color: var(--ink); }
-
-.cal-or {
-  display: flex; align-items: center; gap: 10px; margin: 10px 0;
-  font-size: var(--t-caption); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em;
-}
-.cal-or::before, .cal-or::after { content: ''; flex: 1; height: 0.5px; background: var(--line); }
-.cal-login > .btn { width: 100%; justify-content: center; text-decoration: none; }
-
-/* A folha da marcação, por cima do mês. */
-.cal-sheet { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: rgba(0, 0, 0, 0.28); padding: 16px; }
-.cal-sheet[hidden] { display: none; }
-/* Painel opaco, não vidro: está por cima de conteúdo, não de fundo. */
-.cal-form { width: min(420px, 100%); padding: 20px 22px; display: grid; gap: 10px; background: var(--surface-solid); box-shadow: var(--shadow-pop); }
-.cal-form h3 { margin: 0; font-size: var(--t-title3); }
-.cal-when { margin: 0; color: var(--ink-2); font-size: var(--t-subhead); }
-.cal-form label { display: grid; gap: 4px; font-size: var(--t-caption); color: var(--ink-3); }
-.cal-form input, .cal-form textarea {
-  padding: 9px 12px; background: var(--surface-solid); border: 0.5px solid var(--line); color: var(--ink);
-  font-size: var(--t-body); outline: none; resize: vertical;
-}
-.cal-form input:focus, .cal-form textarea:focus { border-color: var(--accent); }
-.cal-form .btn-row { margin-top: 4px; justify-content: flex-end; }
 
 /* Estreito: o mês em cima, o dia por baixo; a vista «Dia» mostra só o dia. */
 @container app (max-width: 720px) {

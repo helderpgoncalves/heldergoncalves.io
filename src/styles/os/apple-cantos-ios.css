@@ -1,0 +1,290 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os cantos são contínuos — iOS. Parte de os.css, ver apple-cantos-mac.css
+   para a explicação completa da matemática e do porquê de cada classe
+   ser uma `@utility` própria em vez da tabela partilhada de antes.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+@utility ios-dock {
+  --r: 38px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility widget {
+  --r: 22px;
+  --pad: 16px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility lock-note {
+  --r: 20px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility nc-note {
+  --r: 20px;
+  --pad: 13px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cc-tile {
+  --r: 22px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cc-slider {
+  --r: 24px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility switcher-card {
+  --r: 28px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility wgal-sheet {
+  --r: 22px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+/* O cartão da galeria contém um widget de 22 com 14 de margem: 22 + 14. */
+@utility wgal-item {
+  --r: 36px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility stk-add {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility stk-row {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility stk-pill {
+  --r: 6px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+/* O cartão da procura é concêntrico com cada resultado lá dentro, como
+   o da pesquisa (.spot-box / .spot-item). */
+@utility stk-suggest {
+  --r: 14px;
+  --pad: 4px;
+  --r-out: var(--r);
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility stk-news-thumb {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-arrow {
+  --r: 5px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-today {
+  --r: 5px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-ev {
+  --r: 4px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-free {
+  --r: 4px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-slot {
+  --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility cal-form {
+  --r: 16px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility bubble {
+  --r: 18px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility ppl-row {
+  --r: 10px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility entrar-box {
+  --r: 16px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+

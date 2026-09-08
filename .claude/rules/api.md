@@ -7,10 +7,11 @@ paths:
 # A API
 
 Python (FastAPI). Dependências mínimas e todas justificadas — `fastapi`,
-`uvicorn`, `httpx`, `yfinance`, `tzdata`. Se uma coisa se resolve com a
-biblioteca padrão, resolve-se com ela: é por isso que a segurança
-(`hmac`, `hashlib`, `secrets`) e as datas (`zoneinfo`) não trazem mais
-nada.
+`uvicorn`, `httpx`, `yfinance`, `tzdata`, mais `sqlalchemy`/`asyncpg`/
+`alembic` para Postgres (ver `docs/arquitetura.md`). Se uma coisa se
+resolve com a biblioteca padrão, resolve-se com ela: é por isso que a
+segurança (`hmac`, `hashlib`, `secrets`) e as datas (`zoneinfo`) não
+trazem mais nada.
 
 ## Onde cada coisa vive
 
@@ -19,6 +20,9 @@ Cada ficheiro tem um assunto, e só um.
 | | |
 | --- | --- |
 | `config.py` | **o único ficheiro que lê `os.environ`.** Se leres uma variável de ambiente noutro sítio, está errado. |
+| `db.py` | o engine Postgres e `session_scope()` — uma sessão async por pedido |
+| `models/` | uma tabela, um ficheiro (`models/user.py` é `users`) |
+| `*_repo.py` | as consultas de uma tabela (`users_repo.py` é `users`) — o equivalente Postgres dos antigos `*_store.py` |
 | `http.py` | ler o corpo do pedido, com tecto |
 | `validation.py` | limpar o que vem de fora — `clean`, `one_line`, `EMAIL_RE`, `escape_html` |
 | `security.py` | cabeçalhos, limites por visitante, tokens |
@@ -59,6 +63,12 @@ Cada ficheiro tem um assunto, e só um.
 - **Chamadas bloqueantes (o `yfinance`, sobretudo) correm em
   `asyncio.to_thread`.** Um endpoint `async def` que bloqueia a
   `event loop` trava a API inteira, não só o pedido de quem o fez.
+- **Postgres é sempre `asyncpg`, nunca um driver síncrono.** Um
+  `session_scope()` (`db.py`) é a única forma de tocar na base de
+  dados — nunca uma ligação aberta à parte, nunca `psycopg2`.
+- **Uma tabela nova nasce por uma revisão do Alembic, nunca por um
+  `CREATE TABLE` corrido à mão.** `api/alembic/versions/` — ver
+  `docs/arquitetura.md` para o esquema completo já desenhado.
 - **O dono não é um papel guardado em lado nenhum** — é
   `sessions.is_owner(email)` a comparar com `OWNER_EMAIL`, a cada
   pedido. Um endpoint só para o dono (`routers/agenda.py`) começa
@@ -109,12 +119,22 @@ gerados e guardados ao lado dos dados, em `DATA_DIR`.
 ## Testes
 
 `api/tests/`, com `pytest` (`pip install -r api/requirements-dev.txt &&
-cd api && pytest`). Não corre aqui — ver `~/CLAUDE.md`, a máquina onde
-isto costuma abrir está a servir produção. Corre no CI.
+cd api && pytest`). Não corre nesta máquina — ver `~/CLAUDE.md`, a
+máquina onde isto costuma abrir está a servir produção. Corre dentro do
+container `api` do `docker-compose.dev.yml` (que já tem Postgres ao
+lado) e no CI:
+
+```
+docker compose -f docker-compose.dev.yml exec api sh -c "cd api && pytest"
+```
 
 - Lógica pura (`validation`, `security`, `availability`, a assinatura
   de ligações em `subscribers`) tem testes unitários, sem tocar em
   HTTP.
+- Os testes que tocam em Postgres (`users_repo`, e cada `*_repo.py`
+  novo) correm contra uma base de dados a sério, nunca simulada — ver
+  as fixtures `_schema`/`_database` em `conftest.py`. Cada teste começa
+  e acaba com as tabelas vazias.
 - Os endpoints têm testes de integração com `fastapi.testclient`, com o
   envio de email sempre simulado — nenhum teste manda email a sério ou
   fala com o Yahoo.

@@ -39,12 +39,11 @@
   :root:not([data-theme='light']) .wall { filter: brightness(0.82) saturate(0.95); }
 }
 
-/* Brilho, controlado pela Central de Controlo. */
-.dim {
-  position: absolute; inset: 0; z-index: 900; pointer-events: none;
-  background: #000; opacity: calc((100 - var(--brightness, 100)) / 160);
-  transition: opacity 0.25s linear;
-}
+/* Brilho, controlado pela Central de Controlo — só a opacidade fica
+   aqui: depende de --brightness, que o JS muda, e não é um valor
+   estático que dê para exprimir como utility. O resto já é Tailwind,
+   em Shell.astro. */
+.dim { opacity: calc((100 - var(--brightness, 100)) / 160); }
 
 /* ── 3. Documento sem JavaScript (e para os motores de busca) ── */
 .doc {

@@ -1,0 +1,100 @@
+---
+// Entrar: um item do menu Apple (Mac) e do menu de sistema (iOS), por
+// isso vive fora dos dois, como o Spotlight. À escala de um ecrã de
+// bloqueio — não um cartão pequeno a meio do ecrã — com Tailwind:
+// primeiro componente da migração (ver src/styles/os.css). O vidro
+// ainda vem de `.glass` (os/vidro.css); o resto é utilitário.
+//
+// Todo o `[hidden]` aqui segue o mesmo padrão: `hidden [&:not([hidden])]:flex`.
+// A classe `flex`/`grid` sozinha venceria sempre o atributo `hidden`
+// nativo (mesma especificidade, ordem no output do Tailwind manda) —
+// `:not([hidden])` é o que devolve o controlo ao atributo que o JS
+// (lib/entrar.js) liga e desliga.
+//
+// `bg-white/N`, `text-white/N`: excepção deliberada aos papéis do
+// sistema (--surface-2, --ink-2). Este ecrã imita o ecrã de sessão do
+// macOS — sempre escuro sobre o scrim preto, como o Control Center —
+// e não segue o claro/escuro do resto do site.
+import { COPY, type Lang } from '../../siteConfig';
+import Icon from './Icon.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+---
+
+<div
+  class="entrar fixed inset-0 z-[900] hidden grid-cols-1 place-items-center bg-black/40 backdrop-blur-md motion-reduce:backdrop-blur-none [[data-motion='off']_&]:backdrop-blur-none [&:not([hidden])]:grid"
+  id="entrar"
+  hidden
+>
+  <div
+    class="entrar-box glass relative flex w-full max-w-[420px] flex-col items-center gap-8 px-8 py-14 text-center animate-[menu-in_0.2s_var(--ease-os)]"
+    role="dialog"
+    aria-label={c.os.entrar.title}
+  >
+    <div class="hidden flex-col items-center gap-10 [&:not([hidden])]:flex sm:flex-row sm:items-start sm:justify-center sm:gap-14" data-entrar-avatars>
+      <button type="button" class="group flex w-36 flex-col items-center gap-3 text-inherit" data-entrar-guest>
+        <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner transition-transform group-active:scale-95" aria-hidden="true">
+          <Icon id="ui-lock" size={40} />
+        </span>
+        <span class="text-[length:var(--t-headline)] font-semibold">{c.os.entrar.guest}</span>
+        <span class="text-[length:var(--t-caption)] text-white/70">{c.os.entrar.guestHint}</span>
+      </button>
+      <button type="button" class="group flex w-36 flex-col items-center gap-3 text-inherit" data-entrar-signin>
+        <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner transition-transform group-active:scale-95" aria-hidden="true">
+          <Icon id="ui-mail" size={40} />
+        </span>
+        <span class="text-[length:var(--t-headline)] font-semibold">{c.os.entrar.signIn}</span>
+        <span class="text-[length:var(--t-caption)] text-white/70">{c.os.entrar.signInHint}</span>
+      </button>
+    </div>
+
+    <div class="hidden flex-col items-center gap-3 [&:not([hidden])]:flex" data-entrar-signed hidden>
+      <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner" aria-hidden="true">
+        <Icon id="ui-mail" size={40} />
+      </span>
+      <p class="text-[length:var(--t-headline)] font-semibold leading-snug">
+        {c.os.entrar.signedInAs}<br /><strong data-entrar-email-out></strong>
+      </p>
+      <button type="button" class="btn" data-entrar-signout>{c.calendario.signOut}</button>
+    </div>
+
+    <div class="entrar-form hidden w-full flex-col gap-3 [&:not([hidden])]:flex" data-entrar-form hidden>
+      <div class="hidden w-full flex-col gap-3 [&:not([hidden])]:flex" data-entrar-request>
+        <form class="flex flex-col gap-3" data-entrar-email>
+          <label class="sr" for="entrar-email">{c.calendario.email}</label>
+          <input
+            id="entrar-email"
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder={c.calendario.email}
+            class="w-full border-[0.5px] border-white/25 bg-white/10 px-3 py-2.5 text-center text-[length:var(--t-body)] text-white placeholder:text-white/50 outline-hidden focus:border-white/60"
+          />
+          <button class="btn btn-primary" type="submit">{c.calendario.sendLink}</button>
+        </form>
+        <p class="flex items-center gap-2.5 text-[length:var(--t-caption)] uppercase tracking-wide text-white/60 before:h-px before:flex-1 before:bg-white/25 after:h-px after:flex-1 after:bg-white/25">
+          {c.calendario.signInOr}
+        </p>
+        <a class="btn flex w-full items-center justify-center gap-2" href="/api/auth/google/start">
+          <Icon id="ui-google" size={16} /> {c.calendario.signInGoogle}
+        </a>
+      </div>
+
+      <div class="hidden flex-col items-center gap-2.5 pt-1 [&:not([hidden])]:flex" data-entrar-waiting hidden>
+        <span class="h-2.5 w-2.5 animate-[entrar-pulse_1.6s_ease-in-out_infinite] rounded-full bg-[var(--accent)] motion-reduce:animate-none [[data-motion='off']_&]:animate-none" aria-hidden="true"></span>
+        <p class="text-center text-[length:var(--t-callout)] font-semibold">
+          {c.calendario.linkSent} <strong data-entrar-pending></strong>
+        </p>
+        <p class="max-w-[30ch] text-center text-[length:var(--t-caption)] text-white/70">{c.calendario.linkHint}</p>
+        <button type="button" class="btn mt-1" data-entrar-resend>{c.calendario.resend}</button>
+      </div>
+
+      <p class="min-h-[1.2em] text-[length:var(--t-caption)] text-white/70" data-entrar-hint></p>
+    </div>
+
+    <button type="button" class="mt-2 text-[length:var(--t-body)] font-semibold text-[var(--accent)]" data-entrar-close>{c.os.done}</button>
+  </div>
+</div>

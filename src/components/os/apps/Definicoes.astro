@@ -11,69 +11,69 @@ const walls = [
   { id: 'graphite', name: s.wallpapers.graphite, css: 'linear-gradient(160deg,#1a1a1e,#37373d)' },
 ];
 ---
-<section class="app-shell app-definicoes" data-content="definicoes" aria-label={c.apps.definicoes.name}>
-  <div class="app-scroll">
-    <div class="app-pad">
-      <div class="set-group">
-        <h3>{s.appearance}</h3>
-        <p>{s.appearanceHint}</p>
-        <div class="seg" data-set="theme">
+<section class="app-shell app-definicoes relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="definicoes" aria-label={c.apps.definicoes.name}>
+  <div class="app-scroll min-h-0 flex-1 overflow-auto [-webkit-overflow-scrolling:touch]">
+    <div class="app-pad px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.appearance}</h3>
+        <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.appearanceHint}</p>
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="theme">
           <button type="button" data-value="auto">{s.auto}</button>
           <button type="button" data-value="light">{s.light}</button>
           <button type="button" data-value="dark">{s.dark}</button>
         </div>
       </div>
 
-      <div class="set-group">
-        <h3>{s.wallpaper}</h3>
-        <p>{s.wallpaperHint}</p>
-        <div class="walls" data-set="wallpaper">
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.wallpaper}</h3>
+        <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.wallpaperHint}</p>
+        <div class="walls grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3" data-set="wallpaper">
           {walls.map((w) => (
-            <button class="wall-pick" type="button" data-value={w.id}>
-              <span class="swatch" style={`background:${w.css}`}></span>
-              <span class="name">{w.name}</span>
+            <button class="wall-pick overflow-hidden border-2 border-transparent p-0 aria-pressed:border-(--accent)" type="button" data-value={w.id}>
+              <span class="swatch block h-17" style={`background:${w.css}`}></span>
+              <span class="name block bg-(--surface-2) p-1.5 text-[12px] text-(--ink-2)">{w.name}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div class="set-group">
-        <h3>{s.language}</h3>
-        <p>{s.languageHint}</p>
-        <div class="seg" data-set="lang">
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.language}</h3>
+        <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.languageHint}</p>
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="lang">
           <button type="button" data-value="pt" data-href={ROUTES.pt.home}>Português</button>
           <button type="button" data-value="en" data-href={ROUTES.en.home}>English</button>
         </div>
       </div>
 
-      <div class="set-group">
-        <h3>{s.motion}</h3>
-        <p>{s.motionHint}</p>
-        <div class="seg" data-set="motion">
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.motion}</h3>
+        <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.motionHint}</p>
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="motion">
           <button type="button" data-value="on">{s.motionOn}</button>
           <button type="button" data-value="off">{s.motionOff}</button>
         </div>
       </div>
 
-      <div class="set-group">
-        <h3>{c.os.entrar.title}</h3>
-        <div class="btn-row">
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{c.os.entrar.title}</h3>
+        <div class="btn-row mt-4.5 flex flex-wrap gap-2.5">
           <button class="btn" type="button" data-action="entrar">{c.os.entrar.title}</button>
         </div>
       </div>
 
-      <div class="set-group">
-        <h3>{s.about}</h3>
-        <div class="rows">
-          <div class="row"><span class="k">{c.os.macName}</span><span class="v">{s.version} 1.0</span></div>
-          <div class="row"><span class="k">Astro</span><span class="v">4.16 · static</span></div>
-          <div class="row"><span class="k">JavaScript</span><span class="v">0 frameworks</span></div>
+      <div class="set-group mb-6.5">
+        <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.about}</h3>
+        <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.os.macName}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{s.version} 1.0</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">Astro</span><span class="v ml-auto text-right text-[13px] text-(--ink)">7.3 · static</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">JavaScript</span><span class="v ml-auto text-right text-[13px] text-(--ink)">0 frameworks</span></div>
         </div>
-        <p class="legal-note">{s.legalText}</p>
+        <p class="legal-note mt-2.5">{s.legalText}</p>
 
-        <div class="btn-row">
+        <div class="btn-row mt-4.5 flex flex-wrap items-center gap-2.5">
           <button class="btn" type="button" data-reset-os>{s.reset}</button>
-          <span class="hintline" style="align-self:center;color:var(--ink-3);font-size:12.5px">{s.resetHint}</span>
+          <span class="hintline self-center text-[12.5px] text-(--ink-3)">{s.resetHint}</span>
         </div>
       </div>
     </div>

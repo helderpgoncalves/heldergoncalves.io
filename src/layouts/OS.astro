@@ -1,7 +1,13 @@
 ---
-// A página. O <head> trata do SEO; o corpo é o sistema operativo.
-// O primeiro <script> corre antes de pintar: evita o piscar de tema
-// e esconde o documento simples quando há JavaScript.
+// A página. A cabeça trata do SEO; o corpo é o sistema operativo.
+//
+// O primeiro script inline (mais abaixo) corre antes de pintar: evita
+// o piscar de tema e esconde o documento simples quando há JavaScript.
+//
+// Nota: nenhum comentário aqui pode escrever a tag de script por
+// extenso — o scanner de dependências do Vite, em `astro dev`, lê-a
+// como início de um bloco real e tenta interpretar o texto a seguir
+// como JavaScript. É uma heurística do próprio Vite, não deste ficheiro.
 import { SITE, COPY, ROUTES, other, type Lang } from '../siteConfig';
 import '../styles/os.css';
 

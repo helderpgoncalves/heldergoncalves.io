@@ -2,7 +2,12 @@
 
 Um site pessoal que é um sistema operativo: macOS no computador, iOS no
 telemóvel. Astro gera HTML estático; a interface é JavaScript escrito à mão;
-a API é FastAPI (Python) — um processo só, em `api/app/`.
+a API é FastAPI (Python) — um processo só, em `api/app/`. Uma conta (Google
+ou magic link) abre uma plataforma por trás disso: reuniões, mensagens com
+um bot que sabe quando chamar o Hélder, orçamentos de projectos, um Finder
+com todos os contactos, e o blog com comentários. O desenho completo está em
+**[`docs/arquitetura.md`](docs/arquitetura.md)** — lê-o antes de tocar em
+contas, Postgres, ou qualquer app nova destas.
 
 <!--
   Este ficheiro é o que tem de estar em contexto em TODAS as sessões.
@@ -12,7 +17,9 @@ a API é FastAPI (Python) — um processo só, em `api/app/`.
     - o que é de uma parte só do código vai para .claude/rules/, com
       `paths:`, e carrega sozinho quando se lá mexe;
     - o que é um procedimento vai para .claude/skills/, e carrega
-      quando se invoca.
+      quando se invoca;
+    - o que é o desenho da plataforma (contas, Postgres, cada app nova)
+      vai para docs/arquitetura.md, e lê-se antes de mexer nisso.
   Fica aqui só o que não se descobre a ler ficheiros: as invariantes,
   os porquês, e as armadilhas.
 -->
@@ -23,33 +30,41 @@ As regras da máquina estão em `~/CLAUDE.md` e **mandam sobre este
 ficheiro**. Este ficheiro diz o que o projecto é; esse diz o que se
 pode correr aqui. Em caso de conflito, ganha esse.
 
-## As oito invariantes
+## As nove invariantes
 
 Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
+Ver `docs/arquitetura.md` para o raciocínio por trás de cada uma.
 
-1. **Dependências mínimas e todas justificadas.** `api/app/` só traz
-   `fastapi`, `uvicorn`, `httpx`, `yfinance` e `tzdata` — cada uma por
-   uma razão que se explica numa frase. O que se resolve com a
-   biblioteca padrão do Python (segurança, datas) resolve-se com ela.
-   Antes de acrescentar uma dependência nova: seria mesmo mais barato
-   escrevê-lo?
-2. **O site funciona sem JavaScript.** Todo o texto é HTML normal por
-   baixo. O JS transforma o documento em sistema; não o cria.
+1. **Dependências mínimas e todas justificadas.** Cada uma explica-se
+   numa frase — ver a lista completa (incluindo o que Postgres e MinIO
+   trazem) em `docs/arquitetura.md`. O que se resolve com a biblioteca
+   padrão do Python resolve-se com ela.
+2. **O site público funciona sem JavaScript.** Home, escritos, o
+   portefólio da Bolsa — todo o texto é HTML normal por baixo. As
+   áreas que exigem sessão (Mensagens, Reuniões, Contactos) exigem
+   naturalmente JavaScript para autenticar; o que não pode é partir o
+   que é público.
 3. **Nenhuma chave chega ao browser.** Segredos vivem em variáveis de
-   ambiente, lidas só em `api/app/config.py`.
+   ambiente, lidas só em `api/app/config.py` — inclui agora
+   `DATABASE_URL`, OpenRouter, MinIO, e mais tarde Stripe.
 4. **As duas línguas andam a par.** `src/config/copy.pt.ts` e
    `copy.en.ts` têm exactamente as mesmas chaves. O TypeScript obriga.
 5. **A geometria da Apple não se negoceia.** Cantos, escala de tipos e
    cores de sistema têm valores certos — ver `.claude/rules/apple.md`.
+   Vale para as áreas novas tal como para as antigas.
 6. **Nenhum ficheiro passa das 400 linhas.** Quando um cresce, parte-se
    por assunto, não ao meio.
-7. **`data/` nunca entra no repositório.** É a lista da newsletter, as
-   reuniões marcadas e os segredos que assinam ligações e sessões. Vive
-   num volume no servidor.
+7. **Nada que seja segredo ou dado de visitante entra no repositório.**
+   O volume do Postgres, o *bucket* do MinIO, qualquer `.env` — o
+   mesmo princípio que já protegia `data/`, agora mais alargado.
 8. **Em produção não se calcula o que se pode calcular no build.** A
    compressão é o exemplo: comprime-se uma vez no build, à qualidade
    máxima, e o servidor só lê. Se acrescentares trabalho por pedido,
    pergunta primeiro se não pode ser feito antes.
+9. **Sem tracking de terceiros.** Nada de Google Analytics, Meta Pixel
+   ou equivalente. O que o site regista sobre um visitante logado é o
+   rasto funcional de usar as apps (marcou uma reunião, abriu uma
+   conversa) — nunca telemetria de comportamento recolhida por rotina.
 
 ## Comandos
 
@@ -57,7 +72,9 @@ Se uma alteração quebrar uma destas, está errada — mesmo que funcione.
 | --- | --- |
 | `npm run dev` | servidor de desenvolvimento do frontend (4321) |
 | `npm run build` | gera `dist/` |
+| `docker compose -f docker-compose.dev.yml up --build` | ambiente de desenvolvimento com hot reload, Postgres incluído |
 | `docker compose up --build` | o site a sério: `dist/` servido pela API, na 3000 |
+| `cd api && alembic upgrade head` | aplica as migrações pendentes |
 | `cd api && pytest` | a suite de testes da API — **não corre nesta máquina**, ver `~/CLAUDE.md` |
 | `/verificar` | as verificações estáticas deste repo — **usa isto** |
 
@@ -80,6 +97,8 @@ Está tudo feito para que a resposta seja aborrecida.
 | mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` (os do sistema em `os.pt.ts` e `os.en.ts`) |
 | um widget novo | um `<template>` em `Widgets.astro`, uma linha em `widgets.js`, o nome nas duas línguas |
 | mudar o ícone do site | só `public/favicon.svg` — os PNG (Apple touch icon, PWA) saem dele no build, em `scripts/icones.mjs` |
+| uma tabela nova em Postgres | uma revisão do Alembic em `api/alembic/versions/` — nunca um `CREATE TABLE` corrido à mão |
+| perceber o desenho de Reuniões, Mensagens, Bolsa, Contactos ou Doações | `docs/arquitetura.md`, secção "As apps, por domínio" |
 
 ## Convenções
 
@@ -88,8 +107,8 @@ Está tudo feito para que a resposta seja aborrecida.
   quem chega ao repositório.
 - **Nomes de ficheiro e de identificador em português** onde já é assim
   (`escritos`, `definicoes`, `subscrever`). Não se mistura.
-- **Sem frameworks, sem bibliotecas de animação, sem tracking.** Isto
-  não é uma preferência de estilo: é o que o projecto é.
+- **Sem frameworks, sem bibliotecas de animação.** Isto não é uma
+  preferência de estilo: é o que o projecto é.
 - **Aspas simples, ponto e vírgula, 2 espaços.** Como o resto.
 - **Commits e push só quando forem pedidos.** A mensagem explica a
   decisão, não lista os ficheiros.
@@ -117,8 +136,13 @@ Está tudo feito para que a resposta seja aborrecida.
   pediu — só há um processo `uvicorn` (`--workers 1`, de propósito: os
   limites por visitante vivem em memória). O `yfinance` é bloqueante;
   por isso `api/app/bolsa/client.py` só se chama de dentro de
-  `asyncio.to_thread(...)`.
+  `asyncio.to_thread(...)`. A mesma regra vale para Postgres (driver
+  assíncrono, nunca `psycopg2` síncrono) e para o cliente do MinIO.
 - **`Limits`, em `api/app/config.py`, não é `frozen` como os outros
   blocos de configuração** — de propósito, para os testes lhe mexerem
   (`token_min_age`, sobretudo) sem esperar pelo relógio a sério. Não é
   para se lhe mexer fora dos testes.
+- **"Dono" é `OWNER_EMAIL` comparado à sessão, nunca uma coluna
+  `role`.** Antes de acrescentar uma tabela de permissões, ler
+  `docs/arquitetura.md#duas-contas-um-sistema` — é uma decisão já
+  tomada, não um detalhe em falta.

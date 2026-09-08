@@ -10,40 +10,40 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.calendario;
 ---
-<section class="app-shell app-calendario" data-content="calendario" aria-label={c.apps.calendario.name}>
-  <div class="cal-toolbar">
+<section class="app-shell app-calendario bg-(--surface-solid)" data-content="calendario" aria-label={c.apps.calendario.name}>
+  <div class="cal-toolbar flex flex-none items-center gap-3 border-b-[0.5px] border-(--line) px-3.5 py-2">
     <div class="seg cal-views" role="tablist">
       <button type="button" data-cal-view="month" aria-pressed="true">{k.month}</button>
       <button type="button" data-cal-view="day" aria-pressed="false">{k.day}</button>
     </div>
-    <div class="cal-nav">
-      <button type="button" class="cal-arrow" data-cal-prev aria-label={k.prev}><Icon id="ui-chevron" size={14} /></button>
-      <button type="button" class="cal-today" data-cal-today>{k.today}</button>
-      <button type="button" class="cal-arrow flip" data-cal-next aria-label={k.next}><Icon id="ui-chevron" size={14} /></button>
+    <div class="cal-nav ml-auto flex items-center gap-0.5">
+      <button type="button" class="cal-arrow grid h-6 w-7 place-items-center text-(--ink-2) hover:bg-(--surface-3)" data-cal-prev aria-label={k.prev}><Icon id="ui-chevron" size={14} /></button>
+      <button type="button" class="cal-today h-6 px-2.5 text-[length:var(--t-body)] text-(--ink) hover:bg-(--surface-3)" data-cal-today>{k.today}</button>
+      <button type="button" class="cal-arrow grid h-6 w-7 place-items-center text-(--ink-2) hover:bg-(--surface-3) [&_svg]:rotate-180" data-cal-next aria-label={k.next}><Icon id="ui-chevron" size={14} /></button>
     </div>
-    <div class="cal-session" data-cal-session></div>
+    <div class="cal-session ml-auto flex items-center gap-2.5 text-[length:var(--t-foot)] text-(--ink-3) [.cal-nav+&]:ml-0" data-cal-session></div>
   </div>
 
-  <div class="cal-body">
-    <div class="cal-month">
-      <h2 class="cal-title" data-cal-title></h2>
-      <div class="cal-week" data-cal-week></div>
-      <div class="cal-grid" data-cal-grid role="grid"></div>
+  <div class="cal-body flex min-h-0 flex-1">
+    <div class="cal-month flex min-w-0 flex-1 flex-col px-4 pb-4 pt-3.5">
+      <h2 class="cal-title m-0 mb-2.5 ml-1.5 text-[length:var(--t-title2)] font-bold tracking-[-0.02em]" data-cal-title></h2>
+      <div class="cal-week grid grid-cols-7 pb-1" data-cal-week></div>
+      <div class="cal-grid grid min-h-0 flex-1 grid-cols-7 auto-rows-fr border-l-[0.5px] border-t-[0.5px] border-(--line)" data-cal-grid role="grid"></div>
     </div>
-    <aside class="cal-side" data-cal-side>
-      <p class="cal-lead">{k.lead}</p>
-      <p class="cal-lead"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+    <aside class="cal-side flex-none basis-[300px] overflow-auto border-l-[0.5px] border-(--line) bg-(--surface-2) px-[18px] py-4" data-cal-side>
+      <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)">{k.lead}</p>
+      <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
     </aside>
   </div>
 
-  <div class="cal-sheet" data-cal-sheet hidden>
-    <form class="cal-form" data-cal-book>
-      <h3>{k.bookTitle}</h3>
-      <p class="cal-when" data-cal-when></p>
-      <label>{k.titleLabel}<input type="text" name="title" maxlength="160" placeholder={k.titlePlaceholder} autocomplete="off" /></label>
-      <label>{k.noteLabel}<textarea name="note" rows="3" maxlength="1000" placeholder={k.notePlaceholder}></textarea></label>
-      <p class="cal-hint" data-cal-hint></p>
-      <div class="btn-row">
+  <div class="cal-sheet absolute inset-0 z-6 grid place-items-center bg-black/28 p-4 [&[hidden]]:hidden" data-cal-sheet hidden>
+    <form class="cal-form grid w-[min(420px,100%)] gap-2.5 bg-(--surface-solid) px-[22px] py-5 shadow-(--shadow-pop)" data-cal-book>
+      <h3 class="m-0 text-[length:var(--t-title3)]">{k.bookTitle}</h3>
+      <p class="cal-when m-0 text-[length:var(--t-subhead)] text-(--ink-2)" data-cal-when></p>
+      <label class="grid gap-1 text-[length:var(--t-caption)] text-(--ink-3)">{k.titleLabel}<input type="text" name="title" maxlength="160" placeholder={k.titlePlaceholder} autocomplete="off" class="border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-body)] text-(--ink) outline-hidden focus:border-(--accent)" /></label>
+      <label class="grid gap-1 text-[length:var(--t-caption)] text-(--ink-3)">{k.noteLabel}<textarea name="note" rows="3" maxlength="1000" placeholder={k.notePlaceholder} class="resize-y border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-body)] text-(--ink) outline-hidden focus:border-(--accent)"></textarea></label>
+      <p class="cal-hint m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)" data-cal-hint></p>
+      <div class="btn-row mt-1 justify-end">
         <button class="btn" type="button" data-cal-close>{k.cancel}</button>
         <button class="btn btn-primary" type="submit">{k.confirm}</button>
       </div>

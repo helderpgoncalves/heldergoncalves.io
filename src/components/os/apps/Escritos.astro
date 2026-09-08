@@ -1,4 +1,5 @@
 ---
+import { render } from 'astro:content';
 import { SITE, COPY, ROUTES, formatDate, readingMinutes, type Lang } from '../../../siteConfig';
 import { postPath, postSlug, type Post } from '../../../lib/posts';
 import Icon from '../Icon.astro';
@@ -7,7 +8,7 @@ interface Props { lang: Lang; posts: Post[]; post?: Post; altPath?: string }
 const { lang, posts, post, altPath } = Astro.props;
 const c = COPY[lang];
 const e = c.escritos;
-const Content = post ? (await post.render()).Content : null;
+const Content = post ? (await render(post)).Content : null;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 // Como as Notas: o que já não é de hoje agrupa-se por mês. As datas
@@ -23,58 +24,58 @@ for (const p of posts) {
 }
 ---
 <section
-  class="app-shell app-escritos"
+  class="app-shell app-escritos flex-col bg-transparent"
   data-content="escritos"
   data-detail={post ? '1' : '0'}
   aria-label={c.apps.escritos.name}
 >
   {/* A barra das Notas do Mac. No telefone não aparece. */}
-  <div class="notes-toolbar">
-    <button class="notes-tool" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
-    <span class="spacer"></span>
-    <button class="notes-tool" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
-    <button class="notes-tool" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
-    <label class="notes-search">
+  <div class="notes-toolbar flex flex-none items-center gap-1 border-b-[0.5px] border-(--line) px-2.5 py-1.25 [[data-mode='ios']_&]:hidden">
+    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
+    <span class="spacer flex-1"></span>
+    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
+    <label class="notes-search flex h-6 w-[170px] items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2 text-(--ink-3) transition-[border-color,width] duration-150 focus-within:w-[220px] focus-within:border-(--accent) [&_svg]:h-3.25 [&_svg]:w-3.25 [&_svg]:flex-none">
       <Icon id="ui-search" />
       <span class="sr">{e.search}</span>
-      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search />
+      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search class="min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [&::-webkit-search-cancel-button]:appearance-none" />
     </label>
   </div>
 
-  <div class="notes-panes">
-  <div class="app-side">
-    <div class="app-side-head">
-      <h2>{e.heading}</h2>
-      <p>{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
+  <div class="notes-panes flex min-h-0 flex-1 flex-row">
+  <div class="app-side flex min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2)">
+    <div class="app-side-head border-b-[0.5px] border-(--line) px-4 pb-2.5 pt-3.5 [[data-mode='ios']_&]:border-b-0 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-1">
+      <h2 class="m-0 text-[17px] tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
+      <p class="m-0 mt-0.5 text-[12px] text-(--ink-3) [[data-mode='ios']_&]:hidden">{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
     </div>
-    <label class="notes-search notes-search-ios">
+    <label class="notes-search notes-search-ios hidden [[data-mode='ios']_&]:mx-4 [[data-mode='ios']_&]:mb-1.5 [[data-mode='ios']_&]:flex [[data-mode='ios']_&]:h-9 [[data-mode='ios']_&]:items-center [[data-mode='ios']_&]:gap-1.5 [[data-mode='ios']_&]:rounded-full [[data-mode='ios']_&]:border-0 [[data-mode='ios']_&]:bg-(--surface-3) [[data-mode='ios']_&]:px-2.5 [[data-mode='ios']_&]:text-(--ink-3) [[data-mode='ios']_&]:[&_svg]:h-3.25 [[data-mode='ios']_&]:[&_svg]:w-3.25 [[data-mode='ios']_&]:[&_svg]:flex-none">
       <Icon id="ui-search" />
       <span class="sr">{e.search}</span>
-      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search />
+      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search class="min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [[data-mode='ios']_&]:-my-1 [[data-mode='ios']_&]:min-h-11 [&::-webkit-search-cancel-button]:appearance-none" />
     </label>
     {posts.length === 0 ? (
       <p class="app-pad">{e.empty}</p>
     ) : (
-      <ul class="post-list">
+      <ul class="post-list m-0 min-h-0 flex-1 list-none overflow-auto px-2 py-1.5 [[data-mode='ios']_&]:px-4">
         {groups.map((g) => (
-          <li class="post-group">
-            <h4>{g.label}</h4>
-            <ul>
+          <li class="post-group list-none [&[hidden]]:hidden">
+            <h4 class="m-0 px-2.5 pb-0.75 pt-2.5 text-[length:var(--t-subhead,11px)] font-semibold text-(--ink-3) [[data-mode='ios']_&]:px-0 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-3.5 [[data-mode='ios']_&]:text-[length:var(--t-title3)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:text-(--ink)">{g.label}</h4>
+            <ul class="m-0 list-none p-0 [[data-mode='ios']_&]:bg-(--surface-2) [[data-mode='ios']_&]:overflow-hidden">
               {g.posts.map((p) => (
-                <li>
+                <li class="[&[hidden]]:hidden">
                   <a
-                    class="post-link"
+                    class="post-link relative grid w-full gap-px px-2.5 py-1.75 text-left text-inherit no-underline before:absolute before:left-2.5 before:right-2.5 before:top-[-0.5px] before:h-[0.5px] before:bg-(--line) before:content-[''] first:before:content-none hover:bg-(--surface-3) hover:no-underline hover:before:opacity-0 aria-current:bg-(--accent) aria-current:text-white aria-current:before:opacity-0 aria-current:[&_.post-sub]:text-white/82 aria-current:[&_.post-sub_time]:text-white/82 [[data-mode='ios']_&]:gap-0.5 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:py-2.5 [[data-mode='ios']_&]:before:left-4 [[data-mode='ios']_&]:before:right-0 [[data-mode='ios']_&]:aria-current:bg-(--surface-3) [[data-mode='ios']_&]:aria-current:text-(--ink) [[data-mode='ios']_&]:aria-current:[&_.post-sub]:text-(--ink-3) [[data-mode='ios']_&]:aria-current:[&_.post-sub_time]:text-(--ink-3)"
                     href={postPath(p, lang)}
                     data-post={postSlug(p)}
                     aria-current={post && postSlug(post) === postSlug(p) ? 'true' : undefined}
                   >
-                    <h3>{p.data.title}</h3>
+                    <h3 class="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline,13px)] font-semibold tracking-[-0.01em] [[data-mode='ios']_&]:text-[length:var(--t-headline)]">{p.data.title}</h3>
                     {/* Como nas Notas: o título numa linha, e por baixo a
                         data e o princípio do texto na mesma linha, cortados
                         onde acabar a coluna. */}
-                    <span class="post-sub">
-                      <time datetime={iso(p.data.date)}>{formatDate(p.data.date, lang)}</time>
-                      <span class="post-preview">{p.data.description}</span>
+                    <span class="post-sub flex min-w-0 items-baseline gap-1.5 overflow-hidden whitespace-nowrap text-[length:var(--t-foot,11px)] text-(--ink-3) [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">
+                      <time datetime={iso(p.data.date)} class="flex-none text-(--ink-2)">{formatDate(p.data.date, lang)}</time>
+                      <span class="post-preview min-w-0 overflow-hidden text-ellipsis">{p.data.description}</span>
                     </span>
                   </a>
                 </li>
@@ -82,7 +83,7 @@ for (const p of posts) {
             </ul>
           </li>
         ))}
-        <li class="notes-empty" data-notes-empty hidden>{e.noMatch}</li>
+        <li class="notes-empty px-2.5 py-5 text-center text-[length:var(--t-foot,11px)] text-(--ink-3) [&[hidden]]:hidden" data-notes-empty hidden>{e.noMatch}</li>
       </ul>
     )}
 
@@ -90,13 +91,13 @@ for (const p of posts) {
         do ecrã e fora da ordem de tabulação, e só um robô o preenche.
         Se o servidor não tiver o envio ligado, o JavaScript esconde
         isto — melhor não haver campo do que haver um que não faz nada. */}
-    <form class="sub" data-subscribe>
-      <p class="sub-title">{e.subscribeTitle}</p>
-      <div class="sub-row">
+    <form class="sub flex-none border-t-[0.5px] border-(--line) bg-(--surface-2) px-3.5 pb-3.5 pt-3 [&[hidden]]:hidden" data-subscribe>
+      <p class="sub-title m-0 mb-2 text-[length:var(--t-foot,11px)] font-semibold text-(--ink-2)">{e.subscribeTitle}</p>
+      <div class="sub-row flex items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-solid) py-0.75 pl-3 pr-0.75 transition-[border-color] duration-150 focus-within:border-(--accent)">
         <label class="sr" for="sub-email">{e.subscribeLabel}</label>
         <input
           id="sub-email"
-          class="sub-input"
+          class="sub-input min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-foot,12px)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [[data-mode='ios']_&]:text-[length:var(--t-subhead)]"
           type="email"
           name="email"
           autocomplete="email"
@@ -104,35 +105,35 @@ for (const p of posts) {
           required
           data-subscribe-email
         />
-        <button class="sub-go" type="submit">{e.subscribeAction}</button>
+        <button class="sub-go flex-none rounded-full bg-(--accent) px-3.5 py-1.5 text-[length:var(--t-caption,11px)] font-[590] text-white transition-[opacity,transform] duration-150 active:scale-96 [form[data-busy='1']_&]:pointer-events-none [form[data-busy='1']_&]:opacity-50 [[data-mode='ios']_&]:min-h-9 [[data-mode='ios']_&]:text-[length:var(--t-foot)]" type="submit">{e.subscribeAction}</button>
       </div>
       <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-subscribe-trap />
-      <p class="sub-note" data-subscribe-note>{e.subscribeNote}</p>
+      <p class="sub-note m-0 mt-2 text-[length:var(--t-caption,11px)] leading-[1.4] text-(--ink-3) data-[tone=good]:text-(--green) data-[tone=bad]:text-(--danger)" data-subscribe-note>{e.subscribeNote}</p>
     </form>
-    <div class="notes-foot">
-      <span class="count">{posts.length} {e.count}</span>
-      <button class="notes-tool" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    <div class="notes-foot hidden [[data-mode='ios']_&]:grid [[data-mode='ios']_&]:flex-none [[data-mode='ios']_&]:grid-cols-[44px_1fr_44px] [[data-mode='ios']_&]:items-center [[data-mode='ios']_&]:border-t-[0.5px] [[data-mode='ios']_&]:border-(--line) [[data-mode='ios']_&]:bg-(--surface) [[data-mode='ios']_&]:px-3 [[data-mode='ios']_&]:py-1.5 [[data-mode='ios']_&]:backdrop-blur-(--blur)">
+      <span class="count col-start-2 text-center text-[length:var(--t-caption2)] text-(--ink-2)">{posts.length} {e.count}</span>
+      <button class="notes-tool col-start-3 grid h-11 w-11 place-items-center text-(--accent) [&_svg]:h-5.5 [&_svg]:w-5.5" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
     </div>
   </div>
 
-  <div class="app-main">
-    <button class="back-btn" type="button" data-back-list>
+  <div class="app-main flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)]">
+    <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent)" type="button" data-back-list>
       <Icon id="ui-chevron" size={12} />{e.backToList}
     </button>
     <div class="app-scroll" data-reader>
       {post && Content ? (
         <article class="app-pad prose" data-post-body={postSlug(post)}>
           <header class="article-head">
-            <p class="app-eyebrow">
+            <p class="app-eyebrow text-center mb-3.5">
               <time datetime={iso(post.data.date)}>{formatDate(post.data.date, lang)}</time>
               · {readingMinutes(post.body)} {e.readingTime}
             </p>
             <h1>{post.data.title}</h1>
             <p>{post.data.description}</p>
             {post.data.updated && (
-              <p class="post-meta">{e.updated} <time datetime={iso(post.data.updated)}>{formatDate(post.data.updated, lang)}</time></p>
+              <p class="post-meta text-[11px] text-(--ink-3)">{e.updated} <time datetime={iso(post.data.updated)}>{formatDate(post.data.updated, lang)}</time></p>
             )}
-            {altPath && <p class="post-meta"><a href={altPath}>{e.readOther} →</a></p>}
+            {altPath && <p class="post-meta text-[11px] text-(--ink-3)"><a href={altPath}>{e.readOther} →</a></p>}
           </header>
           <Content />
           <footer class="article-foot">
@@ -144,43 +145,38 @@ for (const p of posts) {
 
           {/* Preenchido por comentarios.js depois de cada troca de escrito —
               sem JavaScript, fica só o convite a comentar por email acima. */}
-          <section class="comments" data-comments={postSlug(post)}>
-            <h2 class="comments-heading">{e.comments.heading}</h2>
-            <div class="comments-reactions" data-comments-reactions role="group" aria-label={e.comments.heading}>
-              <button type="button" class="reaction" data-reaction="gosto">
+          <section class="comments mt-8.5 border-t border-(--line) pt-4.5" data-comments={postSlug(post)}>
+            <h2 class="comments-heading m-0 mb-3.5 text-[length:var(--t-title3)]">{e.comments.heading}</h2>
+            <div class="comments-reactions mb-5 flex flex-wrap gap-2" data-comments-reactions role="group" aria-label={e.comments.heading}>
+              <button type="button" class="reaction inline-flex items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-1.5 text-[length:var(--t-caption)] text-(--ink-2) transition-[background,border-color] duration-150 hover:bg-(--surface-2) aria-pressed:border-(--accent) aria-pressed:text-(--accent) aria-pressed:bg-(--surface-3) [&_.reaction-count]:aria-pressed:text-(--accent)" data-reaction="gosto">
                 <span aria-hidden="true">👍</span> {e.comments.reactGosto}
-                <span class="reaction-count" data-reaction-count>0</span>
+                <span class="reaction-count tabular-nums text-(--ink-3)" data-reaction-count>0</span>
               </button>
-              <button type="button" class="reaction" data-reaction="adorei">
+              <button type="button" class="reaction inline-flex items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-1.5 text-[length:var(--t-caption)] text-(--ink-2) transition-[background,border-color] duration-150 hover:bg-(--surface-2) aria-pressed:border-(--accent) aria-pressed:text-(--accent) aria-pressed:bg-(--surface-3) [&_.reaction-count]:aria-pressed:text-(--accent)" data-reaction="adorei">
                 <span aria-hidden="true">❤️</span> {e.comments.reactAdorei}
-                <span class="reaction-count" data-reaction-count>0</span>
+                <span class="reaction-count tabular-nums text-(--ink-3)" data-reaction-count>0</span>
               </button>
-              <button type="button" class="reaction" data-reaction="ideia">
+              <button type="button" class="reaction inline-flex items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-1.5 text-[length:var(--t-caption)] text-(--ink-2) transition-[background,border-color] duration-150 hover:bg-(--surface-2) aria-pressed:border-(--accent) aria-pressed:text-(--accent) aria-pressed:bg-(--surface-3) [&_.reaction-count]:aria-pressed:text-(--accent)" data-reaction="ideia">
                 <span aria-hidden="true">💡</span> {e.comments.reactIdeia}
-                <span class="reaction-count" data-reaction-count>0</span>
+                <span class="reaction-count tabular-nums text-(--ink-3)" data-reaction-count>0</span>
               </button>
             </div>
 
-            <ul class="comments-list" data-comments-list></ul>
-            <p class="comments-empty" data-comments-empty hidden>{e.comments.empty}</p>
+            <ul class="comments-list m-0 mb-5 grid list-none gap-3.5 p-0" data-comments-list></ul>
+            <p class="comments-empty m-0 mb-5 text-[length:var(--t-subhead)] text-(--ink-3) [&[hidden]]:hidden" data-comments-empty hidden>{e.comments.empty}</p>
 
-            <div class="comments-signin" data-comments-signin hidden>
-              <p>{e.comments.signInFirst}</p>
-              <button type="button" class="btn" data-action="entrar">{e.comments.signIn}</button>
-            </div>
-
-            <form class="comments-form" data-comments-form>
-              <p class="comments-form-title">{e.comments.formTitle}</p>
+            <form class="comments-form grid max-w-[44ch] gap-2 [&[hidden]]:hidden [&[data-busy='1']_.btn]:pointer-events-none [&[data-busy='1']_.btn]:opacity-50" data-comments-form>
+              <p class="comments-form-title m-0 mb-1 text-[length:var(--t-foot,11px)] font-semibold text-(--ink-2)">{e.comments.formTitle}</p>
               <label class="sr" for="comment-body">{e.comments.placeholder}</label>
-              <textarea id="comment-body" class="comments-textarea" name="body" rows="3" maxlength="2000" placeholder={e.comments.placeholder} required data-comments-body></textarea>
+              <textarea id="comment-body" class="comments-textarea w-full resize-y border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-subhead)] text-(--ink) outline-hidden transition-[border-color] duration-150 focus:border-(--accent) min-h-[4.5em]" name="body" rows="3" maxlength="2000" placeholder={e.comments.placeholder} required data-comments-body></textarea>
               <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-comments-trap />
-              <button class="btn btn-primary" type="submit">{e.comments.submit}</button>
-              <p class="comments-hint" data-comments-hint></p>
+              <button class="btn btn-primary justify-self-start" type="submit">{e.comments.submit}</button>
+              <p class="comments-hint m-0 min-h-[1.2em] text-[length:var(--t-caption,11px)] text-(--ink-3)" data-comments-hint></p>
             </form>
           </section>
         </article>
       ) : (
-        <div class="app-main-empty">
+        <div class="app-main-empty flex-1 grid place-content-center justify-items-center gap-2 text-(--ink-3) [&_svg]:h-10.5 [&_svg]:w-10.5 [&_svg]:opacity-50">
           <Icon id="ui-note" size={42} />
           <p>{e.pick}</p>
         </div>

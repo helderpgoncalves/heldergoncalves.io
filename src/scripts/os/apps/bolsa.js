@@ -71,7 +71,7 @@ export function initBolsa(ctx) {
 
   function renderWatch() {
     if (!watch.length) {
-      watchList.innerHTML = '<li class="stk-empty-row">' + esc(t.empty) + '</li>';
+      watchList.innerHTML = '<li class="stk-empty-row py-5 px-2.5 text-center text-[length:var(--t-foot)] text-(--ink-3)">' + esc(t.empty) + '</li>';
       return;
     }
     const editing = el.classList.contains('editing');
@@ -80,13 +80,13 @@ export function initBolsa(ctx) {
         const q = quotes.get(s);
         const k = q ? tone(q) : 'flat';
         return (
-          '<li class="stk-row' + (s === current ? ' on' : '') + '" data-symbol="' + esc(s) + '">' +
-          (editing ? '<button class="stk-remove" type="button" aria-label="' + esc(t.remove) + '">−</button>' : '') +
-          '<span class="stk-id"><span class="stk-sym">' + esc(s) + '</span>' +
-          '<span class="stk-name">' + esc(q ? q.name : t.loading) + '</span></span>' +
-          '<span class="stk-spark">' + (q ? sparkline(q.points, k) : '') + '</span>' +
-          '<span class="stk-quote"><span class="stk-price">' + (q ? money(q.price) : '—') + '</span>' +
-          '<span class="stk-pill ' + k + '">' + (q ? signed(q.percent, '%') : '…') + '</span></span>' +
+          '<li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode=\'ios\']_&]:py-3' + (s === current ? ' on bg-(--accent) text-white' : '') + '" data-symbol="' + esc(s) + '">' +
+          (editing ? '<button class="stk-remove relative grid h-[22px] w-[22px] place-items-center rounded-full bg-(--red) text-lg leading-none text-white" type="button" aria-label="' + esc(t.remove) + '">−</button>' : '') +
+          '<span class="stk-id grid min-w-0 gap-px"><span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(s) + '</span>' +
+          '<span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">' + esc(q ? q.name : t.loading) + '</span></span>' +
+          '<span class="stk-spark [&_svg]:block">' + (q ? sparkline(q.points, k) : '') + '</span>' +
+          '<span class="stk-quote grid justify-items-end gap-0.5"><span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + (q ? money(q.price) : '—') + '</span>' +
+          '<span class="stk-pill ' + k + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (q ? signed(q.percent, '%') : '…') + '</span></span>' +
           '</li>'
         );
       })
@@ -164,22 +164,22 @@ export function initBolsa(ctx) {
     const seq = ++searchSeq;
     if (!q) return closeSuggest();
     suggest.hidden = false;
-    suggest.innerHTML = '<p class="stk-suggest-note">' + esc(t.searching) + '</p>';
+    suggest.innerHTML = '<p class="stk-suggest-note m-0 px-3 py-2.5 text-[length:var(--t-foot)] text-(--ink-3)">' + esc(t.searching) + '</p>';
     try {
       const res = await fetch('/api/bolsa/procurar?q=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } });
       const data = res.ok ? await res.json() : null;
       if (seq !== searchSeq) return;
       const results = (data && data.ok && data.results) || [];
       if (!results.length) {
-        suggest.innerHTML = '<p class="stk-suggest-note">' + esc(t.searchEmpty) + '</p>';
+        suggest.innerHTML = '<p class="stk-suggest-note m-0 px-3 py-2.5 text-[length:var(--t-foot)] text-(--ink-3)">' + esc(t.searchEmpty) + '</p>';
         return;
       }
       suggest.innerHTML = results
         .map(
           (r) =>
-            '<button type="button" class="stk-suggest-item" data-add="' + esc(r.symbol) + '">' +
-            '<span class="stk-sym">' + esc(r.symbol) + '</span>' +
-            '<span class="stk-name">' + esc(r.name) + (r.exchange ? ' · ' + esc(r.exchange) : '') + '</span>' +
+            '<button type="button" class="stk-suggest-item flex w-full flex-col items-start gap-px px-2.5 py-2 text-left hover:bg-(--surface-3)" data-add="' + esc(r.symbol) + '">' +
+            '<span class="stk-sym text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(r.symbol) + '</span>' +
+            '<span class="stk-name text-[length:var(--t-foot)] text-(--ink-3)">' + esc(r.name) + (r.exchange ? ' · ' + esc(r.exchange) : '') + '</span>' +
             '</button>'
         )
         .join('');

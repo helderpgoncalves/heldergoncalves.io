@@ -124,8 +124,13 @@ def wrong_origin(request: Request, site_origin: str) -> Optional[str]:
 # Prova três coisas ao mesmo tempo: que o formulário foi aberto neste
 # servidor, que foi aberto por este visitante, e há quanto tempo. Um
 # robô que faça POST directo não tem nenhuma delas.
+#
+# `stamp` é milissegundos como inteiro, nunca `str(time.time())`: um
+# float impresso já traz um '.' na parte decimal, e o token tinha então
+# sempre 4 pedaços ao dividir por '.', nunca os 3 que `check_token`
+# espera — todo o token era rejeitado, sempre.
 def issue_token(fingerprint: str) -> str:
-    stamp = str(time.time())
+    stamp = str(int(time.time() * 1000))
     nonce = secrets.token_urlsafe(9)
     sig = hmac.new(_SECRET, f"{stamp}.{nonce}.{fingerprint}".encode(), hashlib.sha256).hexdigest()
     return f"{stamp}.{nonce}.{sig}"
@@ -148,7 +153,7 @@ def check_token(
     if not hmac.compare_digest(given, expected):
         return "token"
     try:
-        age = time.time() - float(stamp)
+        age = time.time() - int(stamp) / 1000
     except ValueError:
         return "token"
     if age < 0:

@@ -8,3 +8,13 @@ yfinance==1.7.0
 # `zoneinfo` (biblioteca padrão) precisa da base de fusos horários; nem
 # toda a imagem base a traz instalada ao sistema.
 tzdata==2025.2
+# Postgres, sempre assíncrono — ver app/db.py e docs/arquitetura.md.
+# `greenlet`: o SQLAlchemy async precisa dela para o modo `AsyncSession`
+# (não é dependência transitiva do `asyncpg`, tem de vir explícita).
+# Versões mínimas por causa do Python 3.14 (imagem `node:24-alpine`):
+# `greenlet` só tem roda pronta para 3.14 a partir da 3.2, e `asyncpg`
+# a partir da 0.31 — versões mais antigas obrigam a compilar na imagem.
+sqlalchemy==2.0.36
+asyncpg==0.31.0
+greenlet==3.2.4
+alembic==1.14.0

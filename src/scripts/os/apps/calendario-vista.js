@@ -55,10 +55,12 @@ export function createView(el, t, ctx, state) {
     return { free, mine };
   }
 
+  const WEEK_SPAN = 'text-right px-2 text-[length:var(--t-caption)] font-semibold text-(--ink-3) uppercase';
+
   function renderWeek() {
     const base = new Date(2024, 0, 1); // uma segunda-feira
     week.innerHTML = [0, 1, 2, 3, 4, 5, 6]
-      .map((i) => '<span>' + esc(new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 1 + i)).replace('.', '')) + '</span>')
+      .map((i) => '<span class="' + WEEK_SPAN + '">' + esc(new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 1 + i)).replace('.', '')) + '</span>')
       .join('');
     void base;
   }
@@ -79,14 +81,14 @@ export function createView(el, t, ctx, state) {
       const f = free.get(k) || [];
       const m = mine.get(k) || [];
       cells.push(
-        '<button type="button" role="gridcell" class="cal-cell' +
-          (inMonth ? '' : ' out') +
+        '<button type="button" role="gridcell" class="cal-cell relative flex min-h-16 flex-col items-stretch gap-0.5 border-b-[0.5px] border-r-[0.5px] border-(--line) px-1.5 py-1 overflow-hidden text-left text-[length:var(--t-caption)] text-(--ink)' +
+          (inMonth ? '' : ' out text-(--ink-3) bg-(--surface-2)') +
           (k === today ? ' today' : '') +
-          (k === state.selected ? ' on' : '') +
+          (k === state.selected ? ' on bg-(--surface-3)' : '') +
           '" data-day="' + k + '">' +
-          '<span class="cal-num">' + d.getDate() + '</span>' +
-          m.map((x) => '<span class="cal-ev">' + esc(timeFmt.format(new Date(x.start))) + ' ' + esc(x.title || t.bookTitle) + '</span>').join('') +
-          (f.length ? '<span class="cal-free">' + f.length + ' ' + esc(f.length === 1 ? t.free : t.frees) + '</span>' : '') +
+          '<span class="cal-num self-end grid h-[22px] w-[22px] place-items-center rounded-full text-[length:var(--t-foot)] font-semibold' + (k === today ? ' bg-(--red) text-white' : '') + '">' + d.getDate() + '</span>' +
+          m.map((x) => '<span class="cal-ev overflow-hidden text-ellipsis whitespace-nowrap bg-(--accent) px-1.5 py-px font-medium text-white">' + esc(timeFmt.format(new Date(x.start))) + ' ' + esc(x.title || t.bookTitle) + '</span>').join('') +
+          (f.length ? '<span class="cal-free whitespace-nowrap bg-(--green-tint) px-1.5 py-px font-semibold text-(--green)">' + f.length + ' ' + esc(f.length === 1 ? t.free : t.frees) + '</span>' : '') +
           '</button>'
       );
     }
@@ -96,13 +98,13 @@ export function createView(el, t, ctx, state) {
 
   function renderSession() {
     if (!state.enabled) {
-      session.innerHTML = '<span class="cal-off">' + esc(t.errors.off) + '</span>';
+      session.innerHTML = '<span class="cal-off text-(--orange)">' + esc(t.errors.off) + '</span>';
       return;
     }
     if (state.email) {
       session.innerHTML =
-        '<span class="cal-who">' + esc(t.signedAs) + ' <strong>' + esc(state.email) + '</strong></span>' +
-        '<button type="button" class="cal-link" data-cal-signout>' + esc(t.signOut) + '</button>';
+        '<span class="cal-who">' + esc(t.signedAs) + ' <strong class="font-semibold text-(--ink)">' + esc(state.email) + '</strong></span>' +
+        '<button type="button" class="cal-link min-h-6 text-[length:var(--t-foot)] font-medium text-(--accent)" data-cal-signout>' + esc(t.signOut) + '</button>';
       return;
     }
     session.innerHTML = '';
@@ -112,19 +114,8 @@ export function createView(el, t, ctx, state) {
     if (!state.email) {
       side.innerHTML =
         '<div class="cal-login">' +
-        '<h3>' + esc(t.signIn) + '</h3><p>' + esc(t.signInHint) + '</p>' +
-        (state.step === 'email'
-          ? '<form data-cal-email><label class="sr" for="cal-email">' + esc(t.email) + '</label>' +
-            '<input id="cal-email" type="email" name="email" required autocomplete="email" placeholder="' + esc(t.email) + '" />' +
-            '<button class="btn btn-primary" type="submit"' + (state.busy ? ' disabled' : '') + '>' + esc(t.sendCode) + '</button></form>' +
-            '<p class="cal-or">' + esc(t.signInOr) + '</p>' +
-            '<a class="btn" href="/api/auth/google/start">' + esc(t.signInGoogle) + '</a>'
-          : '<form data-cal-code><p class="cal-mail">' + esc(state.pendingEmail) + '</p>' +
-            '<label class="sr" for="cal-code">' + esc(t.code) + '</label>' +
-            '<input id="cal-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required />' +
-            '<button class="btn btn-primary" type="submit"' + (state.busy ? ' disabled' : '') + '>' + esc(t.verify) + '</button>' +
-            '<button class="cal-link" type="button" data-cal-resend>' + esc(t.resend) + '</button></form>') +
-        '<p class="cal-hint">' + esc(state.hint || '') + '</p>' +
+        '<h3 class="m-0 mb-1 text-[length:var(--t-headline)]">' + esc(t.signIn) + '</h3><p class="m-0 mb-3 text-[length:var(--t-subhead)] text-(--ink-2)">' + esc(t.signInHint) + '</p>' +
+        '<button type="button" class="btn btn-primary w-full justify-center no-underline" data-cal-signin>' + esc(t.signIn) + '</button>' +
         '</div>';
       return;
     }
@@ -133,20 +124,20 @@ export function createView(el, t, ctx, state) {
     const m = mine.get(state.selected) || [];
     const d = new Date(state.selected + 'T12:00:00');
     side.innerHTML =
-      '<h3 class="cal-dayname">' + esc(cap(dayFmt.format(d))) + '</h3>' +
-      '<p class="cal-tz">' + esc(t.tz) + ' (' + esc(visitorTz) + ') · ' + state.minutes + ' ' + esc(t.minutes) + '</p>' +
+      '<h3 class="cal-dayname m-0 text-[length:var(--t-headline)] font-bold">' + esc(cap(dayFmt.format(d))) + '</h3>' +
+      '<p class="cal-tz my-0.5 mb-3 text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.tz) + ' (' + esc(visitorTz) + ') · ' + state.minutes + ' ' + esc(t.minutes) + '</p>' +
       (m.length
-        ? '<ul class="cal-list mine">' +
-          m.map((x) => '<li><span class="cal-time">' + esc(timeFmt.format(new Date(x.start))) + '</span><span class="cal-what">' + esc(x.title || t.bookTitle) + '</span>' +
-            '<button type="button" class="cal-link" data-cal-cancel="' + esc(x.id) + '">' + esc(t.cancelMeeting) + '</button></li>').join('') +
+        ? '<ul class="cal-list mine m-0 mb-3.5 grid list-none gap-1.5 p-0">' +
+          m.map((x) => '<li class="flex items-center gap-2.5 bg-(--accent) px-3 py-2.25 text-white"><span class="cal-time min-w-[46px] font-semibold tabular-nums">' + esc(timeFmt.format(new Date(x.start))) + '</span><span class="cal-what flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-subhead)]">' + esc(x.title || t.bookTitle) + '</span>' +
+            '<button type="button" class="cal-link ml-auto min-h-6 text-[length:var(--t-foot)] font-medium text-white/90" data-cal-cancel="' + esc(x.id) + '">' + esc(t.cancelMeeting) + '</button></li>').join('') +
           '</ul>'
         : '') +
       (f.length
-        ? '<ul class="cal-list">' +
-          f.map((iso) => '<li><button type="button" class="cal-slot" data-cal-slot="' + esc(iso) + '"><span class="cal-time">' + esc(timeFmt.format(new Date(iso))) + '</span><span class="cal-what">' + esc(t.free) + '</span></button></li>').join('') +
+        ? '<ul class="cal-list m-0 mb-3.5 grid list-none gap-1.5 p-0">' +
+          f.map((iso) => '<li class="flex items-center gap-2.5"><button type="button" class="cal-slot flex flex-1 items-center gap-2.5 border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-left text-(--ink) transition-[background,transform] duration-120 ease-(--ease-os) hover:bg-(--surface-3) active:scale-98" data-cal-slot="' + esc(iso) + '"><span class="cal-time min-w-[46px] font-semibold tabular-nums">' + esc(timeFmt.format(new Date(iso))) + '</span><span class="cal-what flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-subhead)]">' + esc(t.free) + '</span></button></li>').join('') +
           '</ul>'
-        : '<p class="cal-empty">' + esc(m.length ? '' : t.noSlots) + '</p>') +
-      '<p class="cal-hint">' + esc(state.hint || '') + '</p>';
+        : '<p class="cal-empty m-0 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(m.length ? '' : t.noSlots) + '</p>') +
+      '<p class="cal-hint m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)">' + esc(state.hint || '') + '</p>';
   }
 
   function render() {
@@ -185,20 +176,12 @@ export function createView(el, t, ctx, state) {
     if (ev.target.closest('[data-cal-next]')) return handlers.next();
     if (ev.target.closest('[data-cal-today]')) return handlers.today();
     if (ev.target.closest('[data-cal-signout]')) return handlers.signOut();
-    if (ev.target.closest('[data-cal-resend]')) return handlers.resend();
+    if (ev.target.closest('[data-cal-signin]')) return handlers.signIn();
     if (ev.target.closest('[data-cal-close]') || ev.target === sheet) return closeSheet();
   });
 
   el.addEventListener('submit', (ev) => {
     const f = ev.target;
-    if (f.matches('[data-cal-email]')) {
-      ev.preventDefault();
-      return handlers.sendCode(f.email.value.trim());
-    }
-    if (f.matches('[data-cal-code]')) {
-      ev.preventDefault();
-      return handlers.verify(f.querySelector('#cal-code').value.trim());
-    }
     if (f === form) {
       ev.preventDefault();
       if (pendingStart) handlers.book(pendingStart, form.title.value.trim(), form.note.value.trim());

@@ -65,10 +65,12 @@ export const forgetWho = () => {
   who = undefined;
 };
 
-// ── Entrar por código ──────────────────────────────────────────────
-// O Calendário e o ecrã de entrada do sistema pedem a mesma coisa: um
-// código de seis algarismos por email, e a troca desse código por uma
-// sessão. Uma função só, para não haver dois `fetch` a divergir.
+// ── Entrar por magic link ────────────────────────────────────────────
+// O Calendário e o ecrã de entrada do sistema pedem a mesma coisa: uma
+// ligação por email. Depois disso não há nada para trocar aqui dentro
+// — abrir a ligação é uma navegação a sério (GET /api/auth/magic), que
+// dá a sessão e volta ao site sozinha. Ver lib/retomar.js para o que
+// acontece ao voltar.
 
 const post = (path, body) =>
   fetch(path, {
@@ -78,10 +80,10 @@ const post = (path, body) =>
   });
 
 /**
- * Pede um código de seis algarismos para este email.
+ * Pede uma ligação de entrada para este email.
  * @returns {Promise<{ok: boolean, status: number, error?: string}>}
  */
-export async function requestCode(email, lang) {
+export async function requestMagicLink(email, lang) {
   const token = await requestToken();
   try {
     const res = await post('/api/auth/start', { email, token, company: '', lang });
@@ -92,20 +94,6 @@ export async function requestCode(email, lang) {
   }
 }
 
-/**
- * Troca o código pela sessão.
- * @returns {Promise<{ok: boolean, status: number, email?: string, owner?: boolean}>}
- */
-export async function verifyCode(email, code) {
-  try {
-    const res = await post('/api/auth/verify', { email, code });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data.ok) {
-      forgetWho(); // outras apps já não sabem quem estava antes
-      return { ok: true, status: res.status, email: data.email, owner: data.owner === true };
-    }
-    return { ok: false, status: res.status };
-  } catch (_) {
-    return { ok: false, status: 0 };
-  }
-}
+/** Faz o POST em si — usado por `chamarComSessao`, em retomar.js, para
+ * não haver dois sítios a montar o mesmo `fetch`. */
+export const postJson = post;
