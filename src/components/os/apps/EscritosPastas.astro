@@ -1,0 +1,26 @@
+---
+// A coluna de pastas das Notas reais — aqui, "Todos os Escritos" mais
+// uma pasta por tema (as tags que os escritos já têm). Clicar filtra a
+// lista do meio, tal como uma pasta real filtra notas — ver o listener
+// em escritos.js.
+interface Folder { id: string; label: string; count: number }
+interface Props { folders: Folder[]; heading: string }
+const { folders, heading } = Astro.props;
+---
+<nav class="notes-folders flex-none basis-[180px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2" aria-label={heading}>
+  <ul class="m-0 list-none p-0 px-2">
+    {folders.map((f, i) => (
+      <li>
+        <button
+          class="folder-item flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-[length:var(--t-body,13px)] text-(--ink) transition-colors duration-120 hover:bg-(--surface-3) aria-current:bg-(--notes-select) aria-current:text-(--notes-select-ink)"
+          type="button"
+          data-folder={f.id}
+          aria-current={i === 0 ? 'true' : undefined}
+        >
+          <span class="overflow-hidden text-ellipsis whitespace-nowrap">{f.label}</span>
+          <span class="flex-none text-[length:var(--t-caption,11px)] text-(--ink-3) aria-current:text-(--notes-select-ink)">{f.count}</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+</nav>

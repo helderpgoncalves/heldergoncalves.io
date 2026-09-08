@@ -44,6 +44,7 @@ import messages from '../../assets/icons/messages.png';
 import calendario from '../../assets/icons/calendar.png';
 import contacts from '../../assets/icons/contacts.png';
 import simulator from '../../assets/icons/simulator.png';
+import documento from '../../assets/icons/document.png';
 import safari26 from '../../assets/icons/safari26.png';
 import iosNotes from '../../assets/icons/ios/notes.png';
 import iosMail from '../../assets/icons/ios/mail.svg';
@@ -65,7 +66,13 @@ const real: Record<string, string> = {
   calendario: (await shrink(calendario)).src,
   pessoas: (await shrink(contacts)).src,
   simulador: (await shrink(simulator)).src,
+  documento: (await shrink(documento)).src,
 };
+
+/** O documento genérico não traz a margem/sombra dos .icns de app — é
+    uma folha a papel inteiro, sem quadrado de fundo. Ocupa quase toda
+    a caixa, sem o puxão de FIT. */
+const FIT_DOC = { size: 82, offset: 9 };
 
 /** A imagem no lugar do quadrado: 1024/824 do lado, 100/824 para fora. */
 const FIT = { size: (100 * 1024) / 824, offset: (-100 * 100) / 824 };
@@ -92,7 +99,6 @@ const FIT26 = { size: (100 * 300) / 282, offset: (-9 * 100) / 282 };
     <linearGradient id="g-mensagens" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5bf675"/><stop offset="1" stop-color="#0cbd2a"/></linearGradient>
     <linearGradient id="g-definicoes" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A7A7AB"/><stop offset="1" stop-color="#85858A"/></linearGradient>
     <linearGradient id="g-disk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D3D3D7"/><stop offset="1" stop-color="#BBBBC0"/></linearGradient>
-    <linearGradient id="g-doc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3897FF"/><stop offset="1" stop-color="#0073F0"/></linearGradient>
     <linearGradient id="g-simulador" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A4A63"/><stop offset="1" stop-color="#101827"/></linearGradient>
     <radialGradient id="g-spot" cx=".32" cy=".14" r=".9">
       <stop offset="0" stop-color="#fff" stop-opacity=".20"/>
@@ -136,6 +142,12 @@ const FIT26 = { size: (100 * 300) / 282, offset: (-9 * 100) / 282 };
     <g class="ic-mac"><image href={real.definicoes} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></g>
     <g class="ic-ios" clip-path="url(#sq)"><image href={real.definicoes} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></g>
   </symbol>
+  <!-- Não há um .icns real de "disco de arranque" a esta resolução no
+       macOS actual: o disco da Dock é gerado por asset catalog
+       (Assets.car, sem iconutil), SidebarInternalDisk.icns só chega a
+       64px (pequeno demais aqui), e o único outro candidato — o ícone
+       do Computer.app — é um MacBook inteiro, não um disco. Fica
+       desenhado à mão, na mesma geometria dos outros. -->
   <symbol id="icon-disk" viewBox="0 0 100 100">
     <g clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-disk)"/>
@@ -145,14 +157,17 @@ const FIT26 = { size: (100 * 300) / 282, offset: (-9 * 100) / 282 };
     </g>
     <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
+  <!-- O Currículo.pdf usa o GenericDocumentIcon.icns real (a folha
+       branca que a Apple mostra para qualquer tipo de ficheiro sem
+       ícone próprio), com um emblema "PDF" desenhado por cima — a
+       mesma técnica do sistema real, que combina o ícone genérico do
+       tipo com o emblema da extensão. Ver NOTICE.md. -->
   <symbol id="icon-doc" viewBox="0 0 100 100">
-    <g clip-path="url(#sq)">
-      <rect width="100" height="100" fill="url(#g-doc)"/>
-      <g transform="translate(21.00 21.00) scale(2.4167)" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M14 2v4a2 2 0 0 0 2 2h4" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></g>
-      <rect width="100" height="100" fill="url(#g-spot)"/>
-      <rect width="100" height="100" fill="url(#g-shade)"/>
+    <image href={real.documento} x={FIT_DOC.offset} y={FIT_DOC.offset} width={FIT_DOC.size} height={FIT_DOC.size} />
+    <g transform="translate(30 66)">
+      <rect width="52" height="18" rx="3" fill="var(--red)"/>
+      <text x="26" y="13" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-weight="700" font-size="11" fill="#fff">PDF</text>
     </g>
-    <path d="M 35.792 0 L 64.208 0 c 12.528 0 18.793 0 23.578 2.438 a 22.37 22.37 0 0 1 9.776 9.776 c 2.438 4.785 2.438 11.049 2.438 23.578 L 100 64.208 c 0 12.528 0 18.793 -2.438 23.578 a 22.37 22.37 0 0 1 -9.776 9.776 c -4.785 2.438 -11.049 2.438 -23.578 2.438 L 35.792 100 c -12.528 0 -18.793 0 -23.578 -2.438 a 22.37 22.37 0 0 1 -9.776 -9.776 c -2.438 -4.785 -2.438 -11.049 -2.438 -23.578 L 0 35.792 c 0 -12.528 0 -18.793 2.438 -23.578 a 22.37 22.37 0 0 1 9.776 -9.776 c 4.785 -2.438 11.049 -2.438 23.578 -2.438 Z" fill="none" stroke="#000" stroke-opacity=".09" stroke-width="1"/>
   </symbol>
   <symbol id="icon-escritos" viewBox="0 0 100 100">
     <g class="ic-mac"><image href={real.escritos} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></g>

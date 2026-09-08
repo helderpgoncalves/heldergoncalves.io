@@ -14,6 +14,7 @@
 @media (prefers-reduced-transparency: reduce) {
   .app-escritos { background: var(--surface-solid); }
   .app-side { background: var(--surface-2); }
+  .notes-folders { background: var(--surface-solid); }
 }
 
 /* O fio entre entradas desaparece à volta da entrada cheia — o de
@@ -26,6 +27,7 @@
 
 /* Alternativa para browsers sem container queries: decide-se pelo modo. */
 @supports not (container-type: inline-size) {
+  [data-mode='ios'] .notes-folders { display: none; }
   [data-mode='ios'] .notes-panes { flex-direction: column; }
   [data-mode='ios'] .app-escritos .app-side { flex: 1; border-right: 0; background: transparent; }
   [data-mode='ios'] .app-escritos .app-main {
@@ -35,6 +37,11 @@
   [data-mode='ios'] .app-escritos[data-detail='1'] .app-main { transform: none; visibility: visible; }
   [data-mode='ios'] .app-escritos .back-btn { display: inline-flex; }
 }
+
+/* O botão de sidebar da toolbar esconde a coluna de pastas — tal como
+   nas Notas reais, onde o mesmo botão tira as pastas do caminho sem
+   fechar a lista nem o leitor. */
+.app-escritos.side-hidden .notes-folders { display: none; }
 
 /* A cor da aplicação no telefone é o amarelo do sistema, como nas
    Notas — só ali; no Mac segue o azul do resto do sistema. */

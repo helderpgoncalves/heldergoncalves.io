@@ -40,6 +40,18 @@
   }
 }
 
+@utility folder-item {
+  --r: 7px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
 @utility wall-pick {
   --r: 12px;
   border-radius: var(--r);

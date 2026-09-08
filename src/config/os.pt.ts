@@ -107,6 +107,47 @@ export const OS_PT = {
       { label: 'Como isto foi feito', action: 'open:sobre' },
     ],
   },
+  // Só o que cada app acrescenta ou substitui aos menus genéricos
+  // acima — o que faltar aqui cai no genérico, tal como no macOS real.
+  appMenus: {
+    escritos: {
+      file: [
+        { label: 'Novo escrito…', action: 'mail' },
+        { label: '—', action: '' },
+        { label: 'Fechar janela', action: 'close', key: '⌘W' },
+      ],
+      edit: [
+        { label: 'Copiar ligação', action: 'copy', key: '⇧⌘C' },
+        { label: '—', action: '' },
+        { label: 'Pesquisar…', action: 'spotlight', key: '⌘K' },
+      ],
+      view: [
+        { label: 'Mostrar ou ocultar pastas', action: 'toggleSidebar' },
+        { label: '—', action: '' },
+        { label: 'Ecrã inteiro', action: 'zoom', key: '⌃⌘F' },
+      ],
+    },
+    mensagens: {
+      file: [
+        { label: 'Nova mensagem…', action: 'mail' },
+        { label: '—', action: '' },
+        { label: 'Fechar janela', action: 'close', key: '⌘W' },
+      ],
+    },
+    terminal: {
+      edit: [
+        { label: 'Copiar', action: 'copy', key: '⌘C' },
+        { label: '—', action: '' },
+        { label: 'Pesquisar…', action: 'spotlight', key: '⌘K' },
+      ],
+    },
+    definicoes: {
+      view: [
+        { label: 'Mudar o tema', action: 'theme' },
+        { label: 'Mudar o fundo', action: 'wallpaper:next' },
+      ],
+    },
+  },
   menuLabels: { file: 'Ficheiro', edit: 'Editar', view: 'Ver', window: 'Janela', help: 'Ajuda' },
   copied: 'Ligação copiada',
   control: {

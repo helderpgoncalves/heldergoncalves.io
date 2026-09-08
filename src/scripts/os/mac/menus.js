@@ -48,14 +48,20 @@ export function createMenus(desk) {
         { label: s.control.title, action: 'open:definicoes' },
       ];
     }
-    if (key !== 'app') return ctx.data.menus[key] || [];
-    const app = ctx.active ? desk.meta(ctx.active) : null;
-    if (!app) return ctx.data.menus.apple;
-    return [
-      { label: s.aboutApp ? s.aboutApp.replace('%s', app.name) : app.name, action: 'open:sobre' },
-      { label: '—', action: '' },
-      { label: s.close, action: 'close', key: '⌘W' },
-    ];
+    if (key === 'app') {
+      const app = ctx.active ? desk.meta(ctx.active) : null;
+      if (!app) return ctx.data.menus.apple;
+      return [
+        { label: s.aboutApp ? s.aboutApp.replace('%s', app.name) : app.name, action: 'open:sobre' },
+        { label: '—', action: '' },
+        { label: s.close, action: 'close', key: '⌘W' },
+      ];
+    }
+    // Ficheiro/Editar/Ver/Janela/Ajuda: cada app pode ter os seus
+    // próprios, tal como no macOS real — o que ela não define cai no
+    // genérico do sistema (o do "Finder", quando não há app em foco).
+    const overrides = ctx.active && ctx.data.appMenus[ctx.active];
+    return (overrides && overrides[key]) || ctx.data.menus[key] || [];
   }
 
   const renderItem = (m) =>

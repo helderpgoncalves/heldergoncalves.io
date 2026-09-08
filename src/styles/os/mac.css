@@ -19,17 +19,16 @@
 .menubar {
   position: absolute; inset: 0 0 auto; height: var(--menubar-h); z-index: 400;
   display: flex; align-items: center; gap: 0; padding: 0 10px 0 6px;
-  background: rgba(255, 255, 255, 0.36);
+  background: var(--glass);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-  color: #fff; font-size: var(--t-body, 13px); letter-spacing: -0.005em;
-  text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.24);
+  color: var(--ink); font-size: var(--t-body, 13px); letter-spacing: -0.005em;
 }
 .menubar-item {
   display: inline-flex; align-items: center; height: calc(var(--menubar-h) - 4px);
   padding: 0 10px; color: inherit; white-space: nowrap;
 }
 .menubar-item[data-menu='apple'] { padding: 0 12px; }
-.menubar-item:hover, .menubar-item[aria-expanded='true'] { background: rgba(255, 255, 255, 0.22); }
+.menubar-item:hover, .menubar-item[aria-expanded='true'] { background: var(--surface-3); }
 .menubar-item.strong { font-weight: 700; }
 .menubar-spacer { flex: 1; }
 .menubar-right { display: flex; align-items: center; gap: 2px; }
@@ -122,7 +121,7 @@
     transform: translate(var(--from-x, 0px), var(--from-y, 0px)) scale(var(--from-s, 0.92));
   }
 }
-.win.closing { animation: win-out 0.16s ease-in forwards; }
+.win.closing { animation: win-out 0.2s var(--ease-os) forwards; }
 @keyframes win-out { to { opacity: 0; transform: scale(0.94); } }
 .win.minimizing { animation: win-min 0.28s var(--ease-os) forwards; pointer-events: none; }
 @keyframes win-min {
@@ -133,6 +132,22 @@
 }
 .win.minimized { display: none; }
 .win.zoomed { border-radius: 0; corner-shape: round; }
+/* O maximizar do macOS real não troca de tamanho de repente: estica-se
+   até ao novo retângulo, com um ligeiro exagero (110% → 100%) que lê
+   como o efeito genie — sem precisar de desenhar um clip-path à mão.
+   O canto acompanha a mesma transição: sem isto, ficava recto de
+   repente a meio do movimento, antes do resto da janela. */
+.win.zooming {
+  transition: left 0.32s var(--ease-os), top 0.32s var(--ease-os),
+    width 0.32s var(--ease-os), height 0.32s var(--ease-os),
+    border-radius 0.32s var(--ease-os);
+  animation: win-zoom-pop 0.32s var(--ease-pop);
+}
+@keyframes win-zoom-pop {
+  0% { transform: scale(1); }
+  55% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
 .win[data-app] { color: var(--ink); }
 
 .win-bar {

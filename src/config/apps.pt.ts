@@ -161,6 +161,8 @@ export const APPS_PT = {
     pick: 'Escolhe um escrito à esquerda.',
     feed: 'Assinar por RSS',
     all: 'Todo o blog',
+    allFolders: 'Todos os Escritos',
+    folders: 'Pastas',
     count: 'escritos',
     readingTime: 'min de leitura',
     search: 'Pesquisar',

@@ -107,6 +107,48 @@ export const OS_EN = {
       { label: 'How this was built', action: 'open:sobre' },
     ],
   },
+  // Only what each app adds or overrides on top of the generic menus
+  // above — anything missing here falls back to the generic one, just
+  // like on real macOS.
+  appMenus: {
+    escritos: {
+      file: [
+        { label: 'New post…', action: 'mail' },
+        { label: '—', action: '' },
+        { label: 'Close window', action: 'close', key: '⌘W' },
+      ],
+      edit: [
+        { label: 'Copy link', action: 'copy', key: '⇧⌘C' },
+        { label: '—', action: '' },
+        { label: 'Search…', action: 'spotlight', key: '⌘K' },
+      ],
+      view: [
+        { label: 'Show or hide folders', action: 'toggleSidebar' },
+        { label: '—', action: '' },
+        { label: 'Full screen', action: 'zoom', key: '⌃⌘F' },
+      ],
+    },
+    mensagens: {
+      file: [
+        { label: 'New message…', action: 'mail' },
+        { label: '—', action: '' },
+        { label: 'Close window', action: 'close', key: '⌘W' },
+      ],
+    },
+    terminal: {
+      edit: [
+        { label: 'Copy', action: 'copy', key: '⌘C' },
+        { label: '—', action: '' },
+        { label: 'Search…', action: 'spotlight', key: '⌘K' },
+      ],
+    },
+    definicoes: {
+      view: [
+        { label: 'Switch theme', action: 'theme' },
+        { label: 'Change wallpaper', action: 'wallpaper:next' },
+      ],
+    },
+  },
   menuLabels: { file: 'File', edit: 'Edit', view: 'View', window: 'Window', help: 'Help' },
   copied: 'Link copied',
   control: {
