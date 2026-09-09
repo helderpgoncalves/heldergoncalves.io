@@ -27,7 +27,7 @@ export const PT = {
   intro:
     'Sou o Hélder. Construo software — e, cada vez mais, software com modelos de linguagem lá dentro: agentes, servidores MCP e automação que poupa trabalho a quem o faz.',
   intro2:
-    'De dia trabalho na Bitsapiens, em sistemas que ligam pessoas, dados e IA. De noite ando pelos meus projetos: um servidor MCP que lê a app Stocks do macOS, uma ponte para pilotar o Claude Code a partir de um Garmin, um bot que transforma conversa de comunidade em backlog. Quase tudo em código aberto.',
+    'De dia trabalho na Bitsapiens, em sistemas que ligam pessoas, dados e IA. De noite ando pelos meus projetos pessoais — quase sempre pequenas pontes entre ferramentas que já uso e modelos de linguagem, quase tudo em código aberto.',
   intro3:
     'Prefiro entregas pequenas e frequentes a planos grandes. Aqui escrevo o que aprendo pelo caminho — sem cerimónia, sem newsletter, sem cookies.',
 

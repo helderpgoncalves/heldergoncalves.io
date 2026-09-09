@@ -27,7 +27,7 @@ export const EN = {
   intro:
     "I'm Hélder. I build software — and, more and more, software with language models inside it: agents, MCP servers, and automation that saves real people real work.",
   intro2:
-    'By day I work at Bitsapiens on systems that connect people, data and AI. The rest of the time I build my own things: an MCP server that reads the macOS Stocks app, a bridge to steer Claude Code from a Garmin bike computer, a bot that turns community chat into a product backlog. Almost all of it open source.',
+    'By day I work at Bitsapiens on systems that connect people, data and AI. The rest of the time I build my own things — mostly small bridges between tools I already use and language models, almost all of it open source.',
   intro3:
     'I prefer small frequent deliveries to big plans. This is where I write down what I learn along the way — no ceremony, no newsletter, no cookies.',
 

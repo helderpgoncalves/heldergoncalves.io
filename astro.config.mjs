@@ -14,6 +14,9 @@ export default defineConfig({
       !page.includes('/404') &&
       !/\.(xml|txt|json)$/.test(page),
     i18n: { defaultLocale: 'pt', locales: { pt: 'pt-PT', en: 'en' } },
+    // Sem isto o browser mostra o XML cru, sem estilo nenhum, a
+    // quem lá cair a direito. O ficheiro é estático, em public/.
+    xslURL: '/sitemap.xsl',
   })],
   build: { inlineStylesheets: 'auto' },
   compressHTML: true,
