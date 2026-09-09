@@ -9,7 +9,7 @@ const links = socialLinks(lang);
 <section class="app-shell app-sobre relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="sobre" aria-label={c.apps.sobre.name}>
   <div class="app-scroll min-h-0 flex-1 overflow-auto [-webkit-overflow-scrolling:touch]">
     <div class="app-pad px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
-      <div class="about-head mb-5.5 flex items-center gap-4.5">
+      <div class="about-head mb-5.5 flex items-center gap-4.5 @max-[560px]/app:flex-col @max-[560px]/app:items-start @max-[560px]/app:gap-3">
         <span class="avatar grid h-19 w-19 flex-none place-items-center rounded-[23%] bg-[linear-gradient(150deg,#7f7fd5,#3b6bd6_55%,#1b3f8f)] text-[32px] font-semibold tracking-[-0.02em] text-white shadow-[0_8px_20px_rgba(20,40,90,0.32)]" aria-hidden="true">HG</span>
         <div>
           <h2 class="m-0 text-[22px] tracking-[-0.02em]">{SITE.name}</h2>
@@ -31,11 +31,11 @@ const links = socialLinks(lang);
       <div class="app-section mt-7">
         <h3 class="m-0 mb-2.5 text-[12px] font-semibold uppercase tracking-[0.07em] text-(--ink-3)">{c.sobre.specs}</h3>
         <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.sobre.specRole}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{c.role}</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.sobre.specPlace}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{c.place}</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.sobre.specCompany}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{SITE.company.name}</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.sobre.specStack}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{c.sobre.specStackValue}</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.sobre.specSince}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{c.sobre.specSinceValue}</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.sobre.specRole}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{c.role}</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.sobre.specPlace}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{c.place}</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.sobre.specCompany}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{SITE.company.name}</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.sobre.specStack}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{c.sobre.specStackValue}</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.sobre.specSince}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{c.sobre.specSinceValue}</span></div>
         </div>
       </div>
 
@@ -43,8 +43,8 @@ const links = socialLinks(lang);
         <h3 class="m-0 mb-2.5 text-[12px] font-semibold uppercase tracking-[0.07em] text-(--ink-3)">{c.contacto.elsewhere}</h3>
         <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
           {links.map((l) => (
-            <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline" href={l.href} target={l.id === 'email' ? undefined : '_blank'} rel="noopener me">
-              <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{l.value}</span>
+            <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1" href={l.href} target={l.id === 'email' ? undefined : '_blank'} rel="noopener me">
+              <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{l.value}</span>
               <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow text-(--ink-3)" size={15} />
             </a>
           ))}

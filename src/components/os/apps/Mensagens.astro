@@ -31,16 +31,16 @@ const m = c.mensagens;
         <strong class="block truncate text-[14px]" data-chat-title>{m.contactName}</strong>
         <span class="block truncate text-[11px] text-(--ink-3)" data-chat-subtitle>{m.status}</span>
       </div>
-      <button class="btn ml-auto flex-none" type="button" data-chat-reset>{m.restart}</button>
+      <button class="btn ml-auto flex-none @max-[400px]/app:hidden" type="button" data-chat-reset>{m.restart}</button>
     </div>
 
     <div class="chat-log flex min-h-0 flex-1 flex-col gap-2 overflow-auto px-4 py-4.5" data-chat-log aria-live="polite">
       <p class="chat-time self-center py-1 text-[11px] text-(--ink-3)">{c.os.today}</p>
-      <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)]">{m.opener}</p>
+      <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]">{m.opener}</p>
       {m.chat.map((entry) => (
         <div class="chat-canned" hidden data-q={entry.q}>
-          <p class="bubble me max-w-[78%] self-end rounded-[19px] rounded-br-[6px] bg-(--green) px-3.5 py-2.25 text-[15px] leading-[1.42] text-white [animation:bubble-in_0.3s_var(--ease-pop)] [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f]">{entry.q}</p>
-          <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)]">{entry.a}</p>
+          <p class="bubble me max-w-[78%] self-end rounded-[19px] rounded-br-[6px] bg-(--green) px-3.5 py-2.25 text-[15px] leading-[1.42] text-white [animation:bubble-in_0.3s_var(--ease-pop)] [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f] @max-[560px]/app:max-w-[88%]">{entry.q}</p>
+          <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]">{entry.a}</p>
         </div>
       ))}
     </div>

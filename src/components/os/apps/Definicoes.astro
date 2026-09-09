@@ -17,7 +17,7 @@ const walls = [
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.appearance}</h3>
         <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.appearanceHint}</p>
-        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="theme">
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)] @max-[400px]/app:w-full @max-[400px]/app:[&_button]:flex-1 @max-[400px]/app:[&_button]:px-1.5 @max-[400px]/app:[&_button]:py-2" data-set="theme">
           <button type="button" data-value="auto">{s.auto}</button>
           <button type="button" data-value="light">{s.light}</button>
           <button type="button" data-value="dark">{s.dark}</button>
@@ -27,7 +27,7 @@ const walls = [
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.wallpaper}</h3>
         <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.wallpaperHint}</p>
-        <div class="walls grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3" data-set="wallpaper">
+        <div class="walls grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3 @max-[560px]/app:grid-cols-2 @max-[400px]/app:grid-cols-1" data-set="wallpaper">
           {walls.map((w) => (
             <button class="wall-pick overflow-hidden border-2 border-transparent p-0 aria-pressed:border-(--accent)" type="button" data-value={w.id}>
               <span class="swatch block h-17" style={`background:${w.css}`}></span>
@@ -40,7 +40,7 @@ const walls = [
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.language}</h3>
         <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.languageHint}</p>
-        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="lang">
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)] @max-[400px]/app:w-full @max-[400px]/app:[&_button]:flex-1 @max-[400px]/app:[&_button]:px-1.5 @max-[400px]/app:[&_button]:py-2" data-set="lang">
           <button type="button" data-value="pt" data-href={ROUTES.pt.home}>Português</button>
           <button type="button" data-value="en" data-href={ROUTES.en.home}>English</button>
         </div>
@@ -49,7 +49,7 @@ const walls = [
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.motion}</h3>
         <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.motionHint}</p>
-        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)]" data-set="motion">
+        <div class="seg inline-flex gap-0.5 rounded-[9px] bg-(--surface-3) p-0.5 [&_button]:rounded-[7px] [&_button]:px-4 [&_button]:py-1.5 [&_button]:text-[13px] [&_button]:text-(--ink-2) [&_button[aria-pressed='true']]:bg-(--surface-solid) [&_button[aria-pressed='true']]:text-(--ink) [&_button[aria-pressed='true']]:font-medium [&_button[aria-pressed='true']]:shadow-[0_1px_3px_rgba(0,0,0,0.14)] @max-[400px]/app:w-full @max-[400px]/app:[&_button]:flex-1 @max-[400px]/app:[&_button]:px-1.5 @max-[400px]/app:[&_button]:py-2" data-set="motion">
           <button type="button" data-value="on">{s.motionOn}</button>
           <button type="button" data-value="off">{s.motionOff}</button>
         </div>
@@ -66,13 +66,13 @@ const walls = [
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.admin}</h3>
         <p class="m-0 mb-2.5 text-[12px] text-(--ink-3)">{s.adminHint}</p>
         <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0">
-            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.apps.calendario.name}</span>
-            <span class="v ml-auto text-right text-[13px] text-(--ink)" data-admin-meetings>—</span>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1">
+            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.apps.calendario.name}</span>
+            <span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left" data-admin-meetings>—</span>
           </div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0">
-            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{s.adminBlocks}</span>
-            <span class="v ml-auto text-right text-[13px] text-(--ink)" data-admin-blocks>—</span>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1">
+            <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{s.adminBlocks}</span>
+            <span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left" data-admin-blocks>—</span>
           </div>
         </div>
         <div class="btn-row mt-4.5 flex flex-wrap gap-2.5">
@@ -83,9 +83,9 @@ const walls = [
       <div class="set-group mb-6.5">
         <h3 class="m-0 mb-1 text-[15px] tracking-[-0.01em]">{s.about}</h3>
         <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{c.os.macName}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{s.version} 1.0</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">Astro</span><span class="v ml-auto text-right text-[13px] text-(--ink)">7.3 · static</span></div>
-          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">JavaScript</span><span class="v ml-auto text-right text-[13px] text-(--ink)">0 frameworks</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{c.os.macName}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{s.version} 1.0</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">Astro</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">7.3 · static</span></div>
+          <div class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1"><span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">JavaScript</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">0 frameworks</span></div>
         </div>
         <p class="legal-note mt-2.5">{s.legalText}</p>
 

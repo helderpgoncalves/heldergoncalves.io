@@ -7,7 +7,7 @@ interface Folder { id: string; label: string; count: number }
 interface Props { folders: Folder[]; heading: string }
 const { folders, heading } = Astro.props;
 ---
-<nav class="notes-folders flex-none basis-[180px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2" aria-label={heading}>
+<nav class="notes-folders flex-none basis-[180px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2 @max-[820px]/app:hidden" aria-label={heading}>
   <ul class="m-0 list-none p-0 px-2">
     {folders.map((f, i) => (
       <li>

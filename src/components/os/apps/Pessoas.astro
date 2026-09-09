@@ -18,7 +18,7 @@ const k = c.pessoas;
   </p>
 
   <div class="ppl-shell flex min-h-0 flex-1 flex-row [&[hidden]]:hidden" data-ppl-shell hidden>
-    <nav class="ppl-side w-[190px] flex-none overflow-y-auto border-r-[0.5px] border-(--line) bg-(--surface-2) px-2.5 py-3.5">
+    <nav class="ppl-side w-[190px] flex-none overflow-y-auto border-r-[0.5px] border-(--line) bg-(--surface-2) px-2.5 py-3.5 @max-[480px]/app:hidden">
       <p class="m-0 mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-[0.07em] text-(--ink-3)">{k.sectionAll}</p>
       <button type="button" class="ppl-nav-item post-link flex w-full items-center px-2 py-1.5 text-left text-[13px] text-(--ink) aria-pressed:bg-(--accent) aria-pressed:text-white" data-ppl-filter="all" aria-pressed="true">
         {k.everyone}
@@ -38,7 +38,7 @@ const k = c.pessoas;
         </label>
       </div>
 
-      <div class="ppl-cols flex min-h-0 flex-1 flex-row">
+      <div class="ppl-cols relative flex min-h-0 flex-1 flex-row">
         <div class="ppl-list-pane min-h-0 flex-1 overflow-y-auto p-2">
           <ul class="ppl-list rows m-0 grid list-none gap-px border-[0.5px] border-(--line) bg-(--surface-2) p-0 [&[hidden]]:hidden" data-ppl-list hidden></ul>
           <div class="ppl-empty m-auto flex h-full flex-col items-center justify-center gap-2.5 p-8 text-center text-(--ink-3) [&[hidden]]:hidden" data-ppl-empty hidden>
@@ -49,19 +49,20 @@ const k = c.pessoas;
           </div>
         </div>
 
-        <aside class="ppl-detail hidden w-[240px] flex-none flex-col items-center gap-3 overflow-y-auto border-l-[0.5px] border-(--line) p-6 text-center [&:not([hidden])]:flex" data-ppl-detail hidden>
+        <aside class="ppl-detail hidden w-[240px] flex-none flex-col items-center gap-3 overflow-y-auto border-l-[0.5px] border-(--line) p-6 text-center [&:not([hidden])]:flex @max-[560px]/app:w-[190px] @max-[400px]/app:absolute @max-[400px]/app:inset-0 @max-[400px]/app:z-3 @max-[400px]/app:w-full @max-[400px]/app:border-l-0 @max-[400px]/app:bg-(--surface-solid) @max-[400px]/app:pt-10" data-ppl-detail hidden>
+          <button type="button" class="ppl-detail-back hidden absolute left-2 top-2 items-center gap-1 px-2 py-1.5 text-[13px] text-(--accent) @max-[400px]/app:inline-flex" data-ppl-detail-close><Icon id="ui-chevron" size={12} />{k.back}</button>
           <img class="ppl-detail-avatar hidden h-20 w-20 rounded-full object-cover bg-(--surface-3) [&:not([hidden])]:block" data-ppl-detail-avatar alt="" loading="lazy" referrerpolicy="no-referrer" hidden />
           <span class="ppl-detail-avatar h-20 w-20 rounded-full bg-(--gray4) [&[hidden]]:hidden" data-ppl-detail-placeholder aria-hidden="true"></span>
           <p class="m-0 max-w-full truncate text-[15px] font-semibold" data-ppl-detail-email></p>
           <div class="rows w-full border-[0.5px] border-(--line) bg-(--surface-2) text-left">
-            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0">
-              <span class="k flex-none text-[11px] text-(--ink-3)">{k.firstSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-first></span>
+            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-2 @max-[560px]/app:gap-y-0.5">
+              <span class="k flex-none text-[11px] text-(--ink-3) @max-[560px]/app:basis-full">{k.firstSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left" data-ppl-detail-first></span>
             </div>
-            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0">
-              <span class="k flex-none text-[11px] text-(--ink-3)">{k.lastSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-last></span>
+            <div class="row flex w-full items-center gap-2.5 border-b-[0.5px] border-(--line) px-3 py-2 text-left last:border-b-0 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-2 @max-[560px]/app:gap-y-0.5">
+              <span class="k flex-none text-[11px] text-(--ink-3) @max-[560px]/app:basis-full">{k.lastSeen}</span><span class="v ml-auto text-right text-[11px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left" data-ppl-detail-last></span>
             </div>
-            <div class="row flex w-full items-center gap-2.5 px-3 py-2 text-left">
-              <span class="k flex-none text-[11px] text-(--ink-3)">{k.visits}</span><span class="v ml-auto text-right text-[11px] text-(--ink)" data-ppl-detail-visits></span>
+            <div class="row flex w-full items-center gap-2.5 px-3 py-2 text-left @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-2 @max-[560px]/app:gap-y-0.5">
+              <span class="k flex-none text-[11px] text-(--ink-3) @max-[560px]/app:basis-full">{k.visits}</span><span class="v ml-auto text-right text-[11px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left" data-ppl-detail-visits></span>
             </div>
           </div>
         </aside>

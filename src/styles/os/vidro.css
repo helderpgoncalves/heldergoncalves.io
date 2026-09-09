@@ -185,14 +185,12 @@
    deixa ver bem o papel de parede por trás, como a barra de menus a
    sério, não uma superfície opaca com texto por cima. */
 .menubar { --glass-tint: rgba(255, 255, 255, 0.1); --glass-sat: 220%; --glass-blur: 22px; --glass-drop: none; --glass-hairline: transparent; }
-/* No escuro o texto é branco: uma tinta preta um pouco mais funda do
-   que no claro dá-lhe uma base de luminância baixa e previsível contra
-   qualquer zona do papel de parede — sem isto, a zona clara/creme do
-   fundo (o "aurora" tem-nas) ficava perto de mais da luminância do
-   próprio texto para o contrast() a seguir separar sozinho. */
-[data-theme='dark'] .menubar { --glass-tint: rgba(10, 10, 12, 0.32); }
+/* No escuro o texto é branco: uma tinta preta muito ténue dá-lhe uma
+   base de luminância baixa contra o papel de parede, sem tapar as
+   cores por trás — a barra a sério deixa-as passar quase inteiras. */
+[data-theme='dark'] .menubar { --glass-tint: rgba(10, 10, 12, 0.12); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .menubar { --glass-tint: rgba(10, 10, 12, 0.32); }
+  :root:not([data-theme='light']) .menubar { --glass-tint: rgba(10, 10, 12, 0.12); }
 }
 .menubar::before { border-radius: 0; padding: 0 0 1px; }
 /* `brightness()` só desloca a luminância do vidro para cima ou para

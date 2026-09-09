@@ -128,6 +128,7 @@ export const APPS_EN = {
     everyone: 'Everyone',
     recent: 'Recent',
     search: 'Search',
+    back: 'Back',
     errors: {
       generic: 'That did not work. Try again.',
     },

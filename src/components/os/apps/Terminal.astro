@@ -5,7 +5,7 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 ---
 <section class="app-shell app-terminal relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="terminal" aria-label={c.apps.terminal.name}>
-  <div class="term flex min-h-0 flex-1 flex-col overflow-auto bg-[#101013] px-4 py-3.5 font-(family-name:--mono) text-[13px] leading-[1.62] text-[#e6e6e9] [&_b]:font-semibold [&_b]:text-[#ffd60a] [&_i]:not-italic [&_i]:text-[#64d2ff] [&_.muted]:text-[#8e8e93] [&_a]:text-[#64d2ff]" data-term tabindex="-1">
+  <div class="term flex min-h-0 flex-1 flex-col overflow-auto bg-[#101013] px-4 py-3.5 font-(family-name:--mono) text-[13px] leading-[1.62] text-[#e6e6e9] [&_b]:font-semibold [&_b]:text-[#ffd60a] [&_i]:not-italic [&_i]:text-[#64d2ff] [&_.muted]:text-[#8e8e93] [&_a]:text-[#64d2ff] @max-[400px]/app:text-[length:var(--t-caption)]" data-term tabindex="-1">
     <div class="term-out whitespace-pre-wrap break-words" data-term-out>helder@heldergoncalves.io — zsh
 {c.terminal.welcome}</div>
     <div class="term-line flex gap-2">

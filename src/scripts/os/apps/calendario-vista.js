@@ -81,14 +81,14 @@ export function createView(el, t, ctx, state) {
       const f = free.get(k) || [];
       const m = mine.get(k) || [];
       cells.push(
-        '<button type="button" role="gridcell" class="cal-cell relative flex min-h-16 flex-col items-stretch gap-0.5 border-b-[0.5px] border-r-[0.5px] border-(--line) px-1.5 py-1 overflow-hidden text-left text-[length:var(--t-caption)] text-(--ink)' +
+        '<button type="button" role="gridcell" class="cal-cell relative flex min-h-16 flex-col items-stretch gap-0.5 border-b-[0.5px] border-r-[0.5px] border-(--line) px-1.5 py-1 overflow-hidden text-left text-[length:var(--t-caption)] text-(--ink) @max-[720px]/app:min-h-12 @max-[720px]/app:px-1 @max-[720px]/app:py-0.75' +
           (inMonth ? '' : ' out text-(--ink-3) bg-(--surface-2)') +
           (k === today ? ' today' : '') +
           (k === state.selected ? ' on bg-(--surface-3)' : '') +
           '" data-day="' + k + '">' +
           '<span class="cal-num self-end grid h-[22px] w-[22px] place-items-center rounded-full text-[length:var(--t-foot)] font-semibold' + (k === today ? ' bg-(--red) text-white' : '') + '">' + d.getDate() + '</span>' +
-          m.map((x) => '<span class="cal-ev overflow-hidden text-ellipsis whitespace-nowrap bg-(--accent) px-1.5 py-px font-medium text-white">' + esc(timeFmt.format(new Date(x.start))) + ' ' + esc(x.title || t.bookTitle) + '</span>').join('') +
-          (f.length ? '<span class="cal-free whitespace-nowrap bg-(--green-tint) px-1.5 py-px font-semibold text-(--green)">' + f.length + ' ' + esc(f.length === 1 ? t.free : t.frees) + '</span>' : '') +
+          m.map((x) => '<span class="cal-ev overflow-hidden text-ellipsis whitespace-nowrap bg-(--accent) px-1.5 py-px font-medium text-white @max-[720px]/app:hidden">' + esc(timeFmt.format(new Date(x.start))) + ' ' + esc(x.title || t.bookTitle) + '</span>').join('') +
+          (f.length ? '<span class="cal-free whitespace-nowrap bg-(--green-tint) px-1.5 py-px font-semibold text-(--green) @max-[720px]/app:bg-transparent @max-[720px]/app:p-0 @max-[720px]/app:text-[length:var(--t-caption2)]">' + f.length + ' ' + esc(f.length === 1 ? t.free : t.frees) + '</span>' : '') +
           '</button>'
       );
     }
@@ -103,7 +103,7 @@ export function createView(el, t, ctx, state) {
     }
     if (state.email) {
       session.innerHTML =
-        '<span class="cal-who">' + esc(t.signedAs) + ' <strong class="font-semibold text-(--ink)">' + esc(state.email) + '</strong></span>' +
+        '<span class="cal-who @max-[720px]/app:hidden">' + esc(t.signedAs) + ' <strong class="font-semibold text-(--ink)">' + esc(state.email) + '</strong></span>' +
         '<button type="button" class="cal-link min-h-6 text-[length:var(--t-foot)] font-medium text-(--accent)" data-cal-signout>' + esc(t.signOut) + '</button>';
       return;
     }

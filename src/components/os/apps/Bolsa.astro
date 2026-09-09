@@ -19,8 +19,8 @@ const PORTFOLIO = [
   { symbol: 'MSFT', label: 'MSFT' },
 ];
 ---
-<section class="app-shell app-bolsa flex-row" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')} data-portfolio={PORTFOLIO.map((p) => p.symbol).join(',')}>
-  <div class="stk-side flex min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid)">
+<section class="app-shell app-bolsa group flex-row @max-[640px]/app:flex-col" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')} data-portfolio={PORTFOLIO.map((p) => p.symbol).join(',')}>
+  <div class="stk-side flex min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
     <div class="stk-head flex items-center justify-between px-4 pb-1.5 pt-3.5">
       <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.bolsa.name}</h2>
       <button class="stk-edit min-h-7 text-[length:var(--t-body)] font-medium text-(--accent)" type="button" data-stk-edit>{b.edit}</button>
@@ -60,8 +60,8 @@ const PORTFOLIO = [
     </div>
     <p class="stk-note m-0 border-t-[0.5px] border-(--line) px-4 pb-3 pt-2.5 text-[length:var(--t-caption)] text-(--ink-3)" data-stk-note>{b.lead}</p>
   </div>
-  <div class="stk-main min-w-0 flex-1 overflow-auto bg-(--surface-solid)" data-stk-main>
-    <button class="stk-back hidden" type="button" data-stk-back><Icon id="ui-chevron" size={14} />{b.list}</button>
+  <div class="stk-main min-w-0 flex-1 overflow-auto bg-(--surface-solid) @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-[.detail]:translate-x-0 @max-[640px]/app:group-[.detail]:visible" data-stk-main>
+    <button class="stk-back hidden @max-[640px]/app:inline-flex @max-[640px]/app:items-center @max-[640px]/app:gap-1 @max-[640px]/app:px-4 @max-[640px]/app:pt-3 @max-[640px]/app:text-(--accent) @max-[640px]/app:text-[length:var(--t-subhead)]" type="button" data-stk-back><Icon id="ui-chevron" size={14} />{b.list}</button>
     <div class="stk-empty grid h-full place-content-center justify-items-center gap-2 text-(--ink-3)"><Icon id="bolsa" size={44} /><p>{b.pick}</p></div>
   </div>
 </section>

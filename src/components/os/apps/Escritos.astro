@@ -33,7 +33,7 @@ const folders = [
 ];
 ---
 <section
-  class="app-shell app-escritos flex-col bg-transparent"
+  class="app-shell app-escritos group flex-col bg-transparent"
   data-content="escritos"
   data-detail={post ? '1' : '0'}
   aria-label={c.apps.escritos.name}
@@ -51,9 +51,9 @@ const folders = [
     </label>
   </div>
 
-  <div class="notes-panes flex min-h-0 flex-1 flex-row">
+  <div class="notes-panes flex min-h-0 flex-1 flex-row @max-[640px]/app:flex-col">
   <EscritosPastas folders={folders} heading={e.folders} />
-  <div class="app-side flex min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2)">
+  <div class="app-side flex min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0 @max-[640px]/app:bg-transparent @min-[900px]/app:basis-[320px]">
     <div class="app-side-head border-b-[0.5px] border-(--line) px-4 pb-2.5 pt-3.5 [[data-mode='ios']_&]:border-b-0 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-1">
       <h2 class="m-0 text-[17px] tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
       <p class="m-0 mt-0.5 text-[12px] text-(--ink-3) [[data-mode='ios']_&]:hidden">{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
@@ -127,8 +127,8 @@ const folders = [
     </div>
   </div>
 
-  <div class="app-main flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)]">
-    <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent)" type="button" data-back-list>
+  <div class="app-main flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)] @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-data-[detail='1']:translate-x-0 @max-[640px]/app:group-data-[detail='1']:visible">
+    <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent) @max-[640px]/app:inline-flex" type="button" data-back-list>
       <Icon id="ui-chevron" size={12} />{e.backToList}
     </button>
     <div class="app-scroll" data-reader>

@@ -145,7 +145,7 @@ export function initChat(ctx) {
 
   const scroll = () => (log.scrollTop = log.scrollHeight);
 
-  const BUBBLE_BASE = 'bubble max-w-[78%] rounded-[19px] px-3.5 py-2.25 text-[15px] leading-[1.42] [animation:bubble-in_0.3s_var(--ease-pop)]';
+  const BUBBLE_BASE = 'bubble max-w-[78%] rounded-[19px] px-3.5 py-2.25 text-[15px] leading-[1.42] [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]';
   const BUBBLE_SIDE = {
     them: 'them self-start rounded-bl-[6px] bg-(--surface-3) text-(--ink)',
     me: "me self-end rounded-br-[6px] bg-(--green) text-white [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f]",

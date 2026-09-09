@@ -38,7 +38,8 @@ Ver `docs/arquitetura.md` para o raciocínio por trás de cada uma.
 1. **Dependências mínimas e todas justificadas.** Cada uma explica-se
    numa frase — ver a lista completa (incluindo o que Postgres e MinIO
    trazem) em `docs/arquitetura.md`. O que se resolve com a biblioteca
-   padrão do Python resolve-se com ela.
+   padrão do Python resolve-se com ela. Tailwind CSS é a única excepção
+   a "sem frameworks" — ver Convenções.
 2. **O site público funciona sem JavaScript.** Home, escritos, o
    portefólio da Bolsa — todo o texto é HTML normal por baixo. As
    áreas que exigem sessão (Mensagens, Reuniões, Contactos) exigem
@@ -107,8 +108,12 @@ Está tudo feito para que a resposta seja aborrecida.
   quem chega ao repositório.
 - **Nomes de ficheiro e de identificador em português** onde já é assim
   (`escritos`, `definicoes`, `subscrever`). Não se mistura.
-- **Sem frameworks, sem bibliotecas de animação.** Isto não é uma
-  preferência de estilo: é o que o projecto é.
+- **Tailwind CSS para utilities e layout; sem outros frameworks, sem
+  bibliotecas de animação.** O CSS à mão em `src/styles/os/` fica para
+  o que uma utility não alcança: cantos contínuos (`@utility` em
+  `apple-cantos-*.css`), vidro/Liquid Glass, concentricidade, e as
+  container queries próprias de cada app. Isto não é uma preferência
+  de estilo: é o que o projecto é.
 - **Aspas simples, ponto e vírgula, 2 espaços.** Como o resto.
 - **Commits e push só quando forem pedidos.** A mensagem explica a
   decisão, não lista os ficheiros.

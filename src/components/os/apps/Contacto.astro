@@ -10,16 +10,16 @@ const links = socialLinks(lang).filter((l) => l.id !== 'email');
 <section class="app-shell app-contacto relative flex min-h-0 flex-col overflow-auto bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
   <form class="compose flex min-h-0 flex-1 flex-col" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
     <div class="compose-fields flex-none border-b-[0.5px] border-(--line)">
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-to">{k.to}</label>
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-to">{k.to}</label>
         <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-to" name="to" value={SITE.email} readonly />
       </div>
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-from">{k.from}</label>
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-from">{k.from}</label>
         <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
       </div>
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3)" for="c-subject">{k.subject}</label>
+      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
+        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-subject">{k.subject}</label>
         <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-subject" name="subject" value={k.subjectValue} />
       </div>
     </div>
@@ -40,8 +40,8 @@ const links = socialLinks(lang).filter((l) => l.id !== 'email');
     <h3 class="app-eyebrow m-0 mb-1 text-[11px] uppercase tracking-[0.08em] text-(--ink-3)">{k.elsewhere}</h3>
     <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
       {links.map((l) => (
-        <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline" href={l.href} target="_blank" rel="noopener me">
-          <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3)">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink)">{l.value}</span>
+        <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1" href={l.href} target="_blank" rel="noopener me">
+          <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{l.value}</span>
           <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow text-(--ink-3)" size={15} />
         </a>
       ))}

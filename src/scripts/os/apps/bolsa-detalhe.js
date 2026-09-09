@@ -73,7 +73,7 @@ export function createDetalhe(ctx, money, signed, tone) {
         .map(
           (n) =>
             '<li class="[&+&]:border-t-[0.5px] [&+&]:border-(--line)"><a class="flex items-center gap-3 py-2.5 text-inherit no-underline hover:no-underline [&:hover_strong]:underline" href="' + esc(n.url) + '" target="_blank" rel="noopener">' +
-            (n.thumb ? '<img class="stk-news-thumb h-16 w-16 flex-none object-cover bg-(--surface-3)" src="' + esc(n.thumb) + '" alt="" loading="lazy" />' : '<span class="stk-news-thumb stk-news-thumb-empty block h-16 w-16 flex-none bg-(--surface-3)"></span>') +
+            (n.thumb ? '<img class="stk-news-thumb h-16 w-16 flex-none object-cover bg-(--surface-3) @max-[640px]/app:h-[52px] @max-[640px]/app:w-[52px]" src="' + esc(n.thumb) + '" alt="" loading="lazy" />' : '<span class="stk-news-thumb stk-news-thumb-empty block h-16 w-16 flex-none bg-(--surface-3) @max-[640px]/app:h-[52px] @max-[640px]/app:w-[52px]"></span>') +
             '<span class="stk-news-body grid min-w-0 gap-0.75"><strong class="text-[length:var(--t-subhead)] font-semibold leading-[1.3]">' + esc(n.title) + '</strong>' +
             '<span class="stk-news-meta text-[length:var(--t-caption)] text-(--ink-3)">' + esc(n.provider) + (when(n.at) ? ' · ' + when(n.at) : '') + '</span></span>' +
             '</a></li>'

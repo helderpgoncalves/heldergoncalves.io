@@ -149,6 +149,11 @@ export function initPessoas(ctx) {
     render();
   });
 
+  el.querySelector('[data-ppl-detail-close]')?.addEventListener('click', () => {
+    selected = null;
+    render();
+  });
+
   ctx.pessoas = { refresh: load };
   let prepared = false;
   ctx.preparePessoas = () => {

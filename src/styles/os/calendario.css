@@ -6,17 +6,6 @@
    Parte de os.css — ver o índice lá.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Estreito: o mês em cima, o dia por baixo; a vista «Dia» mostra só o dia. */
-@container app (max-width: 720px) {
-  .cal-body { flex-direction: column; overflow: auto; }
-  .cal-month { flex: none; padding: 10px 12px; }
-  .cal-cell { min-height: 48px; padding: 3px 4px; }
-  .cal-ev { display: none; }
-  .cal-free { padding: 0; background: none; font-size: var(--t-caption2); }
-  .cal-side { flex: none; border-left: 0; border-top: 0.5px solid var(--line); }
-  .app-calendario[data-view='day'] .cal-month { display: none; }
-  .cal-session .cal-who { display: none; }
-}
 [data-mode='ios'] .cal-title { font-size: var(--t-title); color: var(--red); }
 [data-mode='ios'] .cal-num { width: 30px; height: 30px; align-self: center; font-size: var(--t-body); }
 [data-mode='ios'] .cal-cell { align-items: center; min-height: 54px; }

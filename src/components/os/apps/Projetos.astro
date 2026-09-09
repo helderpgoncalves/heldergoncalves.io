@@ -11,7 +11,7 @@ const p = c.projetos;
     <div class="app-pad px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
       <h2 class="app-title font-(family-name:--display) m-0 mb-1.5 text-[26px] leading-[1.12] tracking-[-0.024em] font-bold [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.projetos.name}</h2>
       <p class="app-lead mb-5.5 max-w-[56ch] text-[15px] text-(--ink-2)">{p.lead}</p>
-      <div class="cards grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3.5 [[data-mode='ios']_&]:grid-cols-1">
+      <div class="cards grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3.5 [[data-mode='ios']_&]:grid-cols-1 @max-[560px]/app:grid-cols-1">
         {p.list.map((item) => (
           <article class="card flex flex-col gap-2 border-[0.5px] border-(--line) bg-(--surface-2) p-4.5">
             <h3 class="m-0 text-[16px] tracking-[-0.015em]">{item.name}</h3>

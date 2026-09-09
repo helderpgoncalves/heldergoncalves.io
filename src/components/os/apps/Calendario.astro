@@ -12,7 +12,7 @@ const k = c.calendario;
 ---
 <section class="app-shell app-calendario bg-(--surface-solid)" data-content="calendario" aria-label={c.apps.calendario.name}>
   <div class="cal-toolbar flex flex-none items-center gap-3 border-b-[0.5px] border-(--line) px-3.5 py-2">
-    <div class="seg cal-views" role="tablist">
+    <div class="seg cal-views @max-[400px]/app:w-full @max-[400px]/app:[&_button]:flex-1 @max-[400px]/app:[&_button]:px-1.5 @max-[400px]/app:[&_button]:py-2" role="tablist">
       <button type="button" data-cal-view="month" aria-pressed="true">{k.month}</button>
       <button type="button" data-cal-view="day" aria-pressed="false">{k.day}</button>
     </div>
@@ -24,13 +24,13 @@ const k = c.calendario;
     <div class="cal-session ml-auto flex items-center gap-2.5 text-[length:var(--t-foot)] text-(--ink-3) [.cal-nav+&]:ml-0" data-cal-session></div>
   </div>
 
-  <div class="cal-body flex min-h-0 flex-1">
-    <div class="cal-month flex min-w-0 flex-1 flex-col px-4 pb-4 pt-3.5">
+  <div class="cal-body flex min-h-0 flex-1 @max-[720px]/app:flex-col @max-[720px]/app:overflow-auto">
+    <div class="cal-month flex min-w-0 flex-1 flex-col px-4 pb-4 pt-3.5 @max-[720px]/app:flex-none @max-[720px]/app:px-3 @max-[720px]/app:py-2.5 [.app-calendario[data-view='day']_&]:@max-[720px]/app:hidden">
       <h2 class="cal-title m-0 mb-2.5 ml-1.5 text-[length:var(--t-title2)] font-bold tracking-[-0.02em]" data-cal-title></h2>
       <div class="cal-week grid grid-cols-7 pb-1" data-cal-week></div>
       <div class="cal-grid grid min-h-0 flex-1 grid-cols-7 auto-rows-fr border-l-[0.5px] border-t-[0.5px] border-(--line)" data-cal-grid role="grid"></div>
     </div>
-    <aside class="cal-side flex-none basis-[300px] overflow-auto border-l-[0.5px] border-(--line) bg-(--surface-2) px-[18px] py-4" data-cal-side>
+    <aside class="cal-side flex-none basis-[300px] overflow-auto border-l-[0.5px] border-(--line) bg-(--surface-2) px-[18px] py-4 @max-[720px]/app:flex-none @max-[720px]/app:basis-auto @max-[720px]/app:border-l-0 @max-[720px]/app:border-t-[0.5px] @max-[720px]/app:border-(--line)" data-cal-side>
       <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)">{k.lead}</p>
       <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
     </aside>

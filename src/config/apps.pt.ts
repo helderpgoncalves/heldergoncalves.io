@@ -129,6 +129,7 @@ export const APPS_PT = {
     everyone: 'Todas',
     recent: 'Recentes',
     search: 'Pesquisar',
+    back: 'Voltar',
     errors: {
       generic: 'Não deu. Tenta outra vez.',
     },
