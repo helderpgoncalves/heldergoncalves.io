@@ -38,13 +38,15 @@ const folders = [
   data-detail={post ? '1' : '0'}
   aria-label={c.apps.escritos.name}
 >
-  {/* A barra das Notas do Mac. No telefone não aparece. */}
-  <div class="notes-toolbar flex flex-none items-center gap-1 border-b-[0.5px] border-(--line) px-2.5 py-1.25 [[data-mode='ios']_&]:hidden">
-    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
+  {/* A barra das Notas do Mac. `data-win-toolbar` faz a janela subi-la
+      para a barra de título, ao lado dos semáforos (mac/windows.js) —
+      é a barra unificada do macOS. No telefone não aparece. */}
+  <div class="notes-toolbar flex min-w-0 flex-1 items-center gap-1 self-stretch [[data-mode='ios']_&]:hidden" data-win-toolbar>
+    <button class="notes-tool grid h-7 w-8 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
     <span class="spacer flex-1"></span>
-    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
-    <button class="notes-tool grid h-6 w-7.5 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4 [&_svg]:w-4" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
-    <label class="notes-search flex h-6 w-[170px] items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2 text-(--ink-3) transition-[border-color,width] duration-150 focus-within:w-[220px] focus-within:border-(--accent) [&_svg]:h-3.25 [&_svg]:w-3.25 [&_svg]:flex-none">
+    <button class="notes-tool grid h-7 w-8 place-items-center text-(--accent) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    <button class="notes-tool grid h-7 w-8 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
+    <label class="notes-search ml-1 flex h-7 w-[150px] max-w-[40%] items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2 text-(--ink-3) transition-[border-color,width] duration-150 focus-within:w-[220px] focus-within:border-(--accent) [&_svg]:h-3.25 [&_svg]:w-3.25 [&_svg]:flex-none">
       <Icon id="ui-search" />
       <span class="sr">{e.search}</span>
       <input type="search" placeholder={e.search} autocomplete="off" data-notes-search class="min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [&::-webkit-search-cancel-button]:appearance-none" />
@@ -74,7 +76,7 @@ const folders = [
               {g.posts.map((p) => (
                 <li class="[&[hidden]]:hidden">
                   <a
-                    class="post-link relative grid w-full gap-px px-2.5 py-1.75 text-left text-inherit no-underline before:absolute before:left-2.5 before:right-2.5 before:top-[-0.5px] before:h-[0.5px] before:bg-(--line) before:content-[''] first:before:content-none hover:bg-(--surface-3) hover:no-underline hover:before:opacity-0 aria-current:bg-(--accent) aria-current:text-white aria-current:before:opacity-0 aria-current:[&_.post-sub]:text-white/82 aria-current:[&_.post-sub_time]:text-white/82 [[data-mode='ios']_&]:gap-0.5 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:py-2.5 [[data-mode='ios']_&]:before:left-4 [[data-mode='ios']_&]:before:right-0 [[data-mode='ios']_&]:aria-current:bg-(--surface-3) [[data-mode='ios']_&]:aria-current:text-(--ink) [[data-mode='ios']_&]:aria-current:[&_.post-sub]:text-(--ink-3) [[data-mode='ios']_&]:aria-current:[&_.post-sub_time]:text-(--ink-3)"
+                    class="post-link relative grid w-full gap-px px-2.5 py-1.75 text-left text-inherit no-underline before:absolute before:left-2.5 before:right-2.5 before:top-[-0.5px] before:h-[0.5px] before:bg-(--line) before:content-[''] first:before:content-none hover:bg-(--surface-3) hover:no-underline hover:before:opacity-0 aria-current:bg-(--notes-select) aria-current:text-(--notes-select-ink) aria-current:before:opacity-0 aria-current:[&_.post-sub]:text-(--notes-select-ink) aria-current:[&_.post-sub]:opacity-75 aria-current:[&_.post-sub_time]:text-(--notes-select-ink) [[data-mode='ios']_&]:gap-0.5 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:py-2.5 [[data-mode='ios']_&]:before:left-4 [[data-mode='ios']_&]:before:right-0 [[data-mode='ios']_&]:aria-current:bg-(--surface-3) [[data-mode='ios']_&]:aria-current:text-(--ink) [[data-mode='ios']_&]:aria-current:[&_.post-sub]:text-(--ink-3) [[data-mode='ios']_&]:aria-current:[&_.post-sub]:opacity-100 [[data-mode='ios']_&]:aria-current:[&_.post-sub_time]:text-(--ink-3)"
                     href={postPath(p, lang)}
                     data-post={postSlug(p)}
                     data-tags={p.data.tags.join('|')}
@@ -116,7 +118,7 @@ const folders = [
           required
           data-subscribe-email
         />
-        <button class="sub-go flex-none rounded-full bg-(--accent) px-3.5 py-1.5 text-[length:var(--t-caption,11px)] font-[590] text-white transition-[opacity,transform] duration-150 active:scale-96 [form[data-busy='1']_&]:pointer-events-none [form[data-busy='1']_&]:opacity-50 [[data-mode='ios']_&]:min-h-9 [[data-mode='ios']_&]:text-[length:var(--t-foot)]" type="submit">{e.subscribeAction}</button>
+        <button class="sub-go flex-none rounded-full bg-(--accent) px-3.5 py-1.5 text-[length:var(--t-caption,11px)] font-[590] text-(--accent-ink) transition-[opacity,transform] duration-150 active:scale-96 [form[data-busy='1']_&]:pointer-events-none [form[data-busy='1']_&]:opacity-50 [[data-mode='ios']_&]:min-h-9 [[data-mode='ios']_&]:text-[length:var(--t-foot)]" type="submit">{e.subscribeAction}</button>
       </div>
       <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-subscribe-trap />
       <p class="sub-note m-0 mt-2 text-[length:var(--t-caption,11px)] leading-[1.4] text-(--ink-3) data-[tone=good]:text-(--green) data-[tone=bad]:text-(--danger)" data-subscribe-note>{e.subscribeNote}</p>
@@ -135,7 +137,7 @@ const folders = [
       {post && Content ? (
         <article class="app-pad prose" data-post-body={postSlug(post)}>
           <header class="article-head">
-            <p class="app-eyebrow text-center mb-3.5">
+            <p class="app-eyebrow mb-3.5 text-center text-[length:var(--t-subhead)] text-(--ink-3)">
               <time datetime={iso(post.data.date)}>{formatDate(post.data.date, lang)}</time>
               · {readingMinutes(post.body)} {e.readingTime}
             </p>

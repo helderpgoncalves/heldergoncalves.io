@@ -58,7 +58,9 @@ export function createDragging(desk) {
     track(
       bar,
       {
-        filter: (ev) => !ev.target.closest('.light') && !win.classList.contains('zoomed'),
+        // Os semáforos e as ferramentas de uma barra unificada são para
+        // carregar, não para agarrar a janela por eles.
+        filter: (ev) => !ev.target.closest('.light, button, input, label, a') && !win.classList.contains('zoomed'),
         down: () => {
           if (spr) spr.cancel();
           o = api.rectOf(win);

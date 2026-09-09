@@ -43,8 +43,14 @@
    fechar a lista nem o leitor. */
 .app-escritos.side-hidden .notes-folders { display: none; }
 
-/* A cor da aplicação no telefone é o amarelo do sistema, como nas
-   Notas — só ali; no Mac segue o azul do resto do sistema. */
-[data-mode='ios'] .ios-view[data-app='escritos'] { --accent: var(--yellow); }
+/* A cor da aplicação é o amarelo do sistema, como nas Notas — na
+   janela do Mac (barra unificada incluída) e na vista do telefone. O
+   texto sobre amarelo é escuro nas duas aparências, pelo mesmo motivo
+   de --notes-select-ink (tokens.css). */
+.win[data-app='escritos'],
+[data-mode='ios'] .ios-view[data-app='escritos'] {
+  --accent: var(--yellow);
+  --accent-ink: var(--notes-select-ink);
+}
 [data-mode='ios'] .ios-view[data-app='escritos'] .ios-view-head h2 { opacity: 0; transition: opacity 0.2s; }
 [data-mode='ios'] .ios-view[data-app='escritos'].scrolled .ios-view-head h2 { opacity: 1; }

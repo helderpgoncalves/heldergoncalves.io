@@ -185,6 +185,11 @@
   margin-left: -60px; padding-left: 60px;
 }
 .win.focused .win-title { color: var(--ink); }
+/* Barra unificada (mac/windows.js): mais alta e sem título, com as
+   ferramentas da app ao lado dos semáforos — as Notas e o Finder a
+   sério são assim. Os 52 pontos são os da barra do macOS. */
+.win.unified .win-bar { flex-basis: 52px; }
+.win.unified .win-title { display: none; }
 .win-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
 .win-body > .app-shell { flex: 1; min-width: 0; display: flex; }
 

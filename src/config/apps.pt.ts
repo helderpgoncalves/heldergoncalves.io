@@ -176,7 +176,7 @@ export const APPS_PT = {
     tags: 'Temas',
     talk: 'Discordas ou queres continuar a conversa?',
     talkLink: 'Escreve-me.',
-    backToList: '← Blog',
+    backToList: 'Blog',
     subscribeTitle: 'Receber os escritos',
     subscribeLabel: 'O teu email',
     subscribePlaceholder: 'o-teu@email.pt',

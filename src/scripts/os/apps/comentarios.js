@@ -120,7 +120,6 @@ export function initComentarios(ctx) {
       url: '/api/comentarios',
       body: {
         post: currentSlug,
-        name: (form.querySelector('[data-comments-name]') || {}).value || '',
         body,
         lang: ctx.data.lang,
         token,

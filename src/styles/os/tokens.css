@@ -51,7 +51,7 @@
      O texto sobre ela fica sempre escuro nas duas aparências — como o
      fundo é sempre um dourado claro, não seguir --ink (que no escuro
      fica quase branco e deixava de se ler). */
-  --notes-select: color-mix(in srgb, var(--yellow) 55%, var(--orange) 25%, var(--ink) 6%);
+  --notes-select: color-mix(in srgb, var(--yellow) 72%, var(--surface-solid));
   --notes-select-ink: color-mix(in srgb, black 88%, transparent);
   --glass: rgba(255, 255, 255, 0.5);
   --glass-edge: rgba(255, 255, 255, 0.55);

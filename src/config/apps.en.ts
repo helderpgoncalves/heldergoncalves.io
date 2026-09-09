@@ -175,7 +175,7 @@ export const APPS_EN = {
     tags: 'Topics',
     talk: 'Disagree, or want to keep the conversation going?',
     talkLink: 'Write to me.',
-    backToList: '← Blog',
+    backToList: 'Blog',
     subscribeTitle: 'Get new writing',
     subscribeLabel: 'Your email',
     subscribePlaceholder: 'you@email.com',

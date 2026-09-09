@@ -34,7 +34,7 @@
   border: 0.5px solid var(--line); text-decoration: none;
 }
 .btn:hover { background: var(--line); text-decoration: none; }
-.btn-primary { background: var(--accent); color: #fff; border-color: transparent; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .btn-primary:hover { filter: brightness(1.08); }
 .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 

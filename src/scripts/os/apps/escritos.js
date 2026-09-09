@@ -63,7 +63,20 @@ export function initEscritos(ctx) {
 
   const toggleSidebar = () => el.classList.toggle('side-hidden');
 
+  function onAction(ev) {
+    if (ev.target.closest('[data-notes-sidebar]')) return toggleSidebar();
+    const act = ev.target.closest('[data-action]');
+    if (act) ctx.run(act.dataset.action);
+  }
+
+  // A barra de ferramentas sobe para a barra de título no Mac
+  // (mac/windows.js), e aí já não está debaixo do nó da app — por isso
+  // ouve-se nela própria; o listener viaja com o nó para onde ele for.
+  const toolbar = el.querySelector('[data-win-toolbar]');
+  if (toolbar) toolbar.addEventListener('click', onAction);
+
   el.addEventListener('click', (ev) => {
+    if (toolbar && toolbar.contains(ev.target)) return;
     const link = ev.target.closest('.post-link');
     if (link) {
       ev.preventDefault();
@@ -71,11 +84,7 @@ export function initEscritos(ctx) {
       return;
     }
     if (ev.target.closest('[data-back-list]')) list(true);
-    else if (ev.target.closest('[data-notes-sidebar]')) toggleSidebar();
-    else {
-      const act = ev.target.closest('[data-action]');
-      if (act) ctx.run(act.dataset.action);
-    }
+    else onAction(ev);
   });
 
   // ── A pesquisa da lista, cruzada com a pasta ────────────────────────

@@ -127,7 +127,18 @@ export function createWindows(desk) {
       '<div class="win-body"></div>' +
       DIRS.map((d) => `<span class="grip grip-${d}" data-dir="${d}"></span>`).join('');
 
-    win.querySelector('.win-body').appendChild(ctx.contentEl(id));
+    const content = ctx.contentEl(id);
+    win.querySelector('.win-body').appendChild(content);
+    // Barra unificada, como nas Notas ou no Finder: uma app que traga
+    // `[data-win-toolbar]` vê as ferramentas subirem para a barra de
+    // título, ao lado dos semáforos, em vez de ficarem numa fila à parte.
+    // O nó volta para dentro da app quando a janela fecha (ver
+    // devolverBarra), porque no telefone a mesma app não tem barra nenhuma.
+    const toolbar = content.querySelector('[data-win-toolbar]');
+    if (toolbar) {
+      win.classList.add('unified');
+      win.querySelector('.win-bar').appendChild(toolbar);
+    }
     layer.appendChild(win);
     wins.set(id, win);
     desk.dragging.wire(win, id, { close, minimize, zoom, focus, rectOf, setRect });
@@ -147,6 +158,7 @@ export function createWindows(desk) {
     wins.delete(id);
     win.classList.add('closing');
     const done = () => {
+      devolverBarra(win, id);
       ctx.releaseContent(id);
       win.remove();
       ctx.setOpen(id, false);
@@ -299,8 +311,15 @@ export function createWindows(desk) {
     });
   });
 
+  /** A barra unificada regressa à app antes de o conteúdo sair da janela. */
+  function devolverBarra(win, id) {
+    const toolbar = win.querySelector('.win-bar [data-win-toolbar]');
+    if (toolbar) ctx.contentEl(id).prepend(toolbar);
+  }
+
   function teardown() {
     [...wins.keys()].forEach((id) => {
+      devolverBarra(wins.get(id), id);
       ctx.releaseContent(id);
       wins.get(id).remove();
       wins.delete(id);
