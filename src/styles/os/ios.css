@@ -11,6 +11,7 @@
   position: absolute; inset: 0; overflow: hidden;
   --sb-h: calc(52px + env(safe-area-inset-top, 0px));
   --home-h: calc(32px + env(safe-area-inset-bottom, 0px));
+  --sb-x: 27px;
   isolation: isolate;
 }
 .ios-wall { z-index: 0; }
@@ -48,7 +49,6 @@
    os ícones alinhados com as colunas da grelha (19 por dentro). Os
    pontos das páginas têm 7 e ficam a 18 da Dock. */
 .sb {
-  --sb-x: 27px;
   --sb-icon: 60px;
   position: absolute; inset: var(--sb-h) 0 0 0; z-index: 100;
   display: flex; flex-direction: column; overflow: hidden;
@@ -228,10 +228,14 @@
 .lock-indicator { display: flex; justify-content: center; }
 .lock-indicator i { width: 138px; height: 5px; border-radius: 99px; background: #fff; opacity: 0.65; }
 
-/* Central de Controlo */
+/* Central de Controlo
+   ─────────────────────────────────────────────────────────────
+   A mesma métrica dos widgets (22 de folga, 16 por dentro, 27 de
+   margem ao ecrã) — no iOS os mosaicos da Central de Controlo e os
+   widgets do ecrã inicial são a mesma linguagem visual. */
 .cc, .nc {
   position: absolute; inset: 0; z-index: 700; overflow: hidden;
-  padding: calc(var(--sb-h) + 6px) 14px 14px;
+  padding: calc(var(--sb-h) + 6px) var(--sb-x) var(--sb-x);
   background: rgba(0, 0, 0, 0.3);
   -webkit-backdrop-filter: blur(26px) saturate(150%); backdrop-filter: blur(26px) saturate(150%);
   color: #fff; touch-action: none; visibility: hidden;
@@ -257,9 +261,9 @@
 .nc-note strong { font-size: 15px; line-height: 1.25; }
 .nc-note span { font-size: 12px; opacity: 0.82; line-height: 1.35; }
 .nc-note .nc-when { font-size: 11px; opacity: 0.6; }
-.cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 420px; margin: 0 auto; }
+.cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; max-width: 420px; margin: 0 auto; }
 .cc-tile {
-  border-radius: 22px; padding: 14px; background: rgba(255, 255, 255, 0.18);
+  padding: 16px; background: rgba(255, 255, 255, 0.18);
   border: 0.5px solid rgba(255, 255, 255, 0.18); color: #fff; text-align: left;
   display: grid; gap: 6px; align-content: start;
 }
@@ -269,7 +273,7 @@
 .cc-tile .t-value { font-size: 15px; font-weight: 600; }
 .cc-tile[aria-pressed='true'] { background: rgba(255, 255, 255, 0.9); color: #111; }
 .cc-slider {
-  position: relative; height: 120px; border-radius: 24px; overflow: hidden;
+  position: relative; height: 120px; overflow: hidden;
   background: rgba(255, 255, 255, 0.18); border: 0.5px solid rgba(255, 255, 255, 0.18);
   display: flex; align-items: flex-end; touch-action: none;
 }
