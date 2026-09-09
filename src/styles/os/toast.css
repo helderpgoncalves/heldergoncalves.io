@@ -1,0 +1,42 @@
+/* ═══════════════════════════════════════════════════════════════
+   A notificação do Mac — canto superior direito, como o Centro de
+   Notificações a sério. Parte de os.css — ver o índice lá. A forma
+   (ícone + texto) é a mesma de .nc-note (ios.css); o que muda é a
+   posição: aqui é flutuante, não dentro de um painel deslizante.
+   ═══════════════════════════════════════════════════════════════ */
+.toast-stack {
+  position: fixed; z-index: 950;
+  top: calc(var(--menubar-h) + 10px); right: 10px;
+  display: grid; gap: 10px; width: 340px; max-width: calc(100vw - 20px);
+  pointer-events: none;
+}
+[data-mode='ios'] .toast-stack { display: none; }
+
+.toast {
+  --glass-blur: 24px; --glass-drop: 0 14px 34px -10px rgba(0, 0, 0, 0.4);
+  display: grid; grid-template-columns: auto 1fr; gap: 10px;
+  padding: 12px 14px; color: #fff; text-align: left;
+  animation: toast-in 0.4s var(--ease-pop) backwards;
+}
+.toast.leaving { animation: toast-out 0.32s var(--ease-os) forwards; }
+
+.toast-icon {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  background: var(--accent); color: #fff; overflow: hidden;
+}
+.toast-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+.toast-title { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+.toast-body { margin: 1px 0 0; font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.85); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(-6px) scale(0.97); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast, .toast.leaving { animation: none; }
+}
+[data-motion='off'] .toast, [data-motion='off'] .toast.leaving { animation: none; }
+.toast.leaving { opacity: 0; }

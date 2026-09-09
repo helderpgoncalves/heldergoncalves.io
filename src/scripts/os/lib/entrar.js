@@ -26,9 +26,33 @@ export function createEntrar(ctx) {
   const pending = el.querySelector('[data-entrar-pending]');
   const resend = el.querySelector('[data-entrar-resend]');
   const hint = el.querySelector('[data-entrar-hint]');
+  const timeOut = el.querySelector('[data-entrar-time]');
+  const dateOut = el.querySelector('[data-entrar-date]');
 
   let pendingEmail = '';
   let pollTimer = null;
+  let clockTimer = null;
+
+  // ── O relógio grande, como o ecrã de bloqueio ────────────────────
+  // Só existe aqui: não há um segundo sítio (o lock do iOS) a precisar
+  // do mesmo formato, por isso não vale um módulo à parte.
+  function tickClock() {
+    const now = new Date();
+    const lang = ctx.data.lang === 'pt' ? 'pt-PT' : 'en-US';
+    timeOut.textContent = now.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+    dateOut.textContent = now.toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  function startClock() {
+    stopClock();
+    tickClock();
+    clockTimer = setInterval(tickClock, 1000 * 15);
+  }
+
+  function stopClock() {
+    if (clockTimer) clearInterval(clockTimer);
+    clockTimer = null;
+  }
 
   const setHint = (text) => {
     hint.textContent = text || '';
@@ -51,11 +75,13 @@ export function createEntrar(ctx) {
     el.hidden = false;
     setHint('');
     showStep('email');
+    startClock();
     refresh();
   }
 
   function close() {
     el.hidden = true;
+    stopClock();
     stopWatching();
   }
 
@@ -86,15 +112,17 @@ export function createEntrar(ctx) {
     if (!email) return;
     stopWatching();
     setHint('');
-    ctx.notify(k.signedAs + ' ' + email);
+    ctx.notify(k.signedAs + ' ' + email, { title: ctx.data.strings.welcome });
     ctx.onSessionChange && ctx.onSessionChange();
     await refresh();
     close();
     await retomar(ctx);
   }
 
-  el.querySelector('[data-entrar-guest]').addEventListener('click', close);
-  el.querySelector('[data-entrar-close]').addEventListener('click', close);
+  el.querySelector('[data-entrar-guest]').addEventListener('click', () => {
+    close();
+    ctx.notify(t.guest, { title: ctx.data.strings.welcome, icon: '/memoji-visitante.png' });
+  });
 
   el.querySelector('[data-entrar-signin]').addEventListener('click', () => {
     avatars.hidden = true;

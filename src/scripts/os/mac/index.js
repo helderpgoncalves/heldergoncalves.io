@@ -28,6 +28,7 @@ import { createWindows } from './windows.js';
 import { createMenus } from './menus.js';
 import { createSpotlight } from './spotlight.js';
 import { createSwitcher } from './switcher.js';
+import { createToast } from './toast.js';
 import { wireKeys } from './keys.js';
 
 export function createMac(ctx) {
@@ -65,6 +66,7 @@ export function createMac(ctx) {
   desk.menus = createMenus(desk);
   desk.spotlight = createSpotlight(desk);
   desk.switcher = createSwitcher(desk);
+  desk.toast = createToast(desk);
   wireKeys(desk);
 
   function teardown() {
@@ -84,6 +86,7 @@ export function createMac(ctx) {
     closeAll: desk.windows.closeAll,
     spotOpen: desk.spotlight.open,
     openAppSwitcher: desk.switcher.open,
+    notify: desk.toast.notify,
     teardown,
   };
 }

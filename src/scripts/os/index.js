@@ -56,7 +56,13 @@ function boot(data) {
   const mac = createMac(ctx);
   const phone = createPhone(ctx);
   ctx.phone = phone;
-  ctx.notify = (text) => phone.notify(text);
+  // No telefone é sempre a ilha, uma linha só. No Mac é a notificação do
+  // canto, com título — `opts.title` se vier um, senão o nome do site,
+  // como faz o Centro de Notificações a sério para quem não é uma app.
+  ctx.notify = (text, opts) => {
+    if (ctx.mode === 'ios') return phone.notify(text);
+    mac.notify(opts?.title || data.strings.macName, text, opts?.icon);
+  };
   ctx.widgets = createWidgets(ctx);
   ctx.entrar = createEntrar(ctx);
   ctx.onSessionChange = () => {
@@ -286,6 +292,7 @@ function boot(data) {
     const email = await whoAmI();
     if (!email) return false;
 
+    ctx.notify(data.strings.calendario.signedAs + ' ' + email, { title: data.strings.welcome });
     ctx.onSessionChange && ctx.onSessionChange();
     if (temRetrato()) {
       await retomar(ctx);
@@ -307,22 +314,40 @@ function boot(data) {
     }
   }
 
+  // Como um Mac a sério a pedir sessão ao ligar — só no Mac, e só a
+  // quem ainda não tem sessão. No iOS o telefone já tem o gesto de
+  // desbloquear (#lock, ios/lock.js) sem noção nenhuma de conta; pedir
+  // sessão por cima dele, antes até do swipe, quebrava essa metáfora —
+  // lá a sessão continua a pedir-se sob procura, como já fazia
+  // retomar.js. Pede-se já, em paralelo com a saudação a escrever-se —
+  // nunca depois do preto do boot já ter desaparecido, senão a Desktop
+  // aparece nua por um instante antes do Entrar a tapar.
+  const askEntrar = ctx.mode === 'mac' ? whoAmI().then((email) => !email) : Promise.resolve(false);
+
   if (first) {
     bootEl.hidden = false;
     // A saudação diz quanto tempo leva a escrever-se; fica mais um
     // instante a ver-se, e só depois se vai embora.
     const hand = bootEl.querySelector('[data-wrote]');
     const wrote = (hand && parseInt(hand.dataset.wrote, 10)) || 3500;
-    setTimeout(() => {
+    setTimeout(async () => {
+      if (await askEntrar) ctx.entrar.open();
       os.classList.add('booted');
       setTimeout(() => {
         bootEl.hidden = true;
         os.classList.remove('booted');
+        // Só agora pode a Desktop aparecer — ver o CSS junto de
+        // [data-boot], em mac.css, e o porquê em os-early.js.
+        document.documentElement.removeAttribute('data-boot');
       }, 460);
       if (ctx.mode === 'ios') phone.showLock();
       ready();
     }, reducedMotion() ? 900 : wrote + 900);
   } else {
+    // Sem saudação nenhuma: tira já o que os-early.js possa ter posto
+    // (não devia, com `first` falso — mas nunca depender só disso).
+    document.documentElement.removeAttribute('data-boot');
+    askEntrar.then((show) => { if (show) ctx.entrar.open(); });
     ready();
   }
 }

@@ -7,6 +7,14 @@
 .os { position: fixed; inset: 0; overflow: hidden; z-index: 1; display: none; }
 .js .os { display: block; }
 
+/* Arranque: enquanto [data-boot] estiver no <html> (posto por
+   os-early.js, antes do 1º paint — ver o comentário lá), só o preto
+   do boot pode aparecer. Sem isto a Desktop pinta-se por baixo antes
+   de index.js (módulo, sempre adiado) lá chegar. Quem tira o atributo
+   é o próprio arranque, ao fim da saudação (index.js). */
+[data-boot] .os > :not(.boot) { visibility: hidden; }
+[data-boot] .boot { display: grid !important; }
+
 .mac { position: absolute; inset: 0; display: none; }
 [data-mode='mac'] .mac { display: block; }
 
@@ -19,8 +27,6 @@
 .menubar {
   position: absolute; inset: 0 0 auto; height: var(--menubar-h); z-index: 400;
   display: flex; align-items: center; gap: 0; padding: 0 10px 0 6px;
-  background: var(--glass);
-  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   color: var(--ink); font-size: var(--t-body, 13px); letter-spacing: -0.005em;
 }
 .menubar-item {
@@ -102,7 +108,6 @@
   position: absolute; z-index: 20;
   left: var(--x); top: var(--y); width: var(--w); height: var(--h);
   display: flex; flex-direction: column; overflow: hidden;
-  border-radius: var(--radius-win);
   background: var(--surface);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   box-shadow: var(--shadow-win), 0 0 0 0.5px var(--glass-ring);

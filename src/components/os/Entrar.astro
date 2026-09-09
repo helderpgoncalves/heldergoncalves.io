@@ -1,9 +1,20 @@
 ---
 // Entrar: um item do menu Apple (Mac) e do menu de sistema (iOS), por
-// isso vive fora dos dois, como o Spotlight. À escala de um ecrã de
-// bloqueio — não um cartão pequeno a meio do ecrã — com Tailwind:
-// primeiro componente da migração (ver src/styles/os.css). O vidro
-// ainda vem de `.glass` (os/vidro.css); o resto é utilitário.
+// isso vive fora dos dois, como o Spotlight. É o ecrã de bloqueio do
+// macOS a sério — não um diálogo a meio do ecrã: o texto flutua
+// directamente sobre o papel de parede desfocado (o `.wall` que já
+// existe atrás, em Shell.astro), sem moldura de vidro à volta. Só o
+// campo de password é vidro — `.glass` com `.glass-clear` por cima, a
+// variante que a regra da Apple reserva a "o que está por baixo é
+// forte e vivo" (ver .claude/rules/apple.md, secção Vidro).
+// `.glass-clear` sozinha não pinta nada: só troca as variáveis que
+// `.glass` lê, por isso as duas andam sempre juntas.
+//
+// A geometria (espaçamento, tamanho dos avatares, o relógio) segue
+// `.entrar-*`, em entrar.css — o mesmo idioma do ecrã de bloqueio a
+// sério (`.lock-*`, em ios.css): `--sb-h`/`--home-h` nas margens, nunca
+// `vh`, e tudo em múltiplos de 8 ou 4. O Tailwind aqui é só layout
+// (flex, grid, largura máxima); a identidade visual vive no CSS.
 //
 // Todo o `[hidden]` aqui segue o mesmo padrão: `hidden [&:not([hidden])]:flex`.
 // A classe `flex`/`grid` sozinha venceria sempre o atributo `hidden`
@@ -13,8 +24,8 @@
 //
 // `bg-white/N`, `text-white/N`: excepção deliberada aos papéis do
 // sistema (--surface-2, --ink-2). Este ecrã imita o ecrã de sessão do
-// macOS — sempre escuro sobre o scrim preto, como o Control Center —
-// e não segue o claro/escuro do resto do site.
+// macOS — sempre escuro sobre o wallpaper, como o Control Center — e
+// não segue o claro/escuro do resto do site.
 import { COPY, type Lang } from '../../siteConfig';
 import Icon from './Icon.astro';
 
@@ -24,45 +35,55 @@ const c = COPY[lang];
 ---
 
 <div
-  class="entrar fixed inset-0 z-[900] hidden grid-cols-1 place-items-center bg-black/40 backdrop-blur-md motion-reduce:backdrop-blur-none [[data-motion='off']_&]:backdrop-blur-none [&:not([hidden])]:grid"
+  class="entrar fixed inset-0 z-[900] hidden flex-col items-center bg-black/10 backdrop-blur-2xl motion-reduce:backdrop-blur-none [[data-motion='off']_&]:backdrop-blur-none [&:not([hidden])]:flex"
   id="entrar"
   hidden
 >
-  <div
-    class="entrar-box glass relative flex w-full max-w-[420px] flex-col items-center gap-8 px-8 py-14 text-center animate-[menu-in_0.2s_var(--ease-os)]"
-    role="dialog"
-    aria-label={c.os.entrar.title}
-  >
-    <div class="hidden flex-col items-center gap-10 [&:not([hidden])]:flex sm:flex-row sm:items-start sm:justify-center sm:gap-14" data-entrar-avatars>
-      <button type="button" class="group flex w-36 flex-col items-center gap-3 text-inherit" data-entrar-guest>
-        <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner transition-transform group-active:scale-95" aria-hidden="true">
-          <Icon id="ui-lock" size={40} />
-        </span>
-        <span class="text-[length:var(--t-headline)] font-semibold">{c.os.entrar.guest}</span>
-        <span class="text-[length:var(--t-caption)] text-white/70">{c.os.entrar.guestHint}</span>
-      </button>
-      <button type="button" class="group flex w-36 flex-col items-center gap-3 text-inherit" data-entrar-signin>
-        <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner transition-transform group-active:scale-95" aria-hidden="true">
-          <Icon id="ui-mail" size={40} />
-        </span>
-        <span class="text-[length:var(--t-headline)] font-semibold">{c.os.entrar.signIn}</span>
-        <span class="text-[length:var(--t-caption)] text-white/70">{c.os.entrar.signInHint}</span>
-      </button>
+  <div class="entrar-body flex w-full flex-1 flex-col items-center text-white">
+    <div class="entrar-top" data-entrar-clock aria-hidden="true">
+      <span class="entrar-time" data-entrar-time></span>
+      <span class="entrar-date" data-entrar-date></span>
     </div>
 
-    <div class="hidden flex-col items-center gap-3 [&:not([hidden])]:flex" data-entrar-signed hidden>
-      <span class="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-white shadow-inner" aria-hidden="true">
-        <Icon id="ui-mail" size={40} />
+    <div class="entrar-choices" data-entrar-avatars>
+      <button type="button" class="entrar-choice" data-entrar-guest>
+        <span class="entrar-avatar" aria-hidden="true">
+          <img src="/memoji-visitante.png" alt="" width="96" height="96" />
+        </span>
+        <span class="entrar-choice-name">{c.os.entrar.guest}</span>
+      </button>
+      <button type="button" class="entrar-choice" data-entrar-signin>
+        <span class="entrar-avatar" aria-hidden="true">
+          <Icon id="ui-mail" size={30} />
+        </span>
+        <span class="entrar-choice-name">{c.os.entrar.signIn}</span>
+      </button>
+      <a href="/api/auth/google/start" class="entrar-choice" data-entrar-google>
+        <span class="entrar-avatar entrar-avatar-solid" aria-hidden="true">
+          <Icon id="ui-google" size={30} />
+        </span>
+        <span class="entrar-choice-name">Google</span>
+      </a>
+    </div>
+
+    <div class="entrar-signed" data-entrar-signed hidden>
+      <span class="entrar-avatar entrar-avatar-lg" aria-hidden="true">
+        <Icon id="ui-mail" size={34} />
       </span>
-      <p class="text-[length:var(--t-headline)] font-semibold leading-snug">
+      <p class="entrar-signed-text">
         {c.os.entrar.signedInAs}<br /><strong data-entrar-email-out></strong>
       </p>
       <button type="button" class="btn" data-entrar-signout>{c.calendario.signOut}</button>
     </div>
 
-    <div class="entrar-form hidden w-full flex-col gap-3 [&:not([hidden])]:flex" data-entrar-form hidden>
-      <div class="hidden w-full flex-col gap-3 [&:not([hidden])]:flex" data-entrar-request>
-        <form class="flex flex-col gap-3" data-entrar-email>
+    <div class="entrar-form" data-entrar-form hidden>
+      <span class="entrar-avatar" aria-hidden="true">
+        <Icon id="ui-mail" size={30} />
+      </span>
+      <p class="entrar-form-title">{c.os.entrar.signIn}</p>
+
+      <div class="entrar-request" data-entrar-request>
+        <form class="entrar-panel glass glass-clear" data-entrar-email>
           <label class="sr" for="entrar-email">{c.calendario.email}</label>
           <input
             id="entrar-email"
@@ -71,30 +92,22 @@ const c = COPY[lang];
             required
             autocomplete="email"
             placeholder={c.calendario.email}
-            class="w-full border-[0.5px] border-white/25 bg-white/10 px-3 py-2.5 text-center text-[length:var(--t-body)] text-white placeholder:text-white/50 outline-hidden focus:border-white/60"
+            class="entrar-input"
           />
           <button class="btn btn-primary" type="submit">{c.calendario.sendLink}</button>
         </form>
-        <p class="flex items-center gap-2.5 text-[length:var(--t-caption)] uppercase tracking-wide text-white/60 before:h-px before:flex-1 before:bg-white/25 after:h-px after:flex-1 after:bg-white/25">
-          {c.calendario.signInOr}
-        </p>
-        <a class="btn flex w-full items-center justify-center gap-2" href="/api/auth/google/start">
-          <Icon id="ui-google" size={16} /> {c.calendario.signInGoogle}
-        </a>
       </div>
 
-      <div class="hidden flex-col items-center gap-2.5 pt-1 [&:not([hidden])]:flex" data-entrar-waiting hidden>
-        <span class="h-2.5 w-2.5 animate-[entrar-pulse_1.6s_ease-in-out_infinite] rounded-full bg-[var(--accent)] motion-reduce:animate-none [[data-motion='off']_&]:animate-none" aria-hidden="true"></span>
-        <p class="text-center text-[length:var(--t-callout)] font-semibold">
+      <div class="entrar-waiting" data-entrar-waiting hidden>
+        <span class="entrar-waiting-dot" aria-hidden="true"></span>
+        <p class="entrar-waiting-text">
           {c.calendario.linkSent} <strong data-entrar-pending></strong>
         </p>
-        <p class="max-w-[30ch] text-center text-[length:var(--t-caption)] text-white/70">{c.calendario.linkHint}</p>
-        <button type="button" class="btn mt-1" data-entrar-resend>{c.calendario.resend}</button>
+        <p class="entrar-waiting-hint">{c.calendario.linkHint}</p>
+        <button type="button" class="btn entrar-resend" data-entrar-resend>{c.calendario.resend}</button>
       </div>
 
-      <p class="min-h-[1.2em] text-[length:var(--t-caption)] text-white/70" data-entrar-hint></p>
+      <p class="entrar-hint" data-entrar-hint></p>
     </div>
-
-    <button type="button" class="mt-2 text-[length:var(--t-body)] font-semibold text-[var(--accent)]" data-entrar-close>{c.os.done}</button>
   </div>
 </div>

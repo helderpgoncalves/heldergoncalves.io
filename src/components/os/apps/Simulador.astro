@@ -6,14 +6,19 @@ const c = COPY[lang];
 ---
 <section class="app-shell app-simulador relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="simulador" aria-label={c.apps.simulador.name}>
   <div class="sim grid flex-1 place-items-center justify-items-center bg-(--surface-2) p-4.5" data-sim>
-    <div class="sim-device relative w-[min(300px,100%)] max-w-full rounded-[46px] p-2.75 [background:#0a0a0c] [box-shadow:0_24px_60px_rgba(0,0,0,0.45),inset_0_0_0_1.5px_#37373d,0_0_0_1px_rgba(0,0,0,0.6)] h-160 [@supports(aspect-ratio:9/19.5)]:h-full [@supports(aspect-ratio:9/19.5)]:w-auto [@supports(aspect-ratio:9/19.5)]:aspect-[9/19.5] after:absolute after:left-1/2 after:top-1 after:h-5.5 after:w-[46%] after:-translate-x-1/2 after:rounded-b-[14px] after:content-[''] after:pointer-events-none">
+    <div class="sim-device relative w-[min(300px,100%)] max-w-full h-160 [@supports(aspect-ratio:9/19.5)]:h-full [@supports(aspect-ratio:9/19.5)]:w-auto [@supports(aspect-ratio:9/19.5)]:aspect-[9/19.5]">
+      <i class="sim-btn sim-btn-action" aria-hidden="true"></i>
+      <i class="sim-btn sim-btn-vol-up" aria-hidden="true"></i>
+      <i class="sim-btn sim-btn-vol-down" aria-hidden="true"></i>
+      <i class="sim-btn sim-btn-power" aria-hidden="true"></i>
       <iframe
-        class="sim-screen block h-full w-full rounded-[36px] border-0 bg-black"
+        class="sim-screen block border-0 bg-black"
         data-sim-frame
         title={c.apps.simulador.window}
         loading="lazy"
         referrerpolicy="same-origin"
       ></iframe>
+      <i class="sim-island" aria-hidden="true"></i>
     </div>
     <p class="sim-note mt-3.5 max-w-[34ch] text-center text-[12px] text-(--ink-3)">{c.apps.simulador.subtitle}</p>
   </div>

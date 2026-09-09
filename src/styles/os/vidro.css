@@ -95,7 +95,14 @@
 }
 
 /* O aro. Um gradiente à volta, recortado só na borda: forte onde a luz
-   bate, quase invisível do lado oposto. É isto que dá o brilho. */
+   bate, quase invisível do lado oposto. É isto que dá o brilho.
+   `content-box` mediria o interior a partir do padding do elemento, um
+   cálculo à parte que não olha para `corner-shape` — as duas fronteiras
+   da máscara divergiam da superelipse do border-box nos "ombros" do
+   canto, e o xor deixava passar linhas rectas de fundo sólido a
+   cruzá-lo. `padding-box` com uma borda transparente de 1px é sempre
+   um recuo uniforme do border-box, a mesma geometria que
+   `corner-shape: inherit` já desenha — por isso segue-a fielmente. */
 @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
   .glass::before {
     content: '';
@@ -103,7 +110,7 @@
     inset: 0;
     border-radius: inherit;
     corner-shape: inherit;
-    padding: 1px;
+    border: 1px solid transparent;
     background: conic-gradient(
       from var(--glass-angle),
       var(--glass-rim) 0deg,
@@ -114,11 +121,11 @@
       var(--glass-rim) 360deg
     );
     -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0) padding-box,
       linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask:
-      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0) padding-box,
       linear-gradient(#000 0 0);
     mask-composite: exclude;
     opacity: 0.9;
@@ -174,12 +181,31 @@
 }
 .cc::before, .nc::before { display: none; }
 .win { --glass-tint: var(--surface); --glass-blur: 30px; --glass-drop: var(--shadow-win); }
-.menubar { --glass-tint: rgba(255, 255, 255, 0.3); --glass-blur: 22px; --glass-drop: none; --glass-hairline: transparent; }
-[data-theme='dark'] .menubar { --glass-tint: rgba(22, 22, 26, 0.42); }
+/* A peça mais vidro do sistema — mais transparente do que uma janela:
+   deixa ver bem o papel de parede por trás, como a barra de menus a
+   sério, não uma superfície opaca com texto por cima. */
+.menubar { --glass-tint: rgba(255, 255, 255, 0.1); --glass-sat: 220%; --glass-blur: 22px; --glass-drop: none; --glass-hairline: transparent; }
+/* No escuro o texto é branco: uma tinta preta um pouco mais funda do
+   que no claro dá-lhe uma base de luminância baixa e previsível contra
+   qualquer zona do papel de parede — sem isto, a zona clara/creme do
+   fundo (o "aurora" tem-nas) ficava perto de mais da luminância do
+   próprio texto para o contrast() a seguir separar sozinho. */
+[data-theme='dark'] .menubar { --glass-tint: rgba(10, 10, 12, 0.32); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .menubar { --glass-tint: rgba(22, 22, 26, 0.42); }
+  :root:not([data-theme='light']) .menubar { --glass-tint: rgba(10, 10, 12, 0.32); }
 }
 .menubar::before { border-radius: 0; padding: 0 0 1px; }
+/* `brightness()` só desloca a luminância do vidro para cima ou para
+   baixo — não separa um glifo branco de um rosa vivo com a mesma
+   luminância. `contrast()` empurra o que passa por trás para os
+   extremos, e é isso que devolve legibilidade a uma tinta tão baixa
+   sem sombra de texto (que mais nenhuma peça do sistema usa). Só aqui,
+   não em --glass-bright: essa variável é partilhada por todo o `.glass`
+   e mudá-la mexia nas outras peças. */
+.menubar {
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) contrast(130%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) contrast(130%);
+}
 .dock { --glass-blur: 30px; }
 .ios-dock { --glass-blur: 24px; }
 .widget { --glass-blur: 22px; }

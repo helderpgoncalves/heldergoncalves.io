@@ -170,9 +170,7 @@ export const OS_EN = {
   entrar: {
     title: 'Sign In',
     guest: 'Guest',
-    guestHint: 'Browse everything, no sign-in',
     signIn: 'Sign In',
-    signInHint: 'Commenting and booking meetings need a session',
     signedInAs: 'Signed in as',
     continue: 'Continue',
   },

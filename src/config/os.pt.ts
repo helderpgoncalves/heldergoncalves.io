@@ -169,9 +169,7 @@ export const OS_PT = {
   entrar: {
     title: 'Entrar',
     guest: 'Visitante',
-    guestHint: 'Ver tudo, sem sessão',
     signIn: 'Entrar',
-    signInHint: 'Comentar e marcar reuniões pede sessão',
     signedInAs: 'Sessão iniciada como',
     continue: 'Continuar',
   },

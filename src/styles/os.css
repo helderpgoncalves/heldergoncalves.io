@@ -9,6 +9,8 @@
      ambiente    os papéis de parede e o documento sem JavaScript
      mac         barra de menus, janelas, Dock, pesquisa
      ios         ecrã inicial, bloqueio, painéis, gestos
+     entrar      o relógio do ecrã de sessão — os números do lock do iOS
+     toast       a notificação flutuante do Mac, canto superior direito
      apps        o que vive dentro das janelas e das vistas
      notas       o Blog, com a forma das Notas da Apple
      widgets     no ecrã inicial, no ambiente de trabalho, e a galeria
@@ -88,6 +90,8 @@
   @import './os/ambiente.css';
   @import './os/mac.css';
   @import './os/ios.css';
+  @import './os/entrar.css';
+  @import './os/toast.css';
   @import './os/apps.css';
   @import './os/notas.css';
   @import './os/widgets.css';

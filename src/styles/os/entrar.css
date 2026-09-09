@@ -1,0 +1,97 @@
+/* ═══════════════════════════════════════════════════════════════
+   O ecrã de Entrar. Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Mesmo idioma do ecrã de bloqueio a sério (.lock-*, em ios.css):
+   relógio grande no topo, escolhas ao centro, uma saída no fundo — mas
+   `#entrar` vive fora de `.phone` (é o mesmo ecrã no Mac e no iOS, ver
+   Entrar.astro), por isso não tem --sb-h/--home-h: a margem de cima e
+   de baixo usa env(safe-area-inset-*) directamente, com a mesma base
+   fixa nos dois mundos. Tudo o resto em múltiplos de 8, com
+   subdivisões de 4 — nunca vh, que estica com o ecrã em vez de manter
+   a respiração desenhada. */
+.entrar-body {
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 56px;
+}
+
+/* O relógio, ao topo — os mesmos números do relógio do bloqueio
+   (.lock-time/.lock-date, em ios.css), em px crus de propósito: é o
+   mesmo elemento de assinatura visual nos dois modos, por isso não
+   segue a escala de tipos (que muda entre Mac e iOS) — ao contrário
+   do resto deste ecrã, que usa var(--t-*) e por isso já se adapta. */
+.entrar-top { display: grid; justify-items: center; gap: 4px; animation: menu-in 0.3s var(--ease-os); }
+.entrar-time {
+  margin: 0; font-family: var(--display);
+  font-size: clamp(56px, 9vw, 104px); font-weight: 600; line-height: 1.02;
+  letter-spacing: -0.045em; font-variant-numeric: tabular-nums;
+  text-shadow: 0 6px 26px rgba(0, 0, 0, 0.32);
+}
+.entrar-date {
+  margin: 4px 0 0; font-size: 20px; font-weight: 500; letter-spacing: -0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* As três escolhas — Visitante, Entrar, Google. Peso visual igual: o
+   mesmo tamanho de círculo, a mesma cápsula tonal por baixo. Só o
+   Google é sólido a branco — a cor de marca não se mistura com o
+   preenchimento do sistema, a mesma excepção que os semáforos são
+   para as cores de sistema (ver apple.md). */
+.entrar-choices {
+  display: none; width: 100%; max-width: 360px;
+  grid-template-columns: repeat(3, 1fr); justify-items: center; gap: 16px;
+}
+.entrar-choices:not([hidden]) { display: grid; }
+.entrar-choice {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: inherit; text-align: center;
+}
+.entrar-avatar {
+  width: 76px; height: 76px; display: grid; place-items: center; overflow: hidden;
+  border-radius: 50%; background: rgba(255, 255, 255, 0.16); color: #fff;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.22);
+  transition: transform 0.16s var(--ease-os);
+}
+.entrar-choice:active .entrar-avatar { transform: scale(0.95); }
+.entrar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.entrar-avatar-solid { background: #fff; }
+.entrar-avatar-lg { width: 88px; height: 88px; }
+.entrar-choice-name { font-size: var(--t-headline, 15px); font-weight: 600; }
+@media (min-width: 420px) {
+  .entrar-choices { gap: 32px; }
+}
+
+/* Sessão activa e o formulário de email — a mesma cápsula central das
+   escolhas, só uma coluna. */
+.entrar-signed, .entrar-form {
+  display: none; width: 100%; max-width: 320px;
+  flex-direction: column; align-items: center; gap: 12px; text-align: center;
+}
+.entrar-signed:not([hidden]), .entrar-form:not([hidden]) { display: flex; }
+.entrar-signed-text, .entrar-form-title { font-size: var(--t-headline, 15px); font-weight: 600; line-height: 1.35; }
+
+.entrar-request { display: none; width: 100%; flex-direction: column; gap: 12px; }
+.entrar-request:not([hidden]) { display: flex; }
+.entrar-panel { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.entrar-input {
+  width: 100%; padding: 12px; text-align: center;
+  border: 0.5px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.1);
+  color: #fff; font-size: var(--t-body, 15px); outline: none;
+}
+.entrar-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+.entrar-input:focus { border-color: rgba(255, 255, 255, 0.6); }
+
+.entrar-waiting { display: none; flex-direction: column; align-items: center; gap: 8px; padding-top: 4px; }
+.entrar-waiting:not([hidden]) { display: flex; }
+.entrar-waiting-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: entrar-pulse 1.6s ease-in-out infinite;
+}
+.entrar-waiting-text { font-size: var(--t-callout, 14px); font-weight: 600; text-align: center; }
+.entrar-waiting-hint { max-width: 30ch; text-align: center; font-size: var(--t-caption, 12px); color: rgba(255, 255, 255, 0.7); }
+.entrar-resend { margin-top: 4px; }
+.entrar-hint { min-height: 1.2em; font-size: var(--t-caption, 12px); color: rgba(255, 255, 255, 0.7); }
+
+@media (prefers-reduced-motion: reduce) {
+  .entrar-top { animation: none; }
+  .entrar-waiting-dot { animation: none; }
+}

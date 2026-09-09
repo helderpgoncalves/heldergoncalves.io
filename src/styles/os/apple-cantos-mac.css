@@ -37,8 +37,11 @@
 
 
 /* macOS */
+/* Todas as janelas do site têm barra de título com semáforos — nunca
+   uma toolbar (26pt) nem uma compact toolbar (20pt). É a "Titlebar
+   window" do documento de geometria da Apple: 16pt. */
 @utility win {
-  --r: 11px;
+  --r: 16px;
   border-radius: var(--r);
   @supports (corner-shape: squircle) {
     corner-shape: squircle;
@@ -50,7 +53,7 @@
 }
 
 @utility snap-preview {
-  --r: 11px;
+  --r: 16px;
   border-radius: var(--r);
   @supports (corner-shape: squircle) {
     corner-shape: squircle;
@@ -204,6 +207,42 @@
 
 @utility skip {
   --r: 8px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility entrar-panel {
+  --r: 14px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility toast {
+  --r: 16px;
+  border-radius: var(--r);
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(var(--r) * 1.6);
+  }
+  @supports (corner-shape: superellipse(1.777)) {
+    corner-shape: superellipse(1.777);
+  }
+}
+
+@utility toast-icon {
+  --r: 7px;
   border-radius: var(--r);
   @supports (corner-shape: squircle) {
     corner-shape: squircle;
