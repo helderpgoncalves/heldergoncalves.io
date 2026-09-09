@@ -225,6 +225,10 @@ function boot(data) {
     ctx.mode = next;
     ctx.active = null;
     document.documentElement.setAttribute('data-mode', next);
+    // O ecrã inicial só se mede depois de estar à vista: no Mac o
+    // telefone não tem altura, e o reflow que os widgets pediram ao
+    // arrancar ficou por fazer (ver ios/pages.js).
+    if (next === 'ios') phone.reflowPages();
     if (wasActive) openApp(wasActive);
   }
   document.documentElement.setAttribute('data-mode', ctx.mode);

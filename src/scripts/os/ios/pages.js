@@ -63,6 +63,12 @@ export function createPages(ph) {
     if (!icons.length) return;
 
     const first = pages.children[0];
+    // No Mac o telefone está em `display: none` e não tem altura nenhuma:
+    // não há o que medir, e medir na mesma dava zero linhas em todas as
+    // páginas — o ciclo abaixo nunca avançava e criava páginas para
+    // sempre, com o site preso no arranque. Quando o modo passar a iOS,
+    // o arranque volta a chamar isto (index.js, applyMode).
+    if (!first.clientHeight) return;
     const cols = 4;
     const rowH = iconRowHeight(first) || 95;
     // Uma grelha nasce e morre consoante o espaço — mede-se o `row-gap`
@@ -81,7 +87,12 @@ export function createPages(ph) {
     let pgIndex = 0;
     while (i < icons.length) {
       let grid = pg.querySelector('.sb-grid');
-      const capacity = rowsThatFit(pg, rowH, rowGap, pageGap) * cols;
+      let capacity = rowsThatFit(pg, rowH, rowGap, pageGap) * cols;
+      // Uma página sem widgets que ainda assim não leva uma linha é um
+      // ecrã mais baixo do que um ícone: nenhuma página seguinte vai
+      // ser melhor. Ficam todos aqui — cortados é mau, preso é pior.
+      const hasWidgets = pg.querySelector('.sb-widgets')?.children.length;
+      if (capacity <= 0 && !hasWidgets) capacity = icons.length;
       if (capacity <= 0) {
         if (grid) grid.remove();
       } else {
