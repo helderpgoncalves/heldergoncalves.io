@@ -2,6 +2,15 @@
 // ponteiro, travar o eixo, medir velocidade e decidir no fim entre
 // completar o gesto ou voltar atrás. Tudo o que desliza no telefone
 // passa por aqui — é o que separa "um site" de "um telemóvel".
+//
+// O transporte de baixo nível (pointer capture, um por dedo, o que
+// cada browser faz de diferente) vem do @use-gesture/vanilla — o
+// `setPointerCapture` escrito à mão perdia a captura a meio do gesto
+// em alguns browsers e deixava o deslize entre páginas do ecrã
+// inicial pelo caminho. A física por cima (elástico, mola, threshold
+// por eixo) continua nossa: é o que dá o toque da Apple.
+import { DragGesture } from '@use-gesture/vanilla';
+import { reducedMotion } from './state.js';
 
 /**
  * Para onde o dedo *ia*. Ao largar, o iOS não olha só para onde o dedo
@@ -24,142 +33,104 @@ export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
  *
  * Os handlers recebem um objeto com dx, dy, vx, vy (px/ms) e o tempo.
  */
-/** Engole o clique que o browser dispara a seguir a um gesto. */
-function swallowNextClick() {
-  let timer = 0;
-  const swallow = (ev) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-    done();
-  };
-  const done = () => {
-    clearTimeout(timer);
-    window.removeEventListener('click', swallow, true);
-  };
-  window.addEventListener('click', swallow, true);
-  timer = setTimeout(done, 320);
-}
-
 export function track(el, handlers, opts = {}) {
   const threshold = opts.threshold == null ? 8 : opts.threshold;
   let g = null;
+  let began = false;
 
-  const reset = () => {
-    g = null;
-  };
-
-  const down = (ev) => {
-    if (g || (ev.button != null && ev.button !== 0)) return;
-    if (opts.filter && !opts.filter(ev)) return;
-    const now = performance.now();
-    g = {
-      id: ev.pointerId,
-      x0: ev.clientX,
-      y0: ev.clientY,
-      x: ev.clientX,
-      y: ev.clientY,
-      dx: 0,
-      dy: 0,
-      vx: 0,
-      vy: 0,
-      t0: now,
-      t: now,
-      axis: null,
-      began: false,
-    };
-    if (handlers.down) handlers.down(g, ev);
-  };
-
-  // Os eventos de ponteiro chegam mais depressa do que o ecrã pinta.
-  // Guardamos o último e aplicamos uma vez por frame: menos trabalho,
-  // zero saltos.
-  let queued = false;
-  const flush = () => {
-    queued = false;
-    if (g && g.began && handlers.move) handlers.move(g);
-  };
-
-  const move = (ev) => {
-    if (!g || ev.pointerId !== g.id) return;
-    const now = performance.now();
-    const dt = Math.max(8, now - g.t);
-    // Média com o valor anterior: velocidade estável mesmo com eventos irregulares.
-    g.vx = (g.vx + (ev.clientX - g.x) / dt) / 2;
-    g.vy = (g.vy + (ev.clientY - g.y) / dt) / 2;
-    g.x = ev.clientX;
-    g.y = ev.clientY;
-    g.t = now;
-    g.dx = g.x - g.x0;
-    g.dy = g.y - g.y0;
-
-    if (!g.began) {
-      const ax = Math.abs(g.dx);
-      const ay = Math.abs(g.dy);
-      if (Math.max(ax, ay) < threshold) return;
-
-      // Um dedo nunca anda em linha reta. Desistir do gesto ao primeiro
-      // tremor no eixo errado é o que faz um deslize "não funcionar" de
-      // vez em quando — por isso só se desiste quando o outro eixo ganha
-      // com folga; enquanto estiver renhido, espera-se.
-      if (opts.axis) {
-        const mine = opts.axis === 'x' ? ax : ay;
-        const other = opts.axis === 'x' ? ay : ax;
-        if (other > mine * 1.3 && other > threshold * 1.5) {
-          reset();
-          return;
-        }
-        if (mine < threshold) return;
+  const gesture = new DragGesture(
+    el,
+    (state) => {
+      const ev = state.event;
+      if (opts.filter && state.first && !opts.filter(ev)) {
+        state.cancel();
+        return;
       }
 
-      g.axis = ax > ay ? 'x' : 'y';
-      g.began = true;
-      // Enquanto o dedo arrasta, nada fica com ar de carregado.
-      document.documentElement.classList.add('gesturing');
-      try {
-        el.setPointerCapture(g.id);
-      } catch (_) {}
-      if (handlers.begin) handlers.begin(g, ev);
-    }
-    if (!queued) {
-      queued = true;
-      requestAnimationFrame(flush);
-    }
-    if (ev.cancelable) ev.preventDefault();
-  };
+      if (state.first) {
+        began = false;
+        g = {
+          x0: state.xy[0] - state.movement[0],
+          y0: state.xy[1] - state.movement[1],
+          x: state.xy[0],
+          y: state.xy[1],
+          dx: 0,
+          dy: 0,
+          vx: 0,
+          vy: 0,
+          axis: null,
+          began: false,
+        };
+        if (handlers.down) handlers.down(g, ev);
+      }
+      if (!g) return;
 
-  const up = (ev) => {
-    if (!g || (ev && ev.pointerId !== g.id)) return;
-    const done = g;
-    reset();
+      g.x = state.xy[0];
+      g.y = state.xy[1];
+      g.dx = state.movement[0];
+      g.dy = state.movement[1];
+      // A lib dá velocidade sem sinal (px/ms) e a direção à parte — e no
+      // frame final (soltar o dedo) zera as duas. O embalo para o
+      // `project()` tem de vir do último frame com o dedo ainda a mexer,
+      // senão um flick rápido perdia a velocidade mesmo antes de chegar
+      // ao `end()`.
+      if (!state.last) {
+        g.vx = (state.velocity[0] || 0) * (state.direction[0] || 0);
+        g.vy = (state.velocity[1] || 0) * (state.direction[1] || 0);
+      }
+
+      if (!began) {
+        const ax = Math.abs(g.dx);
+        const ay = Math.abs(g.dy);
+        if (Math.max(ax, ay) < threshold) {
+          if (state.last) finishAsTap(ev);
+          return;
+        }
+
+        // Um dedo nunca anda em linha reta. Desistir do gesto ao primeiro
+        // tremor no eixo errado é o que faz um deslize "não funcionar" de
+        // vez em quando — por isso só se desiste quando o outro eixo ganha
+        // com folga; enquanto estiver renhido, espera-se.
+        if (opts.axis) {
+          const mine = opts.axis === 'x' ? ax : ay;
+          const other = opts.axis === 'x' ? ay : ax;
+          if (other > mine * 1.3 && other > threshold * 1.5) {
+            g = null;
+            return;
+          }
+          if (mine < threshold) {
+            if (state.last) finishAsTap(ev);
+            return;
+          }
+        }
+
+        g.axis = ax > ay ? 'x' : 'y';
+        g.began = true;
+        began = true;
+        document.documentElement.classList.add('gesturing');
+        if (handlers.begin) handlers.begin(g, ev);
+      }
+
+      if (handlers.move) handlers.move(g);
+
+      if (state.last) {
+        document.documentElement.classList.remove('gesturing');
+        if (began && handlers.end) handlers.end(g, ev);
+        g = null;
+        began = false;
+      }
+    },
+    {}
+  );
+
+  function finishAsTap(ev) {
     document.documentElement.classList.remove('gesturing');
-    try {
-      if (ev) el.releasePointerCapture(done.id);
-    } catch (_) {}
-    if (done.began) {
-      // Depois de um gesto não pode nascer um clique. Sem isto, deslizar
-      // por cima de um ícone acabava a abrir a aplicação — que é como um
-      // gesto bom parece um gesto partido.
-      swallowNextClick();
-      if (handlers.end) handlers.end(done, ev);
-    } else if (handlers.tap) {
-      handlers.tap(done, ev);
-    }
-  };
+    if (handlers.tap) handlers.tap(g, ev);
+    g = null;
+    began = false;
+  }
 
-  el.addEventListener('pointerdown', down);
-  el.addEventListener('pointermove', move);
-  el.addEventListener('pointerup', up);
-  el.addEventListener('pointercancel', up);
-  el.addEventListener('lostpointercapture', () => {
-    if (g && g.began) up({ pointerId: g.id });
-  });
-
-  return () => {
-    el.removeEventListener('pointerdown', down);
-    el.removeEventListener('pointermove', move);
-    el.removeEventListener('pointerup', up);
-    el.removeEventListener('pointercancel', up);
-  };
+  return () => gesture.destroy();
 }
 
 /**
@@ -177,7 +148,7 @@ export function track(el, handlers, opts = {}) {
 export function spring(from, to, v0, apply, opts = {}) {
   let frame = 0;
   const promise = new Promise((resolve) => {
-    if (reduced()) {
+    if (reducedMotion()) {
       apply(to);
       resolve();
       return;

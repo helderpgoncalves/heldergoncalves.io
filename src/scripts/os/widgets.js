@@ -64,6 +64,9 @@ export function createWidgets(ctx) {
       });
     });
     refreshClock();
+    // Os widgets acabaram de mudar de altura — as páginas do telefone
+    // têm de recontar quantas linhas de ícones ainda cabem por baixo.
+    if (ctx.phone && ctx.phone.reflowPages) ctx.phone.reflowPages();
   }
 
   function save(lay) {

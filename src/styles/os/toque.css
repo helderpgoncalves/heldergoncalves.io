@@ -43,7 +43,7 @@ input, textarea, select { font-family: inherit; }
 .dock-item svg, .sb-app svg, .widget, .desk-icon svg { -webkit-user-drag: none; user-select: none; }
 
 /* Rolagem contida: nada de arrastar a página inteira por trás. */
-.app-scroll, .post-list, .chat-log, .ios-view-body, .spot-results, .nc-inner, .term {
+.app-scroll, .post-list, .chat-log, .ios-view-body, .spot-results, .nc-inner, .term, .sb-page {
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
 

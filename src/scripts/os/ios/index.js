@@ -83,5 +83,6 @@ export function createPhone(ctx) {
     showLock: ph.lock.show,
     unlock: ph.lock.unlock,
     page: ph.pages.current,
+    reflowPages: ph.pages.reflow,
   };
 }

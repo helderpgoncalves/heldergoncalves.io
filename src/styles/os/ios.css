@@ -92,6 +92,18 @@
 @media (max-width: 360px) {
   .sb { --sb-x: 20px; }
 }
+/* Num ecrã baixo (iPhone SE) a folga à volta aperta um pouco — não é
+   isto que garante nada caber (isso é o `reflow()` em ios/pages.js,
+   que manda para a página seguinte o que não couber numa linha
+   inteira), é só o mesmo instinto do iOS de dar mais espaço útil
+   quando há menos por onde respirar. Depois de `.sb-dots` na cascata,
+   para ganhar à regra base. */
+@media (max-height: 700px) {
+  .sb { padding-top: 2px; }
+  .sb-page { gap: 8px; }
+  .sb-grid { row-gap: 8px; padding-top: 0; }
+  .sb-dots { padding: 4px 0 6px; }
+}
 
 /* Vistas de aplicação */
 .ios-views { position: absolute; inset: 0; z-index: 200; pointer-events: none; }
