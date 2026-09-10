@@ -367,6 +367,26 @@ tira-o depois se for preciso (`POST /api/comentarios/remover`).
   o mesmo fingerprint de IP não conta duas vezes, e tocar outra vez
   desliga.
 
+## Escrever a partir do site
+
+O dono (a sessão de `OWNER_EMAIL`) escreve no próprio Blog: o botão de
+compor cria um rascunho, o editor guarda-o sozinho em Postgres (tabela
+`escritos`, `api/app/escritos_repo.py`), e «Publicar» faz o commit do
+Markdown em `src/content/blog/<lang>/<slug>.md` — o mesmo push para
+`main` que refaz o site traz o escrito. Nada é servido de Postgres a
+visitantes: o blog continua estático.
+
+| Variável         | Exemplo                                | Para quê                                              |
+| ---------------- | -------------------------------------- | ----------------------------------------------------- |
+| `GITHUB_TOKEN`   | `github_pat_...`                       | token *fine-grained*, só este repositório, permissão «Contents: write» |
+| `GITHUB_REPO`    | `helderpgoncalves/heldergoncalves.io`  | o repositório (é o valor por omissão)                 |
+| `GITHUB_BRANCH`  | `main`                                 | o ramo que o Coolify observa (é o valor por omissão)  |
+
+Sem `GITHUB_TOKEN`, os rascunhos funcionam na mesma e «Publicar» responde
+`503` — o editor diz isso ao dono. Publicar substitui o ficheiro se já
+existir com o mesmo endereço, por isso corrigir um escrito é abrir o
+rascunho que ficou, mexer, e publicar outra vez.
+
 ## O que o agente sabe
 
 Tudo o que está em `knowledge/*.md`. Editar um ficheiro e fazer push é a

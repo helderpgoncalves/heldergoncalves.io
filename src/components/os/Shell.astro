@@ -62,6 +62,7 @@ const osData = {
     win: a.win,
     bare: Boolean(a.bare),
     macOnly: Boolean(a.macOnly),
+    ownHead: Boolean(a.ownHead),
   })),
   menus: c.os.menus,
   appMenus: c.os.appMenus,
@@ -74,6 +75,7 @@ const osData = {
     // As perguntas guardadas já estão no HTML — não se repetem aqui.
     chat: { ...c.mensagens, chat: undefined },
     escritos: { pick: c.escritos.pick, backToList: c.escritos.backToList, readingTime: c.escritos.readingTime, comments: c.escritos.comments },
+    editor: c.editor,
     bolsa: c.bolsa,
     calendario: c.calendario,
     pessoas: c.pessoas,

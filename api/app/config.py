@@ -171,6 +171,22 @@ GOOGLE_READY = len(GOOGLE.client_id) > 10 and len(GOOGLE.client_secret) > 10
 GOOGLE_REDIRECT_URI = SITE_ORIGIN + "/api/auth/google/callback"
 
 
+# ── Publicar escritos a partir do site ───────────────────────────────
+# O blog é estático e refaz-se a cada push para `main`: publicar um
+# escrito é fazer o commit do Markdown no repositório (github.py). O
+# token é de conteúdos, só de escrita neste repositório. Sem ele os
+# rascunhos continuam a funcionar; só «Publicar» responde 503.
+@dataclass(frozen=True)
+class Github:
+    token: str = _env("GITHUB_TOKEN")
+    repo: str = _env("GITHUB_REPO", "helderpgoncalves/heldergoncalves.io")
+    branch: str = _env("GITHUB_BRANCH", "main")
+
+
+GITHUB = Github()
+GITHUB_READY = len(GITHUB.token) > 10 and "/" in GITHUB.repo
+
+
 @dataclass(frozen=True)
 class Meetings:
     file: Path = field(default_factory=lambda: Path(_env("MEETINGS_FILE", str(DATA_DIR / "meetings.ndjson"))).resolve())
@@ -265,6 +281,14 @@ class Limits:
     # Reações: um toque, não um formulário — o limite é generoso.
     reaction_per_ip: int = 60
     reaction_per_ip_window: int = 10 * 60
+
+    # Escritos: só o dono, mas o editor guarda sozinho enquanto se
+    # escreve — o limite tem de deixar passar um rascunho a cada poucos
+    # segundos. O corpo é um texto inteiro, muito acima de `body`.
+    escritos_per_ip: int = 300
+    escritos_window: int = 10 * 60
+    escrito_body: int = 256 * 1024
+    escrito_tags: int = 10
 
     # Reuniões: a agenda é leve de ler, e marcar é raro.
     agenda_per_ip: int = 120

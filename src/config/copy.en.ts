@@ -8,6 +8,7 @@
 
 import { OS_EN } from './os.en';
 import { APPS_EN } from './apps.en';
+import { EDITOR_EN } from './editor.en';
 
 export const EN = {
   htmlLang: 'en',
@@ -34,6 +35,7 @@ export const EN = {
   os: OS_EN,
 
   ...APPS_EN,
+  editor: EDITOR_EN,
 
   notFound: {
     title: 'Page not found',

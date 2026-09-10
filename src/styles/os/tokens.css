@@ -51,7 +51,7 @@
      O texto sobre ela fica sempre escuro nas duas aparências — como o
      fundo é sempre um dourado claro, não seguir --ink (que no escuro
      fica quase branco e deixava de se ler). */
-  --notes-select: color-mix(in srgb, var(--yellow) 72%, var(--surface-solid));
+  --notes-select: color-mix(in srgb, var(--yellow) 38%, var(--surface-solid));
   --notes-select-ink: color-mix(in srgb, black 88%, transparent);
   --glass: rgba(255, 255, 255, 0.5);
   --glass-edge: rgba(255, 255, 255, 0.55);
@@ -93,6 +93,9 @@
   --line-strong: rgba(255, 255, 255, 0.26);
   --accent: var(--blue);
   --danger: var(--red);
+  /* No escuro a selecção das Notas é um dourado escuro, e o texto por
+     cima volta a ser o de sempre — claro. */
+  --notes-select-ink: var(--ink);
 
   --surface: rgba(38, 38, 42, 0.74);
   --surface-solid: var(--gray6);
@@ -130,6 +133,7 @@
     --line-strong: rgba(255, 255, 255, 0.26);
     --accent: var(--blue);
     --danger: var(--red);
+    --notes-select-ink: var(--ink);
     --surface: rgba(38, 38, 42, 0.74);
     --surface-solid: var(--gray6);
     --surface-2: rgba(120, 120, 128, 0.18);

@@ -16,6 +16,14 @@
   container-type: inline-size;
   container-name: app;
 }
+/* A janela inteira também é contentor, com outro nome: uma barra
+   unificada (mac/windows.js) vive fora do `.win-body`, e precisa de
+   saber a largura da janela para alinhar as ferramentas às colunas
+   da app por baixo — ver notas.css. */
+.win {
+  container-type: inline-size;
+  container-name: win;
+}
 
 /* `.app-pad` e `.btn-row` são partilhadas por várias apps — fica aqui,
    central, em vez de repetir a mesma variante `@max-[…]/app:` em cada

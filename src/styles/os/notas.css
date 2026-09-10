@@ -43,6 +43,46 @@
    fechar a lista nem o leitor. */
 .app-escritos.side-hidden .notes-folders { display: none; }
 
+/* A barra unificada alinha-se às colunas por baixo dela: o botão da
+   sidebar acaba onde acaba a coluna de pastas, e o de compor começa
+   onde começa o escrito. Os 72px são o que a barra já ocupa antes das
+   ferramentas — 12 de margem, os três semáforos (52) e a folga (8).
+   As larguras das colunas são as de Escritos.astro e EscritosPastas
+   .astro, e mudam com a janela pelas mesmas fronteiras (o contentor
+   `win` está em contentor.css). */
+.notes-toolbar { --notes-side: 190px; --notes-list: 268px; }
+.notes-tb-side { width: calc(var(--notes-side) - 72px); }
+.notes-tb-list { width: calc(var(--notes-list) - 8px); }
+.notes-toolbar.side-hidden .notes-tb-side { width: auto; }
+.notes-toolbar.side-hidden .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px); }
+@container win (min-width: 900px) {
+  .notes-toolbar { --notes-list: 320px; }
+}
+@container win (max-width: 820px) {
+  .notes-tb-side { width: auto; }
+  .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px); }
+}
+@container win (max-width: 640px) {
+  .notes-tb-list { width: 0; }
+}
+
+/* O editor do dono: os campos pequenos dos detalhes, e o texto grande
+   sem moldura — como uma nota, não como um formulário. Quem o mostra é
+   o `data-editing` da app, por utility do grupo em Escritos.astro. */
+.editor-field {
+  min-height: 28px; padding: 3px 8px; border: 0.5px solid var(--line); border-radius: 6px;
+  background: var(--surface-solid); color: var(--ink); font-size: var(--t-subhead);
+}
+.editor-field:focus { outline: none; border-color: var(--accent); }
+.editor-body { font-family: inherit; }
+
+/* A linha da pasta em cada nota: no telefone está sempre; no Mac só
+   em «Todos os Escritos», que é quando faz falta saber de que pasta
+   cada um é — como nas Notas em «Todas». */
+.post-folder { display: none; }
+.app-escritos[data-folder='all'] .post-folder,
+[data-mode='ios'] .post-folder { display: flex; }
+
 /* A cor da aplicação é o amarelo do sistema, como nas Notas — na
    janela do Mac (barra unificada incluída) e na vista do telefone. O
    texto sobre amarelo é escuro nas duas aparências, pelo mesmo motivo
@@ -52,5 +92,3 @@
   --accent: var(--yellow);
   --accent-ink: var(--notes-select-ink);
 }
-[data-mode='ios'] .ios-view[data-app='escritos'] .ios-view-head h2 { opacity: 0; transition: opacity 0.2s; }
-[data-mode='ios'] .ios-view[data-app='escritos'].scrolled .ios-view-head h2 { opacity: 1; }

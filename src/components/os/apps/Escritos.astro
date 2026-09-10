@@ -11,6 +11,9 @@ const c = COPY[lang];
 const e = c.escritos;
 const Content = post ? (await render(post)).Content : null;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
+// Na lista, a data é curta e numérica, como nas Notas («06/09/26»);
+// a data por extenso fica para o cabeçalho do escrito.
+const shortFmt = new Intl.DateTimeFormat(c.intlLocale, { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' });
 
 // Como as Notas: o que já não é de hoje agrupa-se por mês. As datas
 // são fixas, por isso a conta faz-se no build e não muda depois.
@@ -36,15 +39,22 @@ const folders = [
   class="app-shell app-escritos group flex-col bg-transparent"
   data-content="escritos"
   data-detail={post ? '1' : '0'}
+  data-folder="all"
   aria-label={c.apps.escritos.name}
 >
   {/* A barra das Notas do Mac. `data-win-toolbar` faz a janela subi-la
       para a barra de título, ao lado dos semáforos (mac/windows.js) —
       é a barra unificada do macOS. No telefone não aparece. */}
   <div class="notes-toolbar flex min-w-0 flex-1 items-center gap-1 self-stretch [[data-mode='ios']_&]:hidden" data-win-toolbar>
-    <button class="notes-tool grid h-7 w-8 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
-    <span class="spacer flex-1"></span>
+    {/* Cada bloco tem a largura da coluna por baixo (notas.css): o botão
+        da sidebar acaba onde acaba a coluna de pastas, e o de compor
+        começa onde começa o escrito — como no Notas a sério. */}
+    <span class="notes-tb-side flex flex-none items-center justify-end">
+      <button class="notes-tool grid h-7 w-8 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-notes-sidebar aria-label={e.sidebar}><Icon id="ui-sidebar" /></button>
+    </span>
+    <span class="notes-tb-list flex-none"></span>
     <button class="notes-tool grid h-7 w-8 place-items-center text-(--accent) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    <span class="spacer flex-1"></span>
     <button class="notes-tool grid h-7 w-8 place-items-center text-(--ink-2) transition-colors duration-120 hover:bg-(--surface-3) [&_svg]:h-4.5 [&_svg]:w-4.5" type="button" data-action="share" aria-label={e.share}><Icon id="ui-share" /></button>
     <label class="notes-search ml-1 flex h-7 w-[150px] max-w-[40%] items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2 text-(--ink-3) transition-[border-color,width] duration-150 focus-within:w-[220px] focus-within:border-(--accent) [&_svg]:h-3.25 [&_svg]:w-3.25 [&_svg]:flex-none">
       <Icon id="ui-search" />
@@ -54,21 +64,25 @@ const folders = [
   </div>
 
   <div class="notes-panes flex min-h-0 flex-1 flex-row @max-[640px]/app:flex-col">
-  <EscritosPastas folders={folders} heading={e.folders} />
+  <EscritosPastas folders={folders} heading={e.folders} drafts={c.editor.drafts} />
   <div class="app-side flex min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0 @max-[640px]/app:bg-transparent @min-[900px]/app:basis-[320px]">
-    <div class="app-side-head border-b-[0.5px] border-(--line) px-4 pb-2.5 pt-3.5 [[data-mode='ios']_&]:border-b-0 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-1">
-      <h2 class="m-0 text-[17px] tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
-      <p class="m-0 mt-0.5 text-[12px] text-(--ink-3) [[data-mode='ios']_&]:hidden">{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
+    {/* O cabeçalho da lista: no Mac, o nome da pasta e a contagem em
+        pequeno; no telefone, o título grande do iOS com a contagem por
+        baixo, como em «Todas - iCloud / 21 notas». */}
+    <div class="app-side-head border-b-[0.5px] border-(--line) px-4 pb-2.5 pt-3 [[data-mode='ios']_&]:border-b-0 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-2 [[data-mode='ios']_&]:pt-1">
+      <h2 class="m-0 text-[length:var(--t-title3)] font-semibold tracking-[-0.015em] [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
+      <p class="m-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3) [[data-mode='ios']_&]:mt-1 [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
     </div>
-    <label class="notes-search notes-search-ios hidden [[data-mode='ios']_&]:mx-4 [[data-mode='ios']_&]:mb-1.5 [[data-mode='ios']_&]:flex [[data-mode='ios']_&]:h-9 [[data-mode='ios']_&]:items-center [[data-mode='ios']_&]:gap-1.5 [[data-mode='ios']_&]:rounded-full [[data-mode='ios']_&]:border-0 [[data-mode='ios']_&]:bg-(--surface-3) [[data-mode='ios']_&]:px-2.5 [[data-mode='ios']_&]:text-(--ink-3) [[data-mode='ios']_&]:[&_svg]:h-3.25 [[data-mode='ios']_&]:[&_svg]:w-3.25 [[data-mode='ios']_&]:[&_svg]:flex-none">
-      <Icon id="ui-search" />
-      <span class="sr">{e.search}</span>
-      <input type="search" placeholder={e.search} autocomplete="off" data-notes-search class="min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [[data-mode='ios']_&]:-my-1 [[data-mode='ios']_&]:min-h-11 [&::-webkit-search-cancel-button]:appearance-none" />
-    </label>
     {posts.length === 0 ? (
       <p class="app-pad">{e.empty}</p>
     ) : (
-      <ul class="post-list m-0 min-h-0 flex-1 list-none overflow-auto px-2 py-1.5 [[data-mode='ios']_&]:px-4">
+      <ul class="post-list m-0 min-h-0 flex-1 list-none overflow-auto px-2 py-1.5 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-20">
+        {/* Os rascunhos do dono, no topo — escritos-editor.js enche isto;
+            para toda a gente fica escondido e vazio. */}
+        <li class="post-group hidden list-none group-data-[owner='1']:block [&[hidden]]:hidden" data-drafts-group>
+          <h4 class="m-0 px-2.5 pb-0.75 pt-2.5 text-[length:var(--t-subhead,11px)] font-semibold text-(--ink-3) [[data-mode='ios']_&]:px-0 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-3.5 [[data-mode='ios']_&]:text-[length:var(--t-title3)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:text-(--ink)">{c.editor.drafts}</h4>
+          <ul class="m-0 list-none p-0 [[data-mode='ios']_&]:bg-(--surface-2) [[data-mode='ios']_&]:overflow-hidden" data-drafts-list></ul>
+        </li>
         {groups.map((g) => (
           <li class="post-group list-none [&[hidden]]:hidden">
             <h4 class="m-0 px-2.5 pb-0.75 pt-2.5 text-[length:var(--t-subhead,11px)] font-semibold text-(--ink-3) [[data-mode='ios']_&]:px-0 [[data-mode='ios']_&]:pb-1.5 [[data-mode='ios']_&]:pt-3.5 [[data-mode='ios']_&]:text-[length:var(--t-title3)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:text-(--ink)">{g.label}</h4>
@@ -86,10 +100,15 @@ const folders = [
                     {/* Como nas Notas: o título numa linha, e por baixo a
                         data e o princípio do texto na mesma linha, cortados
                         onde acabar a coluna. */}
-                    <span class="post-sub flex min-w-0 items-baseline gap-1.5 overflow-hidden whitespace-nowrap text-[length:var(--t-foot,11px)] text-(--ink-3) [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">
-                      <time datetime={iso(p.data.date)} class="flex-none text-(--ink-2)">{formatDate(p.data.date, lang)}</time>
+                    <span class="post-sub flex min-w-0 items-baseline gap-1.5 overflow-hidden whitespace-nowrap text-[length:var(--t-subhead,11px)] text-(--ink-3) [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">
+                      <time datetime={iso(p.data.date)} class="flex-none text-(--ink-2)">{shortFmt.format(p.data.date)}</time>
                       <span class="post-preview min-w-0 overflow-hidden text-ellipsis">{p.data.description}</span>
                     </span>
+                    {p.data.tags.length > 0 && (
+                      <span class="post-folder items-center gap-1 text-[length:var(--t-subhead,11px)] text-(--ink-3) [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:flex-none [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">
+                        <Icon id="ui-folder" />{p.data.tags[0]}
+                      </span>
+                    )}
                   </a>
                 </li>
               ))}
@@ -123,17 +142,63 @@ const folders = [
       <input class="sr" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" data-subscribe-trap />
       <p class="sub-note m-0 mt-2 text-[length:var(--t-caption,11px)] leading-[1.4] text-(--ink-3) data-[tone=good]:text-(--green) data-[tone=bad]:text-(--danger)" data-subscribe-note>{e.subscribeNote}</p>
     </form>
-    <div class="notes-foot hidden [[data-mode='ios']_&]:grid [[data-mode='ios']_&]:flex-none [[data-mode='ios']_&]:grid-cols-[44px_1fr_44px] [[data-mode='ios']_&]:items-center [[data-mode='ios']_&]:border-t-[0.5px] [[data-mode='ios']_&]:border-(--line) [[data-mode='ios']_&]:bg-(--surface) [[data-mode='ios']_&]:px-3 [[data-mode='ios']_&]:py-1.5 [[data-mode='ios']_&]:backdrop-blur-(--blur)">
-      <span class="count col-start-2 text-center text-[length:var(--t-caption2)] text-(--ink-2)">{posts.length} {e.count}</span>
-      <button class="notes-tool col-start-3 grid h-11 w-11 place-items-center text-(--accent) [&_svg]:h-5.5 [&_svg]:w-5.5" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
+    {/* A barra flutuante do iOS: a pesquisa em cápsula e o botão de
+        compor, por cima do fim da lista (a lista tem folga em baixo
+        para o último escrito não ficar tapado). Só no telefone. */}
+    <div class="notes-foot pointer-events-none relative z-5 -mt-18 hidden flex-none items-center gap-3 px-4 pb-3 pt-2 [&>*]:pointer-events-auto [[data-mode='ios']_&]:flex">
+      <label class="notes-search glass flex h-12 min-w-0 flex-1 items-center gap-2 rounded-full px-4 text-(--ink-3) [&_svg]:h-4.5 [&_svg]:w-4.5 [&_svg]:flex-none">
+        <Icon id="ui-search" />
+        <span class="sr">{e.search}</span>
+        <input type="search" placeholder={e.search} autocomplete="off" data-notes-search class="min-h-11 min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-body)] text-(--ink) outline-hidden placeholder:text-(--ink-3) [&::-webkit-search-cancel-button]:appearance-none" />
+      </label>
+      <button class="glass grid h-12 w-12 flex-none place-items-center rounded-full text-(--accent) [&_svg]:h-5.5 [&_svg]:w-5.5" type="button" data-action="mail" aria-label={e.compose}><Icon id="ui-compose" /></button>
     </div>
   </div>
 
   <div class="app-main flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)] @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-data-[detail='1']:translate-x-0 @max-[640px]/app:group-data-[detail='1']:visible">
-    <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent) @max-[640px]/app:inline-flex" type="button" data-back-list>
-      <Icon id="ui-chevron" size={12} />{e.backToList}
+    {/* Voltar à lista. No telefone é o círculo de vidro das Notas, só
+        com o chevron; no Mac estreito, o texto de sempre. */}
+    <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent) @max-[640px]/app:inline-flex [[data-mode='ios']_&]:glass [[data-mode='ios']_&]:mx-4 [[data-mode='ios']_&]:mt-2 [[data-mode='ios']_&]:h-11 [[data-mode='ios']_&]:w-11 [[data-mode='ios']_&]:flex-none [[data-mode='ios']_&]:justify-center [[data-mode='ios']_&]:rounded-full [[data-mode='ios']_&]:p-0 [[data-mode='ios']_&]:text-(--ink) [[data-mode='ios']_&]:[&_svg]:h-4.5 [[data-mode='ios']_&]:[&_svg]:w-4.5" type="button" data-back-list aria-label={e.backToList}>
+      <Icon id="ui-chevron" size={12} /><span class="[[data-mode='ios']_&]:sr">{e.backToList}</span>
     </button>
-    <div class="app-scroll" data-reader>
+    {/* O editor do dono. Fica por cima do leitor enquanto se escreve
+        (data-editing="1", posto por escritos-editor.js); para toda a
+        gente nunca aparece. */}
+    <div class="notes-editor hidden min-h-0 flex-1 flex-col group-data-[editing='1']:flex" data-editor>
+      <div class="app-scroll min-h-0 flex-1 overflow-auto [-webkit-overflow-scrolling:touch]">
+        <div class="app-pad prose max-w-[68ch]">
+          <details class="mb-4 text-[length:var(--t-subhead)] text-(--ink-3)" data-editor-details>
+            <summary class="cursor-default select-none">{c.editor.details}</summary>
+            <div class="mt-3 grid gap-2.5">
+              <label class="grid gap-1"><span>{c.editor.description}</span><input class="editor-field" type="text" data-editor-field="descricao" maxlength="500" /></label>
+              <div class="grid grid-cols-[1fr_auto] gap-2.5">
+                <label class="grid gap-1"><span>{c.editor.slug}</span><input class="editor-field" type="text" data-editor-field="slug" maxlength="80" pattern="[a-z0-9-]*" spellcheck="false" /></label>
+                <label class="grid gap-1"><span>{c.editor.lang}</span>
+                  <select class="editor-field" data-editor-field="lang">
+                    <option value="pt">{c.editor.pt}</option>
+                    <option value="en">{c.editor.en}</option>
+                  </select>
+                </label>
+              </div>
+              <label class="grid gap-1"><span>{c.editor.tags}</span><input class="editor-field" type="text" data-editor-field="tags" maxlength="200" /></label>
+              <label class="grid gap-1"><span>{c.editor.key}</span><input class="editor-field" type="text" data-editor-field="chave" maxlength="80" spellcheck="false" /></label>
+            </div>
+          </details>
+          <label class="sr" for="editor-title">{c.editor.title}</label>
+          {/* Uma área de texto e não um campo: o título quebra linha
+              como numa nota. Enter passa para o corpo (escritos-editor.js). */}
+          <textarea id="editor-title" class="editor-title m-0 mb-2 w-full resize-none border-0 bg-transparent p-0 font-(--display) text-[26px] font-bold leading-[1.16] tracking-[-0.022em] text-(--ink) outline-hidden placeholder:text-(--ink-3) field-sizing-content" rows="1" placeholder={c.editor.title} data-editor-field="titulo" maxlength="200"></textarea>
+          <label class="sr" for="editor-body">{c.editor.body}</label>
+          <textarea id="editor-body" class="editor-body m-0 min-h-[50vh] w-full resize-none border-0 bg-transparent p-0 text-[15px] leading-[1.62] text-(--ink-2) outline-hidden placeholder:text-(--ink-3) field-sizing-content" placeholder={c.editor.body} data-editor-field="corpo"></textarea>
+        </div>
+      </div>
+      <div class="editor-bar flex flex-none flex-wrap items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
+        <span class="editor-status min-w-0 flex-1 truncate text-[length:var(--t-subhead)] text-(--ink-3)" data-editor-status aria-live="polite"></span>
+        <button class="btn text-[length:var(--t-subhead)] text-(--danger)" type="button" data-editor-delete>{c.editor.delete}</button>
+        <button class="btn btn-primary text-[length:var(--t-subhead)] [&[disabled]]:opacity-50" type="button" data-editor-publish>{c.editor.publish}</button>
+      </div>
+    </div>
+    <div class="app-scroll min-h-0 flex-1 overflow-auto group-data-[editing='1']:hidden [-webkit-overflow-scrolling:touch]" data-reader>
       {post && Content ? (
         <article class="app-pad prose" data-post-body={postSlug(post)}>
           <header class="article-head">

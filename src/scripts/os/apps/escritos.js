@@ -22,6 +22,8 @@ export function initEscritos(ctx) {
   async function show(slug, push) {
     const p = post(slug);
     if (!p) return;
+    // Ler um escrito fecha o editor do dono, se estava aberto.
+    el.dataset.editing = '0';
     if (!cache.has(slug)) {
       reader.innerHTML = '<div class="app-main-empty"><p>…</p></div>';
       try {
@@ -51,6 +53,7 @@ export function initEscritos(ctx) {
 
   function list(push) {
     el.dataset.detail = '0';
+    el.dataset.editing = '0';
     currentSlug = null;
     reader.innerHTML =
       '<div class="app-main-empty"><svg viewBox="0 0 100 100" width="42" height="42" aria-hidden="true">' +
@@ -61,18 +64,25 @@ export function initEscritos(ctx) {
     if (push) history.pushState({ app: 'escritos' }, '', ctx.data.routes[ctx.data.lang].blog);
   }
 
-  const toggleSidebar = () => el.classList.toggle('side-hidden');
+  // A barra de ferramentas sobe para a barra de título no Mac
+  // (mac/windows.js), e aí já não está debaixo do nó da app — por isso
+  // ouve-se nela própria; o listener viaja com o nó para onde ele for.
+  // A classe da sidebar escondida vai para os dois, pelo mesmo motivo.
+  const toolbar = el.querySelector('[data-win-toolbar]');
+  const toggleSidebar = () => {
+    const hidden = el.classList.toggle('side-hidden');
+    if (toolbar) toolbar.classList.toggle('side-hidden', hidden);
+  };
 
   function onAction(ev) {
     if (ev.target.closest('[data-notes-sidebar]')) return toggleSidebar();
     const act = ev.target.closest('[data-action]');
-    if (act) ctx.run(act.dataset.action);
+    if (!act) return;
+    // Compor: para o dono é um escrito novo (escritos-editor.js); para
+    // toda a gente, escrever ao Hélder — como sempre foi.
+    if (act.dataset.action === 'mail' && ctx.escritosEditor && ctx.escritosEditor.isOwner()) return ctx.escritosEditor.novo();
+    ctx.run(act.dataset.action);
   }
-
-  // A barra de ferramentas sobe para a barra de título no Mac
-  // (mac/windows.js), e aí já não está debaixo do nó da app — por isso
-  // ouve-se nela própria; o listener viaja com o nó para onde ele for.
-  const toolbar = el.querySelector('[data-win-toolbar]');
   if (toolbar) toolbar.addEventListener('click', onAction);
 
   el.addEventListener('click', (ev) => {
@@ -80,7 +90,8 @@ export function initEscritos(ctx) {
     const link = ev.target.closest('.post-link');
     if (link) {
       ev.preventDefault();
-      show(link.dataset.post, true);
+      if (link.dataset.draft) ctx.escritosEditor && ctx.escritosEditor.abrir(link.dataset.draft);
+      else show(link.dataset.post, true);
       return;
     }
     if (ev.target.closest('[data-back-list]')) list(true);
@@ -96,12 +107,17 @@ export function initEscritos(ctx) {
   let currentFolder = 'all';
   function filter(query, folder) {
     if (folder !== undefined) currentFolder = folder;
+    el.dataset.folder = currentFolder;
     const q = query.trim().toLowerCase();
     let left = 0;
     el.querySelectorAll('.post-group').forEach((group) => {
       let kept = 0;
       group.querySelectorAll('.post-link').forEach((a) => {
-        const inFolder = currentFolder === 'all' || (a.dataset.tags || '').split('|').includes(currentFolder);
+        // Os rascunhos do dono só aparecem em «Todos» e na pasta deles;
+        // os escritos publicados, em «Todos» e nas pastas dos seus temas.
+        const inFolder = a.dataset.draft
+          ? currentFolder === 'all' || currentFolder === 'rascunhos'
+          : currentFolder === 'all' || (a.dataset.tags || '').split('|').includes(currentFolder);
         const hit = inFolder && (!q || a.textContent.toLowerCase().includes(q));
         a.parentElement.hidden = !hit;
         if (hit) kept += 1;
@@ -134,6 +150,10 @@ export function initEscritos(ctx) {
   ctx.escritos = {
     show,
     list,
+    mark,
+    // O editor do dono acrescenta rascunhos à lista e precisa de a
+    // voltar a filtrar com a pasta e a pesquisa que já estavam.
+    refilter: () => filter(fields[0] ? fields[0].value : ''),
     hasDetail: () => el.dataset.detail === '1',
     pane: () => el.querySelector('.app-main'),
     currentSlug: () => currentSlug,

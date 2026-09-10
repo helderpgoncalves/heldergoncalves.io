@@ -6,8 +6,8 @@
 // secção pequeno, e cada linha com o ícone na cor da aplicação.
 import Icon from '../Icon.astro';
 interface Folder { id: string; label: string; count: number }
-interface Props { folders: Folder[]; heading: string }
-const { folders, heading } = Astro.props;
+interface Props { folders: Folder[]; heading: string; drafts: string }
+const { folders, heading, drafts } = Astro.props;
 ---
 <nav class="notes-folders flex-none basis-[190px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2 @max-[820px]/app:hidden" aria-label={heading}>
   <p class="m-0 px-4.5 pb-1 pt-1.5 text-[length:var(--t-subhead,11px)] font-semibold text-(--ink-3)">{heading}</p>
@@ -15,7 +15,7 @@ const { folders, heading } = Astro.props;
     {folders.map((f, i) => (
       <li>
         <button
-          class="folder-item flex w-full items-center gap-2 px-2.5 py-1.25 text-left text-[length:var(--t-body,13px)] text-(--ink) transition-colors duration-120 hover:bg-(--surface-3) aria-current:bg-(--notes-select) aria-current:text-(--notes-select-ink) [&_svg]:h-4 [&_svg]:w-4 [&_svg]:flex-none [&_svg]:text-(--accent) aria-current:[&_svg]:text-(--notes-select-ink) aria-current:[&_.folder-count]:text-(--notes-select-ink)"
+          class="folder-item flex w-full items-center gap-2 px-2.5 py-1.25 text-left text-[length:var(--t-body,13px)] text-(--ink) transition-colors duration-120 hover:bg-(--surface-2) aria-current:bg-(--surface-3) aria-current:text-(--accent) aria-current:font-medium [&_svg]:h-4 [&_svg]:w-4 [&_svg]:flex-none [&_svg]:text-(--accent)"
           type="button"
           data-folder={f.id}
           aria-current={i === 0 ? 'true' : undefined}
@@ -26,5 +26,18 @@ const { folders, heading } = Astro.props;
         </button>
       </li>
     ))}
+    {/* Só o dono vê esta pasta — escritos-editor.js marca a app com
+        data-owner quando a sessão é a dele. */}
+    <li class="hidden group-data-[owner='1']:block">
+      <button
+        class="folder-item flex w-full items-center gap-2 px-2.5 py-1.25 text-left text-[length:var(--t-body,13px)] text-(--ink) transition-colors duration-120 hover:bg-(--surface-2) aria-current:bg-(--surface-3) aria-current:text-(--accent) aria-current:font-medium [&_svg]:h-4 [&_svg]:w-4 [&_svg]:flex-none [&_svg]:text-(--accent)"
+        type="button"
+        data-folder="rascunhos"
+      >
+        <Icon id="ui-compose" />
+        <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{drafts}</span>
+        <span class="folder-count flex-none text-[length:var(--t-caption,11px)] text-(--ink-3)" data-drafts-count>0</span>
+      </button>
+    </li>
   </ul>
 </nav>
