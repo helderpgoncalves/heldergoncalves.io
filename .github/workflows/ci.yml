@@ -126,7 +126,7 @@ jobs:
       # Por tag, e não por SHA fixo como as outras — Dependabot
       # (.github/dependabot.yml) trata de a manter em dia; fixar aqui um
       # SHA por adivinhação seria pior do que não fixar nenhum.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
