@@ -86,7 +86,7 @@
 .cc, .nc { --glass-blur: 34px; }
 .win, .spot-box, .cmdtab { --glass-blur: 30px; }
 .dock { --glass-blur: 26px; }
-.menu, .ctx, .ios-view-head { --glass-blur: 22px; }
+.menu, .ctx { --glass-blur: 22px; }
 .lock-action, .dock-tip { --glass-blur: 16px; }
 
 /* REGRA: o ícone tem uma forma só, e é sempre a mesma.
@@ -132,16 +132,6 @@
 .ios-view.scrolled .ios-view-body::before { opacity: 1; }
 .win.scrolled .win-body::before { opacity: 1; }
 
-/* Na barra do telefone o aro é só a linha de baixo — é ali que a
-   interface encontra o conteúdo. */
-.ios-view-head::before { border-radius: 0; padding: 0 0 1px; }
-
-/* REGRA: a sombra cresce quando há conteúdo a passar por baixo.
-   ───────────────────────────────────────────────────────────── */
-.ios-view.scrolled .ios-view-head {
-  --glass-drop: 0 6px 16px -6px rgba(0, 0, 0, 0.3);
-}
-
 /* REGRA: ao tocar, o vidro acende-se por dentro.
    ─────────────────────────────────────────────────────────────
    «Liquid Glass will flex and energize with light on interactions.» */
@@ -169,8 +159,6 @@ a.glass:active {
 [data-mode='ios'] .seg button {
   min-height: 44px;
 }
-[data-mode='ios'] .lead-btn,
-[data-mode='ios'] .trail-btn,
 [data-mode='ios'] .back-btn { min-width: 44px; }
 [data-mode='ios'] .sb-dots { padding: 18px 0; }
 [data-mode='ios'] .sb-dots i { margin: -8px 0; padding: 8px 0; background-clip: content-box; }

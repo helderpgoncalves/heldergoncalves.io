@@ -162,7 +162,7 @@
       backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright)) url(#lg-refract);
     }
     /* Num painel de ecrã inteiro a refração não se vê e custa caro. */
-    .cc, .nc, .menubar, .ios-view-head {
+    .cc, .nc, .menubar {
       -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
       backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
     }

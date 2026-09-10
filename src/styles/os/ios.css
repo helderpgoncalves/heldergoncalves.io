@@ -113,21 +113,21 @@
 }
 .ios-view.open { display: flex; }
 .ios-view.behind { display: flex; filter: brightness(0.7); }
-.ios-view-head {
-  flex: 0 0 auto; padding: calc(var(--sb-h) + 2px) 18px 10px;
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-  border-bottom: 0.5px solid transparent; position: relative; z-index: 5;
-  transition: border-color 0.2s, background 0.2s;
+/* Sem barra por cima: a vista começa por baixo da barra de estado e a
+   app ocupa o resto. O título grande (`.ios-large`, posto por views.js
+   a quem não desenha o seu) é o do iOS: 34 pontos a negro, e o
+   subtítulo em cinzento por baixo — como «Bolsa / 10 de setembro». */
+.ios-view-body {
+  flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
+  padding: var(--sb-h) 0 var(--home-h);
 }
-.ios-view.scrolled .ios-view-head { border-bottom-color: var(--line); }
-.ios-view-head h2 { flex: 1; margin: 0; font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: -0.02em; text-align: center; }
-.ios-view-head .lead-btn, .ios-view-head .trail-btn {
-  min-width: 62px; font-size: 15px; color: var(--accent); display: flex; align-items: center; gap: 3px;
+.ios-view-body > .app-shell { flex: 1; min-height: 0; }
+.ios-large { flex: 0 0 auto; padding: 6px 18px 8px; }
+.ios-large h1 {
+  margin: 0; font-family: var(--display); font-size: var(--t-large); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.15;
 }
-.ios-view-head .trail-btn { justify-content: flex-end; }
-.ios-view-body { flex: 1; min-height: 0; overflow: hidden; padding-bottom: var(--home-h); }
-.ios-view-body > .app-shell { height: 100%; }
+.ios-large p { margin: 2px 0 0; font-size: var(--t-subhead); color: var(--ink-3); }
 
 /* Barra de gestos */
 .homebar {
@@ -281,24 +281,56 @@
 .cc-slider .ico { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); mix-blend-mode: difference; }
 .cc-close { display: block; margin: 18px auto 0; font-size: 13px; opacity: 0.8; color: #fff; }
 
-/* Comutador de aplicações */
+/* Comutador de aplicações — o baralho (ios/switcher.js).
+   ─────────────────────────────────────────────────────────────
+   Cada cartão é uma cópia da vista à escala `--shot-k`, com o ícone
+   e o nome por cima. As posições vêm do JS (translate3d), por isso
+   não há scroll nativo: é um gesto com mola. O fundo é o ecrã inicial
+   desfocado, com um véu por cima. Aparece e some a esmaecer, e nunca
+   sai do layout: os cartões medem-se antes de se ver. */
 .switcher {
-  position: absolute; inset: 0; z-index: 650; display: none;
-  align-items: center; padding: var(--sb-h) 0 var(--home-h);
-  background: rgba(0, 0, 0, 0.4); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  position: absolute; inset: 0; z-index: 650;
+  background: rgba(0, 0, 0, 0.32);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.26s var(--ease-os), visibility 0s linear 0.26s;
+  touch-action: none; overscroll-behavior: contain;
 }
-.switcher.open { display: flex; }
-.switcher-rail { display: flex; gap: 14px; padding: 0 14vw; overflow-x: auto; scroll-snap-type: x mandatory; width: 100%; }
+.switcher.open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.26s var(--ease-os); }
+.switcher-rail { position: absolute; inset: 0; }
+.switcher-item {
+  position: absolute; left: 0; width: var(--card-w);
+  top: calc(50% - var(--card-h) / 2 - 22px);
+  will-change: transform;
+}
+.switcher-item.lifting { transition: none; }
+.switcher-item.leaving { transition: opacity 0.2s linear; }
+.card-label {
+  display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 2px;
+  color: #fff; font-size: var(--t-headline); font-weight: 600; letter-spacing: -0.01em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  transform: translate3d(0, var(--lift, 0px), 0);
+}
+.card-label svg { width: 30px; height: 30px; flex: none; }
+.card-label strong { opacity: var(--name, 1); white-space: nowrap; }
 .switcher-card {
-  flex: 0 0 72vw; max-width: 320px; height: 62vh; scroll-snap-align: center;
+  width: var(--card-w); height: var(--card-h);
   border-radius: 28px; overflow: hidden; background: var(--surface-solid); color: var(--ink);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column;
-  animation: menu-in 0.25s var(--ease-os);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  transform: translate3d(0, var(--lift, 0px), 0) scale(var(--shrink, 1));
+  transform-origin: 50% 50%;
 }
-.switcher-card .card-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 0.5px solid var(--line); }
-.switcher-card .card-head svg { width: 22px; height: 22px; }
-.switcher-card .card-body { flex: 1; padding: 14px; overflow: hidden; color: var(--ink-3); font-size: 12px; }
-.switcher-card .card-close { position: absolute; }
+.switcher-item.leaving .switcher-card, .switcher-item.leaving .card-label {
+  transition: transform 0.24s var(--ease-os);
+}
+/* A app a chegar cobre o cartão da frente: a cópia só aparece no fim. */
+.switcher-card.waiting .card-shot { opacity: 0; }
+.card-shot { position: absolute; inset: 0; pointer-events: none; }
+.card-shot > .ios-view {
+  position: absolute; inset: auto; left: 0; top: 0; display: flex;
+  width: var(--shot-w); height: var(--shot-h);
+  transform: scale(var(--shot-k)); transform-origin: 0 0;
+  filter: none; opacity: 1;
+}
 
 /* ── Ecrãs largos com toque: o iPad ─────────────────────────────
    O modo do telefone também serve o iPad. Aí o ecrã inicial não se
@@ -310,7 +342,6 @@
   .sb-widgets, .sb-grid { max-width: 430px; width: 100%; margin-left: auto; margin-right: auto; }
   .sb-dots { margin: 0 auto; }
   .ios-dock { width: calc(100% - 16px); max-width: 446px; margin-left: auto; margin-right: auto; }
-  .switcher-card { flex-basis: 320px; }
 }
 
 /* ── O telefone deitado ─────────────────────────────────────────
@@ -334,5 +365,4 @@
   .ios-dock { height: 76px; padding: 8px calc(var(--sb-x) - 8px); margin-bottom: 4px; }
   .lock-time { font-size: 64px; }
   .lock-notes { display: none; }
-  .switcher-card { height: 76vh; }
 }

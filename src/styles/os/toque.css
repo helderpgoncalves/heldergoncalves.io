@@ -36,7 +36,7 @@ input, textarea, select { font-family: inherit; }
 [data-mode='ios'] .spot-input input { font-size: 20px; }
 
 /* A moldura do sistema não se seleciona nem se arrasta; o texto sim. */
-.menubar, .dock, .statusbar, .sb, .homebar, .win-bar, .ios-view-head, .sb-dots {
+.menubar, .dock, .statusbar, .sb, .homebar, .win-bar, .ios-large, .sb-dots {
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
 }
 .prose, .app-lead, .bubble, .term-out, .post-desc, .card p { user-select: text; -webkit-user-select: text; }

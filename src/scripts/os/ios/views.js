@@ -33,22 +33,20 @@ export function createViews(ph) {
     const view = document.createElement('section');
     view.className = 'ios-view';
     view.dataset.app = id;
-    view.innerHTML =
-      '<header class="ios-view-head glass">' +
-      '<span class="lead-btn"></span>' +
-      '<h2>' +
-      esc(app.name) +
-      '</h2>' +
-      '<button class="trail-btn" type="button" data-view-done>' +
-      esc(s.done) +
-      '</button>' +
-      '</header>' +
-      '<div class="ios-view-body"></div>';
-    view.querySelector('.ios-view-body').appendChild(ctx.contentEl(id));
-    view.querySelector('[data-view-done]').addEventListener('click', () => home());
+    // Como no iOS, não há barra partilhada nem «Concluído»: cada app é
+    // uma app, com o seu título grande, e sai-se pelo gesto da barra
+    // inferior. Quem já desenha o próprio título (Blog, Bolsa, Projetos)
+    // não leva outro por cima.
+    view.innerHTML = '<div class="ios-view-body"></div>';
+    const body = view.querySelector('.ios-view-body');
+    if (!app.ownHead) {
+      body.innerHTML =
+        '<div class="ios-large"><h1>' + esc(app.name) + '</h1>' + (app.subtitle ? '<p>' + esc(app.subtitle) + '</p>' : '') + '</div>';
+    }
+    body.appendChild(ctx.contentEl(id));
 
-    // Como no iOS: o risco por baixo do título só aparece quando há
-    // conteúdo a passar por trás dele.
+    // Ao rolar, a app sabe-o (o Blog esconde o título grande, por
+    // exemplo) — o mesmo sinal de sempre, sem barra a acender.
     view.addEventListener(
       'scroll',
       (ev) => {
@@ -98,7 +96,9 @@ export function createViews(ph) {
     return view;
   }
 
-  /** Fecha a app visível. `from` é o ponto onde o dedo a deixou. */
+  /** Fecha a app visível. `from` é o ponto onde o dedo a deixou; com
+   * `from.card`, a app encolhe até esse cartão do comutador em vez de
+   * ir até ao ícone, e o ecrã inicial fica só meio-visível por trás. */
   function home(from) {
     if (!ph.current) return Promise.resolve();
     const view = views.get(ph.current);
@@ -106,6 +106,7 @@ export function createViews(ph) {
     ph.current = null;
     ctx.active = null;
     layer.style.pointerEvents = 'none';
+    const toCard = from && from.card ? from.card : null;
 
     const clear = () => {
       view.classList.remove('open');
@@ -114,35 +115,41 @@ export function createViews(ph) {
       view.style.opacity = '';
       view.style.transition = '';
       view.style.willChange = '';
-      pushSpringboard(false);
+      if (!toCard) pushSpringboard(false);
     };
 
-    const target = iconTarget(id);
+    const target = toCard ? rectTarget(toCard) : iconTarget(id);
     if (!CAN_ANIMATE || reducedMotion() || !target) {
+      if (toCard) springboardAt(0.35);
       clear();
       return Promise.resolve();
     }
 
     const p0 = from && typeof from.p === 'number' ? from.p : 0;
     const drift = from && from.drift ? from.drift : 0;
+    // Para o cartão a app parte de onde o dedo a deixou (o quadro do
+    // ícone em `p0`) e acaba inteira dentro do cartão, sem apagar.
+    const start = toCard && from.p ? frame(iconTarget(id) || target, p0, drift) : frame(target, p0, drift);
     const anim = view.animate(
       [
-        { transformOrigin: '50% 50%', transform: frame(target, p0, drift), borderRadius: radiusAt(p0), opacity: 1 },
-        { transformOrigin: '50% 50%', transform: frame(target, 1), borderRadius: radiusAt(1), opacity: 0.25 },
+        { transformOrigin: '50% 50%', transform: start, borderRadius: radiusAt(p0), opacity: 1 },
+        { transformOrigin: '50% 50%', transform: frame(target, 1), borderRadius: radiusAt(1), opacity: toCard ? 1 : 0.25 },
       ],
       { duration: Math.round(300 + (1 - p0) * 90), easing: EASE }
     );
 
     // O ecrã inicial volta ao normal enquanto a app se afasta — mas a
-    // partir de onde o dedo o deixou, senão salta.
+    // partir de onde o dedo o deixou, senão salta. Para o comutador fica
+    // a meio: desfocado e mais pequeno, por trás dos cartões.
     sb.classList.remove('pushed');
     sb.style.transition = 'none';
     springboardAt(Math.max(p0, 0.02));
     requestAnimationFrame(() => {
       sb.style.transition = 'transform .34s ' + EASE + ', opacity .26s linear, filter .3s linear';
-      springboardAt(1);
+      springboardAt(toCard ? 0.35 : 1);
       setTimeout(() => {
         sb.style.transition = '';
+        if (toCard) return;
         sb.style.transform = '';
         sb.style.opacity = '';
         sb.style.filter = '';
@@ -214,8 +221,7 @@ export function createViews(ph) {
           sideways: false,
           vertical: false,
           viewDx: 0,
-          still: 0,
-          lastAt: performance.now(),
+          stillTimer: 0,
         };
       },
 
@@ -241,16 +247,24 @@ export function createViews(ph) {
         drag.drift = g.dx * (1 - drag.p) * 0.45;
 
         // Parar a meio caminho é o sinal do comutador, como no iPhone.
-        const now = performance.now();
-        if (Math.abs(g.vy) < 0.08 && Math.abs(g.vx) < 0.08) drag.still += now - drag.lastAt;
-        else drag.still = 0;
-        drag.lastAt = now;
-        drag.switcher = stack.length > 1 && drag.p > 0.22 && drag.still > STILL_FOR_SWITCHER;
+        // Um dedo parado não manda eventos — por isso é um temporizador
+        // que conta a paragem, rearmado a cada movimento; se nada mais
+        // chegar, dispara sozinho. Depois de armado fica armado: só um
+        // flick para cima, ao soltar, é que ainda vai para o início.
+        clearTimeout(drag.stillTimer);
+        if (!drag.switcher) {
+          const state = drag;
+          drag.stillTimer = setTimeout(() => {
+            if (drag !== state || stack.length < 2 || state.p < 0.22) return;
+            state.switcher = true;
+            springboardAt(Math.min(state.p, 0.35));
+            homebar.classList.add('armed');
+          }, STILL_FOR_SWITCHER);
+        }
 
         drag.view.style.transform = frame(drag.target, drag.p, drag.drift);
         drag.view.style.borderRadius = radiusAt(drag.p);
         springboardAt(drag.switcher ? Math.min(drag.p, 0.35) : drag.p);
-        homebar.classList.toggle('armed', drag.switcher);
       },
 
       end: (g) => {
@@ -258,6 +272,7 @@ export function createViews(ph) {
         homebar.classList.remove('armed');
         if (!drag) return;
         const state = drag;
+        clearTimeout(state.stillTimer);
         drag = null;
         state.view.style.transition = '';
         state.view.style.willChange = '';
@@ -268,8 +283,10 @@ export function createViews(ph) {
         // Conta o embalo: para onde o dedo ia, não onde parou.
         const reach = -g.dy + project(-g.vy);
 
-        if (state.switcher) {
-          home({ p: state.p, drift: state.drift }).then(() => ph.switcher.open());
+        if (state.switcher && g.vy > -0.5) {
+          // O comutador abre já, e é ele que manda a app encolher até
+          // ao cartão dela — ver switcher.js, `open`.
+          ph.switcher.open({ view: state.view, p: state.p, drift: state.drift });
           return;
         }
         if (reach > h * 0.16 || g.vy < -0.5) {

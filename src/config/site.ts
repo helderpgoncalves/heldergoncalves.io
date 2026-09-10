@@ -53,19 +53,22 @@ export interface AppMeta {
    * Para apps só do dono (a Pessoas), que não fazem sentido no ecrã
    * inicial de quem visita. */
   hidden?: boolean;
-  /** Abre no arranque do Mac. */
+  /** No telefone desenha o próprio título grande (o Blog, a Bolsa, os
+   * Projetos); sem isto a vista põe-lhe um, com o nome e o subtítulo da
+   * app — como uma app do iOS com título grande. */
+  ownHead?: boolean;
 }
 
 export const APPS: AppMeta[] = [
   { id: 'sobre', win: { w: 720, h: 520, minW: 420, minH: 360 }, dock: true, iosDock: false },
-  { id: 'escritos', win: { w: 940, h: 620, minW: 720, minH: 380 }, dock: true, iosDock: true },
+  { id: 'escritos', win: { w: 940, h: 620, minW: 720, minH: 380 }, dock: true, iosDock: true, ownHead: true },
   { id: 'mensagens', win: { w: 700, h: 560, minW: 420, minH: 380 }, dock: true, iosDock: true },
   { id: 'contacto', win: { w: 660, h: 540, minW: 420, minH: 380 }, dock: true, iosDock: true },
-  { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false },
+  { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false, ownHead: true },
   { id: 'terminal', win: { w: 720, h: 460, minW: 380, minH: 240 }, dock: true, iosDock: true, bare: true },
   { id: 'definicoes', win: { w: 760, h: 540, minW: 460, minH: 380 }, dock: true, iosDock: false },
   { id: 'simulador', win: { w: 420, h: 780, minW: 340, minH: 620 }, dock: true, iosDock: false, bare: true, macOnly: true },
-  { id: 'bolsa', win: { w: 900, h: 600, minW: 520, minH: 400 }, dock: true, iosDock: false, bare: true },
+  { id: 'bolsa', win: { w: 900, h: 600, minW: 520, minH: 400 }, dock: true, iosDock: false, bare: true, ownHead: true },
   { id: 'calendario', win: { w: 960, h: 640, minW: 560, minH: 420 }, dock: true, iosDock: false, bare: true },
   // Só o dono a usa — fora da Dock e da grelha do telefone, alcançável
   // pela pesquisa (⌘K no Mac, puxar o ecrã inicial no telefone).

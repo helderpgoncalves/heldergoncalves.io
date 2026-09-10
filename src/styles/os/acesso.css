@@ -18,8 +18,8 @@
   }
   .glass::before { display: none; }
   .cc, .nc { --glass-tint: rgba(0, 0, 0, 0.92); }
-  .notes-foot, .ios-view-head, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+  .notes-foot, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot { background: var(--surface-solid); }
 }
 
 /* REGRA: quem pediu menos transparência não a leva.
@@ -33,8 +33,8 @@
     --glass-tint: var(--surface-solid);
   }
   .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.94); }
-  .notes-foot, .ios-view-head, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+  .notes-foot, .spotlight, .entrar { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .notes-foot { background: var(--surface-solid); }
   .spotlight, .entrar { background: rgba(0, 0, 0, 0.5); }
 }
 
@@ -47,7 +47,7 @@
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass, .win, .dock { --glass-tint: var(--surface-solid); }
   .glass-clear, .cc, .nc, .menubar { --glass-tint: rgba(30, 30, 34, 0.9); }
-  .notes-foot, .ios-view-head { background: var(--surface-solid); }
+  .notes-foot { background: var(--surface-solid); }
   .spotlight, .entrar { background: rgba(0, 0, 0, 0.5); }
 }
 
