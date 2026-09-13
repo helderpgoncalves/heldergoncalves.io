@@ -68,6 +68,11 @@ export function initChat(ctx) {
     return daysAgo(d) <= 0 ? timeOf(d) : dayOf(d);
   }
 
+  /** O retrato do Hélder é o mesmo do favicon; o de quem escreve são
+      as iniciais, como um contacto sem foto. */
+  const HELDER = '<img src="/favicon.svg" alt="" width="42" height="42" />';
+  const comoHelder = () => (avatar.innerHTML = HELDER);
+
   /** Rótulo → duas letras, como o círculo de um contacto sem foto. */
   function initials(text) {
     const clean = String(text || '?').replace(/^[a-z]+:/, '').trim();
@@ -133,7 +138,7 @@ export function initChat(ctx) {
     log.innerHTML = opening;
     title.textContent = openingTitle;
     subtitle.textContent = openingSubtitle;
-    avatar.textContent = 'H';
+    comoHelder();
     history = [];
     suggest.innerHTML = '';
     for (const q of openingChips) {
@@ -161,7 +166,7 @@ export function initChat(ctx) {
     ownerBar.hidden = true;
     title.textContent = openingTitle;
     subtitle.textContent = t.withAssistant;
-    avatar.textContent = 'H';
+    comoHelder();
   }
 
   /** O dono a ler a conversa de alguém. Quem fala é o visitante

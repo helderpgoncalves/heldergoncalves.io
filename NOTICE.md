@@ -34,7 +34,8 @@ fonte tão directa quanto possível: o `.icns` de cada aplicação, dentro
 do próprio `.app`, no Mac do Hélder — nenhum ficheiro da Apple é
 distribuído por nós, e o que está no repositório é uma extracção local
 de um sistema licenciado, tal como uma captura de ecrã. Servem aqui as
-aplicações Sobre (Finder no Mac, Contactos no iPhone), Escritos
+aplicações Ficheiros (Finder no Mac; no iPhone não há Finder, e a
+pasta azul da app Ficheiros é desenhada por nós), Escritos
 (Notas), Contacto (Mail), Projetos (Safari), Terminal, Definições,
 Bolsa, Mensagens, Calendário e Pessoas (Contactos). No iPhone mostram-se
 as versões do iOS onde existem; o Terminal e o Simulador não existem no
