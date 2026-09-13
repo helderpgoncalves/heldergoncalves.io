@@ -18,7 +18,7 @@ from app.config import LIMITS, MAIL_READY, SITE_ORIGIN
 from app.http import read_json
 from app.mail import deliver_to_owner
 from app.security import bump, check_token, ip_key, wrong_origin
-from app.sessions import read_session
+from app.sessions import is_owner, read_session
 from app.validation import clean, one_line
 
 router = APIRouter()
@@ -32,6 +32,10 @@ async def contact(request: Request) -> JSONResponse:
     session_email = read_session(request.headers.get("cookie", ""))
     if not session_email:
         return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+    # Escrever a si próprio não é uma mensagem, é uma nota — e para
+    # notas há o Blog. Do lado do dono o Mail é a caixa de entrada.
+    if is_owner(session_email):
+        return JSONResponse({"ok": False, "error": "proprio"}, status_code=403)
 
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:

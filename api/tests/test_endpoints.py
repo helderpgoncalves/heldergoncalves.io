@@ -246,3 +246,16 @@ def test_availability_never_says_whose_the_busy_hours_are(client):
     assert res.status_code == 200
     for hour in res.json().get("busy", []):
         assert set(hour) == {"start", "end"}
+
+
+def test_the_owner_cannot_book_a_meeting_with_himself(client):
+    """A agenda é dele: tirar-se uma hora a si próprio só a encheria de
+    reuniões que não existem. Para isso há os bloqueios."""
+    _sign_in(client, "dono@example.test")
+    res = client.post(
+        "/api/reunioes",
+        json={"start": "2030-01-07T10:00:00Z", "title": "comigo", "note": "", "lang": "pt"},
+    )
+    assert res.status_code in (403, 503)
+    if res.status_code == 403:
+        assert res.json()["error"] == "proprio"

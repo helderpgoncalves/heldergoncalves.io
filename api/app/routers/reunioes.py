@@ -22,7 +22,7 @@ from app.http import read_json
 from app.mail import send_mail
 from app.meetings import book, booked_starts, booked_today, busy_between, cancel, list_for
 from app.security import bump, ip_key, wrong_origin
-from app.sessions import read_session
+from app.sessions import is_owner, read_session
 from app.validation import clean, one_line
 
 router = APIRouter()
@@ -74,6 +74,12 @@ async def marcar(request: Request) -> JSONResponse:
     email = read_session(request.headers.get("cookie", ""))
     if not email:
         return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+    # O dono não marca uma conversa consigo próprio. Do lado dele o
+    # Calendário é a agenda que gere — tirar-se uma hora a si mesmo só
+    # enchia essa agenda de reuniões que não existem. A mesma decisão
+    # que já vale nas Mensagens (routers/chat.py).
+    if is_owner(email):
+        return JSONResponse({"ok": False, "error": "proprio"}, status_code=403)
 
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:

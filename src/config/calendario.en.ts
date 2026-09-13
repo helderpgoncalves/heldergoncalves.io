@@ -68,6 +68,7 @@ export const CALENDARIO_EN = {
     limit: 'Too many attempts. Wait a bit.',
     taken: 'That time is no longer free.',
     off: 'Booking is switched off right now. Email me instead.',
+    proprio: 'This diary is yours — you do not book a call with yourself. Create a block instead.',
     owner: 'This is only for the calendar owner.',
     interval: 'The end has to come after the start.',
     generic: 'That did not work. Try again.',

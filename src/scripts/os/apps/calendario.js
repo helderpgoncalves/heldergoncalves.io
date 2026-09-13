@@ -138,7 +138,19 @@ export function initCalendario(ctx) {
   }
 
   const failure = (res, data) =>
-    res.status === 429 ? t.errors.limit : res.status === 503 ? t.errors.off : res.status === 403 ? t.errors.owner : data.error === 'email' ? t.errors.email : t.errors.generic;
+    res.status === 429
+      ? t.errors.limit
+      : res.status === 503
+        ? t.errors.off
+        // Um 403 tanto pode ser «isto é só do dono» como «o dono não
+        // marca consigo próprio» — quem diz qual é o erro, não o código.
+        : res.status === 403
+          ? data.error === 'proprio'
+            ? t.errors.proprio
+            : t.errors.owner
+          : data.error === 'email'
+            ? t.errors.email
+            : t.errors.generic;
 
   // ── Marcar e desmarcar ─────────────────────────────────────────────
   async function book(start, title, note) {

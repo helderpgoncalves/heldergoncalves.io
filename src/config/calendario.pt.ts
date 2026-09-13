@@ -72,6 +72,7 @@ export const CALENDARIO_PT = {
     limit: 'Demasiadas tentativas. Espera um pouco.',
     taken: 'Essa hora já não está livre.',
     off: 'As marcações estão desligadas neste momento. Escreve-me por email.',
+    proprio: 'A agenda é tua — não marcas uma conversa contigo. Cria antes um bloqueio.',
     owner: 'Isto é só para o dono do calendário.',
     interval: 'O fim tem de vir depois do início.',
     generic: 'Não deu. Tenta outra vez.',
