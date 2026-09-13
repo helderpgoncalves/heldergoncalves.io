@@ -32,6 +32,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
+from app import armazem
 from app import ficheiros_store as loja
 from app.config import AUTH_READY, LIMITS, MAIL, SITE_ORIGIN
 from app.copy import FILES_COPY, pick_lang
@@ -174,8 +175,11 @@ async def criar_pasta(request: Request) -> JSONResponse:
         return JSONResponse({"ok": False, "error": "corpo"}, status_code=400)
 
     nome = one_line(payload.get("nome"), LIMITS.pasta_nome)
+    # Sem cliente, a pasta é privada — só do dono. Com cliente, tem de
+    # ser um email a sério: um texto qualquer aqui criava uma pasta que
+    # ninguém conseguia abrir, e que parecia partilhada.
     cliente = one_line(payload.get("cliente"), LIMITS.email).lower()
-    if not nome or not EMAIL_RE.match(cliente):
+    if not nome or (cliente and not EMAIL_RE.match(cliente)):
         return JSONResponse({"ok": False, "error": "dados"}, status_code=400)
     if len(loja.pastas_todas()) >= LIMITS.pastas_max:
         return JSONResponse({"ok": False, "error": "cheio"}, status_code=409)
@@ -263,6 +267,12 @@ async def carregar(request: Request) -> JSONResponse:
         return JSONResponse({"ok": False, "error": "cheio"}, status_code=409)
 
     guardado = await loja.guardar_ficheiro(pasta["id"], nome, tipo, dados, email)
+    if guardado is None:
+        # O armazém não aceitou os bytes. Não se regista nada e não se
+        # avisa ninguém: dizer «está lá» sobre um ficheiro que não está
+        # é pior do que dizer que não deu.
+        print("[ficheiros] o armazém recusou um ficheiro")
+        return JSONResponse({"ok": False, "error": "armazem"}, status_code=502)
     print("[ficheiros] ficheiro novo numa pasta partilhada")
     await _avisar(pick_lang(payload.get("lang")), pasta, nome, email, dono)
     return JSONResponse({"ok": True, "ficheiro": guardado})
@@ -337,21 +347,31 @@ async def abrir(request: Request, ficheiro_id: str) -> Response:
     if not row or not _pasta_visivel(row["pasta"], email, dono):
         return JSONResponse({"ok": False, "error": "inexistente"}, status_code=404)
 
-    caminho = loja.caminho({"pasta": row["pasta"], "id": row["id"]})
-    if not caminho.is_file():
-        return JSONResponse({"ok": False, "error": "inexistente"}, status_code=404)
+    chave = loja.chave({"pasta": row["pasta"], "id": row["id"]})
 
     # `inline` só para o que o browser mostra sem perigo, e sempre com
     # `nosniff`: é o par que impede um ficheiro de cliente de ser
     # interpretado como outra coisa na nossa própria origem.
     visivel = row["tipo"] in VISIVEIS or row["tipo"].startswith("text/")
     inline = visivel and request.query_params.get("descarregar") != "1"
-    return FileResponse(
-        caminho,
-        media_type=_tipo_servido(row["tipo"]),
-        headers={
-            "Content-Disposition": _disposicao(row["nome"], inline),
-            "X-Content-Type-Options": "nosniff",
-            "Cache-Control": "private, no-store",
-        },
-    )
+    cabecalhos = {
+        "Content-Disposition": _disposicao(row["nome"], inline),
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+    }
+
+    # Com o armazém em disco entrega-se o ficheiro sem o ler para
+    # memória — o `FileResponse` trata do resto (intervalos incluídos).
+    local = armazem.caminho_local(chave)
+    if local:
+        return FileResponse(local, media_type=_tipo_servido(row["tipo"]), headers=cabecalhos)
+
+    # Com o armazém em S3, os bytes passam por aqui de propósito. Uma
+    # ligação assinada era mais barata, mas vivia sozinha durante o
+    # tempo de validade dela: quem a apanhasse abria o ficheiro sem
+    # sessão nenhuma, e o que este endpoint existe para garantir é
+    # exactamente o contrário.
+    dados = await armazem.ler(chave)
+    if dados is None:
+        return JSONResponse({"ok": False, "error": "inexistente"}, status_code=404)
+    return Response(dados, media_type=_tipo_servido(row["tipo"]), headers=cabecalhos)

@@ -14,8 +14,8 @@
 # produção; a porta é a 3900 para não disputar a 3000 com outro
 # projecto na mesma máquina.
 #
-# `postgres` e `minio` são a base de dados e o armazenamento de
-# anexos da plataforma — ver docs/arquitetura.md. Os dois guardam
+# `postgres` e `garage` são a base de dados e o armazém dos ficheiros
+# partilhados — ver docs/arquitetura.md e api/app/armazem.py. Os dois guardam
 # tudo em volumes nomeados, como `site-data-dev`: apagar o container
 # não apaga o que lá está, só `docker compose down -v` o faz.
 # ─────────────────────────────────────────────────────────────────────
@@ -38,17 +38,19 @@ services:
       retries: 10
     mem_limit: 512m
 
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: helder
-      MINIO_ROOT_PASSWORD: helder123
+  # O armazém S3 do desenvolvimento. Garage e não MinIO: é um binário
+  # sem nada atrás, e corre no que o MinIO pedia só para arrancar. A
+  # configuração está em docker/garage.toml; o que é preciso fazer da
+  # primeira vez (dar espaço ao nó, criar o balde e a chave) está no
+  # DEPLOY.md — são três comandos, uma vez só.
+  garage:
+    image: dxflrs/garage:v1.0.1
     volumes:
-      - minio-data-dev:/data
+      - ./docker/garage.toml:/etc/garage.toml:ro
+      - garage-data-dev:/var/lib/garage
     ports:
-      - "9001:9001"   # consola do MinIO — só em desenvolvimento
-    mem_limit: 512m
+      - "3900:3900"   # a API S3 — só em desenvolvimento
+    mem_limit: 256m
 
   api:
     build:
@@ -64,9 +66,14 @@ services:
       KNOWLEDGE_DIR: /app/knowledge
       DATABASE_URL: postgresql+asyncpg://helder:helder@postgres:5432/heldergoncalves
       TEST_DATABASE_URL: postgresql+asyncpg://helder:helder@postgres:5432/heldergoncalves_test
-      MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: helder
-      MINIO_SECRET_KEY: helder123
+      # Sem estas, a API guarda no disco (armazem.py decide). Aqui
+      # estão para o desenvolvimento correr contra um S3 a sério — as
+      # chaves saem do `garage key create`, ver DEPLOY.md.
+      ARMAZEM_ENDPOINT: http://garage:3900
+      ARMAZEM_BALDE: ficheiros
+      ARMAZEM_REGIAO: garage
+      ARMAZEM_CHAVE: ${ARMAZEM_CHAVE:-}
+      ARMAZEM_SECRETA: ${ARMAZEM_SECRETA:-}
     volumes:
       - ./api/app:/app/api/app
       - ./api/alembic:/app/api/alembic
@@ -102,4 +109,4 @@ services:
 volumes:
   site-data-dev:
   postgres-data-dev:
-  minio-data-dev:
+  garage-data-dev:

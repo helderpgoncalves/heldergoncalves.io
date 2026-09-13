@@ -142,6 +142,35 @@ class Ficheiros:
 FICHEIROS = Ficheiros()
 
 
+# ── Onde os bytes vivem ──────────────────────────────────────────────
+# Um só sítio decide: disco, ou qualquer coisa que fale S3. Localmente
+# o Garage (docker-compose.dev.yml) — open source, um binário, sem nada
+# atrás. Sem `ARMAZEM_ENDPOINT` configurado fica o disco, que é o que
+# chega a um servidor só e não precisa de nada montado.
+#
+# A implementação está em `armazem.py`, e não traz dependência nenhuma:
+# S3 é HTTP com uma assinatura, e a assinatura faz-se com o `hmac` da
+# biblioteca padrão.
+@dataclass(frozen=True)
+class Armazem:
+    endpoint: str = _env("ARMAZEM_ENDPOINT")  # ex.: http://garage:3900
+    balde: str = _env("ARMAZEM_BALDE", "ficheiros")
+    regiao: str = _env("ARMAZEM_REGIAO", "garage")
+    chave: str = _env("ARMAZEM_CHAVE")
+    secreta: str = _env("ARMAZEM_SECRETA")
+    pasta: Path = field(default_factory=lambda: Path(_env("FICHEIROS_DIR", str(DATA_DIR / "ficheiros"))).resolve())
+
+    @property
+    def modo(self) -> str:
+        """`s3` só quando está tudo lá. Faltar metade da configuração e
+        escrever para um armazém que não responde era perder ficheiros
+        em silêncio — sem tudo, é o disco."""
+        return "s3" if self.endpoint.startswith("http") and self.chave and self.secreta else "disco"
+
+
+ARMAZEM = Armazem()
+
+
 # ── Sessões e reuniões ───────────────────────────────────────────────
 # Entrar é uma ligação por email (magic link) — precisa do email ligado,
 # como a newsletter. A agenda vale no fuso de Lisboa, seja quem for que

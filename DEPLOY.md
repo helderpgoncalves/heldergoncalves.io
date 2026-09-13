@@ -173,6 +173,57 @@ numa hora livre. Precisa do email ligado (é por onde vai a ligação), do
 Postgres (é onde fica a conta — ver «Postgres e as contas» acima) e do
 volume em `/app/data` (é onde ficam as reuniões).
 
+### Onde os ficheiros partilhados vivem
+
+Por omissão, no disco — em `DATA_DIR/ficheiros`, um ficheiro por
+entrada. Chega a um servidor só e não precisa de nada montado além do
+volume que já existe.
+
+Para escalar, a API fala **S3** sem mudar uma linha de código: basta
+configurar o armazém. Não há biblioteca nova por trás disso — o S3 é
+HTTP com uma assinatura, e a assinatura faz-se com a biblioteca padrão
+do Python (`api/app/armazem.py`).
+
+| Variável             | Exemplo                  | Para quê                                        |
+| -------------------- | ------------------------ | ----------------------------------------------- |
+| `ARMAZEM_ENDPOINT`   | `http://garage:3900`     | sem isto, é o disco                              |
+| `ARMAZEM_BALDE`      | `ficheiros`              | o balde                                          |
+| `ARMAZEM_REGIAO`     | `garage`                 | a região, que a assinatura precisa               |
+| `ARMAZEM_CHAVE`      | `GK…`                    | a chave de acesso                                |
+| `ARMAZEM_SECRETA`    | uma cadeia longa         | o segredo                                        |
+
+**Ou está tudo, ou é o disco.** Metade da configuração e a API escrevia
+para um armazém que não responde — perder ficheiros em silêncio é pior
+do que não os ter lá.
+
+**Em desenvolvimento** corre o **Garage** (`docker-compose.dev.yml`),
+que é o mais leve que fala S3 a sério: um binário, sem base de dados
+externa nem consola a comer memória. Da primeira vez há três comandos a
+correr, uma vez só — o Garage nasce sem espaço atribuído:
+
+```
+# 1. dar espaço ao nó (o id sai do `status`)
+docker compose -f docker-compose.dev.yml exec garage /garage status
+docker compose -f docker-compose.dev.yml exec garage /garage layout assign -z dev -c 1G <id-do-nó>
+docker compose -f docker-compose.dev.yml exec garage /garage layout apply --version 1
+
+# 2. o balde
+docker compose -f docker-compose.dev.yml exec garage /garage bucket create ficheiros
+
+# 3. a chave, e dar-lhe acesso ao balde
+docker compose -f docker-compose.dev.yml exec garage /garage key create site
+docker compose -f docker-compose.dev.yml exec garage /garage bucket allow --read --write ficheiros --key site
+```
+
+O `key create` imprime a chave e o segredo: põe-nos em `ARMAZEM_CHAVE` e
+`ARMAZEM_SECRETA` e levanta o ambiente outra vez.
+
+**Nada disto é servido estaticamente**, nem com o armazém em S3. Os
+bytes saem sempre por `/api/ficheiros/abrir/…`, que confere a sessão a
+cada pedido. Uma ligação assinada seria mais barata, mas viveria sozinha
+durante o prazo dela — e quem a apanhasse abria o ficheiro de um cliente
+sem sessão nenhuma.
+
 ### Entrar tem de sobreviver a uma publicação
 
 Uma sessão é um cookie assinado. Se o segredo que a assina mudar, os

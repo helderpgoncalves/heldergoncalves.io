@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────────────
+# Garage — o armazém S3 do desenvolvimento.
+#
+# Escolhido por ser o mais leve que fala S3 a sério: um binário em Rust,
+# sem base de dados externa, sem consola de administração a comer
+# memória, e código aberto (AGPL). Onde o MinIO pedia meio giga para
+# guardar uns PDF, isto corre em muito menos.
+#
+# Uma máquina só, uma cópia de cada coisa: é desenvolvimento, não um
+# aglomerado. Em produção troca-se o `endpoint` e as chaves — o código
+# (`api/app/armazem.py`) não sabe a diferença.
+#
+# O `rpc_secret` só serve para os nós falarem entre si. Com um nó só não
+# protege nada, e por isso está aqui à vista: é de desenvolvimento e não
+# vai para lado nenhum. Em produção vem de variável de ambiente.
+# ─────────────────────────────────────────────────────────────────────
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+db_engine = "sqlite"
+
+replication_factor = 1
+
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "0000000000000000000000000000000000000000000000000000000000000001"
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "[::]:3900"
+root_domain = ".s3.garage.localhost"

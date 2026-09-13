@@ -26,6 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from app import armazem
 from app.config import FICHEIROS
 
 _pastas: dict[str, dict] = {}
@@ -108,6 +109,9 @@ def _publica(pasta: dict) -> dict:
         # dele que sai o badge no ícone. Sem ficheiros, vale a criação:
         # uma pasta acabada de partilhar também é novidade.
         "ultimo": dentro[0]["at"] if dentro else pasta["at"],
+        # Sem cliente é privada. Vai explícito para a app não ter de
+        # adivinhar pelo vazio de outro campo.
+        "privada": not (pasta.get("cliente") or "").strip(),
     }
 
 
@@ -117,10 +121,13 @@ def pastas_todas() -> list[dict]:
 
 
 def pastas_de(email: str) -> list[dict]:
-    """Só as pastas atribuídas a este email. É esta função que faz o
-    cliente ver o que é dele e mais nada."""
-    chave = email.strip().lower()
-    return [p for p in pastas_todas() if p["cliente"] == chave]
+    """Só as pastas atribuídas a este email — nunca as privadas. É esta
+    função e a `pode_ver` que fazem o cliente ver o que é dele e mais
+    nada, e as duas recusam o vazio da mesma maneira."""
+    quem = (email or "").strip().lower()
+    if not quem:
+        return []
+    return [p for p in pastas_todas() if p["cliente"] and p["cliente"] == quem]
 
 
 def pasta(pasta_id: str) -> Optional[dict]:
@@ -129,11 +136,15 @@ def pasta(pasta_id: str) -> Optional[dict]:
 
 
 async def criar_pasta(nome: str, cliente: str) -> dict:
+    """Sem `cliente`, a pasta é privada — só do dono. Quem cria pastas é
+    sempre ele (`routers/ficheiros.py` recusa a qualquer outra sessão);
+    o que esta função decide é só com quem a pasta fica a ser partilhada,
+    ou com ninguém."""
     row = {
         "id": _novo_id(),
         "kind": "pasta",
         "nome": nome,
-        "cliente": cliente.strip().lower(),
+        "cliente": (cliente or "").strip().lower(),
         "status": "ativo",
         "at": _now_iso(),
     }
@@ -184,19 +195,15 @@ def ocupacao(pasta_id: str) -> int:
     return sum(r["tamanho"] for r in ficheiros_de(pasta_id))
 
 
-def caminho(row: dict) -> Path:
-    """Onde os bytes deste ficheiro estão. Os dois `id` já passaram por
-    `_ID_RE`, e é isso que torna esta junção segura."""
-    return FICHEIROS.blobs / row["pasta"] / row["id"]
+def chave(row: dict) -> str:
+    """A chave dos bytes deste ficheiro, no armazém que estiver ligado —
+    disco ou S3, `armazem.py` é que sabe. Os dois `id` já passaram por
+    `_ID_RE`, e é isso que torna esta junção segura: não há caminho a
+    atravessar nem nome de ficheiro a escapar."""
+    return row["pasta"] + "/" + row["id"]
 
 
-def _escrever_bytes(destino: Path, dados: bytes) -> None:
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    destino.write_bytes(dados)
-    destino.chmod(0o600)
-
-
-async def guardar_ficheiro(pasta_id: str, nome: str, tipo: str, dados: bytes, por: str) -> dict:
+async def guardar_ficheiro(pasta_id: str, nome: str, tipo: str, dados: bytes, por: str) -> Optional[dict]:
     """Escreve os bytes e só depois regista a linha: um registo sem
     bytes seria um ficheiro que a app mostra e ninguém consegue abrir."""
     row = {
@@ -210,16 +217,12 @@ async def guardar_ficheiro(pasta_id: str, nome: str, tipo: str, dados: bytes, po
         "status": "ativo",
         "at": _now_iso(),
     }
-    await asyncio.to_thread(_escrever_bytes, caminho(row), dados)
+    if not await armazem.guardar(chave(row), dados, tipo):
+        # O armazém não aceitou: não se regista a linha. Um registo sem
+        # bytes é um ficheiro que a app mostra e ninguém consegue abrir.
+        return None
     await _write(_ficheiros, row)
     return _publico(row)
-
-
-def _apagar_bytes(alvo: Path) -> None:
-    try:
-        alvo.unlink()
-    except OSError:
-        pass  # já não estava lá: o registo é que manda, e esse fica
 
 
 async def remover_ficheiro(ficheiro_id: str) -> Optional[dict]:
@@ -228,13 +231,28 @@ async def remover_ficheiro(ficheiro_id: str) -> Optional[dict]:
         return None
     # O registo é append-only, os bytes não: quem remove um ficheiro
     # partilhado quer que ele desapareça, não que fique invisível.
-    await asyncio.to_thread(_apagar_bytes, caminho(antes))
+    await armazem.apagar(chave(antes))
     row = {**antes, "status": "removido", "at": _now_iso()}
     await _write(_ficheiros, row)
     return _publico(antes)
 
 
 def pode_ver(pasta_row: dict, email: str, dono: bool) -> bool:
-    """O portão de leitura, num sítio só: o dono vê tudo, o cliente vê o
-    que está atribuído ao email com que entrou."""
-    return dono or pasta_row["cliente"] == email.strip().lower()
+    """O portão de leitura, num sítio só.
+
+    O dono vê tudo. Uma pasta **privada** — sem cliente atribuído — é
+    dele e de mais ninguém, ponto final. Uma pasta **partilhada** vê-se
+    só com o email a que foi atribuída.
+
+    Escrito com o vazio a fechar e não a abrir: se o cliente da pasta
+    for uma string vazia, nenhuma sessão passa — nem uma sessão cujo
+    email desse vazio por qualquer motivo. É a diferença entre uma
+    comparação que falha para o lado seguro e uma que deixa entrar toda
+    a gente no dia em que um campo vier em branco."""
+    if dono:
+        return True
+    cliente = (pasta_row.get("cliente") or "").strip().lower()
+    if not cliente:
+        return False
+    quem = (email or "").strip().lower()
+    return bool(quem) and cliente == quem

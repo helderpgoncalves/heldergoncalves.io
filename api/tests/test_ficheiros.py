@@ -277,3 +277,52 @@ def test_a_origem_errada_nao_entra(client, avisos):
         headers={"Origin": "https://outro-site.test"},
     )
     assert res.status_code == 403
+
+
+# ── O portão, e o vazio a fechar ─────────────────────────────────────
+
+
+def test_a_private_folder_is_the_owners_and_nobody_elses():
+    """Uma pasta sem cliente é privada. Nenhuma sessão a abre, e muito
+    menos uma cujo email venha em branco por qualquer motivo."""
+    from app.ficheiros_store import pode_ver
+
+    privada = {"cliente": ""}
+    assert pode_ver(privada, "dono@example.test", True) is True
+    assert pode_ver(privada, "alguem@example.test", False) is False
+    assert pode_ver(privada, "", False) is False
+    assert pode_ver({"cliente": None}, "", False) is False
+    assert pode_ver({}, "", False) is False
+
+
+def test_a_shared_folder_opens_only_for_the_email_it_was_given_to():
+    from app.ficheiros_store import pode_ver
+
+    partilhada = {"cliente": "cliente@example.test"}
+    assert pode_ver(partilhada, "cliente@example.test", False) is True
+    assert pode_ver(partilhada, "CLIENTE@Example.test", False) is True  # o email não é sensível a maiúsculas
+    assert pode_ver(partilhada, "outro@example.test", False) is False
+    assert pode_ver(partilhada, "", False) is False
+    assert pode_ver(partilhada, "outro@example.test", True) is True  # o dono vê tudo
+
+
+async def test_private_folders_never_show_up_in_a_clients_list():
+    from app import ficheiros_store as loja
+
+    await loja.criar_pasta("Só minha", "")
+    partilhada = await loja.criar_pasta("Do cliente", "cliente@example.test")
+
+    minhas = [p["id"] for p in loja.pastas_de("cliente@example.test")]
+    assert minhas == [partilhada["id"]]
+    # Um email vazio não devolve tudo — devolve nada.
+    assert loja.pastas_de("") == []
+    assert loja.pastas_de("   ") == []
+
+
+def test_only_the_owner_can_create_a_folder(client):
+    from conftest import sign_in
+
+    sign_in(client, "visitante@example.test")
+    res = client.post("/api/ficheiros/pastas", json={"nome": "minha", "cliente": ""})
+    assert res.status_code == 403
+    assert res.json()["error"] == "dono"
