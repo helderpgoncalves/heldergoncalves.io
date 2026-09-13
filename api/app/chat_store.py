@@ -8,16 +8,15 @@
 # entrada para reler. Está num ficheiro à parte, e a política de
 # privacidade diz que existe.
 #
-# Uma conversa é identificada por quem a começou: o email, se a pessoa
-# tinha sessão; senão, a mesma impressão digital que já limita os
-# pedidos — que muda a cada reinício, tal como em todo o resto do site,
-# por isso as conversas de visitantes anónimos não se seguem de sessão
-# para sessão.
+# Uma conversa é identificada por quem a começou, e falar com o
+# assistente pede sessão — por isso é sempre um email verdadeiro, nunca
+# um visitante anónimo. Há conversas antigas guardadas com o prefixo
+# `visitante:`, de quando não era assim: continuam a ler-se, só não
+# nascem mais.
 # ─────────────────────────────────────────────────────────────────────
 import asyncio
 import json
 from datetime import datetime, timezone
-from typing import Optional
 
 from app.config import CHAT_LOG_FILE
 
@@ -29,8 +28,8 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
-def conversation_id(email: Optional[str], fingerprint: str) -> str:
-    return ("email:" + email) if email else ("visitante:" + fingerprint)
+def conversation_id(email: str) -> str:
+    return "email:" + email
 
 
 def _load() -> None:
@@ -60,7 +59,7 @@ def _append(row: dict) -> None:
         fh.write(json.dumps(row) + "\n")
 
 
-async def record_turn(conv_id: str, email: Optional[str], role: str, text: str, lang: str) -> None:
+async def record_turn(conv_id: str, email: str, role: str, text: str, lang: str) -> None:
     row = {"conversation": conv_id, "email": email, "role": role, "text": text, "lang": lang, "at": _now_iso()}
     _turns.append(row)
     async with _lock:

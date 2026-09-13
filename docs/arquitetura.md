@@ -72,9 +72,11 @@ agora.
 
 O que muda é o que a sessão do dono desbloqueia:
 
-- **Modo visitante** (sem sessão, ou sessão de uma pessoa qualquer): o
-  site de sempre, mais a possibilidade de pedir uma reunião, escrever
-  ao bot, pedir um orçamento, comentar, e ver o seu próprio histórico.
+- **Modo visitante** (sessão de uma pessoa qualquer): o site de sempre,
+  mais a possibilidade de pedir uma reunião, escrever ao bot, escrever
+  ao Hélder, pedir um orçamento, comentar, e ver o seu próprio
+  histórico. Sem sessão lê-se tudo o que é público, mas não se escreve
+  nada — quem escreve, escreve com um email verdadeiro.
 - **Modo dono** (sessão cujo email é `OWNER_EMAIL`): as mesmas apps do
   visitante trocam de conteúdo — o Calendário mostra a agenda cheia e
   a disponibilidade para editar (já é assim hoje), as Mensagens mostram
@@ -159,8 +161,7 @@ users
 
 conversas                    -- Mensagens
   id            uuid pk
-  user_id       uuid fk -> users, null se anónima (visitante sem sessão)
-  fingerprint   text, null se autenticada -- impressão digital de IP, como hoje
+  user_id       uuid fk -> users, not null -- falar com o bot pede sessão
   estado        text -- 'bot' | 'a_espera_de_humano' | 'humano' | 'fechada'
   criado_em     timestamptz
   actualizado_em timestamptz
@@ -284,9 +285,11 @@ Já existe em forma quase completa (`meetings.py`, `availability.py`,
 Já existe a base: `chat_store.py`, `routers/chat.py`, `agent/`. Regras
 novas:
 
-- **Sem sessão**: como hoje — respostas guardadas (`cannedFor`) se não
-  houver `CHAT_READY`, ou o modelo via OpenRouter se houver, sem
-  histórico persistente, por *token* efémero.
+- **Sem sessão**: não se fala com o bot. O `/api/chat` responde `401` e
+  a app abre o "Entrar". Uma conversa que fica guardada, e que o dono
+  vai ler depois, só vale se souber de quem é — e o email tem de ser um
+  que a pessoa provou ser seu, não um que escreveu numa caixa. É a
+  mesma decisão dos comentários e do contacto.
 - **Com sessão**: o bot responde com o contexto da própria conta —
   os seus projectos, o estado dos seus orçamentos, as suas reuniões
   (ver [Contexto do bot](#o-bot-com-contexto-de-conta)) — e a conversa

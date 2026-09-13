@@ -5,6 +5,10 @@
 # três ferramentas, e no máximo duas rondas de ferramentas por mensagem.
 # Não devolve streaming — devolve o texto de uma vez, e o site escreve-o
 # letra a letra. Fica mais barato, mais simples, e igual de ver.
+#
+# Pede sessão. Uma conversa que fica guardada e que o Hélder vai ler
+# depois só vale se souber de quem é: o email vem sempre da sessão,
+# nunca de um campo, e não há conversas de visitante anónimo.
 # ─────────────────────────────────────────────────────────────────────
 import json
 
@@ -91,6 +95,10 @@ async def chat(request: Request) -> JSONResponse:
     if not CHAT_READY:
         return JSONResponse({"ok": False, "error": "indisponivel"}, status_code=503)
 
+    email = read_session(request.headers.get("cookie", ""))
+    if not email:
+        return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:
         return JSONResponse({"ok": False, "error": bad}, status_code=403 if bad == "origem" else 415)
@@ -121,8 +129,7 @@ async def chat(request: Request) -> JSONResponse:
     # Só a mensagem nova, nunca o histórico todo: o browser reenvia até
     # `LIMITS.chat_history` turnos a cada pedido, e gravá-los outra vez
     # a cada volta duplicava tudo o que já estava guardado.
-    email = read_session(request.headers.get("cookie", ""))
-    conv_id = conversation_id(email, key)
+    conv_id = conversation_id(email)
     await record_turn(conv_id, email, "user", turns[-1]["content"], lang)
 
     try:

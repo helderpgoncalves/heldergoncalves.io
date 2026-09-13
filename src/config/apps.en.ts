@@ -223,6 +223,7 @@ export const APPS_EN = {
     limit: 'That is a lot of messages from here. Try again in a bit.',
     invalid: 'I need a valid email address to reply to.',
     short: 'Write a little more — give me some context.',
+    signInFirst: 'Sign in first — the message goes out with your session email. Your text stays here.',
     honeypot: 'Leave this field empty',
   },
 
@@ -269,6 +270,7 @@ export const APPS_EN = {
     aiOff: 'Canned answers. For a real conversation, email me.',
     error: 'I could not answer just now. Try again, or email me.',
     limit: 'That is a lot of talking for today. Email me and I will reply myself.',
+    signInFirst: 'Sign in to talk to me — that way I know who you are and where to reply.',
     unknown: 'That one is better asked directly: helder@heldergoncalves.io',
     typing: 'typing…',
     delivered: 'Delivered',

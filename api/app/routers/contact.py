@@ -1,10 +1,15 @@
 # ─────────────────────────────────────────────────────────────────────
 # A mensagem de contacto.
 #
-# Quatro coisas têm de estar certas antes de sair um email: a origem, o
-# token do formulário, a armadilha por preencher, e os limites por
-# visitante. Se o email não estiver configurado, o site volta ao
-# `mailto:` e não se perde nada.
+# Pede sessão, e o remetente é o email da sessão — nunca um campo do
+# formulário. É a mesma decisão dos comentários: quem escreve ao Hélder
+# escreve com o email que provou ser seu, e ninguém assina como outra
+# pessoa. Sem sessão, o site volta ao `mailto:`, e aí quem prova o email
+# é o cliente de correio de quem escreve.
+#
+# Quatro coisas continuam a ter de estar certas antes de sair um email:
+# a origem, o token do formulário, a armadilha por preencher, e os
+# limites por visitante.
 # ─────────────────────────────────────────────────────────────────────
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
@@ -13,7 +18,8 @@ from app.config import LIMITS, MAIL_READY, SITE_ORIGIN
 from app.http import read_json
 from app.mail import deliver_to_owner
 from app.security import bump, check_token, ip_key, wrong_origin
-from app.validation import EMAIL_RE, clean, one_line
+from app.sessions import read_session
+from app.validation import clean, one_line
 
 router = APIRouter()
 
@@ -22,6 +28,10 @@ router = APIRouter()
 async def contact(request: Request) -> JSONResponse:
     if not MAIL_READY:
         return JSONResponse({"ok": False, "error": "indisponivel"}, status_code=503)
+
+    session_email = read_session(request.headers.get("cookie", ""))
+    if not session_email:
+        return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
 
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:
@@ -46,15 +56,15 @@ async def contact(request: Request) -> JSONResponse:
     if token_error:
         return JSONResponse({"ok": False, "error": token_error}, status_code=400)
 
-    from_ = one_line(payload.get("from"), LIMITS.email)
+    # O `from` que vinha no corpo deixou de ser lido: o remetente é
+    # sempre a sessão. Continuar a aceitá-lo era deixar qualquer pessoa
+    # — com sessão ou sem ela — assinar com o email de outra.
     subject = one_line(payload.get("subject"), LIMITS.subject) or "Mensagem do site"
     message = clean(payload.get("message"), LIMITS.message)
-    if not EMAIL_RE.match(from_):
-        return JSONResponse({"ok": False, "error": "email"}, status_code=400)
     if len(message) < 10:
         return JSONResponse({"ok": False, "error": "curto"}, status_code=400)
 
-    sent = await deliver_to_owner(from_, subject, message)
+    sent = await deliver_to_owner(session_email, subject, message)
     if not sent:
         return JSONResponse({"ok": False, "error": "entrega"}, status_code=502)
     print("[contacto] mensagem entregue")

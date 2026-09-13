@@ -224,6 +224,7 @@ export const APPS_PT = {
     limit: 'Já foram muitas mensagens deste sítio. Tenta daqui a pouco.',
     invalid: 'Falta um email válido para eu poder responder.',
     short: 'Escreve um pouco mais — dá-me contexto.',
+    signInFirst: 'Entra primeiro — a mensagem sai com o email da tua sessão. O texto fica aqui.',
     honeypot: 'Deixa este campo vazio',
   },
 
@@ -270,6 +271,7 @@ export const APPS_PT = {
     aiOff: 'Respostas guardadas. Para falar a sério, escreve-me por email.',
     error: 'Não consegui responder agora. Tenta outra vez, ou escreve-me por email.',
     limit: 'Já falámos bastante por hoje. Escreve-me por email que respondo eu.',
+    signInFirst: 'Entra para falares comigo — assim sei quem és e para onde respondo.',
     unknown: 'Sobre isso é melhor perguntares-me diretamente: helder@heldergoncalves.io',
     typing: 'a escrever…',
     delivered: 'Entregue',

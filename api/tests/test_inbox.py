@@ -18,7 +18,7 @@ def test_inbox_rejects_a_non_owner_session(client):
 async def test_the_owner_sees_a_recorded_conversation(client):
     from app.chat_store import conversation_id, record_turn
 
-    conv = conversation_id("visitante@example.test", "fp")
+    conv = conversation_id("visitante@example.test")
     await record_turn(conv, "visitante@example.test", "user", "Olá", "pt")
     await record_turn(conv, "visitante@example.test", "assistant", "Olá! Em que posso ajudar?", "pt")
 

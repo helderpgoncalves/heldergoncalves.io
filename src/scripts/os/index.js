@@ -69,6 +69,7 @@ function boot(data) {
     if (ctx.pessoas && ctx.pessoas.refresh) ctx.pessoas.refresh();
     if (ctx.comentarios && ctx.comentarios.refresh) ctx.comentarios.refresh();
     if (ctx.calendario && ctx.calendario.refresh) ctx.calendario.refresh();
+    if (ctx.contacto && ctx.contacto.refresh) ctx.contacto.refresh();
   };
 
   // ── Abrir e fechar ────────────────────────────────────────────

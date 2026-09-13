@@ -32,10 +32,21 @@ def test_token_is_rate_limited_per_ip(client):
     assert client.get("/api/token").status_code == 429
 
 
-def test_contact_rejects_wrong_origin(client):
+def test_contact_requires_a_session(client, fake_mail):
     res = client.post(
         "/api/contact",
         json={"from": "a@b.com", "subject": "Oi", "message": "Uma mensagem com mais de dez caracteres."},
+    )
+    assert res.status_code == 401
+    assert res.json()["error"] == "sessao"
+    assert fake_mail == []
+
+
+def test_contact_rejects_wrong_origin(client):
+    _sign_in(client, "visitante@example.test")
+    res = client.post(
+        "/api/contact",
+        json={"subject": "Oi", "message": "Uma mensagem com mais de dez caracteres."},
         headers={"Origin": "https://outro-site.test"},
     )
     assert res.status_code == 403
@@ -43,15 +54,17 @@ def test_contact_rejects_wrong_origin(client):
 
 
 def test_contact_requires_a_form_token(client):
+    _sign_in(client, "visitante@example.test")
     res = client.post(
         "/api/contact",
-        json={"from": "a@b.com", "subject": "Oi", "message": "Uma mensagem com mais de dez caracteres."},
+        json={"subject": "Oi", "message": "Uma mensagem com mais de dez caracteres."},
     )
     assert res.status_code == 400
     assert res.json()["error"] == "token"
 
 
 def test_contact_ignores_the_honeypot_silently(client, fake_mail):
+    _sign_in(client, "visitante@example.test")
     token = _token(client)
     res = client.post("/api/contact", json={"company": "sou um robô", "token": token})
     assert res.status_code == 200
@@ -63,27 +76,33 @@ def test_contact_delivers_a_valid_message(client, fake_mail, monkeypatch):
     from app.config import LIMITS
 
     monkeypatch.setattr(LIMITS, "token_min_age", 0)
+    _sign_in(client, "visitante@example.test")
     token = _token(client)
     res = client.post(
         "/api/contact",
-        json={"from": "visitante@example.test", "subject": "Olá", "message": "Uma mensagem com mais de dez caracteres.", "token": token},
+        json={"subject": "Olá", "message": "Uma mensagem com mais de dez caracteres.", "token": token},
     )
     assert res.status_code == 200
     assert res.json()["ok"] is True
     assert len(fake_mail) == 1
 
 
-def test_contact_rejects_an_invalid_email(client, monkeypatch):
+def test_contact_signs_with_the_session_not_the_form(client, fake_mail, monkeypatch):
+    """Quem tem sessão não pode escrever em nome de outra pessoa: o
+    `from` do corpo é ignorado, e o remetente é sempre o da sessão."""
     from app.config import LIMITS
 
     monkeypatch.setattr(LIMITS, "token_min_age", 0)
+    _sign_in(client, "visitante@example.test")
     token = _token(client)
     res = client.post(
         "/api/contact",
-        json={"from": "nao-e-email", "subject": "Olá", "message": "Uma mensagem com mais de dez caracteres.", "token": token},
+        json={"from": "outra-pessoa@example.test", "subject": "Olá", "message": "Uma mensagem com mais de dez caracteres.", "token": token},
     )
-    assert res.status_code == 400
-    assert res.json()["error"] == "email"
+    assert res.status_code == 200
+    assert len(fake_mail) == 1
+    assert "outra-pessoa@example.test" not in repr(fake_mail[0])
+    assert "visitante@example.test" in repr(fake_mail[0])
 
 
 def test_subscribe_sends_a_confirmation(client, fake_mail, monkeypatch):

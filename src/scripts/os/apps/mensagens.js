@@ -1,9 +1,14 @@
 import { esc } from '../lib/dom.js';
-import { amIOwner, requestToken, serverFeatures } from '../lib/session.js';
+import { amIOwner, forgetWho, requestToken, serverFeatures, whoAmI } from '../lib/session.js';
+import { capturar } from '../lib/retomar.js';
 
 // Conversa a sério quando o servidor tem uma chave de modelo, e as
 // respostas guardadas quando não tem. O texto do modelo entra sempre
 // como texto (textContent), nunca como HTML.
+//
+// Falar pede sessão. A conversa fica guardada e é o Hélder que a vai
+// ler depois — só serve se souber de quem é, e com o email que a
+// pessoa provou ser seu, não um que escreveu numa caixa.
 export function initChat(ctx) {
   const el = ctx.contentNode('mensagens');
   if (!el) return;
@@ -219,6 +224,7 @@ export function initChat(ctx) {
       body: JSON.stringify({ token, lang: ctx.data.lang, messages: history }),
     });
     if (res.status === 429) throw new Error('limite');
+    if (res.status === 401) throw new Error('sessao');
     const data = await res.json().catch(() => null);
     if (!res.ok || !data || !data.ok || typeof data.text !== 'string') throw new Error('upstream');
     return data.text;
@@ -227,6 +233,18 @@ export function initChat(ctx) {
   async function ask(text) {
     const message = String(text || '').trim().slice(0, 600);
     if (!message || busy) return;
+
+    // Antes de escrever a bolha: sem sessão a mensagem não sai daqui, e
+    // é melhor o campo ficar como estava do que ver o que se escreveu
+    // pendurado numa conversa que não avançou.
+    await prepare();
+    if (!(await whoAmI())) {
+      capturar(ctx);
+      ctx.entrar.open();
+      if (note) note.textContent = t.signInFirst;
+      return;
+    }
+
     busy = true;
     if (input) input.value = '';
     bubble('me', message);
@@ -234,7 +252,6 @@ export function initChat(ctx) {
     const chip = [...suggest.querySelectorAll('[data-ask]')].find((b) => b.dataset.ask === message);
     if (chip) chip.remove();
 
-    await prepare();
     const dots = typing();
 
     if (!live || !token) {
@@ -257,7 +274,14 @@ export function initChat(ctx) {
       history.push({ role: 'assistant', content: text });
     } catch (err) {
       if (dots.isConnected) dots.remove();
-      bubble('them', err && err.message === 'limite' ? t.limit : t.error);
+      const reason = err && err.message;
+      if (reason === 'sessao') {
+        // A sessão caiu a meio da conversa.
+        forgetWho();
+        capturar(ctx);
+        ctx.entrar.open();
+      }
+      bubble('them', reason === 'limite' ? t.limit : reason === 'sessao' ? t.signInFirst : t.error);
       history.pop();
     }
     busy = false;

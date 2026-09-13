@@ -25,7 +25,7 @@ def test_the_owner_sees_no_conversations_when_there_are_none(client):
 
 
 async def test_the_owner_sees_a_conversation_that_happened(client):
-    conv = conversation_id("visitante@example.test", "fp")
+    conv = conversation_id("visitante@example.test")
     await record_turn(conv, "visitante@example.test", "user", "olá", "pt")
     await record_turn(conv, "visitante@example.test", "assistant", "olá também", "pt")
 
@@ -54,7 +54,7 @@ def test_unknown_conversation_is_404_for_the_owner(client):
 
 
 async def test_the_owner_reads_a_conversation_transcript(client):
-    conv = conversation_id("visitante@example.test", "fp")
+    conv = conversation_id("visitante@example.test")
     await record_turn(conv, "visitante@example.test", "user", "olá", "pt")
     await record_turn(conv, "visitante@example.test", "assistant", "olá também", "pt")
 
