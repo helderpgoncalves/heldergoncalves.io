@@ -18,6 +18,16 @@
     window.matchMedia('(max-width: 860px), (pointer: coarse) and (max-width: 1180px)').matches;
   d.setAttribute('data-mode', phone ? 'ios' : 'mac');
   if (framed) d.classList.add('in-frame');
+  /* Instalado no ecrã inicial: a barra de estado do iOS a sério está
+     por cima do conteúdo, e a nossa não se desenha (ver ios.css).
+     `navigator.standalone` é o sinal do iOS; `display-mode` é o padrão
+     — vale a pena marcar os dois, e antes do 1.º paint para não haver
+     duas horas no ecrã nem que seja um instante. */
+  try {
+    if (navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
+      d.setAttribute('data-standalone', '1');
+    }
+  } catch (e) {}
   /* O boot decide-se aqui, antes do 1º paint — senão a Desktop aparece
      um instante por baixo antes de index.js (módulo, sempre adiado)
      conseguir tapá-la. Não se pode tocar em #boot: este script corre

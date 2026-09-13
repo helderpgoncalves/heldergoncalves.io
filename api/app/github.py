@@ -27,9 +27,19 @@ class PublishError(Exception):
 
 
 async def put_file(path: str, content: str, message: str) -> str:
+    """Texto: o caso do Markdown de um escrito."""
+    return await put_bytes(path, content.encode("utf-8"), message)
+
+
+async def put_bytes(path: str, raw: bytes, message: str) -> str:
     """Cria ou substitui `path` no ramo configurado. Devolve o SHA do
     commit que ficou. Substituir exige o SHA do ficheiro que lá está —
-    por isso se pergunta primeiro."""
+    por isso se pergunta primeiro.
+
+    Em bytes, e não em texto, porque uma imagem também é um commit: a
+    API de conteúdos do GitHub recebe tudo em base64 de qualquer
+    maneira, e era a codificação para UTF-8 — e só ela — que impedia
+    isto de servir para um PNG."""
     url = f"{API}/repos/{GITHUB.repo}/contents/{path}"
     headers = {
         "Authorization": "Bearer " + GITHUB.token,
@@ -40,7 +50,7 @@ async def put_file(path: str, content: str, message: str) -> str:
         existing = await client.get(url, headers=headers, params={"ref": GITHUB.branch})
         body = {
             "message": message,
-            "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+            "content": base64.b64encode(raw).decode("ascii"),
             "branch": GITHUB.branch,
         }
         if existing.status_code == 200:

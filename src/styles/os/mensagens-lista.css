@@ -165,3 +165,19 @@
   }
   .app-mensagens.owner .msg-back { display: inline-flex; }
 }
+
+/* ── No telefone a lista é a app inteira ─────────────────────────
+   Título grande, pesquisa em cápsula por baixo, e linhas altas com
+   o avatar maior — as medidas da Mensagens do iOS, não as do Mac. */
+[data-mode='ios'] .msg-list-pane { background: var(--surface-solid); }
+[data-mode='ios'] .msg-list-head { padding: 8px 16px 2px; }
+[data-mode='ios'] .msg-list-head h2 { font-size: var(--t-large); letter-spacing: -0.03em; }
+[data-mode='ios'] .msg-search { margin: 6px 16px 8px; padding: 8px 12px; }
+[data-mode='ios'] .msg-search input { font-size: var(--t-callout); }
+[data-mode='ios'] .msg-conv-list { padding: 0 8px 12px; }
+[data-mode='ios'] .msg-conv { padding: 10px 8px; gap: 12px; }
+[data-mode='ios'] .msg-conv-list li + li .msg-conv::before { left: 66px; right: 8px; }
+[data-mode='ios'] .msg-avatar { width: 46px; height: 46px; font-size: var(--t-callout); }
+[data-mode='ios'] .msg-conv-name { font-size: var(--t-callout); font-weight: 600; }
+[data-mode='ios'] .msg-conv-when { font-size: var(--t-foot); }
+[data-mode='ios'] .msg-conv-preview { font-size: var(--t-foot); }

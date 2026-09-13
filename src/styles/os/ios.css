@@ -27,6 +27,18 @@
 .statusbar .clock { font-variant-numeric: tabular-nums; min-width: 54px; }
 .statusbar .status-right { display: flex; align-items: center; gap: 6px; }
 .statusbar svg { display: block; }
+/* Instalado no ecrã inicial, a barra de estado verdadeira do iOS está
+   mesmo ali por cima do conteúdo: desenhar a nossa dava duas horas e
+   duas baterias no mesmo ecrã. Fica o espaço — `--sb-h` continua a
+   contar, e é ele que empurra tudo para baixo do que é real — e sai o
+   desenho. `[data-standalone]` é o mesmo sinal por JavaScript, para os
+   iOS onde `display-mode` ainda não responde. */
+@media (display-mode: standalone) {
+  .statusbar > *, .island { display: none; }
+}
+[data-standalone='1'] .statusbar > *,
+[data-standalone='1'] .island { display: none; }
+
 .island {
   position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 10px);
   transform: translateX(-50%);

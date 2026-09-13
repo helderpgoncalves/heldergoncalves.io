@@ -123,7 +123,13 @@ const folders = [
         do ecrã e fora da ordem de tabulação, e só um robô o preenche.
         Se o servidor não tiver o envio ligado, o JavaScript esconde
         isto — melhor não haver campo do que haver um que não faz nada. */}
-    <form class="sub flex-none border-t-[0.5px] border-(--line) bg-(--surface-2) px-3.5 pb-3.5 pt-3 [&[hidden]]:hidden" data-subscribe>
+    {/* No telefone a barra flutuante (a seguir) sobe 72px por cima do
+        que vier antes dela. Antes era a lista, que tem folga em baixo;
+        desde que o subscrever ficou aqui, era este formulário que
+        levava a cápsula da pesquisa e o botão de compor em cima. A
+        folga é dele agora — e some com ele quando o JavaScript o
+        esconde, que é quando a barra deve mesmo tapar a lista. */}
+    <form class="sub flex-none border-t-[0.5px] border-(--line) bg-(--surface-2) px-3.5 pb-3.5 pt-3 [&[hidden]]:hidden [[data-mode='ios']_&]:pb-21" data-subscribe>
       <p class="sub-title m-0 mb-2 text-[length:var(--t-foot,11px)] font-semibold text-(--ink-2)">{e.subscribeTitle}</p>
       <div class="sub-row flex items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-solid) py-0.75 pl-3 pr-0.75 transition-[border-color] duration-150 focus-within:border-(--accent)">
         <label class="sr" for="sub-email">{e.subscribeLabel}</label>
@@ -194,6 +200,11 @@ const folders = [
       </div>
       <div class="editor-bar flex flex-none flex-wrap items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
         <span class="editor-status min-w-0 flex-1 truncate text-[length:var(--t-subhead)] text-(--ink-3)" data-editor-status aria-live="polite"></span>
+        {/* A imagem entra pelo mesmo sítio que o texto: o ficheiro sobe
+            num commit e o Markdown aparece onde o cursor estava. O
+            `input` fica escondido — quem carrega é o botão. */}
+        <input class="sr" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/avif" data-editor-file tabindex="-1" />
+        <button class="btn text-[length:var(--t-subhead)]" type="button" data-editor-image>{c.editor.image}</button>
         <button class="btn text-[length:var(--t-subhead)] text-(--danger)" type="button" data-editor-delete>{c.editor.delete}</button>
         <button class="btn btn-primary text-[length:var(--t-subhead)] [&[disabled]]:opacity-50" type="button" data-editor-publish>{c.editor.publish}</button>
       </div>

@@ -289,6 +289,16 @@ class Limits:
     escritos_window: int = 10 * 60
     escrito_body: int = 256 * 1024
     escrito_tags: int = 10
+    # Uma imagem de escrito vai para o repositório num commit, em
+    # base64 — o que a torna um terço maior a caminho do GitHub. 4 MB
+    # de original é muito para uma imagem de blog e pouco para o que a
+    # API de conteúdos aguenta.
+    escrito_image: int = 4 * 1024 * 1024
+    # Avisar a lista é uma volta ao fornecedor de email por pessoa. Sai
+    # em segundo plano, mas com tecto: uma lista que cresça sem conta
+    # não pode transformar um clique em «Publicar» numa tarde inteira.
+    announce_batch: int = 4
+    announce_max: int = 5000
 
     # Reuniões: a agenda é leve de ler, e marcar é raro.
     agenda_per_ip: int = 120

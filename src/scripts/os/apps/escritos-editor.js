@@ -14,6 +14,10 @@
 import { amIOwner, postJson } from '../lib/session.js';
 
 const SAVE_DELAY = 1200;
+// O mesmo tecto que `LIMITS.escrito_image` em api/app/config.py — aqui
+// só para dizer «é grande de mais» antes de a subir, não em vez da
+// verificação do servidor.
+const IMAGE_MAX = 4 * 1024 * 1024;
 
 export function initEscritosEditor(ctx) {
   const el = ctx.contentNode('escritos');
@@ -196,8 +200,55 @@ export function initEscritosEditor(ctx) {
     const i = drafts.findIndex((d) => d.id === current.id);
     if (i >= 0) drafts[i] = current;
     renderList();
-    say(t.published);
-    ctx.notify(t.published);
+    // Quantas pessoas ficaram a saber — o servidor manda os emails em
+    // segundo plano e diz aqui a quantos vai (ver api/app/newsletter.py).
+    const avisados = Number(res.data.avisados) || 0;
+    const done = avisados ? t.published + ' ' + t.announced.replace('{n}', String(avisados)) : t.published;
+    say(done);
+    ctx.notify(done);
+  }
+
+  // ── Imagens ────────────────────────────────────────────────────────
+  // O ficheiro sobe em base64 dentro do JSON de sempre, vai para
+  // `public/img/blog/<escrito>/` num commit, e o Markdown fica onde o
+  // cursor estava. Como o escrito, só aparece no site depois do deploy
+  // que vem a seguir — por isso o aviso diz «vai no próximo build».
+  function inserir(markdown) {
+    const body = fields.corpo;
+    const at = typeof body.selectionStart === 'number' ? body.selectionStart : body.value.length;
+    const before = body.value.slice(0, at);
+    const after = body.value.slice(at);
+    // Uma imagem é um parágrafo seu: garante-se a linha em branco de
+    // cada lado sem a duplicar quando já lá está.
+    const head = before && !before.endsWith('\n\n') ? (before.endsWith('\n') ? '\n' : '\n\n') : '';
+    const tail = after.startsWith('\n') ? '' : '\n';
+    body.value = before + head + markdown + tail + after;
+    const cursor = (before + head + markdown).length;
+    body.setSelectionRange(cursor, cursor);
+    body.focus();
+    scheduleSave();
+  }
+
+  function readAsDataUrl(file) {
+    return new Promise((done) => {
+      const reader = new FileReader();
+      reader.onload = () => done(String(reader.result || ''));
+      reader.onerror = () => done('');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function subirImagem(file) {
+    if (!file || !current || busy) return;
+    if (file.size > IMAGE_MAX) return say(t.imageTooBig);
+    busy = true;
+    say(t.imageUploading);
+    const dados = await readAsDataUrl(file);
+    const res = dados ? await call('/api/escritos/imagem', { id: current.id, nome: file.name, dados }) : { ok: false, status: 0, data: {} };
+    busy = false;
+    if (!res.ok) return say(res.status === 503 ? t.publishOff : res.status === 400 ? t.imageBad : t.fail);
+    inserir(res.data.markdown);
+    say(t.imageDone);
   }
 
   async function apagar() {
@@ -224,9 +275,25 @@ export function initEscritosEditor(ctx) {
   fields.titulo.addEventListener('input', () => {
     if (fields.titulo.value.includes('\n')) fields.titulo.value = fields.titulo.value.replace(/\n+/g, ' ');
   });
+  const fileInput = editor.querySelector('[data-editor-file]');
   editor.addEventListener('click', (ev) => {
     if (ev.target.closest('[data-editor-publish]')) publicar();
     else if (ev.target.closest('[data-editor-delete]')) apagar();
+    else if (ev.target.closest('[data-editor-image]') && fileInput) fileInput.click();
+  });
+  if (fileInput)
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';  // escolher o mesmo ficheiro outra vez tem de disparar
+      await subirImagem(file);
+    });
+  // Arrastar uma imagem para cima do corpo faz o mesmo que o botão.
+  fields.corpo.addEventListener('dragover', (ev) => ev.preventDefault());
+  fields.corpo.addEventListener('drop', (ev) => {
+    const file = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    ev.preventDefault();
+    subirImagem(file);
   });
   // Sair a meio não perde nada: o que estava por guardar vai antes.
   window.addEventListener('pagehide', () => {

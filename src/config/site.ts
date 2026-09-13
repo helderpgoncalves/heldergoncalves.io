@@ -62,7 +62,10 @@ export interface AppMeta {
 export const APPS: AppMeta[] = [
   { id: 'sobre', win: { w: 720, h: 520, minW: 420, minH: 360 }, dock: true, iosDock: false },
   { id: 'escritos', win: { w: 940, h: 620, minW: 720, minH: 380 }, dock: true, iosDock: true, ownHead: true },
-  { id: 'mensagens', win: { w: 700, h: 560, minW: 420, minH: 380 }, dock: true, iosDock: true },
+  // As Mensagens desenham o próprio cabeçalho: no iOS a barra de uma
+  // conversa É o cabeçalho da app (avatar ao centro, nome por baixo), e
+  // um título grande por cima dela dava duas barras a dizer o mesmo.
+  { id: 'mensagens', win: { w: 700, h: 560, minW: 420, minH: 380 }, dock: true, iosDock: true, ownHead: true },
   { id: 'contacto', win: { w: 660, h: 540, minW: 420, minH: 380 }, dock: true, iosDock: true },
   { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false, ownHead: true },
   { id: 'terminal', win: { w: 720, h: 460, minW: 380, minH: 240 }, dock: true, iosDock: true, bare: true },

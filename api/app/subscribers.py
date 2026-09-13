@@ -134,6 +134,16 @@ async def mark_active(email: str) -> bool:
     return True
 
 
+def active(lang: str) -> list[str]:
+    """Quem está mesmo na lista, na língua pedida — para avisar de um
+    escrito novo (newsletter.py). Continua a não haver endpoint nenhum
+    que devolva isto: a lista só se lê de dentro do processo."""
+    want = "en" if lang == "en" else "pt"
+    return sorted(
+        row["email"] for row in _people.values() if row.get("status") == "active" and row.get("lang", "pt") == want
+    )
+
+
 async def mark_gone(email: str) -> bool:
     key = normalize(email)
     before = _people.get(key)

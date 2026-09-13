@@ -208,6 +208,9 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+  /* O fim esbatido diz que a fila continua para o lado — sem isto um
+     chip cortado a meio da palavra lê-se como layout partido. */
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
   padding: 10px 16px;
   border-top: 0.5px solid var(--line);
   background: var(--surface-2);
@@ -308,14 +311,37 @@
 /* No telefone o cabeçalho de uma conversa é centrado, e o nome vai
    para baixo do avatar — a diferença real entre a Mensagens do iOS
    e a do Mac. */
-[data-mode='ios'] .msg-head { position: relative; justify-content: center; padding-block: 6px; }
-[data-mode='ios'] .msg-head .msg-avatar { width: 34px; height: 34px; }
-[data-mode='ios'] .msg-id { flex: 0 1 auto; align-items: center; text-align: center; }
-[data-mode='ios'] .msg-id strong { font-size: var(--t-caption); }
+/* No telefone o cabeçalho de uma conversa é o cabeçalho da app: o
+   avatar ao centro com o nome por baixo, o voltar à esquerda e as
+   acções à direita. Uma grelha de três colunas e duas linhas, e não
+   posições absolutas — assim o nome ao centro nunca passa por baixo do
+   botão da direita, por mais comprido que seja. É por isto também que
+   `mensagens` tem `ownHead` (src/config/site.ts): a app não leva outro
+   título por cima deste. */
+[data-mode='ios'] .msg-suggest button { padding: 7px 14px; font-size: var(--t-foot); }
+
+[data-mode='ios'] .msg-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  justify-items: center;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 4px 10px 8px;
+}
+[data-mode='ios'] .msg-back { grid-area: 1 / 1 / 3 / 2; justify-self: start; }
+[data-mode='ios'] .app-mensagens.owner .msg-back { display: inline-flex; position: static; }
+[data-mode='ios'] .msg-head > .msg-avatar {
+  grid-area: 1 / 2 / 2 / 3;
+  width: 42px;
+  height: 42px;
+  font-size: var(--t-subhead);
+}
+[data-mode='ios'] .msg-id { grid-area: 2 / 2 / 3 / 3; align-items: center; text-align: center; }
+[data-mode='ios'] .msg-id strong { font-size: var(--t-caption); font-weight: 500; }
 [data-mode='ios'] .msg-id span { display: none; }
-[data-mode='ios'] .msg-head > .msg-avatar { order: -1; }
-[data-mode='ios'] .msg-head-actions { position: absolute; right: 10px; margin: 0; }
-[data-mode='ios'] .msg-back { position: absolute; left: 6px; }
+[data-mode='ios'] .msg-head-actions { grid-area: 1 / 3 / 3 / 4; justify-self: end; margin: 0; }
+[data-mode='ios'] .msg-head-actions .btn { padding: 6px 11px; font-size: var(--t-caption); }
 
 /* Quem pediu menos movimento não leva a viagem — só o resultado. */
 @media (prefers-reduced-motion: reduce) {

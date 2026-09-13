@@ -75,6 +75,54 @@ NEWSLETTER_COPY = {
     },
 }
 
+# O aviso de escrito novo. Vai para quem confirmou a subscrição, e só
+# na língua que essa pessoa escolheu — um escrito em português não
+# incomoda quem pediu os ingleses. Texto simples, com a ligação inteira
+# à vista: um email de lista que esconde para onde aponta é o que os
+# filtros de spam (e as pessoas) aprenderam a desconfiar.
+ANNOUNCE_COPY = {
+    "pt": {
+        "subject": lambda titulo: "Escrito novo: " + titulo,
+        "body": lambda titulo, descricao, url, cancel: "\n".join(
+            [
+                "Olá,",
+                "",
+                "Está no ar um escrito novo em heldergoncalves.io:",
+                "",
+                titulo,
+                *([descricao, ""] if descricao else [""]),
+                url,
+                "",
+                "— Hélder",
+                "",
+                "Recebes isto porque confirmaste a subscrição do blog.",
+                "Sair da lista, quando quiseres:",
+                cancel,
+            ]
+        ),
+    },
+    "en": {
+        "subject": lambda titulo: "New writing: " + titulo,
+        "body": lambda titulo, descricao, url, cancel: "\n".join(
+            [
+                "Hello,",
+                "",
+                "There is something new on heldergoncalves.io:",
+                "",
+                titulo,
+                *([descricao, ""] if descricao else [""]),
+                url,
+                "",
+                "— Hélder",
+                "",
+                "You get this because you confirmed your subscription to the blog.",
+                "Leave the list whenever you want:",
+                cancel,
+            ]
+        ),
+    },
+}
+
 AUTH_COPY = {
     "pt": {
         "subject": "A tua ligação para entrar em heldergoncalves.io",
