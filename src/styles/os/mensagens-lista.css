@@ -175,6 +175,15 @@
 /* ── No telefone a lista é a app inteira ─────────────────────────
    Título grande, pesquisa em cápsula por baixo, e linhas altas com
    o avatar maior — as medidas da Mensagens do iOS, não as do Mac. */
+/* No Mac a lista não leva cabeçalho: a barra de título da janela já
+   diz «Mensagens», e a lista de conversas do macOS começa mesmo na
+   pesquisa. O título grande com a contagem é a forma do iPhone, onde
+   não há barra de título nenhuma para o dizer. */
+[data-mode='mac'] .msg-list-head { display: none; }
+/* Sem o cabeçalho por cima, a pesquisa precisa da folga que ele lhe
+   dava — senão encosta ao topo da janela. */
+[data-mode='mac'] .msg-search { margin-top: 10px; }
+
 [data-mode='ios'] .msg-list-pane { background: var(--surface-solid); }
 [data-mode='ios'] .msg-list-head { padding: 8px 16px 2px; }
 [data-mode='ios'] .msg-list-head h2 { font-size: var(--t-large); letter-spacing: -0.03em; }

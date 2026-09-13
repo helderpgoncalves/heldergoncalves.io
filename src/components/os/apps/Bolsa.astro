@@ -30,7 +30,11 @@ const PORTFOLIO = [
       não rolava: estava inteira lá, escondida. */}
   <div class="stk-side flex min-h-0 min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
     <div class="stk-head flex items-center justify-between px-4 pb-1.5 pt-3.5">
-      <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.bolsa.name}</h2>
+      {/* No Mac isto não se mostra: a barra de título da janela já diz o
+    nome da app, e repeti-lo dentro do conteúdo é coisa que o macOS não
+    faz em lado nenhum. No iPhone é o contrário — o título grande é a
+    forma de uma app, porque lá não há barra de título nenhuma. */}
+      <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em] [[data-mode='mac']_&]:hidden [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.bolsa.name}</h2>
       <button class="stk-edit min-h-7 text-[length:var(--t-body)] font-medium text-(--accent)" type="button" data-stk-edit>{b.edit}</button>
     </div>
     <div class="stk-add relative mx-3 mb-2 mt-1 flex h-[30px] items-center gap-1.5 bg-(--surface-3) px-2.5 text-(--ink-3) [[data-mode='ios']_&]:h-9">

@@ -70,7 +70,7 @@ const folders = [
         pequeno; no telefone, o título grande do iOS com a contagem por
         baixo, como em «Todas - iCloud / 21 notas». */}
     <div class="app-side-head border-b-[0.5px] border-(--line) px-4 pb-2.5 pt-3 [[data-mode='ios']_&]:border-b-0 [[data-mode='ios']_&]:px-4 [[data-mode='ios']_&]:pb-2 [[data-mode='ios']_&]:pt-1">
-      <h2 class="m-0 text-[length:var(--t-title3)] font-semibold tracking-[-0.015em] [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
+      <h2 class="m-0 text-[length:var(--t-title3)] font-semibold tracking-[-0.015em] [[data-mode='mac']_&]:hidden [[data-mode='ios']_&]:text-[length:var(--t-large)] [[data-mode='ios']_&]:font-bold [[data-mode='ios']_&]:tracking-[-0.02em]">{e.heading}</h2>
       <p class="m-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3) [[data-mode='ios']_&]:mt-1 [[data-mode='ios']_&]:text-[length:var(--t-subhead)]">{posts.length} {e.count} · <a href={ROUTES[lang].feed}>{c.labels.rss}</a></p>
     </div>
     {posts.length === 0 ? (
