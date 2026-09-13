@@ -1,4 +1,13 @@
 ---
+// Mail — a folha de escrever do iOS: os campos em filas com um fio
+// entre elas, o corpo por baixo, e a barra de enviar sempre à vista.
+//
+// A armadilha que isto já teve: a secção rolava E o formulário era
+// `flex-1` com o corpo `flex-1` lá dentro. Dois contentores a disputar
+// a mesma altura davam o que se via no telefone — o corpo, os botões e
+// os links uns por cima dos outros. Agora há **um** sítio que rola (o
+// miolo) e uma barra que não rola, e uma coisa não pode cair em cima da
+// outra por construção.
 import { SITE, COPY, socialLinks, type Lang } from '../../../siteConfig';
 import Icon from '../Icon.astro';
 interface Props { lang: Lang }
@@ -6,45 +15,78 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.contacto;
 const links = socialLinks(lang).filter((l) => l.id !== 'email');
+
+// A fila de um campo: o rótulo em cinzento e o valor a seguir, com o
+// fio por baixo — a medida da Mail do iOS, não uma grelha de formulário.
+const FILA = 'compose-field flex items-baseline gap-2 border-b-[0.5px] border-(--line) px-4 py-2.5';
+const ROTULO = 'flex-none text-[length:var(--t-callout)] text-(--ink-3)';
+const CAMPO =
+  'min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-callout)] text-(--ink) outline-hidden placeholder:text-(--ink-3) read-only:text-(--ink-2)';
 ---
-<section class="app-shell app-contacto relative flex min-h-0 flex-col overflow-auto bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
+<section class="app-shell app-contacto flex-col bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
   <form class="compose flex min-h-0 flex-1 flex-col" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
-    <div class="compose-fields flex-none border-b-[0.5px] border-(--line)">
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-to">{k.to}</label>
-        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-to" name="to" value={SITE.email} readonly />
+    {/* O único sítio que rola. */}
+    <div class="compose-scroll min-h-0 flex-1 overflow-auto">
+      <div class="compose-fields flex-none">
+        <div class={FILA}>
+          <label class={ROTULO} for="c-to">{k.to}</label>
+          <input class={CAMPO} id="c-to" name="to" value={SITE.email} readonly />
+        </div>
+        {/* O «De» é o email da sessão e fecha-se quando há uma (ver
+            contacto.js): o servidor ignora este campo e assina sempre
+            com quem entrou. Sem sessão fica livre, porque aí o caminho
+            é o `mailto:` do próprio cliente de correio. */}
+        <div class={FILA}>
+          <label class={ROTULO} for="c-from">{k.from}</label>
+          <input class={CAMPO} id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
+        </div>
+        <div class={FILA}>
+          <label class={ROTULO} for="c-subject">{k.subject}</label>
+          <input class={CAMPO} id="c-subject" name="subject" value={k.subjectValue} />
+        </div>
       </div>
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-from">{k.from}</label>
-        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-from" name="from" type="email" placeholder="tu@exemplo.com" autocomplete="email" required />
+
+      <div class="hp" aria-hidden="true">
+        <label for="c-company">{k.honeypot}</label>
+        <input id="c-company" name="company" type="text" tabindex="-1" autocomplete="off" />
       </div>
-      <div class="compose-field flex items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.25 @max-[560px]/app:flex-wrap">
-        <label class="basis-[74px] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full" for="c-subject">{k.subject}</label>
-        <input class="min-w-0 flex-1 border-0 bg-transparent text-[14px] text-(--ink) outline-hidden" id="c-subject" name="subject" value={k.subjectValue} />
+
+      {/* Cresce com o que se escreve, em vez de disputar a altura com o
+          resto — é `field-sizing-content`, o mesmo do editor do Blog. */}
+      <label class="sr" for="c-body">{k.body}</label>
+      <textarea
+        class="compose-body field-sizing-content min-h-[180px] w-full resize-none border-0 bg-transparent px-4 py-3.5 text-[length:var(--t-body)] leading-[1.55] text-(--ink) outline-hidden placeholder:text-(--ink-3)"
+        id="c-body"
+        name="body"
+        placeholder={k.placeholder}
+        rows="8"
+        required
+        minlength="10"></textarea>
+
+      {/* Noutros sítios: um grupo arredondado por baixo do corpo, como
+          as fileiras das Definições. Rola com o resto — não é uma
+          camada por cima de nada. */}
+      <div class="compose-intro px-4 pb-7 pt-2">
+        <h3 class="m-0 mb-1.5 px-1 text-[length:var(--t-caption)] uppercase tracking-[0.08em] text-(--ink-3)">{k.elsewhere}</h3>
+        <div class="rows overflow-hidden border-[0.5px] border-(--line) bg-(--surface-2)">
+          {links.map((l) => (
+            <a class="row flex w-full items-center gap-3 border-b-[0.5px] border-(--line) px-3.5 py-2.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline" href={l.href} target="_blank" rel="noopener me">
+              <span class="min-w-0 flex-1 truncate text-[length:var(--t-subhead)] text-(--ink-3)">{l.label}</span>
+              <span class="min-w-0 truncate text-right text-[length:var(--t-subhead)] text-(--ink)">{l.value}</span>
+              <Icon id={`ui-${l.id}`} class="flex-none text-(--ink-3)" size={15} />
+            </a>
+          ))}
+        </div>
       </div>
     </div>
-    <div class="hp" aria-hidden="true">
-      <label for="c-company">{k.honeypot}</label>
-      <input id="c-company" name="company" type="text" tabindex="-1" autocomplete="off" />
-    </div>
-    <textarea class="compose-body min-h-[140px] w-full flex-1 resize-none border-0 bg-transparent p-4 text-[15px] leading-[1.6] text-(--ink) outline-hidden" id="c-body" name="body" placeholder={k.placeholder} rows="8" required minlength="10"></textarea>
-    <div class="compose-bar flex items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-3">
+
+    {/* A barra não rola: o enviar está sempre onde a pessoa o deixou. */}
+    <div class="compose-bar flex flex-none flex-wrap items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
       <button class="btn btn-primary" type="submit">
         <Icon id="ui-arrow" size={12} />{k.send}
       </button>
       <button class="btn" type="button" data-copy-email>{k.copy}</button>
-      <span class="hintline ml-auto text-[12px] text-(--ink-3)" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
+      <span class="hintline ml-auto min-w-0 flex-1 text-right text-[length:var(--t-caption)] text-(--ink-3) @max-[420px]/app:basis-full @max-[420px]/app:text-left" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
     </div>
   </form>
-  <div class="app-pad compose-intro flex-none px-7.5 pb-8.5 pt-6.5 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-7 [[data-mode='ios']_&]:pt-5">
-    <h3 class="app-eyebrow m-0 mb-1 text-[11px] uppercase tracking-[0.08em] text-(--ink-3)">{k.elsewhere}</h3>
-    <div class="rows border-[0.5px] border-(--line) bg-(--surface-2)">
-      {links.map((l) => (
-        <a class="row flex w-full items-center gap-3.5 border-b-[0.5px] border-(--line) py-2.75 px-3.75 text-left text-inherit no-underline last:border-b-0 hover:bg-(--surface-3) hover:no-underline @max-[560px]/app:flex-wrap @max-[560px]/app:gap-x-3 @max-[560px]/app:gap-y-1" href={l.href} target="_blank" rel="noopener me">
-          <span class="k basis-[34%] flex-none text-[13px] text-(--ink-3) @max-[560px]/app:basis-full">{l.label}</span><span class="v ml-auto text-right text-[13px] text-(--ink) @max-[560px]/app:ml-0 @max-[560px]/app:text-left">{l.value}</span>
-          <Icon id={`ui-${l.id === "email" ? "mail" : l.id}`} class="arrow text-(--ink-3)" size={15} />
-        </a>
-      ))}
-    </div>
-  </div>
 </section>
