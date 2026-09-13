@@ -19,13 +19,14 @@ desenhar para plataformas Apple.
 
 | O quê                                                        | Onde                                  | Origem / licença |
 | ------------------------------------------------------------- | -------------------------------------- | ---------------- |
-| Finder, Notas, Mail, Terminal, Ações (Bolsa), Mensagens, Calendário, Contactos | `src/assets/icons/`  | ícones da Apple, extraídos com `iconutil` dos `.icns` das aplicações correspondentes, do macOS do próprio Hélder |
+| Notas, Mail, Terminal, Ações (Bolsa), Mensagens, Calendário, Contactos | `src/assets/icons/`  | ícones da Apple, extraídos com `iconutil` dos `.icns` das aplicações correspondentes, do macOS do próprio Hélder |
 | Simulador                                                    | `src/assets/icons/simulator.png`      | ícone da Apple, extraído do `.icns` do Simulator (dentro do Xcode) |
 | Currículo.pdf (documento genérico)                           | `src/assets/icons/document.png`       | ícone da Apple, extraído do `GenericDocumentIcon.icns` do sistema (o mesmo que a Apple usa para qualquer ficheiro sem ícone próprio) |
 | Safari                                                       | `src/assets/icons/safari.png`         | ícone da Apple, distribuído com o componente `mac-os-dock` de 21st.dev, usado ao abrigo da licença desse componente |
 | Definições do Sistema                                        | `src/assets/icons/settings.png`       | ícone da Apple, da Wikipédia (`System_Preferences_icon.png`) |
 | Contactos, Notas e Mail do iOS                               | `src/assets/icons/ios/`               | ícones da Apple, do Wikimedia Commons (`Contacts_iOS.svg`, `Apple_Notes_(iOS).png`, `Mail_(iOS).svg`) |
 | Safari 26                                                    | `src/assets/icons/safari26.png`       | ícone da Apple, da Wikipédia (`Safari_Liquid_Glass_icon.png`) |
+| Finder do macOS Tahoe                                        | `src/assets/icons/finder-tahoe.png`   | ícone da Apple, do Wikimedia Commons (`Finder_Icon_macOS_Tahoe.png`) |
 | Glifos dos restantes ícones (Lucide)                         | `src/components/os/IconSprite.astro`  | ISC |
 | Marcas GitHub, LinkedIn, X (Simple Icons)                    | idem                                   | CC0 1.0 |
 

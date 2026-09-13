@@ -33,7 +33,7 @@
 // das cores de sistema do iOS, com o gradiente que a Apple usa:
 // aclarar em cima, escurecer ligeiramente em baixo.
 import { getImage } from 'astro:assets';
-import finder from '../../assets/icons/finder.png';
+import finderTahoe from '../../assets/icons/finder-tahoe.png';
 import notes from '../../assets/icons/notes.png';
 import mail from '../../assets/icons/mail.png';
 import safari from '../../assets/icons/safari.png';
@@ -55,7 +55,6 @@ const shrink = (src: ImageMetadata) => getImage({ src, width: ICON_PX, height: I
 
 /** Que ícone verdadeiro serve cada aplicação. */
 const real: Record<string, string> = {
-  ficheiros: (await shrink(finder)).src,
   escritos: (await shrink(notes)).src,
   contacto: (await shrink(mail)).src,
   projetos: (await shrink(safari)).src,
@@ -73,6 +72,12 @@ const real: Record<string, string> = {
     uma folha a papel inteiro, sem quadrado de fundo. Ocupa quase toda
     a caixa, sem o puxão de FIT. */
 const FIT_DOC = { size: 82, offset: 9 };
+
+/** O Finder do Tahoe: ao contrário dos `.icns`, este ficheiro é a arte
+    a 824 já sem a moldura de 1024 à volta. Enche o quadrado tal e qual,
+    sem o puxão de FIT — que existe precisamente para tirar essa
+    moldura, e aqui não há nenhuma para tirar. */
+const finder = (await shrink(finderTahoe)).src;
 
 /** A imagem no lugar do quadrado: 1024/824 do lado, 100/824 para fora. */
 const FIT = { size: (100 * 1024) / 824, offset: (-100 * 100) / 824 };
@@ -215,7 +220,7 @@ const FIT26 = { size: (100 * 300) / 282, offset: (-9 * 100) / 282 };
        pasta azul: essa fica desenhada à mão, com a pasta do Lucide
        sobre o azul do sistema, na geometria dos outros. -->
   <symbol id="icon-ficheiros" viewBox="0 0 100 100">
-    <g class="ic-mac"><image href={real.ficheiros} x={FIT.offset} y={FIT.offset} width={FIT.size} height={FIT.size} /></g>
+    <g class="ic-mac"><image href={finder} width="100" height="100" /></g>
     <g class="ic-ios" clip-path="url(#sq)">
       <rect width="100" height="100" fill="url(#g-ficheiros)"/>
       <g transform="translate(21.00 21.00) scale(2.4167)" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></g>
