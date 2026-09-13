@@ -18,9 +18,11 @@ import { initTerminal } from './terminal.js';
 import { initChat } from './mensagens.js';
 import { initInbox } from './mensagens-inbox.js';
 import { initCompose } from './contacto.js';
+import { initInboxMail } from './contacto-inbox.js';
 import { initSettings } from './definicoes.js';
 import { initSimulator } from './simulador.js';
 import { initBolsa } from './bolsa.js';
+import { initFinancas } from './financas.js';
 import { initCalendario } from './calendario.js';
 import { initPessoas } from './pessoas.js';
 import { initFicheiros } from './ficheiros.js';
@@ -29,7 +31,7 @@ import { initFicheiros } from './ficheiros.js';
 // `[data-comments]` que já vem servido no arranque, e lê-o assim que
 // arranca — mas nunca precisa de nada que só `initEscritos` ponha no
 // objecto partilhado, por isso a ordem não é uma dependência a sério.
-const APPS = [initEscritos, initComentarios, initEscritosEditor, initSubscribe, initTerminal, initChat, initInbox, initCompose, initSettings, initSimulator, initBolsa, initCalendario, initPessoas, initFicheiros];
+const APPS = [initEscritos, initComentarios, initEscritosEditor, initSubscribe, initTerminal, initChat, initInbox, initCompose, initInboxMail, initSettings, initSimulator, initBolsa, initFinancas, initCalendario, initPessoas, initFicheiros];
 
 export function initApps(ctx) {
   for (const init of APPS) init(ctx);

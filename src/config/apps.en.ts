@@ -166,7 +166,7 @@ export const APPS_EN = {
     subject: 'Subject',
     subjectValue: 'Hello Hélder',
     body: 'Message',
-    placeholder: 'Write here. Sending opens your own email app with everything filled in — there is no server storing anything.',
+    placeholder: 'Write here. Signed in, the message goes from here and is kept so I can read it and reply; otherwise it opens your own email app with everything filled in.',
     send: 'Send',
     sendHint: 'Opens your email app',
     elsewhere: 'Elsewhere',

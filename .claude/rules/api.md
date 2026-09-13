@@ -33,7 +33,8 @@ Cada ficheiro tem um assunto, e só um.
 | `sessions.py` | o código por email, e a sessão |
 | `meetings.py` / `availability.py` | as reuniões marcadas, e quando há vaga |
 | `availability_store.py` | os bloqueios e aberturas que o dono cria por cima das janelas fixas |
-| `chat_store.py` | as conversas das Mensagens, guardadas — a excepção deliberada ao resto |
+| `chat_store.py` | as conversas das Mensagens, guardadas — uma das duas excepções deliberadas ao resto |
+| `contacto_store.py` | as mensagens de contacto, guardadas — a outra; é o que enche a caixa de entrada da Mail |
 | `comments_store.py` / `reactions_store.py` | os comentários e as reações dos escritos |
 | `owner_guard.py` | o portão `require_owner` — todo o endpoint só-do-dono começa por ele |
 | `copy.py` | o texto das páginas e emails que não passam pelo Astro |
@@ -76,11 +77,14 @@ Cada ficheiro tem um assunto, e só um.
 - **Um bloqueio ou uma abertura do dono valem para toda a gente.**
   `availability.free_slots` já os inclui por omissão — não é preciso
   (nem se deve) filtrar por `email` para decidir quem os vê.
-- **As conversas das Mensagens são a única excepção a «nada fica
-  guardado».** É deliberado — `chat_store.py` — e a política de
-  privacidade diz que existe. Não acrescentes outro registo de texto de
-  visitantes sem fazer o mesmo: dizê-lo, e dar ao dono uma forma de o
-  ler e a mais ninguém.
+- **As conversas das Mensagens e as mensagens de contacto são as duas
+  excepções a «nada fica guardado».** São deliberadas —
+  `chat_store.py` e `contacto_store.py` — e a política de privacidade
+  diz que existem, nas duas línguas. Cada uma é lida por uma caixa de
+  entrada só do dono (`routers/inbox.py`, `routers/mail.py`), e por
+  mais ninguém. Não acrescentes um terceiro registo de texto de
+  visitantes sem fazer o mesmo: dizê-lo nas duas páginas de
+  privacidade, e dar ao dono uma forma de o ler e a mais ninguém.
 - **O email de quem comenta nunca sai de `comments_store.py`.**
   `for_post` e qualquer resposta nova têm de continuar a devolver só
   `id`, `name`, `body`, `at` — nunca `email`.

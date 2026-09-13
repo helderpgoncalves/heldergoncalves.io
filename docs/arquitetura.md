@@ -580,3 +580,122 @@ Não se inventa aqui. Antes de escrever código, decidir com o Hélder:
   em `config.py` como todos os outros) ou se é só um documento a
   descarregar;
 - o que acontece a um projecto fechado: some, ou fica a ler.
+
+## As Finanças: trabalhar por conta própria em Portugal
+
+*Desenho, ainda não implementado. Escrito antes do código de propósito:
+metade disto são regras fiscais, e regras fiscais não se adivinham a
+meio de uma função.*
+
+Vive na app **Bolsa**, como uma terceira face ao lado de «Lista» e
+«Portefólio», e só para o dono. É a mesma família — números, uma lista e
+um detalhe — e por isso não nasce uma app nova. Se um dia crescer ao
+ponto de a Bolsa deixar de ser sobre cotações, aí sim parte-se.
+
+### O que responde
+
+Quatro perguntas, e a app existe para estas:
+
+1. **Quanto faturei este ano, e a quem?** Por cliente, por projeto, por
+   mês.
+2. **Quanto vou faturar?** As avenças estão contratadas — sabem-se. Os
+   projetos têm fases com datas.
+3. **Quanto disto não é meu?** IVA a entregar, IRS já retido, Segurança
+   Social a pagar no trimestre. O saldo que sobra é o que é mesmo dele.
+4. **Estou à frente ou atrás do orçamento?** Um objetivo anual, e o real
+   contra ele.
+
+### As peças
+
+```
+cliente 1 ─── N projeto
+cliente 1 ─── N avença        (mensal, recorrente, sem fim marcado)
+projeto 1 ─── N fase           (valor + data prevista)
+        └──── N fatura
+avença  1 ─── N fatura         (uma por mês, gerada)
+fatura  1 ─── 1 recibo         (quando é paga)
+```
+
+- **Avença**: valor mensal, dia do mês em que se fatura, início, e fim
+  se o houver. É o que torna a previsão fiável — o resto é estimativa,
+  isto é contrato.
+- **Fase**: um projeto fatura-se por fases, não por horas. Cada uma tem
+  valor e data prevista; a previsão soma as que ainda não foram
+  faturadas.
+- **Fatura**: emitida, paga, ou em atraso. Guarda o valor base, o IVA, a
+  retenção, e o total. **Não é a fatura legal** — essa emite-se no
+  Portal das Finanças. Isto é o registo de gestão que diz onde está o
+  dinheiro.
+
+### As regras portuguesas
+
+Tudo isto **vem de configuração, nunca escrito no código**, e vive em
+`LIMITS`/`config.py` como todos os outros números. Muda de ano para ano,
+e um valor cravado numa função é um valor que ninguém encontra quando
+mudar.
+
+- **IVA** — 23 % na taxa normal. Há isenção pelo **artigo 53.º** abaixo
+  de um limite de faturação anual, e isenções por atividade pelo artigo
+  9.º. A app tem de suportar «isento» com o motivo, porque é o que vai
+  escrito na fatura.
+- **Retenção na fonte de IRS** — a taxa normal dos serviços
+  profissionais, com a possibilidade de dispensa abaixo de um limite e
+  de taxa reduzida no arranque de atividade. Quem retém é o cliente: o
+  dinheiro **nunca chega à conta**, e por isso a app tem de mostrar
+  «faturado» e «recebido» como duas colunas diferentes. Confundi-las é o
+  erro clássico de quem começa.
+- **Regime simplificado** — o rendimento tributável é um **coeficiente**
+  do que se faturou (0,75 na maior parte dos serviços), não o valor
+  todo. É esse que entra no IRS.
+- **Segurança Social** — trimestral, uma percentagem sobre uma fração do
+  que se faturou no trimestre anterior. Há isenção nos primeiros meses
+  de atividade. A app avisa antes do prazo, que é o que mais dói
+  esquecer.
+- **IRS** — anual e por escalões. A app estima; não faz a declaração.
+
+### Uma linha que não se atravessa
+
+Isto é uma **ferramenta de gestão, não contabilidade e não
+aconselhamento fiscal**. Calcula o que o Hélder configurar, com as taxas
+que ele puser, e diz em todo o lado que é uma estimativa. Quem emite
+faturas é o Portal das Finanças; quem fecha contas é o contabilista. A
+app que finge o contrário é a app que lhe dá um problema com a
+Autoridade Tributária.
+
+Por isso: cada número calculado mostra **de onde veio** — a taxa que
+usou e sobre que base. Um total que não se consegue explicar não se
+mostra.
+
+### Decidido (13/09/2026, com o Hélder)
+
+- **Regime simplificado**, não contabilidade organizada.
+- **Não é isento de IVA** — os 23 % aplicam-se. O interruptor de isenção
+  fica na mesma, porque isto muda com o volume de faturação, mas nasce
+  desligado.
+- **A lógica é a do recibo**, e é essa que manda no ecrã principal: o
+  que já faturei, o que falta faturar, e a previsão do ano. Não é um
+  livro de contas — é a resposta a «como é que o ano vai».
+
+### A fatura que vai ao Finder do cliente
+
+Cada fatura tem um interruptor: **partilhar com o cliente, ou não**. Ao
+ligar, o ficheiro aparece na pasta desse cliente na app **Ficheiros**,
+numa pasta «Faturas» — a mesma partilha que já existe
+(`ficheiros_store.py`), não um mecanismo novo. O cliente entra com o
+email dele e está lá, ao lado do resto do que se troca com ele.
+
+**O ficheiro é o PDF verdadeiro, emitido no Portal das Finanças, que o
+Hélder anexa.** Não geramos faturas: gerar um PDF com aspecto de fatura
+que não é a fatura legal é a pior coisa que esta app podia fazer — dava
+duas versões do mesmo documento, e a que o cliente guardava era a
+errada. O que a app guarda é o registo de gestão (valores, estado,
+prazos); o documento é o que veio das Finanças.
+
+Desligar a partilha tira o ficheiro da pasta do cliente. O registo
+fica — o que se desfaz é o acesso, não a contabilidade.
+
+### O que fica por decidir com o Hélder
+
+- As taxas e limites a sério, e a partir de que data valem.
+- Se as faturas se importam do e-fatura ou se são lançadas à mão.
+- A moeda — euro sempre, ou há clientes noutra.

@@ -15,6 +15,7 @@ from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
 from app.config import LIMITS, MAIL_READY, SITE_ORIGIN
+from app.contacto_store import PESSOA, conversation_id, record_message
 from app.http import read_json
 from app.mail import deliver_to_owner
 from app.security import bump, check_token, ip_key, wrong_origin
@@ -71,5 +72,15 @@ async def contact(request: Request) -> JSONResponse:
     sent = await deliver_to_owner(session_email, subject, message)
     if not sent:
         return JSONResponse({"ok": False, "error": "entrega"}, status_code=502)
+
+    # Guardar é um passo A MAIS, nunca em vez de enviar. O email sai como
+    # sempre saiu; a cópia é o que dá ao Hélder uma caixa de entrada na
+    # Mail em vez de a mensagem se perder no correio dele. Se escrever no
+    # disco falhar, a mensagem já foi entregue — não se perde nada, e
+    # quem escreveu não tem de saber disto.
+    try:
+        await record_message(conversation_id(session_email), session_email, PESSOA, subject, message)
+    except OSError as err:
+        print(f"[contacto] mensagem entregue mas nao guardada: {err}")
     print("[contacto] mensagem entregue")
     return JSONResponse({"ok": True})

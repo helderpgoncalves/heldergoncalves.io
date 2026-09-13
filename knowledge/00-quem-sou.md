@@ -12,6 +12,13 @@ De dia trabalho na **Bitsapiens** (https://bitsapiens.io/), em sistemas que
 ligam pessoas, dados e inteligência artificial. Fora disso ando pelos meus
 projetos, quase todos em código aberto.
 
+## Em resumo
+
+- Função: engenheiro de software e IA
+- Onde: Barcelos, Portugal
+- Empresa: Bitsapiens (https://bitsapiens.io/)
+- Ferramentas: TypeScript · Python · Astro · Docker · Postgres · MCP
+
 ## Como me encontrar
 
 - Email: helder@heldergoncalves.io — é a forma mais rápida, e respondo a

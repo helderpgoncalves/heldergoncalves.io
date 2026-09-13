@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════════════
+   As Finanças: a terceira face da Bolsa, só do dono.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Quase tudo o que esta face precisa já é utility, em Bolsa.astro e
+   nos `financas*.js` — as linhas da lista, as cápsulas, os azulejos e
+   o gráfico são os mesmos das cotações. Aqui fica só o que uma
+   utility não alcança.
+   ─────────────────────────────────────────────────────────────── */
+
+/* `hidden` tem de ganhar sempre.
+   A face inteira aparece e desaparece por `el.hidden` — quem não é
+   dono não a vê. Uma regra de autor com `display` ganha ao `[hidden]`
+   da folha do browser, e bastava uma para a face de um visitante
+   voltar a aparecer. É o mesmo remendo de mensagens.css, e pelo mesmo
+   motivo. */
+.app-bolsa [hidden] { display: none !important; }
+
+/* O triângulo do `<details>`: cada azulejo abre e diz a conta que fez,
+   e o marcador do browser não é da Apple em sistema nenhum. O
+   `list-style` da linha em si é uma utility (`list-none`), no markup;
+   o pseudo-elemento do WebKit não tem utility nenhuma que lhe chegue —
+   é por isso que esta regra existe. */
+.fin-how > summary::-webkit-details-marker { display: none; }

@@ -10,6 +10,7 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = COPY[lang];
 const b = c.bolsa;
+const f = c.financas;
 const DEFAULT = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'TSLA', 'BTC-USD', '^GSPC', 'EURUSD=X'];
 /** O portefólio do Hélder: VWCE e SXR8 negoceiam na Xetra, por isso o
     símbolo do Yahoo leva o sufixo — a etiqueta que se mostra é a nua. */
@@ -71,6 +72,18 @@ const PORTFOLIO = [
           ))}
         </ul>
         <div class="stk-totals flex flex-wrap items-baseline gap-x-2.5 gap-y-1 px-4 pb-2 pt-0.5 [&[hidden]]:hidden" data-stk-totals hidden></div>
+      </div>
+
+      {/* A terceira face, ao lado da Lista e do Portefólio: as Finanças.
+          **Só do dono.** Nasce `hidden` e sem nada dentro — é o
+          JavaScript que a revela, e só depois de `/api/auth/me` dizer
+          que a sessão é a dele. Um visitante não vê a face, não vê uma
+          lista vazia, e o servidor recusa-lhe as rotas na mesma
+          (owner_guard.py): o que está aqui é a camada visual, nunca o
+          portão. */}
+      <div class="stk-group fin-group [&+&]:mt-1.5 [&[hidden]]:hidden" data-fin-group hidden>
+        <p class="stk-group-name m-0 mb-0.5 mt-1.5 px-4 text-[length:var(--t-caption)] font-semibold uppercase tracking-[0.06em] text-(--ink-3)">{f.face}</p>
+        <ul class="stk-list m-0 list-none px-2" data-fin-list></ul>
       </div>
     </div>
     <p class="stk-note m-0 border-t-[0.5px] border-(--line) px-4 pb-3 pt-2.5 text-[length:var(--t-caption)] text-(--ink-3)" data-stk-note>{b.lead}</p>

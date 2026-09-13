@@ -1,6 +1,17 @@
 ---
-// Mail — a folha de escrever do iOS: os campos em filas com um fio
-// entre elas, o corpo por baixo, e a barra de enviar sempre à vista.
+// Mail — a app da Apple, com duas caras (como as Mensagens).
+//
+//   Visitante com sessão: a folha de escrever do iOS, que é o que
+//         sempre esteve aqui — campos em filas com um fio entre elas, o
+//         corpo por baixo, e a barra de enviar sempre à vista.
+//   Dono: a caixa de entrada. Quem lhe escreveu, a conversa de cada um,
+//         e um compositor de resposta com um botão que redige um
+//         rascunho. O dono não se escreve a si próprio — `/api/contact`
+//         responde 403 `proprio` à sessão dele, e deste lado a folha de
+//         escrever nem aparece.
+//
+// A forma da caixa de entrada (as linhas com ponto azul, os dois ecrãs
+// quando o contentor é estreito) está em styles/os/mail.css.
 //
 // A armadilha que isto já teve: a secção rolava E o formulário era
 // `flex-1` com o corpo `flex-1` lá dentro. Dois contentores a disputar
@@ -15,6 +26,7 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.contacto;
 const links = socialLinks(lang).filter((l) => l.id !== 'email');
+const w = c.mail;
 
 // A fila de um campo: o rótulo em cinzento e o valor a seguir, com o
 // fio por baixo — a medida da Mail do iOS, não uma grelha de formulário.
@@ -24,6 +36,69 @@ const CAMPO =
   'min-w-0 flex-1 border-0 bg-transparent text-[length:var(--t-callout)] text-(--ink) outline-hidden placeholder:text-(--ink-3) read-only:text-(--ink-2)';
 ---
 <section class="app-shell app-contacto flex-col bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
+  {/* ── A caixa de entrada, só do dono ─────────────────────────────
+      Nasce escondida e o JavaScript revela-a depois de confirmar
+      `amIOwner()`. Vem vazia de propósito: o conteúdo é de
+      /api/mail, que o backend já recusa a quem não é o dono — não há
+      aqui nada que um visitante possa ver na origem da página. */}
+  <aside class="mail-list-pane" data-mail-sidebar hidden aria-hidden="true">
+    <div class="mail-list-head">
+      <h2>{w.inbox}</h2>
+      <p class="mail-list-count m-0" data-mail-count>{w.allRead}</p>
+    </div>
+    <ul class="mail-list" data-mail-list aria-label={w.inbox}></ul>
+    <div class="mail-empty" data-mail-empty hidden>
+      <span class="mail-empty-icon" aria-hidden="true"><Icon id="ui-mail" size={24} /></span>
+      <p class="m-0">{w.empty}</p>
+    </div>
+  </aside>
+
+  {/* ── A conversa de uma pessoa, e a resposta ─────────────────── */}
+  <div class="mail-thread" data-mail-thread hidden>
+    {/* O vazio do dono, antes de escolher alguém. Vive DENTRO da
+        conversa, e não ao lado dela, por causa do ecrã estreito: aí a
+        conversa entra a deslizar por cima da lista, e um painel que
+        aparece e desaparece por `hidden` não desliza — some. */}
+    <div class="mail-empty" data-mail-pick hidden>
+      <span class="mail-empty-icon" aria-hidden="true"><Icon id="ui-note" size={24} /></span>
+      <p class="m-0">{w.pick}</p>
+    </div>
+
+    <header class="mail-thread-head" data-mail-head hidden>
+      <button class="mail-back" type="button" data-mail-back>
+        <Icon id="ui-chevron" size={13} />{w.inbox}
+      </button>
+      <span class="mail-avatar" data-mail-avatar aria-hidden="true"></span>
+      <span class="mail-who">
+        <strong data-mail-name></strong>
+        <span data-mail-to></span>
+      </span>
+    </header>
+
+    <div class="mail-scroll min-h-0 flex-1 overflow-auto" data-mail-scroll hidden>
+      <h3 class="mail-subject" data-mail-subject></h3>
+      <div class="mail-messages" data-mail-messages></div>
+    </div>
+
+    {/* O rascunho entra no campo para ser EDITADO — nunca sai daqui
+        sozinho. Quem carrega em enviar é o Hélder, depois de o ler. */}
+    <form class="mail-reply" data-mail-reply novalidate hidden>
+      <textarea
+        class="mail-reply-body field-sizing-content w-full resize-none border-0 bg-transparent text-[length:var(--t-body)] leading-[1.5] text-(--ink) outline-hidden placeholder:text-(--ink-3)"
+        data-mail-text
+        placeholder={w.replyPlaceholder}
+        rows="3"
+        maxlength="4000"></textarea>
+      <div class="mail-reply-acts">
+        <button class="btn" type="button" data-mail-draft>{w.draft}</button>
+        <p class="mail-reply-hint m-0 min-w-0 flex-1 truncate text-[length:var(--t-caption)] text-(--ink-3) data-[tone=warn]:text-(--orange) data-[tone=ok]:text-(--green)" data-mail-hint role="status" aria-live="polite"></p>
+        <button class="mail-send" type="submit" aria-label={w.send}>
+          <Icon id="ui-arrow" size={15} />
+        </button>
+      </div>
+    </form>
+  </div>
+
   <form class="compose flex min-h-0 flex-1 flex-col" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
     {/* O cabeçalho é o da Mail a sério, e é diferente nos dois sistemas
         porque as duas apps são diferentes: no telefone uma folha, com o

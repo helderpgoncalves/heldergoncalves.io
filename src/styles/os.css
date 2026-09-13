@@ -16,9 +16,11 @@
      notas       o Blog, com a forma das Notas da Apple
      widgets     no ecrã inicial, no ambiente de trabalho, e a galeria
      bolsa       a lista com as cápsulas, e o título com o gráfico
+     financas    a terceira face da Bolsa: o ano, os azulejos, os clientes
      calendario  o mês com os pontos, o dia hora a hora, e a marcação
      mensagens   as bolhas com cauda, o cabeçalho, a barra de escrever
      mensagens-lista  as conversas do dono, e os dois ecrãs quando é estreito
+     mail        a caixa de entrada do dono: as linhas, a conversa, a resposta
      ficheiros   as pastas partilhadas, a barra e a grelha
      ficheiros-vista  o Quick Look, e os dois ecrãs quando é estreito
      toque       o que separa um site de uma aplicação
@@ -102,9 +104,11 @@
   @import './os/notas.css';
   @import './os/widgets.css';
   @import './os/bolsa.css';
+  @import './os/financas.css';
   @import './os/calendario.css';
   @import './os/mensagens.css';
   @import './os/mensagens-lista.css';
+  @import './os/mail.css';
   @import './os/ficheiros.css';
   @import './os/ficheiros-vista.css';
   @import './os/toque.css';

@@ -105,22 +105,27 @@ def _isolated_meetings_and_subscribers():
 
 @pytest.fixture(autouse=True)
 def _isolated_stores():
-    """O mesmo princípio para as conversas, os comentários e as reações:
-    cada teste começa e acaba com as listas em memória vazias, e sem
-    nada escrito nos NDJSON que um `client` desse teste possa ter usado."""
+    """O mesmo princípio para as conversas, as mensagens de contacto, os
+    comentários e as reações: cada teste começa e acaba com as listas em
+    memória vazias, e sem nada escrito nos NDJSON que um `client` desse
+    teste possa ter usado."""
     from app.chat_store import _turns
     from app.comments_store import _rows as comment_rows
-    from app.config import CHAT_LOG_FILE, COMMENTS
+    from app.config import CHAT_LOG_FILE, COMMENTS, CONTACTO_LOG_FILE
+    from app.contacto_store import _messages
     from app.reactions_store import _rows as reaction_rows
 
     _turns.clear()
+    _messages.clear()
     comment_rows.clear()
     reaction_rows.clear()
     yield
     _turns.clear()
+    _messages.clear()
     comment_rows.clear()
     reaction_rows.clear()
     _truncate(CHAT_LOG_FILE)
+    _truncate(CONTACTO_LOG_FILE)
     _truncate(COMMENTS.file)
     _truncate(COMMENTS.reactions_file)
 

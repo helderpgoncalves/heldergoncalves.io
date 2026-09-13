@@ -50,6 +50,12 @@ MAIL = Mail()
 MAIL_READY = (MAIL.provider == "resend" and len(MAIL.key) > 10) or (
     MAIL.provider == "webhook" and MAIL.webhook.startswith("https://")
 )
+# Onde ficam as mensagens de contacto — ver contacto_store.py. Como as
+# conversas das Mensagens, é uma excepção deliberada ao resto do site:
+# sem isto o Hélder não tinha onde ler o que lhe escreveram, porque o
+# email sai e não fica cópia nenhuma. A política de privacidade diz que
+# fica, e só o dono a lê.
+CONTACTO_LOG_FILE = Path(_env("CONTACTO_LOG_FILE", str(DATA_DIR / "contacto.ndjson"))).resolve()
 
 
 # ── Conversa (OpenRouter) ────────────────────────────────────────────
@@ -232,137 +238,86 @@ class Meetings:
 MEETINGS = Meetings()
 
 
-# ── Limites ──────────────────────────────────────────────────────────
-# Tudo o que se mede está aqui, em segundos. Nenhum número mágico
-# espalhado pelo código: quem quiser apertar ou alargar mexe num sítio.
+# ── Finanças ─────────────────────────────────────────────────────────
+# Trabalhar por conta própria em Portugal: o que se faturou, o que se
+# recebeu, e o que disso não é nosso.
 #
-# Não é `frozen`, ao contrário dos outros — de propósito: os testes
-# afinam um limite ou outro (p.ex. `token_min_age`) sem esperar pelo
-# relógio a sério. Em produção, ninguém lhe mexe depois do arranque.
-@dataclass
-class Limits:
-    body: int = 8 * 1024
-    message: int = 4000
-    subject: int = 160
-    email: int = 160
+# **Nenhum número aqui é aconselhamento fiscal.** São os valores por
+# omissão do caso mais comum de quem passa recibos verdes, e mudam de
+# ano para ano — por isso vivem aqui, e só aqui, pela mesma razão que os
+# limites: um coeficiente cravado no meio de uma função é um número que
+# ninguém encontra no dia em que o Orçamento do Estado lhe mexer. O dono
+# corrige-os na app, e a correcção fica guardada por cima destes
+# (`financas_store.taxas`) — estes são o ponto de partida, não a lei.
+def _escaloes(raw: str) -> tuple[tuple[int, float], ...]:
+    """`"8059:13,12160:16.5"` → `((805900, 0.13), (1216000, 0.165))`.
 
-    per_ip: int = 3
-    per_ip_window: int = 15 * 60
-    global_: int = 40
-    global_window: int = 60 * 60
-
-    token_per_ip: int = 40
-    token_window: int = 10 * 60
-    token_min_age: float = 3.5
-    token_max_age: int = 45 * 60
-
-    # Subscrever é barato mas não é de graça: cada pedido manda um email.
-    sub_per_ip: int = 3
-    sub_per_ip_window: int = 60 * 60
-    sub_global: int = 120
-    sub_global_window: int = 60 * 60
-    sub_token_min_age: float = 1.2
-
-    # Conversa: o custo é real, por isso os limites são a sério.
-    chat_body: int = 16 * 1024
-    chat_turn: int = 600
-    chat_total: int = 4000
-    chat_history: int = 8
-    chat_out_tokens: int = 400
-    chat_per_ip: int = 15
-    chat_per_ip_window: int = 60 * 60
-    chat_per_ip_day: int = 50
-    chat_day_window: int = 24 * 60 * 60
-    chat_global_day: int = 600
-
-    mcp_per_ip: int = 60
-
-    # Sessões: cada pedido de magic link é um email — poucos por IP, um
-    # tecto global. Não há tentativas a limitar: a ligação em si é a
-    # prova, não um código a adivinhar.
-    auth_per_ip: int = 5
-    auth_per_ip_window: int = 60 * 60
-    auth_global: int = 200
-    auth_global_window: int = 60 * 60
-    # Abrir a ligação: raro por IP, mas alguém pode abri-la duas vezes
-    # sem querer (o próprio Mail a pré-carregar, por exemplo).
-    magic_verify_per_ip: int = 15
-    magic_verify_window: int = 15 * 60
-
-    # Entrar com a Google: só o pedido do `state` e a troca do código —
-    # não há tentativas para limitar, é a Google que faz essa parte.
-    google_start_per_ip: int = 20
-    google_start_window: int = 15 * 60
-
-    # Comentários: mais raros do que mensagens de contacto, mas com o
-    # mesmo espírito — poucos por IP, um teto global.
-    comment_per_ip: int = 5
-    comment_per_ip_window: int = 60 * 60
-    comment_global: int = 80
-    comment_global_window: int = 60 * 60
-    comments_per_post: int = 200  # o que se devolve de uma vez, no máximo
-
-    # Reações: um toque, não um formulário — o limite é generoso.
-    reaction_per_ip: int = 60
-    reaction_per_ip_window: int = 10 * 60
-
-    # Escritos: só o dono, mas o editor guarda sozinho enquanto se
-    # escreve — o limite tem de deixar passar um rascunho a cada poucos
-    # segundos. O corpo é um texto inteiro, muito acima de `body`.
-    escritos_per_ip: int = 300
-    escritos_window: int = 10 * 60
-    escrito_body: int = 256 * 1024
-    escrito_tags: int = 10
-    # Uma imagem de escrito vai para o repositório num commit, em
-    # base64 — o que a torna um terço maior a caminho do GitHub. 4 MB
-    # de original é muito para uma imagem de blog e pouco para o que a
-    # API de conteúdos aguenta.
-    escrito_image: int = 4 * 1024 * 1024
-    # Avisar a lista é uma volta ao fornecedor de email por pessoa. Sai
-    # em segundo plano, mas com tecto: uma lista que cresça sem conta
-    # não pode transformar um clique em «Publicar» numa tarde inteira.
-    announce_batch: int = 4
-    announce_max: int = 5000
-
-    # Reuniões: a agenda é leve de ler, e marcar é raro.
-    agenda_per_ip: int = 120
-    agenda_window: int = 10 * 60
-    book_per_ip: int = 10
-    book_window: int = 60 * 60
-    book_per_user_day: int = 3
-    meeting_note: int = 1000
-
-    # Bolsa: cada pedido pode trazer vários títulos, e a cache faz o resto.
-    stocks_per_request: int = 12
-    stocks_per_ip: int = 120
-    stocks_per_ip_window: int = 10 * 60
-    stocks_global: int = 3000
-    stocks_global_window: int = 10 * 60
-    # A procura dispara a cada letra; a ficha é uma por título aberto.
-    stocks_search_per_ip: int = 240
-    stocks_search_window: int = 10 * 60
-    stocks_query: int = 40
-
-    # Ficheiros: ver e listar é barato; largar um ficheiro é escrever no
-    # disco e mandar um email, por isso tem janela própria e mais
-    # apertada. O corpo do pedido é o ficheiro em base64 — um terço
-    # maior do que os bytes — e o tecto de `read_json` conta-se sobre
-    # ele, não sobre o original.
-    ficheiros_per_ip: int = 240
-    ficheiros_window: int = 10 * 60
-    ficheiro_upload_per_ip: int = 40
-    ficheiro_upload_window: int = 60 * 60
-    ficheiro_upload_global: int = 400
-    ficheiro_upload_global_window: int = 60 * 60
-    # 25 MB por ficheiro chega para um PDF com imagens ou um zip de
-    # entregáveis, e 250 MB por pasta impede que uma partilha esquecida
-    # encha o volume sozinha.
-    ficheiro_max: int = 25 * 1024 * 1024
-    pasta_max: int = 250 * 1024 * 1024
-    pasta_ficheiros: int = 200
-    pastas_max: int = 300
-    ficheiro_nome: int = 160
-    pasta_nome: int = 120
+    O tecto de cada degrau vai em cêntimos, como todo o dinheiro deste
+    lado do código, e `0` quer dizer «sem tecto» — é o último degrau, o
+    que apanha tudo o que está acima."""
+    out: list[tuple[int, float]] = []
+    for part in raw.split(","):
+        if ":" not in part:
+            continue
+        topo, taxa = part.split(":", 1)
+        try:
+            out.append((int(round(float(topo) * 100)), float(taxa) / 100))
+        except ValueError:
+            continue  # um degrau mal escrito não deita a tabela abaixo
+    return tuple(out)
 
 
-LIMITS = Limits()
+@dataclass(frozen=True)
+class Financas:
+    file: Path = field(default_factory=lambda: Path(_env("FINANCAS_FILE", str(DATA_DIR / "financas.ndjson"))).resolve())
+    moeda: str = _env("FINANCAS_MOEDA", "EUR")
+    # A pasta em que a fatura aparece no Finder do cliente, quando o
+    # dono liga a partilha. É uma pasta das Ficheiros como as outras —
+    # ver financas_partilha.py; não há aqui um segundo mecanismo.
+    pasta_faturas: str = _env("FINANCAS_PASTA_FATURAS", "Faturas")
+    # IVA: 23 % na taxa normal. `iva_isento` é o interruptor do artigo
+    # 53.º — e o motivo vai junto porque é o que tem de ir escrito na
+    # fatura, não uma nota interna.
+    iva: float = float(_env("FINANCAS_IVA", "0.23"))
+    iva_isento: bool = _env("FINANCAS_IVA_ISENTO") == "1"
+    iva_motivo: str = _env("FINANCAS_IVA_MOTIVO", "Isento de IVA ao abrigo do artigo 53.º do CIVA")
+    # Retenção na fonte de IRS. Quem retém é o cliente: este dinheiro
+    # nunca chega à conta, e é por isso que «faturado» e «recebido» são
+    # duas colunas e não uma.
+    retencao: float = float(_env("FINANCAS_RETENCAO", "0.25"))
+    retencao_dispensa: bool = _env("FINANCAS_RETENCAO_DISPENSA") == "1"
+    # Regime simplificado: o rendimento que entra no IRS é um
+    # coeficiente do faturado, não o faturado todo. 0,75 na maior parte
+    # das prestações de serviços.
+    coeficiente: float = float(_env("FINANCAS_COEFICIENTE", "0.75"))
+    # Segurança Social: trimestral, 21,4 % sobre 70 % do rendimento
+    # relevante do trimestre ANTERIOR, com isenção nos primeiros doze
+    # meses de atividade.
+    ss_taxa: float = float(_env("FINANCAS_SS_TAXA", "0.214"))
+    ss_base: float = float(_env("FINANCAS_SS_BASE", "0.70"))
+    ss_isencao_meses: int = int(_env("FINANCAS_SS_ISENCAO_MESES", "12"))
+    # Quando abriu atividade (AAAA-MM-DD) — é daqui que sai a isenção do
+    # primeiro ano. Vazio: não se assume nenhuma isenção.
+    atividade_inicio: str = _env("FINANCAS_ATIVIDADE_INICIO", "")
+    # O objetivo de faturação do ano, em cêntimos. É contra isto que a
+    # cápsula diz se está à frente ou atrás.
+    objetivo: int = int(round(float(_env("FINANCAS_OBJETIVO", "0")) * 100))
+    # IRS por escalões, anual — `topo:taxa`, em euros e por cento. É uma
+    # **estimativa**: a app não faz a declaração de ninguém.
+    escaloes: tuple[tuple[int, float], ...] = _escaloes(
+        _env(
+            "FINANCAS_ESCALOES",
+            "8059:13,12160:16.5,17233:22,22306:25,28400:32,41629:35.5,44987:43.5,83696:45,0:48",
+        )
+    )
+
+
+FINANCAS = Financas()
+
+
+# ── Limites ──────────────────────────────────────────────────────────
+# Vivem em `limits.py` desde que este ficheiro passou do tecto das 400
+# linhas. Continuam a importar-se daqui — `from app.config import
+# LIMITS` — porque é aqui que toda a gente procura a configuração; a
+# divisão é de tamanho, não de responsabilidade.
+from app.limits import LIMITS, Limits  # noqa: E402,F401

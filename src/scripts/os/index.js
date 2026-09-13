@@ -78,6 +78,7 @@ function boot(data) {
     if (ctx.contacto && ctx.contacto.refresh) ctx.contacto.refresh();
     if (ctx.mensagens && ctx.mensagens.refresh) ctx.mensagens.refresh();
     if (ctx.escritosEditor && ctx.escritosEditor.refresh) ctx.escritosEditor.refresh();
+    if (ctx.financas && ctx.financas.refresh) ctx.financas.refresh();
   };
 
   // ── Abrir e fechar ────────────────────────────────────────────

@@ -20,7 +20,20 @@ import { SITE } from '../../config/site';
     Writing to me through the site requires being signed in, and the sender is always that session's
     email — there is no field for typing another one. That way I know whose message it is, and
     nobody can write in someone else's name. The message is sent to me by email (via
-    <a href="https://resend.com">Resend</a>) and is not stored on the server.
+    <a href="https://resend.com">Resend</a>).
+  </p>
+  <p>
+    The message is <strong>also stored on the server</strong> — your email, the subject, the text,
+    and the date — and so is whatever I reply from here. It exists so I have somewhere to read what
+    people wrote to me and somewhere to answer from: the email on its own got lost in the rest of my
+    inbox, and a half-finished conversation lost its thread. I am the only one who reads this, from
+    this site's Mail app, and it is never shown to anyone else. If you want me to delete what you
+    wrote, just ask.
+  </p>
+  <p>
+    When I reply, I may ask a language model (through <a href="https://openrouter.ai">OpenRouter</a>)
+    to write me a draft from our conversation and this site's documentation. The draft is mine to
+    read and correct — nothing leaves here until I press send.
   </p>
 
   <h2>Blog subscription</h2>
@@ -48,9 +61,9 @@ import { SITE } from '../../config/site';
   <h2>Messages (the assistant)</h2>
   <p>
     Talking to the assistant requires being signed in. Conversations are stored — your email and the
-    text of each message — so I can read the context of anyone who has talked to me before. This is
-    the one exception to the rest of this site: everywhere else, what you type does not stay stored
-    once your request is done.
+    text of each message — so I can read the context of anyone who has talked to me before. This and
+    the contact messages above are the only two things that stay stored: everywhere else, what you
+    type does not stay stored once your request is done.
   </p>
   <p>
     Text you send to the assistant is also processed by a language model, through

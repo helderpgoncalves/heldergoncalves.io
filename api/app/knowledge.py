@@ -102,6 +102,18 @@ def search(query: str) -> str:
     return "\n\n".join(parts) if parts else "Nada encontrado sobre isso na base de conhecimento."
 
 
+def section(name: str) -> str:
+    """O texto de uma secção, pelo nome do ficheiro. A `search` devolve o
+    que é relevante para uma pergunta; isto devolve o que tem de lá estar
+    sempre, haja pergunta ou não — quem o Hélder é, por exemplo, que o
+    rascunho de uma resposta precisa de saber mesmo quando ninguém
+    perguntou por ele."""
+    for k in KNOWLEDGE:
+        if k.file == name:
+            return k.text
+    return ""
+
+
 def knowledge_index() -> str:
     """O índice das secções, para o agente saber o que pode pedir."""
     return "\n".join(f"- {k.title} ({k.file})" for k in KNOWLEDGE)

@@ -160,6 +160,9 @@ export function initBolsa(ctx) {
   }
 
   async function showDetail(symbol) {
+    // As Finanças escrevem no mesmo painel da direita: abrir um título
+    // tira-lhes o painel, e elas que apaguem o realce da linha delas.
+    if (ctx.financas) ctx.financas.release();
     current = symbol;
     el.querySelectorAll('.stk-row').forEach((li) => li.classList.toggle('on', li.dataset.symbol === symbol));
     const q = quotes.get(symbol);
@@ -292,6 +295,23 @@ export function initBolsa(ctx) {
     }
     if (ev.target.closest('[data-stk-back]')) el.classList.remove('detail');
   });
+
+  // ── A terceira face ────────────────────────────────────────────────
+  // As Finanças (financas.js) são a mesma app a falar de dinheiro, e
+  // escrevem no mesmo painel da direita. As duas peças não se importam
+  // uma à outra — falam pelo objecto partilhado, como o resto do
+  // sistema. Daqui sai só o que elas precisam mesmo de pedir.
+  ctx.bolsa = {
+    main,
+    open: () => el.classList.add('detail'),
+    /** Larga o título escolhido: o relógio dos 30 s deixa de reescrever
+        o painel, e a lista perde o realce. */
+    release() {
+      current = null;
+      renderWatch();
+      renderPortfolio();
+    },
+  };
 
   renderWatch();
   renderPortfolio();

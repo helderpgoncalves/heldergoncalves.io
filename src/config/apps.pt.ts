@@ -167,7 +167,7 @@ export const APPS_PT = {
     subject: 'Assunto',
     subjectValue: 'Olá Hélder',
     body: 'Mensagem',
-    placeholder: 'Escreve aqui. Ao enviar, isto abre o teu email com tudo já preenchido — não há servidor nenhum a guardar nada.',
+    placeholder: 'Escreve aqui. Com sessão iniciada, a mensagem sai daqui e fica guardada para eu a ler e responder; sem ela, abre o teu email com tudo preenchido.',
     send: 'Enviar',
     sendHint: 'Abre a tua aplicação de email',
     elsewhere: 'Noutros sítios',

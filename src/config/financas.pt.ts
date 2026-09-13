@@ -1,0 +1,133 @@
+// ─────────────────────────────────────────────────────────────────────
+// As Finanças — a terceira face da Bolsa, só para o dono. Em português.
+// As duas línguas têm exactamente as mesmas chaves; ver copy.ts, que as
+// junta e faz o TypeScript garanti-lo.
+//
+// Ficheiro próprio, como o dos Ficheiros e o do Calendário: `apps.pt.ts`
+// já vai perto do tecto das 400 linhas.
+//
+// `{x}` é um valor que o JavaScript põe lá — o texto vai para o browser
+// em JSON (Shell.astro), e por JSON não passam funções. Os números
+// entram já formatados na moeda e na língua de quem vê, com
+// `Intl.NumberFormat`; aqui só se decide a frase à volta deles.
+//
+// **A palavra «estimativa» não é enfeite.** Isto é uma ferramenta de
+// gestão, não contabilidade nem aconselhamento fiscal — e o texto tem de
+// o dizer em todo o sítio onde apareça um número fiscal.
+// ─────────────────────────────────────────────────────────────────────
+
+export const FINANCAS_PT = {
+  face: 'Finanças',
+  lead: 'Estimativas de gestão. Não é contabilidade nem aconselhamento fiscal.',
+  disclaimer: 'Estimativa. Quem emite faturas é o Portal das Finanças; quem fecha contas é o contabilista.',
+  year: 'Resumo do ano',
+  pick: 'Abre o resumo do ano, ou escolhe um cliente.',
+  loading: 'A carregar…',
+  unavailable: 'Não deu para ler as finanças. Tenta daqui a pouco.',
+  invoiced: 'Faturado',
+  received: 'Recebido',
+  receivedNote: 'O que entrou mesmo na conta. A retenção nunca lá chega.',
+  goal: 'Objetivo do ano',
+  noGoal: 'Sem objetivo definido',
+  ofGoal: '{n} do objetivo',
+  clients: 'Clientes',
+  noClients: 'Ainda não há clientes. Acrescenta o primeiro.',
+  clientLine: '{faturas} faturas · {valor} este ano',
+  overdue: 'Em atraso',
+  noOverdue: 'Nada em atraso.',
+  overdueCount: '{n} por receber',
+  months: 'Por mês',
+  invoices: 'Faturas',
+  projects: 'Projetos',
+  phases: 'Fases',
+  avencas: 'Avenças',
+  perMonth: '{valor} por mês',
+  phaseLine: '{valor} · previsto para {data}',
+  billed: 'Faturada',
+  notBilled: 'Por faturar',
+  add: 'Acrescentar',
+  edit: 'Editar',
+  remove: 'Remover',
+  save: 'Guardar',
+  cancel: 'Cancelar',
+  confirmRemove: 'Remover isto, e tudo o que depende dele?',
+  share: 'Partilhar com o cliente',
+  shared: 'Na pasta do cliente',
+  sharePdf: 'Escolher o PDF da fatura',
+  shareHow: 'O PDF verdadeiro, o que saiu do Portal das Finanças. A app não gera faturas.',
+  shareNoEmail: 'Este cliente não tem email — sem ele não há pasta a que a fatura pertença.',
+  unshare: 'Deixar de partilhar',
+  howLabel: 'De onde vem',
+  rates: 'Taxas e regime',
+  ratesLead: 'Mudam de ano para ano. O que estiver aqui é o que as contas usam.',
+  states: {
+    emitida: 'Emitida',
+    paga: 'Paga',
+    atraso: 'Em atraso',
+  },
+  tiles: {
+    iva: 'IVA a entregar',
+    retido: 'IRS retido',
+    ss: 'Segurança Social',
+    forecast: 'Falta faturar',
+    irs: 'IRS estimado',
+  },
+  how: {
+    iva: 'IVA à taxa de {taxa} sobre {base} de base faturada.',
+    ivaExempt: 'Isento de IVA: {motivo}.',
+    retido: 'Retenção de {taxa} sobre {base} faturados. Este dinheiro é entregue pelo cliente ao Estado — nunca chega à conta.',
+    ss: '{taxa} sobre {relevante}, que são {fracao} dos {base} faturados no {trimestre}.º trimestre de {ano}.',
+    ssExempt: 'Isento nos primeiros meses de atividade.',
+    irs: 'Coeficiente de {coef} sobre {base} dá {rendimento} de rendimento tributável. Sobre esse valor, os escalões; menos {retido} já retidos.',
+    irsStep: '{taxa} sobre {valor}',
+    forecast: '{contratado} contratados em avenças e {previsto} em fases previstas até ao fim do ano.',
+    contracted: 'Contratado',
+    expected: 'Previsto',
+  },
+  fields: {
+    name: 'Nome',
+    email: 'Email do cliente',
+    nif: 'NIF',
+    notes: 'Notas',
+    value: 'Valor',
+    base: 'Valor base',
+    date: 'Data',
+    due: 'Vence a',
+    number: 'Número',
+    state: 'Estado',
+    paidOn: 'Pago a',
+    client: 'Cliente',
+    project: 'Projeto',
+    avenca: 'Avença',
+    expected: 'Data prevista',
+    monthly: 'Valor mensal',
+    day: 'Dia do mês',
+    begins: 'Início',
+    ends: 'Fim',
+    none: 'Nenhum',
+    iva: 'IVA',
+    ivaExempt: 'Isento pelo artigo 53.º',
+    ivaReason: 'Motivo da isenção',
+    retencao: 'Retenção na fonte',
+    retencaoWaived: 'Dispensa de retenção',
+    coeficiente: 'Coeficiente do simplificado',
+    ssTaxa: 'Taxa da Segurança Social',
+    ssBase: 'Fração do faturado que conta',
+    ssMonths: 'Meses de isenção no arranque',
+    start: 'Abertura de atividade',
+    goal: 'Objetivo do ano',
+  },
+  errors: {
+    generic: 'Não deu. Tenta outra vez.',
+    dados: 'Falta preencher alguma coisa.',
+    email: 'Esse email não parece um email.',
+    estado: 'Esse estado não existe.',
+    taxa: 'Uma taxa escreve-se como fração: 0,23, não 23.',
+    pdf: 'Só entra um PDF — o que saiu do Portal das Finanças.',
+    cheio: 'A pasta do cliente está cheia.',
+    limite: 'Devagar. Tenta daqui a pouco.',
+    inexistente: 'Isso já não existe.',
+    sessao: 'A sessão acabou. Entra outra vez.',
+    dono: 'Isto é só do dono.',
+  },
+};

@@ -16,10 +16,11 @@ import httpx
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
+from app.agent.modelo import call_model
 from app.agent.prompt import system_prompt
 from app.agent.tools import TOOLS, run_tool
 from app.chat_store import conversation_id, record_turn
-from app.config import CHAT, CHAT_READY, LIMITS, SITE_ORIGIN
+from app.config import CHAT_READY, LIMITS, SITE_ORIGIN
 from app.http import read_json
 from app.security import bump, check_token, ip_key, wrong_origin
 from app.sessions import is_owner, read_session
@@ -28,40 +29,6 @@ from app.validation import clean
 router = APIRouter()
 
 AGENT_ROUNDS = 2
-
-
-async def _call_model(messages: list[dict], use_tools: bool) -> dict:
-    # `models` (não `model`) deixa o OpenRouter tentar o próximo da lista
-    # sozinho se o primeiro estiver em baixo ou sobrecarregado — sem isto,
-    # uma falha do modelo principal derrubava a conversa inteira.
-    body: dict = {
-        "models": [CHAT.model, *CHAT.fallback_models][:3],
-        "max_tokens": LIMITS.chat_out_tokens,
-        "temperature": 0.3,
-        "messages": messages,
-    }
-    if use_tools:
-        body["tools"] = TOOLS
-        body["tool_choice"] = "auto"
-
-    async with httpx.AsyncClient(timeout=35.0) as client:
-        res = await client.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {CHAT.key}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": SITE_ORIGIN,
-                "X-Title": "heldergoncalves.io",
-            },
-            json=body,
-        )
-    if res.status_code >= 300:
-        raise RuntimeError(f"upstream {res.status_code}")
-    data = res.json()
-    choices = data.get("choices") or []
-    if not choices:
-        raise RuntimeError("resposta vazia")
-    return choices[0].get("message") or {}
 
 
 def _valid_turns(raw: object) -> list[dict] | None:
@@ -140,7 +107,7 @@ async def chat(request: Request) -> JSONResponse:
     try:
         for round_ in range(AGENT_ROUNDS + 1):
             last = round_ == AGENT_ROUNDS  # na última ronda o modelo já não tem ferramentas: tem de responder
-            reply = await _call_model(messages, not last)
+            reply = await call_model(messages, LIMITS.chat_out_tokens, None if last else TOOLS)
             calls = (reply.get("tool_calls") or [])[:3]
 
             if not calls:

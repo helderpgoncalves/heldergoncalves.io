@@ -1,0 +1,330 @@
+/* ═══════════════════════════════════════════════════════════════
+   Mail — a caixa de entrada do dono.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   A folha de escrever (o que um visitante vê) é toda utilities, em
+   Contacto.astro, e continua assim. O que está aqui é a outra cara:
+   a lista de quem escreveu, a conversa, e o compositor de resposta
+   — e é o que uma utility não alcança: a linha com ponto azul e
+   excerto de duas linhas, os separadores a toda a largura, e a
+   troca de duas colunas para dois ecrãs quando o contentor aperta.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Do lado do dono a app é duas colunas, não uma. A regra tem de
+   viver aqui, na camada `handwritten`: o `flex-col` que está no
+   markup é uma utility, e uma utility perde para esta camada — que
+   é exactamente o que se quer, porque a coluna é o estado normal e
+   as duas colunas são a excepção do dono. */
+.app-contacto.owner { flex-direction: row; }
+
+/* `hidden` tem de ganhar sempre.
+   ─────────────────────────────────────────────────────────────
+   Metade desta app aparece e desaparece por `el.hidden = true` — a
+   lista, a conversa, a folha de escrever. Uma regra de autor com
+   `display` ganha ao `[hidden]` da folha do browser (mesma
+   especificidade, e autor ganha à UA), e sem esta linha nada do que
+   se esconde ficava escondido. A mesma solução de mensagens.css. */
+.app-contacto [hidden] { display: none !important; }
+
+/* ── 1. A lista ──────────────────────────────────────────────────
+   Título grande «Recebido» e, por baixo, quantas estão por ler —
+   as duas linhas do topo da Mail do iOS 26. */
+.mail-list-pane {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 340px;
+  min-height: 0;
+  border-right: 0.5px solid var(--line);
+  background: var(--surface-solid);
+}
+.mail-list-head { flex: none; padding: 10px 16px 8px; }
+.mail-list-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--t-title1);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.mail-list-count { font-size: var(--t-subhead); color: var(--ink-3); }
+
+.mail-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* A linha. Ao contrário das Mensagens, aqui o separador é a toda a
+   largura: é assim na Mail, porque a linha não começa por um retrato
+   — começa por um ponto, e o ponto não agrupa nada. */
+.mail-row {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 16px 10px 8px;
+  text-align: left;
+  color: var(--ink);
+}
+.mail-list li + li .mail-row { border-top: 0.5px solid var(--line); }
+.mail-row:hover { background: var(--surface-3); }
+.mail-row.on { background: var(--accent); color: var(--accent-ink); }
+.mail-list li:has(.mail-row.on) + li .mail-row { border-top-color: transparent; }
+
+/* O ponto azul de «por ler». Ocupa lugar mesmo quando não se vê,
+   senão o texto das lidas saltava para a esquerda. */
+.mail-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.mail-row:not(.unread) .mail-dot { background: none; }
+.mail-row.on .mail-dot { background: rgba(255, 255, 255, 0.9); }
+
+.mail-row-body { display: block; min-width: 0; flex: 1; }
+.mail-row-top { display: flex; align-items: baseline; gap: 8px; }
+.mail-row-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.mail-row-when {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  font-size: var(--t-caption);
+  color: var(--ink-3);
+}
+.mail-row-when svg { transform: rotate(180deg); }
+.mail-row-subject {
+  margin: 1px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-subhead);
+  color: var(--ink);
+}
+.mail-row-preview {
+  margin: 1px 0 0;
+  font-size: var(--t-subhead);
+  line-height: 1.35;
+  color: var(--ink-3);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.mail-row.on .mail-row-when,
+.mail-row.on .mail-row-subject,
+.mail-row.on .mail-row-preview { color: rgba(255, 255, 255, 0.85); }
+
+/* ── 2. A conversa ───────────────────────────────────────────────*/
+.mail-thread {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  background: var(--surface-solid);
+}
+.mail-thread-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 8px 14px;
+  border-bottom: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.mail-back { display: none; align-items: center; gap: 2px; flex: none; color: var(--accent); font-size: var(--t-subhead); }
+.mail-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #a3a3ad, #6f6f7a 58%, #4a4a55);
+  color: #fff;
+  font-size: var(--t-caption);
+  font-weight: 600;
+}
+.mail-who { min-width: 0; display: flex; flex-direction: column; }
+.mail-who strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.mail-who span { font-size: var(--t-caption); color: var(--ink-3); }
+
+.mail-scroll { overscroll-behavior: contain; }
+.mail-subject {
+  margin: 0;
+  padding: 14px 18px 8px;
+  font-family: var(--display);
+  font-size: var(--t-title2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.mail-messages { padding: 0 18px 20px; }
+
+/* Uma mensagem. A do dono distingue-se por um fio azul à esquerda e
+   um fundo levíssimo — não é uma bolha: isto é email, não iMessage. */
+.mail-msg { padding: 10px 0 12px; border-top: 0.5px solid var(--line); }
+.mail-msg:first-child { border-top: 0; }
+.mail-msg-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: var(--t-caption);
+  color: var(--ink-3);
+}
+.mail-msg-top b { font-size: var(--t-subhead); font-weight: 600; color: var(--ink); }
+.mail-msg-body {
+  margin: 0;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink-2);
+}
+.mail-msg.mine {
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.mail-msg.mine .mail-msg-body { color: var(--ink); }
+
+/* ── 3. Responder ────────────────────────────────────────────────
+   Não rola com a conversa: é uma barra que fica, como o compositor
+   da Mensagens. O campo cresce com o que se escreve, com tecto —
+   senão o rascunho do modelo comia a conversa toda. */
+.mail-reply {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+  padding: 10px 14px 12px;
+  border-top: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.mail-reply-body {
+  min-height: 62px;
+  max-height: 190px;
+  overflow: auto;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  --r: 12px;
+  border-radius: var(--r);
+  background: var(--surface-solid);
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .mail-reply-body { corner-shape: superellipse(1.777); border-radius: calc(var(--r) * 1.6); }
+}
+.mail-reply-body:focus { border-color: var(--accent); }
+.mail-reply-acts { display: flex; align-items: center; gap: 10px; }
+.mail-send {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gray3);
+  color: #fff;
+  transition: background 0.18s ease, transform 0.18s var(--ease-pop);
+}
+.mail-reply.ready .mail-send { background: var(--accent); }
+.mail-send:active { transform: scale(0.9); }
+/* Enquanto o modelo escreve, o botão diz que está a escrever e não
+   aceita um segundo pedido — dois rascunhos ao mesmo tempo eram duas
+   idas ao modelo para o mesmo campo. */
+.mail-reply.drafting [data-mail-draft] { opacity: 0.6; pointer-events: none; }
+
+/* ── 4. O vazio ──────────────────────────────────────────────────*/
+.mail-empty {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 24px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--t-subhead);
+}
+.mail-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  opacity: 0.7;
+}
+
+/* ── 5. Estreito: a lista e a conversa são dois ecrãs ────────────
+   Acima de 640 são duas colunas, como no Mac. Abaixo, a conversa
+   entra por cima da lista, como no iPhone — com o voltar que só
+   existe aqui. Vale só para o dono: quem não é dono não tem lista
+   nenhuma, e vê a folha de escrever de sempre. */
+@container app (max-width: 640px) {
+  .app-contacto.owner .mail-list-pane { width: 100%; border-right: 0; }
+  .app-contacto.owner .mail-thread {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform calc(0.34s / var(--speed)) var(--ease-os), visibility 0s linear 0.34s;
+  }
+  .app-contacto.owner.thread-open .mail-thread {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .app-contacto.owner .mail-back { display: inline-flex; }
+}
+
+/* No telefone a lista é a app inteira: título grande, linhas mais
+   altas e texto maior — as medidas da Mail do iOS 26. */
+[data-mode='ios'] .mail-list-head { padding: 6px 16px 6px; }
+[data-mode='ios'] .mail-list-head h2 { font-size: var(--t-large); }
+[data-mode='ios'] .mail-row { padding: 11px 16px 12px 10px; gap: 10px; }
+[data-mode='ios'] .mail-row-name { font-size: var(--t-callout); }
+[data-mode='ios'] .mail-row-when { font-size: var(--t-foot); }
+[data-mode='ios'] .mail-row-subject,
+[data-mode='ios'] .mail-row-preview { font-size: var(--t-foot); }
+[data-mode='ios'] .mail-avatar { width: 36px; height: 36px; font-size: var(--t-foot); }
+
+@container app (max-width: 420px) {
+  .mail-subject { padding: 12px 14px 6px; font-size: var(--t-title3); }
+  .mail-messages { padding: 0 14px 16px; }
+  .mail-thread-head { padding: 7px 10px; gap: 8px; }
+  .mail-reply { padding: 9px 10px 10px; }
+}
+
+/* Quem pediu menos movimento não leva a viagem — só o resultado. */
+@media (prefers-reduced-motion: reduce) {
+  .app-contacto .mail-thread { transition: none; }
+}

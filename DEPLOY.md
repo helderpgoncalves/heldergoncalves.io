@@ -372,10 +372,33 @@ mensagem custa dinheiro:
 - **Saída limitada**: 400 tokens por resposta e um corte rígido aos 3000
   caracteres, para que nada corra em aberto.
 - **O texto do modelo entra na página como texto**, nunca como HTML.
-- **A conversa fica guardada** — a única excepção deliberada a «nada é
-  registado» no resto do site — em `CHAT_LOG_FILE`
+- **A conversa fica guardada** — uma das duas excepções deliberadas a
+  «nada é registado» no resto do site — em `CHAT_LOG_FILE`
   (`/app/data/conversas.ndjson` por omissão). Só o dono a lê, em
   `/api/mensagens`; a política de privacidade diz que existe.
+
+## A caixa de entrada da Mail
+
+A outra excepção. A mensagem de contacto continua a sair por email como
+sempre saiu — **guardar é um passo a mais, nunca em vez de** — e fica
+também em `CONTACTO_LOG_FILE` (`/app/data/contacto.ndjson` por omissão),
+no mesmo volume dos outros NDJSON. Sem volume, a caixa de entrada
+esvazia-se no próximo arranque.
+
+- **Só o dono lê.** As quatro rotas (`GET /api/mail`,
+  `GET /api/mail/{conversa}`, `POST /api/mail/rascunho`,
+  `POST /api/mail/responder`) começam por `require_owner`.
+- **O rascunho não envia nada.** `POST /api/mail/rascunho` devolve texto
+  para o dono ler e corrigir no compositor; quem envia é
+  `POST /api/mail/responder`, com ele a carregar no botão. Sem
+  `OPENROUTER_API_KEY` o rascunho responde `503` e o compositor continua
+  a servir para escrever à mão.
+- **Limites**: 240 leituras por IP em dez minutos, 30 rascunhos por hora
+  (cada um é uma ida ao modelo) e 40 respostas por hora.
+- **A política de privacidade diz que fica**, nas duas línguas.
+
+Variável nova: `CONTACTO_LOG_FILE` — opcional, com omissão em
+`DATA_DIR/contacto.ndjson`.
 
 ## O que protege os comentários
 
@@ -459,6 +482,55 @@ recusado.
 
 Sem o email configurado não há sessão nenhuma (`AUTH_READY`), e a app
 responde `503` — ver a secção das sessões, acima.
+
+## Finanças (só o dono)
+
+A terceira face da Bolsa: o que já foi faturado, o que falta faturar, e
+o que disso não é dele. **Todas as rotas passam por `require_owner`** —
+sem a sessão do dono não há resposta nenhuma, nem uma lista vazia.
+
+É uma **ferramenta de gestão, não contabilidade nem aconselhamento
+fiscal**. As faturas legais emitem-se no Portal das Finanças; isto é o
+registo que diz onde está o dinheiro. Cada número calculado leva
+consigo a taxa e a base que usou.
+
+| Variável | Por omissão | Para quê |
+| --- | --- | --- |
+| `FINANCAS_FILE` | `/app/data/financas.ndjson` | clientes, projetos, fases, avenças, faturas |
+| `FINANCAS_MOEDA` | `EUR` | a moeda em que tudo se mostra |
+| `FINANCAS_PASTA_FATURAS` | `Faturas` | a pasta do cliente onde a fatura partilhada aparece |
+| `FINANCAS_IVA` | `0.23` | taxa normal de IVA, como **fração** |
+| `FINANCAS_IVA_ISENTO` | *(desligado)* | `1` liga a isenção do artigo 53.º |
+| `FINANCAS_IVA_MOTIVO` | artigo 53.º do CIVA | o que vai escrito na fatura quando é isento |
+| `FINANCAS_RETENCAO` | `0.25` | retenção na fonte de IRS |
+| `FINANCAS_RETENCAO_DISPENSA` | *(desligado)* | `1` dispensa a retenção |
+| `FINANCAS_COEFICIENTE` | `0.75` | coeficiente do regime simplificado, sobre serviços |
+| `FINANCAS_SS_TAXA` | `0.214` | taxa da Segurança Social |
+| `FINANCAS_SS_BASE` | `0.70` | fração do faturado que conta para a Segurança Social |
+| `FINANCAS_SS_ISENCAO_MESES` | `12` | isenção nos primeiros meses de atividade |
+| `FINANCAS_ATIVIDADE_INICIO` | *(vazio)* | `AAAA-MM-DD` da abertura de atividade |
+| `FINANCAS_OBJETIVO` | `0` | objetivo de faturação do ano, em euros |
+| `FINANCAS_ESCALOES` | escalões de IRS | `topo:taxa` em euros e por cento, `0` no último |
+
+Nenhuma é obrigatória, e **nenhuma é a lei**: são o ponto de partida do
+caso mais comum de quem passa recibos verdes. O dono corrige-as na
+própria app, e a correcção fica guardada por cima destas. Precisa do
+mesmo volume que o resto do `DATA_DIR`.
+
+| Endpoint | Para quê |
+| --- | --- |
+| `GET /api/financas` | tudo: clientes, projetos, fases, avenças, faturas, taxas |
+| `GET /api/financas/resumo?ano=AAAA` | o ano com as contas feitas, cada uma com a taxa e a base |
+| `POST /api/financas/guardar/{tipo}` | cria ou altera uma peça (`cliente`, `projeto`, `fase`, `avenca`, `fatura`) |
+| `POST /api/financas/remover/{tipo}` | remove uma peça e o que pende dela |
+| `POST /api/financas/taxas` | corrige as taxas por cima das de `config.py` |
+| `POST /api/financas/partilhar` | liga ou desliga a fatura na pasta «Faturas» do cliente |
+
+A partilha reaproveita as Ficheiros: o PDF — **o verdadeiro, o que saiu
+do Portal das Finanças** — vai para a pasta «Faturas» do email daquele
+cliente, e o cliente vê-o como vê qualquer outra partilha. Desligar tira
+o ficheiro; o registo da fatura fica. Só entra PDF, e confere-se a
+assinatura dos bytes.
 
 ## O que o agente sabe
 

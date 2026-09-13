@@ -39,11 +39,13 @@ from app.availability_store import init_availability_store
 from app.bolsa.cache import init_snapshot as init_bolsa_snapshot
 from app.chat_store import init_chat_store
 from app.comments_store import init_comments_store
+from app.contacto_store import init_contacto_store
 from app.db import close_db, init_db
 from app.ficheiros_store import init_ficheiros_store
+from app.financas_store import init_financas_store
 from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
-from app.routers import agenda, auth, bolsa, chat, comments, contact, escritos, ficheiros, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
+from app.routers import agenda, auth, bolsa, chat, comments, contact, escritos, ficheiros, financas, health, inbox, mail, mcp, oauth_google, pessoas, reunioes, subscribe, token
 from app.security import SECURITY_HEADERS
 from app.sessions import init_sessions, renewed_cookie
 from app.static_files import cache_stats, handle_static, warm_cache
@@ -71,9 +73,11 @@ async def lifespan(app: FastAPI):
     await init_meetings()
     await init_availability_store()
     await init_chat_store()
+    await init_contacto_store()
     await init_comments_store()
     await init_reactions_store()
     await init_ficheiros_store()
+    await init_financas_store()
     init_bolsa_snapshot(BOLSA_SNAPSHOT_FILE)
     health.prime_health()
 
@@ -146,10 +150,12 @@ for router in (
     reunioes.router,
     agenda.router,
     inbox.router,
+    mail.router,
     comments.router,
     escritos.router,
     pessoas.router,
     ficheiros.router,
+    financas.router,
     mcp.router,
 ):
     app.include_router(router)

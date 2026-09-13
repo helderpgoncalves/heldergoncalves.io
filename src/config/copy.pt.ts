@@ -10,7 +10,9 @@ import { OS_PT } from './os.pt';
 import { APPS_PT } from './apps.pt';
 import { EDITOR_PT } from './editor.pt';
 import { FICHEIROS_PT } from './ficheiros.pt';
+import { MAIL_PT } from './mail.pt';
 import { CALENDARIO_PT } from './calendario.pt';
+import { FINANCAS_PT } from './financas.pt';
 
 export const PT = {
   htmlLang: 'pt-PT',
@@ -41,7 +43,9 @@ export const PT = {
   ...APPS_PT,
   editor: EDITOR_PT,
   ficheiros: FICHEIROS_PT,
+  mail: MAIL_PT,
   calendario: CALENDARIO_PT,
+  financas: FINANCAS_PT,
 
   notFound: {
     title: 'Página não encontrada',
