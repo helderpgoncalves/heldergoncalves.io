@@ -1,4 +1,14 @@
 ---
+// Mensagens — a app da Apple, com duas caras.
+//
+//   Visitante com sessão: uma conversa só, com o assistente.
+//   Dono: a lista de toda a gente que lhe escreveu, e cada conversa
+//         para ler. O dono não fala consigo próprio — não há campo de
+//         escrever nenhum do lado dele (ver mensagens.js e o 403 em
+//         routers/chat.py).
+//
+// A forma (bolhas com cauda, agrupamento, os dois ecrãs quando o
+// contentor é estreito) está em styles/os/mensagens.css.
 import { SITE, COPY, type Lang } from '../../../siteConfig';
 import Icon from '../Icon.astro';
 interface Props { lang: Lang }
@@ -6,53 +16,64 @@ const { lang } = Astro.props;
 const c = COPY[lang];
 const m = c.mensagens;
 ---
-<section class="app-shell app-mensagens relative flex min-h-0 flex-row overflow-hidden bg-(--surface-solid)" data-content="mensagens" aria-label={c.apps.mensagens.name}>
-  {/* A lista de conversas — só existe para o dono. O JS (mensagens.js)
-      revela isto (remove [hidden]) depois de confirmar `amIOwner()`;
-      um visitante nunca a vê, nem sequer no HTML entregue, porque o
-      conteúdo vem de /api/mensagens, que o backend já recusa a quem
-      não é o dono. */}
-  <aside class="msg-sidebar hidden w-[280px] flex-none flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [&:not([hidden])]:flex" data-msg-sidebar hidden aria-hidden="true">
-    <div class="flex-none px-2.5 pb-2 pt-2.5">
-      <label class="msg-search flex items-center gap-1.5 rounded-lg bg-(--surface-3) px-2.5 py-1.5 text-(--ink-3)">
-        <Icon id="ui-search" size={13} />
-        <span class="sr">{m.search}</span>
-        <input type="search" data-msg-search placeholder={m.search} autocomplete="off" class="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-(--ink) outline-hidden placeholder:text-(--ink-3)" />
-      </label>
+<section class="app-shell app-mensagens" data-content="mensagens" aria-label={c.apps.mensagens.name}>
+  {/* A lista de conversas — só existe para o dono. O JS revela-a
+      depois de confirmar `amIOwner()`; o conteúdo vem de
+      /api/mensagens, que o backend já recusa a quem não é o dono. */}
+  <aside class="msg-list-pane" data-msg-sidebar hidden aria-hidden="true">
+    <div class="msg-list-head">
+      <h2>{m.inbox}</h2>
+      <span class="msg-list-count" data-msg-count></span>
     </div>
-    <ul class="msg-conv-list m-0 min-h-0 flex-1 list-none overflow-auto p-0" data-msg-conv-list aria-label={m.conversations}></ul>
-    <p class="msg-conv-empty m-0 px-4 py-6 text-center text-[13px] text-(--ink-3) [&[hidden]]:hidden" data-msg-conv-empty hidden>{m.noConversations}</p>
+    <label class="msg-search">
+      <Icon id="ui-search" size={13} />
+      <span class="sr">{m.search}</span>
+      <input type="search" data-msg-search placeholder={m.search} autocomplete="off" />
+    </label>
+    <ul class="msg-conv-list" data-msg-conv-list aria-label={m.conversations}></ul>
+    <div class="msg-empty" data-msg-conv-empty hidden>
+      <span class="msg-empty-icon" aria-hidden="true"><Icon id="ui-mail" size={24} /></span>
+      <p class="m-0">{m.noConversations}</p>
+    </div>
   </aside>
 
-  <div class="chat flex min-h-0 flex-1 flex-col">
-    <div class="chat-head flex items-center gap-2.5 border-b-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
-      <span class="avatar grid h-8.5 w-8.5 flex-none place-items-center rounded-full bg-[linear-gradient(150deg,#7f7fd5,#3b6bd6_55%,#1b3f8f)] text-[15px] font-semibold tracking-[-0.02em] text-white" aria-hidden="true">H</span>
-      <div class="min-w-0 flex-1">
-        <strong class="block truncate text-[14px]" data-chat-title>{m.contactName}</strong>
-        <span class="block truncate text-[11px] text-(--ink-3)" data-chat-subtitle>{m.status}</span>
+  <div class="msg-thread" data-msg-thread>
+    <div class="msg-head">
+      <button class="msg-back" type="button" data-msg-back>
+        <Icon id="ui-chevron" size={13} />{m.inbox}
+      </button>
+      <span class="msg-avatar" data-chat-avatar aria-hidden="true">H</span>
+      <div class="msg-id">
+        <strong data-chat-title>{m.contactName}</strong>
+        <span data-chat-subtitle>{m.status}</span>
       </div>
-      <button class="btn ml-auto flex-none @max-[400px]/app:hidden" type="button" data-chat-reset>{m.restart}</button>
+      <div class="msg-head-actions">
+        <a class="btn" data-msg-reply href={`mailto:${SITE.email}`} hidden>{m.replyByMail}</a>
+        <button class="btn" type="button" data-chat-reset>{m.restart}</button>
+      </div>
     </div>
 
-    <div class="chat-log flex min-h-0 flex-1 flex-col gap-2 overflow-auto px-4 py-4.5" data-chat-log aria-live="polite">
-      <p class="chat-time self-center py-1 text-[11px] text-(--ink-3)">{c.os.today}</p>
-      <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]">{m.opener}</p>
-      {m.chat.map((entry) => (
-        <div class="chat-canned" hidden data-q={entry.q}>
-          <p class="bubble me max-w-[78%] self-end rounded-[19px] rounded-br-[6px] bg-(--green) px-3.5 py-2.25 text-[15px] leading-[1.42] text-white [animation:bubble-in_0.3s_var(--ease-pop)] [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f] @max-[560px]/app:max-w-[88%]">{entry.q}</p>
-          <p class="bubble them max-w-[78%] self-start rounded-[19px] rounded-bl-[6px] bg-(--surface-3) px-3.5 py-2.25 text-[15px] leading-[1.42] text-(--ink) [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]">{entry.a}</p>
-        </div>
-      ))}
+    <div class="msg-log" data-chat-log aria-live="polite">
+      <p class="msg-stamp"><b>{c.os.today}</b></p>
+      <div class="msg-row them">
+        <p class="msg-b them grp-first tail">{m.opener}</p>
+      </div>
     </div>
 
-    <div class="chat-suggest flex gap-2 overflow-x-auto border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-3 [&_button]:flex-none [&_button]:rounded-full [&_button]:border [&_button]:border-(--accent) [&_button]:bg-transparent [&_button]:px-3.5 [&_button]:py-1.75 [&_button]:text-[13px] [&_button]:text-(--accent) [&_button:hover]:bg-(--accent) [&_button:hover]:text-white" data-chat-suggest>
+    {/* O dono, antes de escolher uma conversa. */}
+    <div class="msg-empty" data-msg-pick hidden>
+      <span class="msg-empty-icon" aria-hidden="true"><Icon id="ui-note" size={24} /></span>
+      <p class="m-0">{m.pickConversation}</p>
+    </div>
+
+    <div class="msg-suggest" data-chat-suggest>
       {m.chat.map((entry) => (
         <button type="button" data-ask={entry.q}>{entry.q}</button>
       ))}
       <button type="button" data-ask-mail>{SITE.email}</button>
     </div>
 
-    <form class="chat-compose flex flex-none items-center gap-2 border-t-[0.5px] border-(--line) px-3.5 py-2.5" data-chat-form novalidate>
+    <form class="msg-compose" data-chat-form novalidate>
       <input
         type="text"
         data-chat-input
@@ -60,12 +81,25 @@ const m = c.mensagens;
         aria-label={m.input}
         autocomplete="off"
         maxlength="600"
-        class="min-w-0 flex-1 border-[0.5px] border-(--line) bg-(--surface-2) px-3.5 py-2 text-[15px] text-(--ink) outline-hidden focus:border-(--accent)"
       />
-      <button class="chat-send grid h-9 w-9 flex-none place-items-center rounded-full bg-(--accent) text-white" type="submit" aria-label={m.send}>
-        <Icon id="ui-arrow" size={16} />
+      <button class="msg-send" type="submit" aria-label={m.send}>
+        <Icon id="ui-arrow" size={15} />
       </button>
     </form>
-    <p class="chat-note px-3.5 pb-2 text-[11px] text-(--ink-3)" data-chat-note>{m.aiOff}</p>
+
+    {/* O que o dono vê em vez da barra de escrever. */}
+    <div class="msg-owner-bar" data-msg-owner-bar hidden>
+      <p data-msg-owner-note>{m.ownerReading}</p>
+    </div>
+
+    <p class="msg-note" data-chat-note>{m.aiOff}</p>
+
+    {/* As respostas guardadas, para quando não há modelo configurado.
+        Fora do registo, para o "Recomeçar" não ter de as varrer. */}
+    <div hidden data-chat-canned>
+      {m.chat.map((entry) => (
+        <div class="chat-canned" data-q={entry.q}><span>{entry.a}</span></div>
+      ))}
+    </div>
   </div>
 </section>

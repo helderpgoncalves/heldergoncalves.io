@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════
+   Mensagens — a lista de conversas, e os dois ecrãs.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   A metade que só o dono vê: quem lhe escreveu, por ordem de quem
+   falou por último. A conversa em si — as bolhas, o cabeçalho, a
+   barra de escrever — está em mensagens.css, ao lado.
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── 3. A lista de conversas (só o dono) ─────────────────────────
+   Uma coluna à esquerda, como no Mac; o ecrã inteiro, como no
+   telefone. A linha divisória começa depois do avatar — o recuo
+   de Apple, que agrupa a linha com a fotografia em vez de cortar
+   a lista de lado a lado. */
+.msg-list-pane {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 300px;
+  min-height: 0;
+  border-right: 0.5px solid var(--line);
+  background: var(--sidebar);
+}
+.msg-list-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: none;
+  padding: 12px 14px 6px;
+}
+.msg-list-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--t-title2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.msg-list-count { font-size: var(--t-caption); color: var(--ink-3); }
+
+.msg-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin: 0 10px 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--ink-3);
+}
+.msg-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: none;
+  outline: none;
+  font-size: var(--t-subhead);
+  color: var(--ink);
+}
+.msg-search input::placeholder { color: var(--ink-3); }
+.msg-search input::-webkit-search-cancel-button { display: none; }
+
+.msg-conv-list {
+  margin: 0;
+  padding: 0 6px 10px;
+  list-style: none;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.msg-conv {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  text-align: left;
+  color: var(--ink);
+  --r: 9px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .msg-conv { corner-shape: superellipse(1.777); border-radius: calc(var(--r) * 1.6); }
+}
+/* A linha entre duas conversas mora no <li> seguinte, não na linha em
+   si: o separador é entre elas, e uma linha seleccionada não leva
+   traço nenhum por cima nem por baixo. */
+.msg-conv-list li + li .msg-conv::before {
+  content: '';
+  position: absolute;
+  left: 58px;
+  right: 10px;
+  top: -1px;
+  border-top: 0.5px solid var(--line);
+}
+.msg-conv:hover { background: var(--surface-3); }
+.msg-conv.on { background: var(--accent); color: var(--accent-ink); }
+.msg-conv.on::before,
+.msg-conv-list li:has(.msg-conv.on) + li .msg-conv::before { border-color: transparent; }
+
+.msg-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #a3a3ad, #6f6f7a 58%, #4a4a55);
+  color: #fff;
+  font-size: var(--t-subhead);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.msg-conv-body { display: block; min-width: 0; flex: 1; }
+.msg-conv-top { display: flex; align-items: baseline; gap: 8px; }
+.msg-conv-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.msg-conv-when { flex: none; font-size: var(--t-caption); color: var(--ink-3); }
+.msg-conv-preview {
+  margin: 1px 0 0;
+  font-size: var(--t-subhead);
+  line-height: 1.35;
+  color: var(--ink-3);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.msg-conv.on .msg-conv-when,
+.msg-conv.on .msg-conv-preview { color: rgba(255, 255, 255, 0.82); }
+.msg-conv.on .msg-avatar { background: rgba(255, 255, 255, 0.28); }
+
+
+/* ── 6. Estreito: a lista e a conversa são dois ecrãs ────────────
+   Acima de 640 são duas colunas, como no Mac. Abaixo, a conversa
+   passa a entrar por cima da lista, como no iPhone — com o botão
+   de voltar que só existe aqui. Vale só para o dono: quem não é
+   dono não tem lista nenhuma, e a conversa é sempre o ecrã todo. */
+@container app (max-width: 640px) {
+  .app-mensagens.owner .msg-list-pane { width: 100%; border-right: 0; }
+  .app-mensagens.owner .msg-thread {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--surface-solid);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform calc(0.34s / var(--speed)) var(--ease-os), visibility 0s linear 0.34s;
+  }
+  .app-mensagens.owner.thread-open .msg-thread {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .app-mensagens.owner .msg-back { display: inline-flex; }
+}

@@ -283,6 +283,12 @@ export const APPS_EN = {
     loadingConversations: 'Loading…',
     turns: 'messages',
     yesterday: 'Yesterday',
+    inbox: 'Messages',
+    visitor: 'Visitor',
+    pickConversation: 'Pick a conversation to read it.',
+    replyByMail: 'Reply by email',
+    ownerReading: 'You are reading. The assistant answered here, on your behalf.',
+    ownerCannot: 'This house is yours — you do not talk to yourself. Pick a conversation.',
     chat: [
       {
         q: 'What do you actually do?',

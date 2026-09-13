@@ -1,0 +1,324 @@
+/* ═══════════════════════════════════════════════════════════════
+   Mensagens — a forma da app da Apple.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Esta app é quase toda CSS à mão, ao contrário das outras. Não é
+   preguiça de migrar: quase nada do que a faz parecer a Mensagens
+   a sério é exprimível numa utility — a cauda da bolha são dois
+   pseudo-elementos que se comem um ao outro, o agrupamento de
+   bolhas seguidas é uma tabela de cantos que depende do vizinho, a
+   linha da lista é recuada até depois do avatar, e a lista e a
+   conversa trocam de ser duas colunas para serem dois ecrãs.
+
+   O que É utility — espaçamentos soltos, cores de texto, truncar —
+   continua no markup, em Mensagens.astro.
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── 1. As cores de uma conversa ─────────────────────────────────
+   Enviada azul, recebida cinzenta: é o iMessage, e o azul é o
+   mesmo `--accent` do resto do sistema. O verde da app da Apple é
+   o SMS, outra coisa — aqui não há SMS nenhum.
+
+   A recebida tem de ser OPACA, não `--surface-3`: a cauda é feita
+   de um pedaço de cor por baixo da bolha, e com transparência via-
+   se a emenda onde os dois se sobrepõem. `color-mix` sobre a
+   superfície dá o mesmo cinzento da Apple nas duas aparências —
+   #eaeaec em claro, #3a3a3d em escuro. */
+.app-mensagens {
+  --msg-them: color-mix(in srgb, var(--gray) 14%, var(--surface-solid));
+  --msg-them-ink: var(--ink);
+  --msg-me: var(--accent);
+  --msg-me-ink: var(--accent-ink);
+  --msg-ground: var(--surface-solid);
+  --msg-tail: 20px;
+  flex-direction: row;
+}
+[data-theme='dark'] .app-mensagens {
+  --msg-them: color-mix(in srgb, var(--gray) 26%, var(--surface-solid));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .app-mensagens {
+    --msg-them: color-mix(in srgb, var(--gray) 26%, var(--surface-solid));
+  }
+}
+
+/* `hidden` tem de ganhar sempre.
+   ─────────────────────────────────────────────────────────────
+   Metade desta app aparece e desaparece por `el.hidden = true` — a
+   lista, o registo, a barra de escrever, as sugestões. Só que uma
+   regra de autor com `display` ganha ao `[hidden]` da folha do
+   browser (mesma especificidade, e autor ganha a UA), e sem isto
+   nada do que se esconde ficava escondido. Uma linha, em vez de um
+   `:not([hidden])` em cada peça.  */
+.app-mensagens [hidden] { display: none !important; }
+
+/* ── 2. As bolhas ────────────────────────────────────────────────
+   A linha (`.msg-row`) é que anima e que decide o lado; a bolha lá
+   dentro fica quieta. Não é arrumação: a animação tem `transform`,
+   e um `transform` cria contexto de empilhamento — a cauda, que
+   vive num pseudo-elemento em z-index negativo, desaparecia por
+   trás do fundo da própria bolha durante a entrada. */
+.msg-log {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 14px 16px 18px;
+  background: var(--msg-ground);
+}
+.msg-row {
+  display: flex;
+  margin-top: 8px;
+  animation: bubble-in 0.3s var(--ease-pop);
+}
+.msg-row.them { justify-content: flex-start; }
+.msg-row.me { justify-content: flex-end; }
+/* Bolhas seguidas do mesmo lado colam-se: 2px em vez de 8. É o que
+   transforma uma lista de mensagens num bloco de conversa. */
+.msg-row.same { margin-top: 2px; }
+.msg-row:first-child { margin-top: 0; }
+
+.msg-b {
+  position: relative;
+  max-width: 76%;
+  margin: 0;
+  padding: 7px 14px 8px;
+  border-radius: 18px;
+  font-size: var(--t-body);
+  line-height: 1.4;
+  letter-spacing: -0.006em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.msg-b.them { background: var(--msg-them); color: var(--msg-them-ink); }
+.msg-b.me { background: var(--msg-me); color: var(--msg-me-ink); }
+
+/* Cantos de dentro de um grupo: 5px do lado onde há vizinho. A
+   última bolha do grupo é a que leva cauda — por isso `.tail` serve
+   de marca das duas coisas, e não há duas classes a dizer o mesmo. */
+.msg-row.them .msg-b:not(.grp-first) { border-top-left-radius: 5px; }
+.msg-row.them .msg-b:not(.tail) { border-bottom-left-radius: 5px; }
+.msg-row.me .msg-b:not(.grp-first) { border-top-right-radius: 5px; }
+.msg-row.me .msg-b:not(.tail) { border-bottom-right-radius: 5px; }
+
+/* A cauda, só na última bolha do grupo. Dois pseudo-elementos: um
+   pedaço de cor da bolha que sai para fora, e por cima dele um
+   pedaço da cor do fundo que lhe morde a curva. Ambos em z-index
+   negativo — assim ficam acima do fundo da bolha e abaixo do texto
+   dela, que é exactamente onde uma cauda vive. */
+.msg-b.tail::before,
+.msg-b.tail::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  bottom: -1px;
+  height: var(--msg-tail);
+}
+.msg-b.them.tail::before {
+  left: -7px;
+  width: 20px;
+  background: var(--msg-them);
+  border-bottom-right-radius: 15px;
+}
+.msg-b.them.tail::after {
+  left: -26px;
+  width: 26px;
+  background: var(--msg-ground);
+  border-bottom-right-radius: 10px;
+}
+.msg-b.me.tail::before {
+  right: -7px;
+  width: 20px;
+  background: var(--msg-me);
+  border-bottom-left-radius: 15px;
+}
+.msg-b.me.tail::after {
+  right: -26px;
+  width: 26px;
+  background: var(--msg-ground);
+  border-bottom-left-radius: 10px;
+}
+
+/* Os três pontos de "está a escrever". */
+.msg-b.typing { display: flex; gap: 4px; padding: 12px 14px; }
+.msg-b.typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  animation: dot 1.1s infinite;
+}
+.msg-b.typing i:nth-child(2) { animation-delay: 0.15s; }
+.msg-b.typing i:nth-child(3) { animation-delay: 0.3s; }
+
+/* O carimbo de hora ao meio, e o "Entregue" por baixo da última
+   enviada — os dois pequenos, cinzentos, como na app a sério. */
+.msg-stamp {
+  align-self: center;
+  margin: 14px 0 6px;
+  font-size: var(--t-caption2);
+  color: var(--ink-3);
+  letter-spacing: 0.01em;
+}
+.msg-stamp b { font-weight: 600; color: var(--ink-2); }
+.msg-stamp:first-child { margin-top: 0; }
+.msg-receipt {
+  align-self: flex-end;
+  margin: 2px 2px 0;
+  font-size: var(--t-caption2);
+  color: var(--ink-3);
+}
+
+/* ── 4. A conversa ───────────────────────────────────────────────*/
+.msg-thread { display: flex; flex-direction: column; min-width: 0; min-height: 0; flex: 1; }
+.msg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 8px 14px;
+  border-bottom: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.msg-back { display: none; align-items: center; gap: 2px; color: var(--accent); font-size: var(--t-subhead); }
+.msg-head .msg-avatar { width: 30px; height: 30px; font-size: var(--t-caption); }
+.msg-id { min-width: 0; display: flex; flex-direction: column; }
+.msg-id strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.msg-id span { font-size: var(--t-caption); color: var(--ink-3); }
+.msg-head-actions { margin-left: auto; display: flex; gap: 6px; flex: none; }
+
+/* ── 5. Sugestões e a barra de escrever ──────────────────────────
+   O campo é uma cápsula: as pontas de uma cápsula são semicírculos
+   verdadeiros, e por isso `corner-shape` não entra aqui (ver
+   .claude/rules/apple.md). O botão de enviar só acende quando há
+   texto — cinzento até lá, como na app da Apple. */
+.msg-suggest {
+  display: flex;
+  gap: 8px;
+  flex: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 10px 16px;
+  border-top: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.msg-suggest::-webkit-scrollbar { display: none; }
+.msg-suggest button {
+  flex: none;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: var(--t-subhead);
+  white-space: nowrap;
+}
+.msg-suggest button:hover { background: var(--accent); color: var(--accent-ink); }
+
+.msg-compose {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex: none;
+  padding: 8px 12px;
+  border-top: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.msg-compose input {
+  min-width: 0;
+  flex: 1;
+  min-height: 34px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface-solid);
+  color: var(--ink);
+  font-size: var(--t-body);
+  outline: none;
+}
+.msg-compose input:focus { border-color: var(--accent); }
+.msg-send {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 2px;
+  border-radius: 50%;
+  background: var(--gray3);
+  color: #fff;
+  transition: background 0.18s ease, transform 0.18s var(--ease-pop);
+}
+.msg-compose.ready .msg-send { background: var(--accent); }
+.msg-send:active { transform: scale(0.9); }
+
+/* A nota por baixo, e a barra que o dono vê em vez de escrever. */
+.msg-note { margin: 0; padding: 6px 16px 9px; font-size: var(--t-caption); color: var(--ink-3); background: var(--surface-2); }
+.msg-owner-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 10px 14px;
+  border-top: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.msg-owner-bar p { margin: 0; flex: 1; font-size: var(--t-caption); color: var(--ink-3); }
+
+/* O vazio: nenhuma conversa escolhida, ou nenhuma conversa a haver. */
+.msg-empty {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 24px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--t-subhead);
+}
+.msg-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  opacity: 0.7;
+}
+
+@container app (max-width: 420px) {
+  .msg-log { padding: 12px 12px 14px; }
+  .msg-b { max-width: 86%; }
+  .msg-suggest { padding: 9px 12px; }
+  .msg-compose { padding: 7px 10px; }
+  .msg-head { padding: 7px 10px; gap: 8px; }
+  .msg-note { padding: 5px 12px 8px; }
+}
+
+/* No telefone o cabeçalho de uma conversa é centrado, e o nome vai
+   para baixo do avatar — a diferença real entre a Mensagens do iOS
+   e a do Mac. */
+[data-mode='ios'] .msg-head { position: relative; justify-content: center; padding-block: 6px; }
+[data-mode='ios'] .msg-head .msg-avatar { width: 34px; height: 34px; }
+[data-mode='ios'] .msg-id { flex: 0 1 auto; align-items: center; text-align: center; }
+[data-mode='ios'] .msg-id strong { font-size: var(--t-caption); }
+[data-mode='ios'] .msg-id span { display: none; }
+[data-mode='ios'] .msg-head > .msg-avatar { order: -1; }
+[data-mode='ios'] .msg-head-actions { position: absolute; right: 10px; margin: 0; }
+[data-mode='ios'] .msg-back { position: absolute; left: 6px; }
+
+/* Quem pediu menos movimento não leva a viagem — só o resultado. */
+@media (prefers-reduced-motion: reduce) {
+  .msg-row { animation: none; }
+  .app-mensagens .msg-thread { transition: none; }
+}

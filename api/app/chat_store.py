@@ -66,15 +66,25 @@ async def record_turn(conv_id: str, email: str, role: str, text: str, lang: str)
         await asyncio.to_thread(_append, row)
 
 
+PREVIEW = 140
+
+
 def conversations(limit: int = 200) -> list[dict]:
-    """Uma linha por conversa: quem é, quantas mensagens, e quando foi a
-    última — para o dono escolher qual abrir, não ler tudo de uma vez."""
+    """Uma linha por conversa: quem é, quantas mensagens, quando foi a
+    última, e o princípio dela — para o dono escolher qual abrir, não
+    ler tudo de uma vez. O excerto é o que a lista da app mostra por
+    baixo do nome, e por isso vem cortado daqui: mandar a mensagem
+    inteira de cada conversa só para mostrar duas linhas era pagar a
+    transferência toda para deitar fora quase tudo."""
     grouped: dict[str, dict] = {}
     for row in _turns:
         conv = row["conversation"]
-        entry = grouped.setdefault(conv, {"conversation": conv, "email": row.get("email"), "turns": 0, "last": None})
+        entry = grouped.setdefault(
+            conv, {"conversation": conv, "email": row.get("email"), "turns": 0, "last": None, "preview": ""}
+        )
         entry["turns"] += 1
         entry["last"] = row.get("at") or entry["last"]
+        entry["preview"] = " ".join(str(row.get("text") or "").split())[:PREVIEW]
     out = sorted(grouped.values(), key=lambda e: e["last"] or "", reverse=True)
     return out[:limit]
 

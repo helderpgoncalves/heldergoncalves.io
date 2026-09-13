@@ -16,6 +16,8 @@
      widgets     no ecrã inicial, no ambiente de trabalho, e a galeria
      bolsa       a lista com as cápsulas, e o título com o gráfico
      calendario  a grelha do mês, o dia ao lado, e a marcação
+     mensagens   as bolhas com cauda, o cabeçalho, a barra de escrever
+     mensagens-lista  as conversas do dono, e os dois ecrãs quando é estreito
      toque       o que separa um site de uma aplicação
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
@@ -97,6 +99,8 @@
   @import './os/widgets.css';
   @import './os/bolsa.css';
   @import './os/calendario.css';
+  @import './os/mensagens.css';
+  @import './os/mensagens-lista.css';
   @import './os/toque.css';
   @import './os/vidro.css';
   @import './os/apple.css';

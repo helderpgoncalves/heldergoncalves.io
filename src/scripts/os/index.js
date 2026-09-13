@@ -70,6 +70,7 @@ function boot(data) {
     if (ctx.comentarios && ctx.comentarios.refresh) ctx.comentarios.refresh();
     if (ctx.calendario && ctx.calendario.refresh) ctx.calendario.refresh();
     if (ctx.contacto && ctx.contacto.refresh) ctx.contacto.refresh();
+    if (ctx.mensagens && ctx.mensagens.refresh) ctx.mensagens.refresh();
   };
 
   // ── Abrir e fechar ────────────────────────────────────────────

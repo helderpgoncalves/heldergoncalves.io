@@ -22,7 +22,7 @@ from app.chat_store import conversation_id, record_turn
 from app.config import CHAT, CHAT_READY, LIMITS, SITE_ORIGIN
 from app.http import read_json
 from app.security import bump, check_token, ip_key, wrong_origin
-from app.sessions import read_session
+from app.sessions import is_owner, read_session
 from app.validation import clean
 
 router = APIRouter()
@@ -98,6 +98,11 @@ async def chat(request: Request) -> JSONResponse:
     email = read_session(request.headers.get("cookie", ""))
     if not email:
         return JSONResponse({"ok": False, "error": "sessao"}, status_code=401)
+    # O dono não fala consigo próprio. Do lado dele as Mensagens são
+    # uma caixa de entrada — deixar o assistente responder-lhe só
+    # sujava a lista de conversas com uma conversa que é ele mesmo.
+    if is_owner(email):
+        return JSONResponse({"ok": False, "error": "proprio"}, status_code=403)
 
     bad = wrong_origin(request, SITE_ORIGIN)
     if bad:

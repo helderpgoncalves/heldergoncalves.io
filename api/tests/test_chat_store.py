@@ -16,6 +16,11 @@ async def test_record_and_read_a_transcript():
     assert [t["role"] for t in turns] == ["user", "assistant"]
     assert turns[0]["text"] == "Olá"
 
+    # A lista leva o princípio da última mensagem — é o que a app mostra
+    # por baixo do nome, sem ter de ir buscar a conversa toda.
+    listed = {c["conversation"]: c for c in chat_store.conversations()}
+    assert listed[conv]["preview"] == "Olá! Como posso ajudar?"
+
 
 async def test_conversations_groups_by_conversation_and_counts_turns():
     conv_a = chat_store.conversation_id("a@b.com")

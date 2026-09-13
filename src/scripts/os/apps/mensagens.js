@@ -1,14 +1,15 @@
-import { esc } from '../lib/dom.js';
 import { amIOwner, forgetWho, requestToken, serverFeatures, whoAmI } from '../lib/session.js';
 import { capturar } from '../lib/retomar.js';
 
-// Conversa a sério quando o servidor tem uma chave de modelo, e as
-// respostas guardadas quando não tem. O texto do modelo entra sempre
-// como texto (textContent), nunca como HTML.
+// A conversa das Mensagens: as bolhas, o que se escreve, e o que o
+// assistente responde. A lista de conversas do dono é outro assunto e
+// vive ao lado, em mensagens-inbox.js — as duas falam através de
+// `ctx.mensagens` e `ctx.inbox`, nunca por importação directa (ver
+// .claude/rules/cliente.md). A forma está em styles/os/mensagens.css.
 //
-// Falar pede sessão. A conversa fica guardada e é o Hélder que a vai
-// ler depois — só serve se souber de quem é, e com o email que a
-// pessoa provou ser seu, não um que escreveu numa caixa.
+// Falar pede sessão: a conversa fica guardada e é o Hélder que a vai
+// ler, e isso só vale se souber de quem é. E o dono não fala consigo
+// próprio — do lado dele isto é uma caixa de entrada, não um chat.
 export function initChat(ctx) {
   const el = ctx.contentNode('mensagens');
   if (!el) return;
@@ -19,121 +20,185 @@ export function initChat(ctx) {
   const note = el.querySelector('[data-chat-note]');
   const title = el.querySelector('[data-chat-title]');
   const subtitle = el.querySelector('[data-chat-subtitle]');
+  const avatar = el.querySelector('[data-chat-avatar]');
+  const ownerBar = el.querySelector('[data-msg-owner-bar]');
+  const reply = el.querySelector('[data-msg-reply]');
+  const pick = el.querySelector('[data-msg-pick]');
+  const reset = el.querySelector('[data-chat-reset]');
   const t = ctx.data.strings.chat;
   const canned = [...el.querySelectorAll('.chat-canned')];
   const opening = log.innerHTML;
-  const openingTitle = title ? title.textContent : '';
-  const openingSubtitle = subtitle ? subtitle.textContent : '';
-  canned.forEach((c) => c.remove());
-
-  // ── A lista de conversas, só para o dono ────────────────────────────
-  // O backend já recusa /api/mensagens a quem não é o dono — isto é só
-  // a camada visual: sem sessão de dono, a barra nem chega a pedir a
-  // lista, e a app funciona exactamente como antes (a conversa única).
-  const sidebar = el.querySelector('[data-msg-sidebar]');
-  const convList = el.querySelector('[data-msg-conv-list]');
-  const convEmpty = el.querySelector('[data-msg-conv-empty]');
-  const search = el.querySelector('[data-msg-search]');
-  let conversations = [];
-  let ownConversationId = null;
-
-  const weekdayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { weekday: 'long' });
-  const timeFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { hour: '2-digit', minute: '2-digit' });
-  const dayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { day: 'numeric', month: 'short' });
-  function relativeWhen(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const days = Math.round((startOfDay(new Date()) - startOfDay(d)) / (24 * 60 * 60 * 1000));
-    if (days <= 0) return timeFmt.format(d);
-    if (days === 1) return t.yesterday || weekdayFmt.format(d);
-    if (days < 7) return weekdayFmt.format(d);
-    return dayFmt.format(d);
-  }
-
-  function initials(text) {
-    return (text || '?').slice(0, 2).toUpperCase();
-  }
-
-  function renderConversations() {
-    const q = (search && search.value.trim().toLowerCase()) || '';
-    const rows = conversations.filter((c) => !q || (c.email || c.conversation).toLowerCase().includes(q));
-    convEmpty.hidden = rows.length > 0;
-    convList.innerHTML = rows
-      .map((c) => {
-        const label = c.email || c.conversation.replace(/^visitante:/, '');
-        const active = c.conversation === ownConversationId;
-        return (
-          '<li>' +
-          '<button type="button" data-conv="' + esc(c.conversation) + '" class="msg-conv-row flex w-full flex-col gap-0.5 border-b-[0.5px] border-(--line) px-3.5 py-2.5 text-left' +
-          (active ? ' bg-(--accent) text-white' : ' text-(--ink) hover:bg-(--surface-3)') + '">' +
-          '<span class="flex items-center gap-2">' +
-          '<span class="grid h-7 w-7 flex-none place-items-center rounded-full bg-(--surface-3) text-[11px] font-semibold' + (active ? ' bg-white/25 text-white' : ' text-(--ink-2)') + '">' + esc(initials(label)) + '</span>' +
-          '<strong class="min-w-0 flex-1 truncate text-[13px] font-semibold">' + esc(label) + '</strong>' +
-          '<span class="flex-none text-[11px]' + (active ? ' text-white/80' : ' text-(--ink-3)') + '">' + esc(relativeWhen(c.last)) + '</span>' +
-          '</span>' +
-          '<span class="truncate pl-9 text-[12px]' + (active ? ' text-white/80' : ' text-(--ink-3)') + '">' + esc(String(c.turns)) + ' ' + esc(t.turns || '') + '</span>' +
-          '</button></li>'
-        );
-      })
-      .join('');
-  }
-
-  async function openConversation(convId) {
-    ownConversationId = convId;
-    renderConversations();
-    const found = conversations.find((c) => c.conversation === convId);
-    if (title) title.textContent = (found && (found.email || found.conversation)) || openingTitle;
-    if (subtitle) subtitle.textContent = t.withAssistant || openingSubtitle;
-    try {
-      const res = await fetch('/api/mensagens/' + encodeURIComponent(convId), { headers: { Accept: 'application/json' } });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data || !data.ok) return;
-      log.innerHTML = '';
-      // Aqui é o dono a ler: quem fala é o visitante ("them"), quem
-      // responde é o assistente em nome do Hélder ("me") — o inverso
-      // da conversa normal, onde quem está a ver é o próprio visitante.
-      (data.turns || []).forEach((turn) => bubble(turn.role === 'assistant' ? 'me' : 'them', turn.text));
-    } catch (_) {
-      // A conversa fica com o que já lá estava — sem partir a vista.
-    }
-  }
-
-  async function loadConversations() {
-    try {
-      const res = await fetch('/api/mensagens', { headers: { Accept: 'application/json' } });
-      if (!res.ok) return;
-      const data = await res.json().catch(() => null);
-      if (!data || !data.ok) return;
-      conversations = data.conversations || [];
-      renderConversations();
-    } catch (_) {
-      // Sem lista, a app continua a funcionar como conversa única.
-    }
-  }
-
-  async function prepareSidebar() {
-    if (!sidebar) return;
-    const owner = await amIOwner();
-    if (!owner) return;
-    sidebar.hidden = false;
-    sidebar.removeAttribute('aria-hidden');
-    await loadConversations();
-  }
-
-  if (search) search.addEventListener('input', renderConversations);
-  if (convList)
-    convList.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('[data-conv]');
-      if (btn) openConversation(btn.dataset.conv);
-    });
+  const openingTitle = title.textContent;
+  const openingSubtitle = subtitle.textContent;
+  const openingChips = [...suggest.querySelectorAll('[data-ask]')].map((b) => b.dataset.ask);
 
   let token = null;
   let live = false;
   let asked = false;
   let busy = false;
+  let owner = false;
   let history = [];
 
+  // ── Datas ─────────────────────────────────────────────────────────
+  // Um só sítio a formatar horas, para a lista e a conversa dizerem o
+  // mesmo. O servidor manda sempre o instante ISO em UTC; o fuso é de
+  // quem está a ver.
+  const weekdayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { weekday: 'long' });
+  const timeFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { hour: '2-digit', minute: '2-digit' });
+  const dayFmt = new Intl.DateTimeFormat(ctx.data.intlLocale, { day: 'numeric', month: 'short' });
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+  function daysAgo(date) {
+    return Math.round((startOfDay(new Date()) - startOfDay(date)) / 86400000);
+  }
+  /** O nome do dia: "Hoje", "Ontem", o dia da semana, ou a data. */
+  function dayOf(date) {
+    const days = daysAgo(date);
+    if (days <= 0) return ctx.data.strings.today;
+    if (days === 1) return t.yesterday;
+    if (days < 7) return weekdayFmt.format(date);
+    return dayFmt.format(date);
+  }
+  const timeOf = (date) => timeFmt.format(date);
+  /** O que uma linha da lista mostra à direita: a hora se foi hoje,
+      senão o nome do dia — como na lista de conversas da Apple. */
+  function relativeWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return daysAgo(d) <= 0 ? timeOf(d) : dayOf(d);
+  }
+
+  /** Rótulo → duas letras, como o círculo de um contacto sem foto. */
+  function initials(text) {
+    const clean = String(text || '?').replace(/^[a-z]+:/, '').trim();
+    return (clean.slice(0, 2) || '?').toUpperCase();
+  }
+
+  // ── As bolhas ─────────────────────────────────────────────────────
+  const scroll = () => (log.scrollTop = log.scrollHeight);
+
+  /** Uma bolha nova, já agrupada com a anterior se for do mesmo lado:
+      as seguidas colam-se, e só a última do grupo leva cauda. */
+  function bubble(side, text) {
+    const previous = log.lastElementChild;
+    const sameSide = previous && previous.classList.contains('msg-row') && previous.classList.contains(side);
+    if (sameSide) {
+      const before = previous.querySelector('.msg-b');
+      if (before) before.classList.remove('tail');
+    }
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + side + (sameSide ? ' same' : '');
+    const p = document.createElement('p');
+    p.className = 'msg-b ' + side + ' tail' + (sameSide ? '' : ' grp-first');
+    p.textContent = text || '';
+    row.appendChild(p);
+    log.appendChild(row);
+    scroll();
+    return p;
+  }
+
+  function typing() {
+    const p = bubble('them', '');
+    p.classList.add('typing');
+    p.setAttribute('aria-label', t.typing);
+    p.innerHTML = '<i></i><i></i><i></i>';
+    scroll();
+    return p.parentElement;
+  }
+
+  /** O carimbo ao meio do registo: "**Ontem** 21:04". */
+  function stamp(date) {
+    const p = document.createElement('p');
+    p.className = 'msg-stamp';
+    const b = document.createElement('b');
+    b.textContent = dayOf(date);
+    p.append(b, ' ' + timeOf(date));
+    log.appendChild(p);
+  }
+
+  // ── As duas caras da app ──────────────────────────────────────────
+  function showCompose(on) {
+    form.hidden = !on;
+    suggest.hidden = !on;
+    note.hidden = !on;
+    ownerBar.hidden = on;
+  }
+
+  /** A conversa com o assistente — o que um visitante vê sempre. */
+  function showAssistant() {
+    el.classList.remove('thread-open');
+    log.hidden = false;
+    pick.hidden = true;
+    reply.hidden = true;
+    log.innerHTML = opening;
+    title.textContent = openingTitle;
+    subtitle.textContent = openingSubtitle;
+    avatar.textContent = 'H';
+    history = [];
+    suggest.innerHTML = '';
+    for (const q of openingChips) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.ask = q;
+      b.textContent = q;
+      suggest.appendChild(b);
+    }
+    const mail = document.createElement('button');
+    mail.type = 'button';
+    mail.dataset.askMail = '1';
+    mail.textContent = ctx.data.site.email;
+    suggest.appendChild(mail);
+    showCompose(true);
+  }
+
+  /** O dono, ainda sem escolher ninguém. */
+  function pickNothing() {
+    el.classList.remove('thread-open');
+    log.hidden = true;
+    pick.hidden = false;
+    reply.hidden = true;
+    showCompose(false);
+    ownerBar.hidden = true;
+    title.textContent = openingTitle;
+    subtitle.textContent = t.withAssistant;
+    avatar.textContent = 'H';
+  }
+
+  /** O dono a ler a conversa de alguém. Quem fala é o visitante
+      ("them"), quem responde é o assistente em nome do Hélder ("me")
+      — o inverso da conversa normal, onde quem vê é o visitante. */
+  function showTranscript(label, email, turns) {
+    el.classList.add('thread-open');
+    log.hidden = false;
+    pick.hidden = true;
+    showCompose(false);
+    ownerBar.hidden = false;
+    title.textContent = label;
+    subtitle.textContent = t.withAssistant;
+    avatar.textContent = initials(label);
+    reply.hidden = !email;
+    if (email) reply.href = 'mailto:' + email;
+    log.innerHTML = '';
+    let day = '';
+    for (const turn of turns || []) {
+      const when = turn.at ? new Date(turn.at) : null;
+      if (when && when.toDateString() !== day) {
+        day = when.toDateString();
+        stamp(when);
+      }
+      bubble(turn.role === 'assistant' ? 'me' : 'them', turn.text);
+    }
+    scroll();
+  }
+
+  function setOwner(is) {
+    owner = is;
+    el.classList.toggle('owner', is);
+    if (is) pickNothing();
+    else showAssistant();
+  }
+
+  // ── Preparar ──────────────────────────────────────────────────────
   async function prepare() {
     if (!asked) {
       asked = true;
@@ -142,62 +207,38 @@ export function initChat(ctx) {
       live = !!(features && features.chat);
       if (note) note.textContent = live && token ? t.ai : t.aiOff;
     }
-    // A sidebar (só do dono) pede sempre de novo ao reabrir: pode ter
-    // chegado gente nova a falar com o assistente desde a última vez.
-    await prepareSidebar();
+    // Quem está sentado ao teclado pode ter mudado (entrou, saiu)
+    // desde a última vez que a app abriu.
+    const is = await amIOwner();
+    if (is !== owner) setOwner(is);
+    if (is && ctx.inbox) await ctx.inbox.load();
+    return is;
   }
   ctx.prepareChat = prepare;
-
-  const scroll = () => (log.scrollTop = log.scrollHeight);
-
-  const BUBBLE_BASE = 'bubble max-w-[78%] rounded-[19px] px-3.5 py-2.25 text-[15px] leading-[1.42] [animation:bubble-in_0.3s_var(--ease-pop)] @max-[560px]/app:max-w-[88%]';
-  const BUBBLE_SIDE = {
-    them: 'them self-start rounded-bl-[6px] bg-(--surface-3) text-(--ink)',
-    me: "me self-end rounded-br-[6px] bg-(--green) text-white [data-theme='dark']:bg-[#30d158] [data-theme='dark']:text-[#06240f]",
-  };
-
-  function bubble(side, text) {
-    const p = document.createElement('p');
-    p.className = BUBBLE_BASE + ' ' + BUBBLE_SIDE[side];
-    p.textContent = text || '';
-    log.appendChild(p);
-    scroll();
-    return p;
-  }
-
-  function typing() {
-    const p = document.createElement('p');
-    p.className = BUBBLE_BASE + ' ' + BUBBLE_SIDE.them + ' typing flex gap-1 px-3.5 py-3 [&_i]:h-1.75 [&_i]:w-1.75 [&_i]:rounded-full [&_i]:bg-(--ink-3) [&_i]:[animation:dot_1.1s_infinite] [&_i:nth-child(2)]:[animation-delay:0.15s] [&_i:nth-child(3)]:[animation-delay:0.3s]';
-    p.setAttribute('aria-label', t.typing);
-    p.innerHTML = '<i></i><i></i><i></i>';
-    log.appendChild(p);
-    scroll();
-    return p;
-  }
 
   /** Sem modelo: procura a resposta guardada mais próxima. */
   function cannedFor(text) {
     const q = text.toLowerCase();
+    const textOf = (c) => c.querySelector('span').textContent;
     const exact = canned.find((c) => c.dataset.q.toLowerCase() === q);
-    if (exact) return exact.querySelector('.bubble.them').textContent;
+    if (exact) return textOf(exact);
     const words = q.split(/\s+/).filter((w) => w.length > 3);
     let best = null;
     let bestScore = 0;
     for (const c of canned) {
-      const hay = (c.dataset.q + ' ' + c.querySelector('.bubble.them').textContent).toLowerCase();
+      const hay = (c.dataset.q + ' ' + textOf(c)).toLowerCase();
       const score = words.filter((w) => hay.includes(w)).length;
       if (score > bestScore) {
         bestScore = score;
         best = c;
       }
     }
-    if (best && bestScore >= 2) return best.querySelector('.bubble.them').textContent;
-    return t.unknown;
+    return best && bestScore >= 2 ? textOf(best) : t.unknown;
   }
 
-  /** Escreve a resposta letra a letra. O texto chega inteiro do servidor
-      — é mais barato e mais fiável do que streaming — e é aqui que ganha
-      o ritmo de quem está a escrever do outro lado. */
+  /** Escreve a resposta letra a letra. O texto chega inteiro do
+      servidor — mais barato e mais fiável do que streaming — e é aqui
+      que ganha o ritmo de quem está a escrever do outro lado. */
   function typeOut(node, text) {
     return new Promise((done) => {
       if (document.documentElement.getAttribute('data-motion') === 'off') {
@@ -225,6 +266,7 @@ export function initChat(ctx) {
     });
     if (res.status === 429) throw new Error('limite');
     if (res.status === 401) throw new Error('sessao');
+    if (res.status === 403) throw new Error('proprio');
     const data = await res.json().catch(() => null);
     if (!res.ok || !data || !data.ok || typeof data.text !== 'string') throw new Error('upstream');
     return data.text;
@@ -234,10 +276,14 @@ export function initChat(ctx) {
     const message = String(text || '').trim().slice(0, 600);
     if (!message || busy) return;
 
-    // Antes de escrever a bolha: sem sessão a mensagem não sai daqui, e
-    // é melhor o campo ficar como estava do que ver o que se escreveu
+    // Antes de escrever a bolha: se isto não vai a lado nenhum, é
+    // melhor o campo ficar como estava do que ver o que se escreveu
     // pendurado numa conversa que não avançou.
     await prepare();
+    if (owner) {
+      if (note) note.textContent = t.ownerCannot;
+      return;
+    }
     if (!(await whoAmI())) {
       capturar(ctx);
       ctx.entrar.open();
@@ -246,7 +292,10 @@ export function initChat(ctx) {
     }
 
     busy = true;
-    if (input) input.value = '';
+    if (input) {
+      input.value = '';
+      form.classList.remove('ready');
+    }
     bubble('me', message);
     // Sem CSS.escape: comparar é mais simples e funciona em todo o lado.
     const chip = [...suggest.querySelectorAll('[data-ask]')].find((b) => b.dataset.ask === message);
@@ -255,10 +304,10 @@ export function initChat(ctx) {
     const dots = typing();
 
     if (!live || !token) {
-      const reply = cannedFor(message);
+      const answer = cannedFor(message);
       setTimeout(() => {
         dots.remove();
-        bubble('them', reply);
+        bubble('them', answer);
         busy = false;
       }, 550 + Math.random() * 350);
       return;
@@ -267,56 +316,41 @@ export function initChat(ctx) {
     history.push({ role: 'user', content: message });
     history = history.slice(-8);
     try {
-      const text = await talk();
+      const answer = await talk();
       dots.remove();
-      const answer = bubble('them', '');
-      await typeOut(answer, text);
-      history.push({ role: 'assistant', content: text });
+      await typeOut(bubble('them', ''), answer);
+      history.push({ role: 'assistant', content: answer });
     } catch (err) {
-      if (dots.isConnected) dots.remove();
       const reason = err && err.message;
+      if (dots.isConnected) dots.remove();
       if (reason === 'sessao') {
-        // A sessão caiu a meio da conversa.
         forgetWho();
         capturar(ctx);
         ctx.entrar.open();
       }
-      bubble('them', reason === 'limite' ? t.limit : reason === 'sessao' ? t.signInFirst : t.error);
+      bubble(
+        'them',
+        reason === 'limite' ? t.limit : reason === 'sessao' ? t.signInFirst : reason === 'proprio' ? t.ownerCannot : t.error
+      );
       history.pop();
     }
     busy = false;
   }
 
+  // ── Ligações ──────────────────────────────────────────────────────
   suggest.addEventListener('click', (ev) => {
     const b = ev.target.closest('[data-ask]');
     if (b) return ask(b.dataset.ask);
     if (ev.target.closest('[data-ask-mail]')) location.href = 'mailto:' + ctx.data.site.email;
   });
 
-  if (form)
-    form.addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      ask(input && input.value);
-    });
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    ask(input && input.value);
+  });
+  if (input) input.addEventListener('input', () => form.classList.toggle('ready', input.value.trim().length > 0));
+  if (reset) reset.addEventListener('click', () => (owner ? pickNothing() : showAssistant()));
 
-  const reset = el.querySelector('[data-chat-reset]');
-  if (reset)
-    reset.addEventListener('click', () => {
-      history = [];
-      log.innerHTML = opening;
-      log.querySelectorAll('.chat-canned').forEach((c) => c.remove());
-      suggest.innerHTML = '';
-      canned.forEach((c) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.dataset.ask = c.dataset.q;
-        b.textContent = c.dataset.q;
-        suggest.appendChild(b);
-      });
-      const mail = document.createElement('button');
-      mail.type = 'button';
-      mail.dataset.askMail = '1';
-      mail.textContent = ctx.data.site.email;
-      suggest.appendChild(mail);
-    });
+  // O que a lista do dono precisa desta metade.
+  ctx.mensagens = { showTranscript, pickNothing, initials, relativeWhen, refresh: prepare };
 }

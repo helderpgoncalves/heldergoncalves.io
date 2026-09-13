@@ -206,3 +206,20 @@ def test_creating_an_override_rejects_a_backwards_interval(client):
     )
     assert res.status_code == 400
     assert res.json()["error"] == "intervalo"
+
+
+def test_chat_requires_a_session(client):
+    res = client.post("/api/chat", json={"messages": [{"role": "user", "content": "olá"}]})
+    assert res.status_code in (401, 503)
+    if res.status_code == 401:
+        assert res.json()["error"] == "sessao"
+
+
+def test_chat_refuses_the_owner(client):
+    """O dono não fala consigo próprio — do lado dele isto é uma caixa
+    de entrada, não uma conversa."""
+    _sign_in(client, "dono@example.test")
+    res = client.post("/api/chat", json={"messages": [{"role": "user", "content": "olá"}]})
+    assert res.status_code in (403, 503)
+    if res.status_code == 403:
+        assert res.json()["error"] == "proprio"
