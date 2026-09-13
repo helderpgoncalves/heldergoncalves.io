@@ -20,6 +20,7 @@ import Simulador from './apps/Simulador.astro';
 import Bolsa from './apps/Bolsa.astro';
 import Calendario from './apps/Calendario.astro';
 import Pessoas from './apps/Pessoas.astro';
+import Ficheiros from './apps/Ficheiros.astro';
 
 interface Props {
   lang: Lang;
@@ -79,6 +80,7 @@ const osData = {
     bolsa: c.bolsa,
     calendario: c.calendario,
     pessoas: c.pessoas,
+    ficheiros: c.ficheiros,
     definicoes: c.definicoes,
   },
   posts: posts.map((p) => ({
@@ -87,6 +89,10 @@ const osData = {
     description: p.data.description,
     url: postPath(p, lang),
     date: formatDate(p.data.date, lang),
+    // `date` é para se ler; `at` é para se comparar. O badge do Blog
+    // precisa de saber o que é mais recente do que a última visita, e
+    // uma data já escrita na língua de quem vê não serve para isso.
+    at: p.data.date.toISOString(),
     minutes: readingMinutes(p.body),
   })),
 };
@@ -354,6 +360,7 @@ const osData = {
   <Bolsa lang={lang} />
   <Calendario lang={lang} />
   <Pessoas lang={lang} />
+  <Ficheiros lang={lang} />
 </div>
 
 <script type="application/json" id="os-data" is:inline set:html={JSON.stringify(osData).replace(/</g, "\\u003c")}></script>

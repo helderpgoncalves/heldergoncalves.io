@@ -39,9 +39,10 @@ from app.bolsa.cache import init_snapshot as init_bolsa_snapshot
 from app.chat_store import init_chat_store
 from app.comments_store import init_comments_store
 from app.db import close_db, init_db
+from app.ficheiros_store import init_ficheiros_store
 from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
-from app.routers import agenda, auth, bolsa, chat, comments, contact, escritos, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
+from app.routers import agenda, auth, bolsa, chat, comments, contact, escritos, ficheiros, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
 from app.security import SECURITY_HEADERS
 from app.sessions import init_sessions
 from app.static_files import cache_stats, handle_static, warm_cache
@@ -71,6 +72,7 @@ async def lifespan(app: FastAPI):
     await init_chat_store()
     await init_comments_store()
     await init_reactions_store()
+    await init_ficheiros_store()
     init_bolsa_snapshot(BOLSA_SNAPSHOT_FILE)
     health.prime_health()
 
@@ -133,6 +135,7 @@ for router in (
     comments.router,
     escritos.router,
     pessoas.router,
+    ficheiros.router,
     mcp.router,
 ):
     app.include_router(router)

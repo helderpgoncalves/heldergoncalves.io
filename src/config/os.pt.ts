@@ -34,6 +34,10 @@ export const OS_PT = {
   hintPhone: 'Toca num ícone · desliza para cima para voltar',
   appSwitcher: 'Aplicações abertas',
   notifications: 'Notificações',
+  // O que um leitor de ecrã diz a seguir ao nome da app quando o ícone
+  // tem badge: «Mensagens, 3 por ler». `{n}` é o número a sério, sem o
+  // tecto dos 99+ — quem ouve merece a conta certa.
+  badge: { unread: '{n} por ler' },
   wallpaperNames: { aurora: 'Aurora', sonoma: 'Serra', night: 'Noite', graphite: 'Grafite' },
   today: 'Hoje',
   widgets: {

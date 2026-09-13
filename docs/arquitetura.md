@@ -371,6 +371,38 @@ A app **Contactos funciona como o Finder**, não como uma lista simples:
 Isto é a app que substitui `pessoas.js`/`Pessoas.astro` de hoje — não
 uma app nova ao lado.
 
+### Ficheiros — a partilha com cada cliente
+
+**Construída** (`ficheiros_store.py`, `routers/ficheiros.py`,
+`Ficheiros.astro`, `ficheiros.js`). É o primeiro pedaço a sério da
+"área de trabalho por pessoa" descrita acima, e a que lhe dá a
+metade dos documentos:
+
+- Uma **pasta** tem um nome e o email de um cliente. O dono cria-a e
+  atribui-a; o cliente vê só as pastas com o email dele. Um cliente
+  pode ter várias pastas, e uma pasta vários ficheiros.
+- Quem larga um ficheiro faz o outro lado receber um email
+  (`copy.py`, `FILES_COPY`, nas duas línguas) — é o que torna a pasta
+  um canal e não um depósito que ninguém repara que mudou.
+- **Onde vivem os bytes.** Não há MinIO nem S3 configurado, e isto não
+  justifica a dependência: os metadados são NDJSON append-only no mesmo
+  desenho de `chat_store.py`/`availability_store.py`, e os bytes ficam
+  no disco, em `DATA_DIR`, numa pasta por pasta-de-partilha. O nome
+  verdadeiro do ficheiro vive só nos metadados e nunca toca no sistema
+  de ficheiros — o nome no disco é o `id` que nós geramos, e por isso
+  não há travessia de caminho possível. Quando a arquitectura de MinIO
+  descrita acima for construída, esta loja é o que se substitui, e o
+  contrato do router não muda.
+- **Nunca servidos estaticamente.** Um ficheiro só sai por
+  `GET /api/ficheiros/abrir/{id}`, que confere a sessão a cada pedido:
+  adivinhar o URL não serve de nada. Imagens, PDF e texto vão `inline`
+  (com `nosniff`); o resto desce como anexo. SVG e executáveis não
+  entram — um SVG é XML com `<script>` lá dentro, e servi-lo da nossa
+  origem seria um XSS oferecido a quem o largasse.
+- O upload é base64 dentro do JSON de sempre, como as imagens dos
+  escritos: `python-multipart` seria uma dependência nova para fazer o
+  que isto já faz (invariante 1).
+
 ### Doações
 
 **Documentada, não implementada.** A tabela `doacoes` (acima) existe

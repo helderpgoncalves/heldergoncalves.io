@@ -101,5 +101,7 @@ export function initInbox(ctx) {
       ctx.mensagens.pickNothing();
     });
 
-  ctx.inbox = { load };
+  // `conversations` é para o badge do ícone saber quantas têm coisa
+  // nova — a lista é a mesma, e o `fetch` continua a ser só este.
+  ctx.inbox = { load, conversations: () => rows };
 }

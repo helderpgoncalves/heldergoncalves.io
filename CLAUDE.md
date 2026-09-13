@@ -97,6 +97,7 @@ Está tudo feito para que a resposta seja aborrecida.
 | ensinar uma coisa ao assistente | criar um `.md` em `knowledge/` — não há código a mexer |
 | mudar um texto | `src/config/copy.pt.ts` **e** `copy.en.ts` (os do sistema em `os.pt.ts` e `os.en.ts`) |
 | um widget novo | um `<template>` em `Widgets.astro`, uma linha em `widgets.js`, o nome nas duas línguas |
+| um badge no ícone de uma app | `ctx.badges.set('<id-da-app>', n)` — `0` apaga; abrir a app limpa sozinho. Não há CSS nem HTML a mexer (`src/scripts/os/badges.js`) |
 | mudar o ícone do site | só `public/favicon.svg` — os PNG (Apple touch icon, PWA) saem dele no build, em `scripts/icones.mjs` |
 | uma tabela nova em Postgres | uma revisão do Alembic em `api/alembic/versions/` — nunca um `CREATE TABLE` corrido à mão |
 | perceber o desenho de Reuniões, Mensagens, Bolsa, Contactos ou Doações | `docs/arquitetura.md`, secção "As apps, por domínio" |

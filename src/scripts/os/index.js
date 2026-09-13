@@ -17,6 +17,7 @@ import { createMac } from './mac/index.js';
 import { createPhone } from './ios/index.js';
 import { initApps } from './apps/index.js';
 import { createWidgets } from './widgets.js';
+import { createBadges } from './badges.js';
 import { createEntrar } from './lib/entrar.js';
 import { retomar, temRetrato } from './lib/retomar.js';
 import { whoAmI, forgetWho } from './lib/session.js';
@@ -65,12 +66,18 @@ function boot(data) {
   };
   ctx.widgets = createWidgets(ctx);
   ctx.entrar = createEntrar(ctx);
+  ctx.badges = createBadges(ctx);
   ctx.onSessionChange = () => {
+    // Entrar ou sair muda de quem são os badges: o que dependia de
+    // sessão desaparece com ela, e o da pessoa nova aparece no lugar.
+    if (ctx.badges) ctx.badges.refresh();
     if (ctx.pessoas && ctx.pessoas.refresh) ctx.pessoas.refresh();
+    if (ctx.ficheiros && ctx.ficheiros.refresh) ctx.ficheiros.refresh();
     if (ctx.comentarios && ctx.comentarios.refresh) ctx.comentarios.refresh();
     if (ctx.calendario && ctx.calendario.refresh) ctx.calendario.refresh();
     if (ctx.contacto && ctx.contacto.refresh) ctx.contacto.refresh();
     if (ctx.mensagens && ctx.mensagens.refresh) ctx.mensagens.refresh();
+    if (ctx.escritosEditor && ctx.escritosEditor.refresh) ctx.escritosEditor.refresh();
   };
 
   // ── Abrir e fechar ────────────────────────────────────────────
@@ -83,6 +90,8 @@ function boot(data) {
     if (ctx.mode === 'ios') phone.unlock();
     if (ctx.mode === 'mac') mac.open(id, from);
     else phone.open(id, from);
+    // Abrir é ver: o que estava por ler nesta app deixa de estar.
+    if (ctx.badges) ctx.badges.seen(id);
     if (id === 'simulador' && ctx.loadSimulator) ctx.loadSimulator();
     if (id === 'terminal' && ctx.focusTerminal) ctx.focusTerminal();
     if (id === 'contacto' && ctx.prepareContact) ctx.prepareContact();
@@ -91,6 +100,7 @@ function boot(data) {
     if (id === 'bolsa' && ctx.prepareStocks) ctx.prepareStocks();
     if (id === 'calendario' && ctx.prepareCalendar) ctx.prepareCalendar();
     if (id === 'pessoas' && ctx.preparePessoas) ctx.preparePessoas();
+    if (id === 'ficheiros' && ctx.prepareFicheiros) ctx.prepareFicheiros();
   }
 
   function closeApp(id) {

@@ -11,6 +11,7 @@
      ios         ecrã inicial, bloqueio, painéis, gestos
      entrar      o relógio do ecrã de sessão — os números do lock do iOS
      toast       a notificação flutuante do Mac, canto superior direito
+     badges      o círculo vermelho no canto do ícone, nos dois mundos
      apps        o que vive dentro das janelas e das vistas
      notas       o Blog, com a forma das Notas da Apple
      widgets     no ecrã inicial, no ambiente de trabalho, e a galeria
@@ -18,6 +19,8 @@
      calendario  a grelha do mês, o dia ao lado, e a marcação
      mensagens   as bolhas com cauda, o cabeçalho, a barra de escrever
      mensagens-lista  as conversas do dono, e os dois ecrãs quando é estreito
+     ficheiros   as pastas partilhadas, a barra e a grelha
+     ficheiros-vista  o Quick Look, e os dois ecrãs quando é estreito
      toque       o que separa um site de uma aplicação
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
@@ -94,6 +97,7 @@
   @import './os/ios.css';
   @import './os/entrar.css';
   @import './os/toast.css';
+  @import './os/badges.css';
   @import './os/apps.css';
   @import './os/notas.css';
   @import './os/widgets.css';
@@ -101,6 +105,8 @@
   @import './os/calendario.css';
   @import './os/mensagens.css';
   @import './os/mensagens-lista.css';
+  @import './os/ficheiros.css';
+  @import './os/ficheiros-vista.css';
   @import './os/toque.css';
   @import './os/vidro.css';
   @import './os/apple.css';

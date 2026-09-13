@@ -121,6 +121,21 @@ class Comments:
 COMMENTS = Comments()
 
 
+# ── Ficheiros partilhados com clientes ───────────────────────────────
+# Não há MinIO nem S3 configurado, e isto não justifica uma dependência
+# nova: os metadados são o mesmo NDJSON append-only do resto
+# (`ficheiros_store.py`) e os bytes ficam no disco, ao lado, numa pasta
+# por pasta-de-partilha. Precisa do mesmo volume que a lista de
+# subscritores — sem ele, uma partilha desaparece no próximo arranque.
+@dataclass(frozen=True)
+class Ficheiros:
+    file: Path = field(default_factory=lambda: Path(_env("FICHEIROS_FILE", str(DATA_DIR / "ficheiros.ndjson"))).resolve())
+    blobs: Path = field(default_factory=lambda: Path(_env("FICHEIROS_DIR", str(DATA_DIR / "ficheiros"))).resolve())
+
+
+FICHEIROS = Ficheiros()
+
+
 # ── Sessões e reuniões ───────────────────────────────────────────────
 # Entrar é uma ligação por email (magic link) — precisa do email ligado,
 # como a newsletter. A agenda vale no fuso de Lisboa, seja quem for que
@@ -318,6 +333,27 @@ class Limits:
     stocks_search_per_ip: int = 240
     stocks_search_window: int = 10 * 60
     stocks_query: int = 40
+
+    # Ficheiros: ver e listar é barato; largar um ficheiro é escrever no
+    # disco e mandar um email, por isso tem janela própria e mais
+    # apertada. O corpo do pedido é o ficheiro em base64 — um terço
+    # maior do que os bytes — e o tecto de `read_json` conta-se sobre
+    # ele, não sobre o original.
+    ficheiros_per_ip: int = 240
+    ficheiros_window: int = 10 * 60
+    ficheiro_upload_per_ip: int = 40
+    ficheiro_upload_window: int = 60 * 60
+    ficheiro_upload_global: int = 400
+    ficheiro_upload_global_window: int = 60 * 60
+    # 25 MB por ficheiro chega para um PDF com imagens ou um zip de
+    # entregáveis, e 250 MB por pasta impede que uma partilha esquecida
+    # encha o volume sozinha.
+    ficheiro_max: int = 25 * 1024 * 1024
+    pasta_max: int = 250 * 1024 * 1024
+    pasta_ficheiros: int = 200
+    pastas_max: int = 300
+    ficheiro_nome: int = 160
+    pasta_nome: int = 120
 
 
 LIMITS = Limits()

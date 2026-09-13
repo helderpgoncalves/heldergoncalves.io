@@ -1,0 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════
+   Os badges dos ícones — o círculo vermelho com o número.
+   Parte de os.css — ver o índice lá.
+
+   Folha própria, e não um bocado em ios.css e outro em mac.css: é a
+   mesma peça da Apple nos dois mundos, e a única coisa que muda entre
+   eles é o tamanho do ícone por baixo. Partida em duas, a mesma regra
+   ficava escrita duas vezes e as duas metades afastavam-se à primeira
+   afinação. Quem desenha é sempre daqui; quem decide o número é
+   scripts/os/badges.js.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* O aro fino à volta é o que separa o vermelho do desenho do ícone:
+   sem ele, um badge sobre um ícone avermelhado desaparece lá dentro.
+   É claro nas duas aparências, como o da Apple, porque o que está por
+   trás do ícone nos dois sítios onde o badge aparece é sempre o papel
+   de parede (ou o vidro da Dock por cima dele) — e esse não muda com o
+   tema. No escuro baixa um ponto, para não gritar. */
+:root { --badge-ring: rgba(255, 255, 255, 0.92); }
+[data-theme='dark'] { --badge-ring: rgba(255, 255, 255, 0.8); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { --badge-ring: rgba(255, 255, 255, 0.8); }
+}
+
+/* O badge mede-se contra o ícone, não contra a escala de tipos: no
+   iPhone é `--sb-icon`, no Mac é `--dock-icon` (que já cresce com o
+   ecrã, e cresce outra vez com o rato pela transformação do item). É
+   por isso que o número não é um degrau de `--t-*`: um badge grande
+   num ícone pequeno não é a mesma peça. */
+.sb-app { position: relative; --badge-icon: var(--sb-icon); }
+/* `.dock-item` já é `position: relative` (mac.css): só falta a medida. */
+.dock-item { --badge-icon: var(--dock-icon); }
+
+.badge {
+  --badge-size: max(16px, calc(var(--badge-icon, 60px) * 0.34));
+  position: absolute; z-index: 2;
+  /* Por dentro do ícone, encostado ao canto: o canto de um ícone da
+     Apple é contínuo e afunda-se, e um badge a transbordar dele ficava
+     cortado na primeira linha do ecrã inicial. */
+  top: calc(var(--badge-icon, 60px) * 0.04); right: calc(var(--badge-icon, 60px) * 0.04);
+  display: grid; place-items: center;
+  min-width: var(--badge-size); height: var(--badge-size);
+  padding: 0 calc(var(--badge-size) * 0.2);
+  /* Círculo verdadeiro com um algarismo, cápsula com dois ou três — é
+     o que a Apple faz, e `50%` daria uma elipse assim que o badge
+     alargasse. Nos dois casos as pontas são semicírculos, por isso
+     `corner-shape` não entra (.claude/rules/apple.md, Excepções). */
+  border-radius: 999px;
+  background: var(--red);
+  box-shadow: 0 0 0 max(1px, calc(var(--badge-size) * 0.07)) var(--badge-ring);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: calc(var(--badge-size) * 0.6);
+  font-weight: 600; line-height: 1; letter-spacing: -0.01em;
+  /* Os algarismos têm todos a mesma largura: um badge que passa de 8
+     para 9 não pode mudar de tamanho. */
+  font-variant-numeric: tabular-nums;
+  /* O clique é do ícone. O badge está por cima dele e não o tapa. */
+  pointer-events: none;
+}
+
+/* A aparição: nasce pequeno e assenta com um sobressalto curto. A
+   classe só é posta a quem não pediu menos movimento (badges.js, com
+   `reducedMotion()`); a media query é o segundo cinto, para o caso de
+   a preferência mudar com o badge já no ecrã. */
+@keyframes badge-nasce {
+  from { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  to { transform: scale(1); opacity: 1; }
+}
+.badge.nova { animation: badge-nasce 0.32s var(--ease-os) both; }
+@media (prefers-reduced-motion: reduce) {
+  .badge.nova { animation: none; }
+}

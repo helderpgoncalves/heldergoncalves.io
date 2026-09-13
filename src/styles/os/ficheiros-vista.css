@@ -1,0 +1,121 @@
+/* ═══════════════════════════════════════════════════════════════
+   Ficheiros — a pré-visualização, e as duas larguras.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   A metade que só aparece quando se abre alguma coisa: o Quick
+   Look por cima das duas colunas. E, no fim, o que muda quando a
+   janela deixa de dar para duas colunas — as pastas e o conteúdo
+   passam a ser dois ecrãs. As pastas, a barra e a grelha estão em
+   ficheiros.css, ao lado.
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── 5. A pré-visualização (Quick Look) ──────────────────────────*/
+.fic-vista {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-solid);
+  animation: fic-vista-in calc(0.26s / var(--speed)) var(--ease-os);
+}
+@keyframes fic-vista-in {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.fic-vista-corpo {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  background: var(--surface-2);
+}
+.fic-vista-corpo img { max-width: 100%; max-height: 100%; object-fit: contain; --r: 10px; border-radius: var(--r); }
+.fic-vista-corpo iframe { width: 100%; height: 100%; border: 0; background: var(--surface-solid); }
+.fic-vista-corpo pre {
+  align-self: stretch;
+  justify-self: stretch;
+  margin: 0;
+  padding: 16px;
+  --r: 12px;
+  border-radius: var(--r);
+  background: var(--surface-solid);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: var(--t-caption);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.fic-vista-sem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--t-subhead);
+}
+
+/* Os cantos das duas peças que nascem aqui. A tabela das outras está
+   em ficheiros.css — ver .claude/rules/apple.md para o porquê de o
+   raio nominal viver no `--r` e ser aqui que se multiplica por 1,6. */
+@supports (corner-shape: superellipse(1.777)) {
+  .fic-vista-corpo img,
+  .fic-vista-corpo pre {
+    corner-shape: superellipse(1.777);
+    border-radius: calc(var(--r) * 1.6);
+  }
+}
+
+/* ── 6. Estreito: as pastas e o conteúdo são dois ecrãs ──────────
+   Acima de 620 são duas colunas, como no Finder. Abaixo, o conteúdo
+   entra por cima da lista de pastas, como no Ficheiros do iPhone —
+   com o voltar que só existe aqui. */
+@container app (max-width: 620px) {
+  .fic-lado { width: 100%; border-right: 0; }
+  .fic-main {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--surface-solid);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform calc(0.34s / var(--speed)) var(--ease-os), visibility 0s linear 0.34s;
+  }
+  .app-ficheiros.pasta-aberta .fic-main {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .fic-voltar { display: inline-flex; }
+}
+
+@container app (max-width: 420px) {
+  .fic-barra { padding: 7px 10px; gap: 8px; }
+  .fic-grelha { padding: 12px; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+  .fic-item-face { width: 54px; height: 54px; }
+  .fic-nota { padding: 6px 12px 8px; }
+  .fic-vista-corpo { padding: 12px; }
+  /* Nesta largura os botões da barra ficam a disputar o espaço com o
+     nome da pasta: apertam-se, em vez de o empurrarem para fora. */
+  .fic-barra-acoes .btn { padding: 6px 10px; }
+}
+
+/* No telefone os tipos são os do iOS e os alvos maiores — a app é o
+   ecrã inteiro, e não há rato nenhum a apontar. */
+[data-mode='ios'] .fic-lado { background: var(--surface-solid); }
+[data-mode='ios'] .fic-lado-head { padding: 8px 16px 2px; }
+[data-mode='ios'] .fic-lado-head h2 { font-size: var(--t-large); letter-spacing: -0.03em; }
+[data-mode='ios'] .fic-pasta { padding: 11px 10px; }
+[data-mode='ios'] .fic-pasta-nome { font-size: var(--t-callout); }
+[data-mode='ios'] .fic-item-nome { font-size: var(--t-foot); }
+[data-mode='ios'] .fic-barra-acoes .btn { padding: 8px 13px; font-size: var(--t-caption); }
+
+/* Quem pediu menos movimento não leva a viagem — só o resultado. */
+@media (prefers-reduced-motion: reduce) {
+  .fic-vista { animation: none; }
+  .app-ficheiros .fic-main { transition: none; }
+}

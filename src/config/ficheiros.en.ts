@@ -1,0 +1,47 @@
+// ─────────────────────────────────────────────────────────────────────
+// Os Ficheiros — as pastas que o Hélder partilha com cada cliente.
+// Em inglês. Ver ficheiros.pt.ts para a explicação completa: as duas
+// línguas têm exactamente as mesmas chaves.
+// ─────────────────────────────────────────────────────────────────────
+
+export const FICHEIROS_EN = {
+  lead: 'The folders I share with you. Drop here whatever you need to send me.',
+  needsSession: 'Sign in to see the folders I share with you.',
+  signIn: 'Sign in',
+  folders: 'Folders',
+  newFolder: 'New folder',
+  folderName: 'Folder name',
+  folderClient: "Client's email",
+  create: 'Create',
+  cancel: 'Cancel',
+  noFolders: 'Nothing is shared with you yet.',
+  noFoldersOwner: 'No folders yet. Create one and assign it to a client’s email.',
+  pick: 'Pick a folder on the left.',
+  empty: 'This folder is empty. Drop a file here.',
+  add: 'Add file',
+  drop: 'Drop to add to this folder',
+  back: 'Folders',
+  close: 'Close',
+  download: 'Download',
+  remove: 'Remove',
+  removeFolder: 'Remove folder',
+  confirmFolder: 'Remove this folder and everything inside it?',
+  confirmFile: 'Remove this file?',
+  sending: 'Sending…',
+  by: 'By',
+  noPreview: 'This kind of file cannot be shown here. Download it to open it.',
+  used: 'used',
+  files: 'files',
+  accepted: 'Images, PDF, text, CSV, zip and Office documents. Up to 25 MB each.',
+  errors: {
+    generic: 'That did not work. Try again.',
+    formato: 'That kind of file is not allowed here.',
+    tamanho: 'That file is too big.',
+    cheio: 'This folder is full.',
+    dados: 'The folder name or the client’s email is missing.',
+    limite: 'Slow down. Try again in a moment.',
+    dono: 'That file is not yours.',
+    inexistente: 'That is gone.',
+    sessao: 'Your session ended. Sign in again.',
+  },
+};

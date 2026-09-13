@@ -30,7 +30,8 @@ export type AppId =
   | 'simulador'
   | 'bolsa'
   | 'calendario'
-  | 'pessoas';
+  | 'pessoas'
+  | 'ficheiros';
 
 /**
  * Estrutura de cada aplicação: onde vive, que tamanho tem a janela no
@@ -76,6 +77,10 @@ export const APPS: AppMeta[] = [
   // Só o dono a usa — fora da Dock e da grelha do telefone, alcançável
   // pela pesquisa (⌘K no Mac, puxar o ecrã inicial no telefone).
   { id: 'pessoas', win: { w: 720, h: 540, minW: 480, minH: 380 }, dock: false, iosDock: false, hidden: true },
+  // Na Dock como o Calendário, e pela mesma razão: precisa de sessão,
+  // mas qualquer cliente do Hélder a usa — quem não entrou vê o convite
+  // a entrar, não uma app escondida que nunca saberia procurar.
+  { id: 'ficheiros', win: { w: 880, h: 600, minW: 460, minH: 400 }, dock: true, iosDock: false },
 ];
 
 export const appMeta = (id: AppId): AppMeta => APPS.find((a) => a.id === id) as AppMeta;

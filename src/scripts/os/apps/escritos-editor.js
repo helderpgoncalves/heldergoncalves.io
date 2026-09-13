@@ -77,6 +77,10 @@ export function initEscritosEditor(ctx) {
     });
     if (countEl) countEl.textContent = String(drafts.length);
     ctx.escritos && ctx.escritos.refilter();
+    // O badge do ícone conta os que estão por publicar — recontar
+    // sempre que a lista muda é o que o faz aparecer e desaparecer
+    // sem se ter de sair da app.
+    ctx.badges && ctx.badges.recount();
   }
 
   async function load() {
@@ -300,18 +304,19 @@ export function initEscritosEditor(ctx) {
     if (dirty && current) navigator.sendBeacon && save();
   });
 
-  ctx.escritosEditor = { isOwner: () => owner, novo, abrir };
-
   // Acorda só para o dono — e outra vez sempre que a sessão mudar.
   async function wake() {
     owner = await amIOwner();
     el.dataset.owner = owner ? '1' : '0';
     if (owner) load();
   }
+
+  // `refresh` é o que `ctx.onSessionChange` chama, como em todas as
+  // outras apps. Era um embrulho de `ctx.onSessionChange` feito aqui,
+  // mas o index.js atribui o dele *depois* de `initApps` e apagava-o
+  // sem se dar por isso — entrar como dono deixava a lista (e o badge
+  // dos rascunhos) a zero até se recarregar a página.
+  ctx.escritosEditor = { isOwner: () => owner, novo, abrir, drafts: () => drafts, refresh: wake };
+
   wake();
-  const prev = ctx.onSessionChange;
-  ctx.onSessionChange = () => {
-    prev && prev();
-    wake();
-  };
 }

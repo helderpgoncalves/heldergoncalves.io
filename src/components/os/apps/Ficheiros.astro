@@ -1,0 +1,95 @@
+---
+// Ficheiros — o Finder da partilha com clientes.
+//
+// Três peças: as pastas à esquerda, o que está na pasta escolhida à
+// direita, e a pré-visualização por cima das duas (o Quick Look da
+// Apple). Em janela larga as duas primeiras são colunas; em janela
+// estreita são dois ecrãs, com o botão de voltar — a forma está em
+// styles/os/ficheiros.css, por container queries.
+//
+// Sem JavaScript (ou sem sessão) fica só o convite a entrar: é o que
+// está visível de raiz aqui, e é o JS que o troca pelo resto depois de
+// saber quem está do outro lado.
+import { COPY, type Lang } from '../../../siteConfig';
+import Icon from '../Icon.astro';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = COPY[lang];
+const k = c.ficheiros;
+---
+<section class="app-shell app-ficheiros" data-content="ficheiros" aria-label={c.apps.ficheiros.name}>
+  <div class="fic-sessao" data-fic-sessao>
+    <span class="fic-sessao-icone" aria-hidden="true"><Icon id="ui-folder" size={26} /></span>
+    <p class="m-0">{k.needsSession}</p>
+    <button type="button" class="btn btn-primary" data-action="entrar">{k.signIn}</button>
+  </div>
+
+  <aside class="fic-lado" data-fic-lado hidden>
+    <div class="fic-lado-head">
+      <h2>{k.folders}</h2>
+      <button type="button" class="fic-nova" data-fic-nova hidden aria-label={k.newFolder}>
+        <Icon id="ui-compose" size={14} />
+      </button>
+    </div>
+
+    <form class="fic-form" data-fic-form hidden novalidate>
+      <input type="text" data-fic-nome placeholder={k.folderName} maxlength="120" autocomplete="off" aria-label={k.folderName} />
+      <input type="email" data-fic-cliente placeholder={k.folderClient} maxlength="160" autocomplete="off" aria-label={k.folderClient} />
+      <div class="fic-form-acoes">
+        <button type="button" class="btn" data-fic-cancelar>{k.cancel}</button>
+        <button type="submit" class="btn btn-primary">{k.create}</button>
+      </div>
+    </form>
+
+    <ul class="fic-pastas" data-fic-pastas aria-label={k.folders}></ul>
+    <p class="fic-lado-vazio" data-fic-sem-pastas hidden>{k.noFolders}</p>
+  </aside>
+
+  <div class="fic-main" data-fic-main hidden>
+    <div class="fic-barra">
+      <button type="button" class="fic-voltar" data-fic-voltar>
+        <Icon id="ui-chevron" size={13} />{k.back}
+      </button>
+      <div class="fic-barra-id">
+        <strong data-fic-titulo>{k.pick}</strong>
+        <span data-fic-sub></span>
+      </div>
+      <div class="fic-barra-acoes">
+        <button type="button" class="btn" data-fic-remover-pasta hidden>{k.removeFolder}</button>
+        <button type="button" class="btn btn-primary" data-fic-add hidden>{k.add}</button>
+        <input type="file" data-fic-input multiple hidden aria-hidden="true" tabindex="-1" />
+      </div>
+    </div>
+
+    <div class="fic-corpo" data-fic-corpo>
+      <ul class="fic-grelha" data-fic-lista hidden></ul>
+      <div class="fic-vazio" data-fic-vazio>
+        <span class="fic-vazio-icone" aria-hidden="true"><Icon id="ui-folder" size={26} /></span>
+        <p class="m-0" data-fic-vazio-texto>{k.pick}</p>
+      </div>
+      <div class="fic-largar" data-fic-largar aria-hidden="true"><p>{k.drop}</p></div>
+    </div>
+
+    <p class="fic-nota" data-fic-nota>{k.accepted}</p>
+  </div>
+
+  {/* O Quick Look: entra por cima das duas colunas, nunca ao lado. */}
+  <div class="fic-vista" data-fic-vista hidden>
+    <div class="fic-barra">
+      <button type="button" class="fic-voltar fic-voltar--sempre" data-fic-fechar>
+        <Icon id="ui-chevron" size={13} />{k.close}
+      </button>
+      <div class="fic-barra-id">
+        <strong data-fic-vista-nome></strong>
+        <span data-fic-vista-sub></span>
+      </div>
+      <div class="fic-barra-acoes">
+        <button type="button" class="btn" data-fic-vista-remover hidden>{k.remove}</button>
+        <a class="btn btn-primary" data-fic-vista-baixar href="#">{k.download}</a>
+      </div>
+    </div>
+    <div class="fic-vista-corpo" data-fic-vista-corpo></div>
+  </div>
+
+  <p class="fic-erro" data-fic-erro role="status" hidden></p>
+</section>

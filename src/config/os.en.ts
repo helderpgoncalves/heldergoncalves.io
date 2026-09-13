@@ -34,6 +34,7 @@ export const OS_EN = {
   hintPhone: 'Tap an icon · swipe up to go home',
   appSwitcher: 'Open apps',
   notifications: 'Notifications',
+  badge: { unread: '{n} unread' },
   wallpaperNames: { aurora: 'Aurora', sonoma: 'Ridge', night: 'Night', graphite: 'Graphite' },
   today: 'Today',
   widgets: {

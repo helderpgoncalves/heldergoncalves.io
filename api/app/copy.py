@@ -215,3 +215,58 @@ MEETING_COPY = {
         "cancelBody": lambda when, email: f"The meeting on {when} with {email} was cancelled by the person.\n",
     },
 }
+
+# O aviso de ficheiro novo numa pasta partilhada. Dois destinatários
+# possíveis e nunca os dois ao mesmo tempo: o cliente larga uma coisa e
+# o Hélder é avisado; o Hélder larga uma coisa e o cliente é avisado.
+#
+# Nenhum dos dois leva ligação directa para o ficheiro: descarregar
+# exige sessão a cada pedido (ver routers/ficheiros.py), e um URL num
+# email que sobrevive à caixa de correio dava a ideia errada de que
+# basta tê-lo. O email diz que chegou e onde — abrir é entrar.
+FILES_COPY = {
+    "pt": {
+        "ownerSubject": lambda pasta: "[ficheiros] Chegou alguma coisa a «" + pasta + "»",
+        "ownerBody": lambda pasta, nome, quem: "\n".join(
+            ["Um ficheiro novo numa pasta partilhada.", "", "Pasta: " + pasta, "Ficheiro: " + nome, "De: " + quem, "", "Está na aplicação Ficheiros, no site.", ""]
+        ),
+        "clientSubject": lambda pasta: "Ficheiro novo em «" + pasta + "»",
+        "clientBody": lambda pasta, nome: "\n".join(
+            [
+                "Olá,",
+                "",
+                "Pus uma coisa nova na pasta que partilho contigo:",
+                "",
+                "Pasta: " + pasta,
+                "Ficheiro: " + nome,
+                "",
+                "Abre a aplicação Ficheiros em heldergoncalves.io — entra com este email e está lá.",
+                "",
+                "Hélder Gonçalves",
+                "https://heldergoncalves.io",
+            ]
+        ),
+    },
+    "en": {
+        "ownerSubject": lambda pasta: "[ficheiros] Something arrived in “" + pasta + "”",
+        "ownerBody": lambda pasta, nome, quem: "\n".join(
+            ["A new file in a shared folder.", "", "Folder: " + pasta, "File: " + nome, "From: " + quem, "", "It is in the Files app, on the site.", ""]
+        ),
+        "clientSubject": lambda pasta: "New file in “" + pasta + "”",
+        "clientBody": lambda pasta, nome: "\n".join(
+            [
+                "Hello,",
+                "",
+                "I have put something new in the folder I share with you:",
+                "",
+                "Folder: " + pasta,
+                "File: " + nome,
+                "",
+                "Open the Files app at heldergoncalves.io — sign in with this email and it is there.",
+                "",
+                "Hélder Gonçalves",
+                "https://heldergoncalves.io",
+            ]
+        ),
+    },
+}

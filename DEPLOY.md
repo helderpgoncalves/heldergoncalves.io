@@ -387,6 +387,52 @@ Sem `GITHUB_TOKEN`, os rascunhos funcionam na mesma e «Publicar» responde
 existir com o mesmo endereço, por isso corrigir um escrito é abrir o
 rascunho que ficou, mexer, e publicar outra vez.
 
+## Ficheiros partilhados com clientes
+
+A app Ficheiros é um Finder de duas pontas: o dono cria uma pasta e
+atribui-a ao email de um cliente; esse cliente entra com a sessão dele e
+vê **só** as pastas que lhe pertencem. Quem larga um ficheiro faz o
+outro lado receber um email — o cliente põe uma coisa e o Hélder é
+avisado, o Hélder põe uma coisa e o cliente é avisado.
+
+| Variável          | Exemplo                        | Para quê                                        |
+| ----------------- | ------------------------------ | ----------------------------------------------- |
+| `FICHEIROS_FILE`  | `/app/data/ficheiros.ndjson`   | os metadados (pastas, ficheiros, quem os pôs)   |
+| `FICHEIROS_DIR`   | `/app/data/ficheiros`          | os bytes, uma pasta por pasta-de-partilha       |
+
+Nenhuma é obrigatória: por omissão são estes valores, dentro de
+`DATA_DIR`. **Precisam do mesmo volume** que a lista de subscritores e as
+reuniões — sem ele, uma partilha desaparece no próximo deploy. Não há
+MinIO nem S3 no meio: os metadados são NDJSON append-only como o resto, e
+os bytes ficam ao lado.
+
+| Endpoint | Para quê |
+| --- | --- |
+| `GET /api/ficheiros` | as minhas pastas — todas, se for o dono |
+| `GET /api/ficheiros/pasta/{id}` | o que está numa pasta |
+| `POST /api/ficheiros/pastas` | cria uma pasta e atribui-a a um email (só o dono) |
+| `POST /api/ficheiros/pastas/remover` | remove a pasta e tudo o que lá está (só o dono) |
+| `POST /api/ficheiros/carregar` | larga um ficheiro numa pasta, em base64 |
+| `POST /api/ficheiros/remover` | tira um ficheiro — o cliente tira o que pôs, o dono tira qualquer um |
+| `GET /api/ficheiros/abrir/{id}` | os bytes, com a sessão conferida a cada pedido |
+
+**Nada disto é servido estaticamente.** Os ficheiros não passam por
+`public/` nem por `dist/`: só saem por `abrir`, que confere a sessão
+sempre — um URL que caia noutras mãos não abre nada. Descem com
+`X-Content-Type-Options: nosniff`, e só imagens, PDF e texto vão
+`inline`; o resto é anexo.
+
+Aceitam-se imagens (PNG, JPEG, GIF, WebP, AVIF), PDF, texto (TXT, MD,
+CSV), ZIP e os documentos do Office (DOCX, XLSX, PPTX), até 25 MB por
+ficheiro e 250 MB por pasta (`LIMITS`, em `api/app/config.py`). **SVG e
+executáveis ficam de fora**: um SVG é XML com `<script>` lá dentro, e
+servi-lo da nossa origem era dar um XSS a quem o largasse. A assinatura
+dos bytes manda sobre a extensão — um `.pdf` que afinal é outra coisa é
+recusado.
+
+Sem o email configurado não há sessão nenhuma (`AUTH_READY`), e a app
+responde `503` — ver a secção das sessões, acima.
+
 ## O que o agente sabe
 
 Tudo o que está em `knowledge/*.md`. Editar um ficheiro e fazer push é a

@@ -9,6 +9,7 @@
 import { OS_PT } from './os.pt';
 import { APPS_PT } from './apps.pt';
 import { EDITOR_PT } from './editor.pt';
+import { FICHEIROS_PT } from './ficheiros.pt';
 
 export const PT = {
   htmlLang: 'pt-PT',
@@ -38,6 +39,7 @@ export const PT = {
   // ── Aplicações ──────────────────────────────────────────
   ...APPS_PT,
   editor: EDITOR_PT,
+  ficheiros: FICHEIROS_PT,
 
   notFound: {
     title: 'Página não encontrada',

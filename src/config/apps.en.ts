@@ -19,6 +19,7 @@ export const APPS_EN = {
     calendario: { name: 'Calendar', subtitle: 'Book a conversation with me', window: 'Calendar' },
     simulador: { name: 'Simulator', subtitle: 'An iPhone inside the site', window: 'Simulator — iPhone' },
     pessoas: { name: 'People', subtitle: 'Who has signed in', window: 'People' },
+    ficheiros: { name: 'Files', subtitle: 'What we share', window: 'Files' },
   },
 
   bolsa: {

@@ -1,0 +1,315 @@
+/* ═══════════════════════════════════════════════════════════════
+   Ficheiros — o Finder da partilha com clientes.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Três peças e duas larguras. As pastas à esquerda e o conteúdo à
+   direita são duas colunas enquanto couberem; quando não cabem,
+   passam a ser dois ecrãs, com o botão de voltar — o mesmo
+   raciocínio (e a mesma transição) da lista das Mensagens. A
+   pré-visualização entra sempre por cima das duas: é o Quick Look,
+   não uma terceira coluna que só caberia num Mac.
+
+   Tudo por `@container app`: o que manda é a largura da janela, não
+   a do ecrã. Uma janela estreita no Mac tem de se portar como um
+   telefone sem saber que não é um.
+   ─────────────────────────────────────────────────────────────── */
+
+/* `hidden` tem de ganhar sempre.
+   ─────────────────────────────────────────────────────────────
+   Quase tudo nesta app aparece e desaparece por `el.hidden` — as
+   colunas, a vista, os botões só do dono. Uma regra de autor com
+   `display` ganha ao `[hidden]` da folha do browser, e sem esta
+   linha nada do que se esconde ficava escondido. */
+.app-ficheiros [hidden] { display: none !important; }
+
+.app-ficheiros { flex-direction: row; }
+
+/* ── 1. Sem sessão ───────────────────────────────────────────────
+   O que está à vista de raiz, e o que o leitor sem JavaScript
+   recebe: o convite a entrar, e mais nada. */
+.fic-sessao {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--t-subhead);
+}
+.fic-sessao-icone,
+.fic-vazio-icone {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  opacity: 0.7;
+}
+
+/* ── 2. A coluna das pastas ──────────────────────────────────────*/
+.fic-lado {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 250px;
+  min-height: 0;
+  border-right: 0.5px solid var(--line);
+  background: var(--sidebar);
+}
+.fic-lado-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 12px 12px 6px;
+}
+.fic-lado-head h2 {
+  margin: 0;
+  flex: 1;
+  font-family: var(--display);
+  font-size: var(--t-title2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.fic-nova {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--accent);
+}
+.fic-nova:hover { background: var(--accent); color: var(--accent-ink); }
+
+/* O formulário da pasta nova — só o dono o vê. */
+.fic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+  margin: 0 10px 8px;
+  padding: 10px;
+  --r: 10px;
+  border-radius: var(--r);
+  background: var(--surface-3);
+}
+.fic-form input {
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface-solid);
+  color: var(--ink);
+  font-size: var(--t-subhead);
+  outline: none;
+}
+.fic-form input:focus { border-color: var(--accent); }
+.fic-form-acoes { display: flex; gap: 6px; justify-content: flex-end; margin-top: 2px; }
+.fic-form-acoes .btn { padding: 5px 11px; font-size: var(--t-caption); }
+
+.fic-pastas {
+  margin: 0;
+  padding: 0 6px 10px;
+  list-style: none;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.fic-pasta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--ink);
+  --r: 9px;
+  border-radius: var(--r);
+}
+.fic-pasta:hover { background: var(--surface-3); }
+.fic-pasta.on { background: var(--accent); color: var(--accent-ink); }
+.fic-pasta-icone { flex: none; color: var(--accent); }
+.fic-pasta.on .fic-pasta-icone { color: var(--accent-ink); }
+.fic-pasta-corpo { min-width: 0; flex: 1; }
+.fic-pasta-nome {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.fic-pasta-meta {
+  margin: 1px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-caption);
+  color: var(--ink-3);
+}
+.fic-pasta.on .fic-pasta-meta { color: rgba(255, 255, 255, 0.82); }
+.fic-lado-vazio { margin: 0; padding: 10px 16px; font-size: var(--t-subhead); color: var(--ink-3); }
+
+/* ── 3. A barra de cima, partilhada pelo conteúdo e pela vista ───*/
+.fic-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; flex: 1; }
+.fic-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 8px 14px;
+  border-bottom: 0.5px solid var(--line);
+  background: var(--surface-2);
+}
+.fic-voltar { display: none; align-items: center; gap: 2px; flex: none; color: var(--accent); font-size: var(--t-subhead); }
+.fic-voltar--sempre { display: inline-flex; }
+.fic-barra-id { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.fic-barra-id strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-headline);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.fic-barra-id span { font-size: var(--t-caption); color: var(--ink-3); }
+.fic-barra-acoes { margin-left: auto; display: flex; gap: 6px; flex: none; }
+.fic-barra-acoes .btn { padding: 6px 12px; font-size: var(--t-caption); }
+
+/* ── 4. O que está na pasta ──────────────────────────────────────
+   A vista de ícones do Finder: uma grelha que se enche sozinha, com
+   o nome por baixo em duas linhas no máximo. */
+/* Coluna, e não um bloco simples: é o que deixa o «pasta vazia» ficar
+   mesmo ao centro com `margin: auto` em vez de encostado ao topo. */
+.fic-corpo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.fic-grelha {
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+}
+.fic-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 6px 8px;
+  --r: 10px;
+  border-radius: var(--r);
+  color: var(--ink);
+  text-align: center;
+}
+.fic-item:hover { background: var(--surface-3); }
+.fic-item-face {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  overflow: hidden;
+  --r: 12px;
+  border-radius: var(--r);
+  background: var(--surface-3);
+  color: var(--ink-3);
+}
+.fic-item-face img { width: 100%; height: 100%; object-fit: cover; }
+.fic-item-ext {
+  font-size: var(--t-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fic-item-nome {
+  margin: 0;
+  max-width: 100%;
+  font-size: var(--t-caption);
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+.fic-item-meta { font-size: var(--t-caption2); color: var(--ink-3); }
+
+.fic-vazio {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 24px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--t-subhead);
+}
+
+/* O alvo de largar: só se pinta quando há mesmo um ficheiro a
+   pairar por cima, para não haver uma moldura tracejada permanente a
+   dizer o óbvio. */
+.fic-largar {
+  position: absolute;
+  inset: 8px;
+  display: none;
+  place-items: center;
+  --r: 14px;
+  border-radius: var(--r);
+  border: 2px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-solid));
+  color: var(--accent);
+  font-size: var(--t-subhead);
+  pointer-events: none;
+}
+.fic-corpo.largar .fic-largar { display: grid; }
+.fic-nota { margin: 0; flex: none; padding: 7px 16px 9px; font-size: var(--t-caption); color: var(--ink-3); background: var(--surface-2); border-top: 0.5px solid var(--line); }
+.fic-erro {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  margin: 0;
+  padding: 9px 14px;
+  --r: 11px;
+  border-radius: var(--r);
+  background: var(--red);
+  color: #fff;
+  font-size: var(--t-subhead);
+  text-align: center;
+}
+
+/* Os cantos contínuos das peças novas. Ver .claude/rules/apple.md: o
+   raio nominal fica no `--r`, e é aqui que se multiplica por 1,6 com a
+   superelipse — os círculos e as cápsulas de cima ficam de fora, que é
+   como tem de ser. */
+@supports (corner-shape: superellipse(1.777)) {
+  .fic-form,
+  .fic-pasta,
+  .fic-item,
+  .fic-item-face,
+  .fic-largar,
+  .fic-erro {
+    corner-shape: superellipse(1.777);
+    border-radius: calc(var(--r) * 1.6);
+  }
+}
