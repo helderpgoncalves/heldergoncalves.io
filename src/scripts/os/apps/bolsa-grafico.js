@@ -12,6 +12,17 @@
 
 const COLOR = { up: 'var(--green)', down: 'var(--red)', flat: 'var(--gray)' };
 
+// A variação de um título mostra-se em três sítios — a linha do
+// gráfico, a cápsula da lista e o número grande do detalhe — e é a
+// mesma cor nos três. Fica aqui, ao lado de `COLOR`, porque é a mesma
+// decisão escrita para meios diferentes: o SVG precisa do valor, o
+// HTML precisa da utility. Antes as classes `up`/`down`/`flat` iam
+// para o markup sem ninguém em lado nenhum lhes dizer o que eram.
+export const PILL = { up: 'bg-(--green)', down: 'bg-(--red)', flat: 'bg-(--gray)' };
+// A forma é sempre a mesma; só a cor muda com a variação.
+export const PILL_CLASS = 'stk-pill min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums ';
+export const INK = { up: 'text-(--green)', down: 'text-(--red)', flat: 'text-(--ink-3)' };
+
 const W = 600;
 const H = 220;
 const PAD = 14;

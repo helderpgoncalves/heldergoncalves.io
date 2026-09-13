@@ -52,7 +52,10 @@ Ver `docs/arquitetura.md` para o raciocínio por trás de cada uma.
    `copy.en.ts` têm exactamente as mesmas chaves. O TypeScript obriga.
 5. **A geometria da Apple não se negoceia.** Cantos, escala de tipos e
    cores de sistema têm valores certos — ver `.claude/rules/apple.md`.
-   Vale para as áreas novas tal como para as antigas.
+   Vale para as áreas novas tal como para as antigas. **O telefone é
+   iOS 26 e o computador é macOS 26 Tahoe**: é contra essas versões que
+   se decide se uma app está certa, e é lá que se vai ver como ela é
+   antes de a desenhar.
 6. **Nenhum ficheiro passa das 400 linhas.** Quando um cresce, parte-se
    por assunto, não ao meio.
 7. **Nada que seja segredo ou dado de visitante entra no repositório.**

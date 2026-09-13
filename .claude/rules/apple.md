@@ -11,6 +11,31 @@ Estes valores não são gosto. São o que o sistema da Apple usa, e o
 projecto inteiro assenta neles. Antes de escrever um `border-radius`,
 um `font-size` ou uma cor, confere aqui.
 
+## Que sistemas são estes
+
+O telefone é **iOS 26**. O computador é **macOS 26 Tahoe**. Não é
+detalhe de nomenclatura: é a régua contra a qual se decide se uma coisa
+está certa. Quando tiveres dúvidas sobre o aspecto de uma app, vai ver
+como ela é **nessas versões** — não em capturas de ecrã de há três anos,
+que é o que a maior parte das pesquisas devolve.
+
+O que estas duas trouxeram, e que este projecto segue:
+
+- **Liquid Glass** em toda a camada de navegação — Dock, barra de menus,
+  barras laterais, barras de ferramentas, os painéis do telefone. O
+  material refracta o que está por baixo e reflecte a luz. Está feito,
+  em `os/vidro.css`, com as cinco camadas; usa-o por `class="glass"` e
+  não escrevas outro.
+- **O vidro é da navegação, nunca do conteúdo.** O corpo de uma janela
+  é opaco. Esta regra ficou mais importante em Tahoe, não menos.
+- **A barra de separadores do iOS** é uma cápsula de vidro recuada do
+  fundo do ecrã, já não uma barra encostada de lado a lado.
+- **Os ícones são camadas de vidro** com profundidade, e existem em
+  claro, escuro, tingido e transparente.
+
+Uma app deste site é uma app daquele sistema: se a versão a sério mudou
+de forma, a nossa muda também — e o que aqui está escrito muda com ela.
+
 ## Cantos
 
 Um canto da Apple **não é um arco de círculo**. O arco cobre 36° no

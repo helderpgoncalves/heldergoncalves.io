@@ -17,10 +17,24 @@ import { prefs, setPref } from '../state.js';
 import { esc } from '../lib/dom.js';
 import { createDetalhe } from './bolsa-detalhe.js';
 import { createPortfolio } from './bolsa-portfolio.js';
-import { sparkline } from './bolsa-grafico.js';
+import { PILL, PILL_CLASS, sparkline } from './bolsa-grafico.js';
 
 const EVERY_MS = 30000;
 const SEARCH_DEBOUNCE = 260;
+
+// As últimas cotações vistas neste dispositivo.
+// ─────────────────────────────────────────────────────────────────────
+// A app da Apple nunca mostra um ecrã vazio: abre com os números da
+// última vez e actualiza-os por baixo. Aqui é o mesmo — sem isto, quem
+// volta à Bolsa fica a olhar para «—» durante a ida ao servidor, mesmo
+// que o servidor responda depressa (as cotações já lá estão em cache,
+// ver api/app/bolsa/cache.py). Guarda-se o que se desenha e nada mais.
+//
+// Fica em `localStorage` à parte das preferências: é um instantâneo que
+// se deita fora sem dó, não uma escolha de quem está a ver, e escrevê-lo
+// em `prefs` fazia `applyPrefs()` correr a cada meio minuto.
+const SNAPSHOT = 'helderos-bolsa';
+const SNAPSHOT_TTL = 24 * 60 * 60 * 1000;
 
 export function initBolsa(ctx) {
   const el = ctx.contentNode('bolsa');
@@ -41,7 +55,7 @@ export function initBolsa(ctx) {
   const labelOf = (symbol) => (portfolioEntries.find((p) => p.symbol === symbol) || {}).label;
 
   let watch = Array.isArray(prefs.stocks) && prefs.stocks.length ? prefs.stocks.slice() : el.dataset.default.split(',');
-  let quotes = new Map();
+  let quotes = new Map(lerInstantaneo());
   let current = null;
   let range = '1d';
   let timer = 0;
@@ -62,6 +76,27 @@ export function initBolsa(ctx) {
   const detalhe = createDetalhe(ctx, money, signed, tone);
   const portfolio = createPortfolio(ctx, money, signed, tone, pct);
   portfolio.wireInputs(portfolioList, () => portfolio.renderTotals(totals, portfolioEntries, quotes));
+
+  /** O instantâneo, se ainda fizer sentido. Um dia depois já não faz:
+      um preço de ontem mostrado como se fosse de agora é pior do que um
+      traço. */
+  function lerInstantaneo() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SNAPSHOT) || 'null');
+      if (!raw || Date.now() - raw.at > SNAPSHOT_TTL) return [];
+      return (raw.quotes || []).map((q) => [q.symbol, q]);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function guardarInstantaneo() {
+    try {
+      localStorage.setItem(SNAPSHOT, JSON.stringify({ at: Date.now(), quotes: [...quotes.values()] }));
+    } catch (_) {
+      /* modo privado, ou espaço esgotado: perde-se o arranque instantâneo e mais nada */
+    }
+  }
 
   async function load(syms, r) {
     if (!syms.length) return [];
@@ -85,12 +120,12 @@ export function initBolsa(ctx) {
         const k = q ? tone(q) : 'flat';
         return (
           '<li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode=\'ios\']_&]:py-3' + (s === current ? ' on bg-(--accent) text-white' : '') + '" data-symbol="' + esc(s) + '">' +
-          (editing ? '<button class="stk-remove relative grid h-[22px] w-[22px] place-items-center rounded-full bg-(--red) text-lg leading-none text-white" type="button" aria-label="' + esc(t.remove) + '">−</button>' : '') +
-          '<span class="stk-id grid min-w-0 gap-px"><span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(s) + '</span>' +
+          (editing ? '<button class="stk-remove col-start-1 relative grid h-[22px] w-[22px] place-items-center rounded-full bg-(--red) text-lg leading-none text-white" type="button" aria-label="' + esc(t.remove) + '">−</button>' : '') +
+          '<span class="stk-id col-start-2 grid min-w-0 gap-px"><span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">' + esc(s) + '</span>' +
           '<span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">' + esc(q ? q.name : t.loading) + '</span></span>' +
-          '<span class="stk-spark [&_svg]:block">' + (q ? sparkline(q.points, k) : '') + '</span>' +
-          '<span class="stk-quote grid justify-items-end gap-0.5"><span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + (q ? money(q.price) : '—') + '</span>' +
-          '<span class="stk-pill ' + k + ' min-w-[68px] px-1.75 py-0.75 text-right text-[length:var(--t-foot)] font-semibold text-white tabular-nums">' + (q ? pct(q.percent) : '…') + '</span></span>' +
+          '<span class="stk-spark col-start-3 [&_svg]:block">' + (q ? sparkline(q.points, k) : '') + '</span>' +
+          '<span class="stk-quote col-start-4 grid justify-items-end gap-0.5"><span class="stk-price text-[length:var(--t-headline)] font-semibold tabular-nums">' + (q ? money(q.price) : '—') + '</span>' +
+          '<span class="' + PILL_CLASS + (s === current ? 'bg-white/24' : PILL[k]) + '">' + (q ? pct(q.percent) : '…') + '</span></span>' +
           '</li>'
         );
       })
@@ -114,6 +149,7 @@ export function initBolsa(ctx) {
       const all = Array.from(new Set(watch.concat(portfolioEntries.map((p) => p.symbol))));
       const rows = await load(all, '1d');
       rows.forEach((q) => quotes.set(q.symbol, q));
+      guardarInstantaneo();
       renderWatch();
       renderPortfolio();
       if (current && quotes.get(current) && range === '1d') detalhe.render(main, quotes.get(current), labelOf(current), range, null);

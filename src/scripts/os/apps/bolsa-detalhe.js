@@ -9,7 +9,7 @@
 // Yahoo directo como recuo.
 // ─────────────────────────────────────────────────────────────────────
 import { esc } from '../lib/dom.js';
-import { chart, wireChart } from './bolsa-grafico.js';
+import { INK, chart, wireChart } from './bolsa-grafico.js';
 
 const RANGE_ORDER = ['1d', '1w', '1m', '3m', '6m', 'ytd', '1y', '2y', '5y'];
 
@@ -89,11 +89,14 @@ export function createDetalhe(ctx, money, signed, tone) {
     const when = new Date().toLocaleTimeString(ctx.data.intlLocale, { hour: '2-digit', minute: '2-digit' });
     const ranges = RANGE_ORDER.filter((r) => t.ranges[r]);
     main.innerHTML =
-      '<div class="stk-detail grid gap-4.5 px-6.5 pb-7.5 pt-5.5">' +
-      '<header class="stk-title flex items-start justify-between gap-4"><div><h2 class="m-0 text-[length:var(--t-title)] font-bold tracking-[-0.02em]">' + esc(label || q.symbol) + '</h2><p class="mb-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(q.name) + '</p></div>' +
-      '<div class="stk-big grid justify-items-end gap-0.5"><span class="stk-bigprice text-[length:var(--t-large)] font-bold tracking-[-0.02em] tabular-nums" data-stk-price>' + money(q.price) + '</span>' +
-      '<span class="stk-change ' + k + ' text-[length:var(--t-subhead)] font-semibold tabular-nums" data-stk-change>' + signed(q.change) + ' (' + pct(q.percent) + ')</span></div></header>' +
-      '<div class="seg stk-ranges justify-self-start" role="tablist">' +
+      '<div class="stk-detail grid grid-cols-[minmax(0,1fr)] gap-4.5 px-6.5 pb-7.5 pt-5.5 @max-[560px]/app:gap-4 @max-[560px]/app:px-4.5 @max-[380px]/app:px-3.5">' +
+      // No telefone o preço grande passa para baixo do nome, como na app
+      // a sério: lado a lado num ecrã estreito o nome ficava com três
+      // letras e o preço com meio algarismo.
+      '<header class="stk-title flex items-start justify-between gap-4 @max-[560px]/app:flex-wrap @max-[560px]/app:gap-1"><div class="min-w-0"><h2 class="m-0 text-[length:var(--t-title)] font-bold tracking-[-0.02em]">' + esc(label || q.symbol) + '</h2><p class="mb-0 mt-0.5 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(q.name) + '</p></div>' +
+      '<div class="stk-big grid justify-items-end gap-0.5 @max-[560px]/app:justify-items-start"><span class="stk-bigprice text-[length:var(--t-large)] font-bold tracking-[-0.02em] tabular-nums" data-stk-price>' + money(q.price) + '</span>' +
+      '<span class="stk-change ' + INK[k] + ' text-[length:var(--t-subhead)] font-semibold tabular-nums" data-stk-change>' + signed(q.change) + ' (' + pct(q.percent) + ')</span></div></header>' +
+      '<div class="seg stk-ranges max-w-full justify-self-start overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">' +
       ranges.map((r) => '<button type="button" role="tab" data-range="' + r + '" aria-pressed="' + (r === range) + '">' + esc(t.ranges[r]) + '</button>').join('') +
       '</div>' +
       '<div class="stk-chart relative" data-stk-chart>' + chart(chartData ? chartData.points : q.points, k, {

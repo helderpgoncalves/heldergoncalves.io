@@ -38,8 +38,14 @@ const PORTFOLIO = [
         <ul class="stk-list m-0 list-none px-2" data-stk-list="watch">
           {DEFAULT.map((s) => (
             <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={s}>
-              <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{s}</span>
-              <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
+              {/* A mesma célula que o JavaScript desenha (bolsa.js): o
+                  nome e o símbolo empilhados, na segunda coluna. A
+                  primeira é a do botão de remover e mede 0 — sem
+                  `col-start-2` isto caía lá dentro e desaparecia. */}
+              <span class="stk-id col-start-2 grid min-w-0 gap-px">
+                <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{s}</span>
+                <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
+              </span>
             </li>
           ))}
         </ul>
@@ -50,8 +56,10 @@ const PORTFOLIO = [
         <ul class="stk-list stk-portfolio m-0 list-none px-2" data-stk-list="portfolio">
           {PORTFOLIO.map((p) => (
             <li class="stk-row relative grid cursor-default grid-cols-[0_1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.25 transition-[grid-template-columns] duration-200 ease-(--ease-os) [[data-mode='ios']_&]:py-3" data-symbol={p.symbol} data-label={p.label}>
-              <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{p.label}</span>
-              <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
+              <span class="stk-id col-start-2 grid min-w-0 gap-px">
+                <span class="stk-sym overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-headline)] font-bold tracking-[-0.01em]">{p.label}</span>
+                <span class="stk-name overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-foot)] text-(--ink-3)">—</span>
+              </span>
             </li>
           ))}
         </ul>

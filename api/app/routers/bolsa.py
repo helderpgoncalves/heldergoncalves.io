@@ -22,7 +22,7 @@ import time
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
-from app.bolsa.client import RANGES, chart_for, details_for, quotes_for, search_for
+from app.bolsa.client import RANGES, TTL_DETAILS, TTL_QUOTE, TTL_SEARCH, chart_for, details_for, quotes_for, search_for
 from app.config import LIMITS
 from app.security import bump, ip_key
 from app.validation import one_line
@@ -32,6 +32,18 @@ router = APIRouter()
 # O primeiro carácter também pode ser '^': é assim que o Yahoo escreve um
 # índice — '^GSPC' é o S&P 500, e está na lista por omissão.
 SYMBOL_RE = re.compile(r"^[A-Z0-9^][A-Z0-9.=^-]{0,11}$")
+
+
+def _cache(seconds: int) -> dict:
+    """Deixa o browser reaproveitar a resposta durante o tempo em que ela
+    continua a valer — o mesmo prazo que a cache do servidor já usa
+    (`bolsa/client.py`). Quem reabre a app dentro da janela não chega a
+    fazer o pedido: é o degrau que falta para a Bolsa abrir instantânea,
+    a par do instantâneo que o cliente guarda (`bolsa.js`).
+
+    `public` e não `private`: uma cotação não é de ninguém em especial —
+    é o mesmo número para toda a gente, e nada aqui depende da sessão."""
+    return {"Cache-Control": f"public, max-age={seconds}"}
 
 
 def _range_of(request: Request) -> str:
@@ -71,7 +83,10 @@ async def bolsa(request: Request) -> JSONResponse:
         results = await asyncio.gather(*(asyncio.to_thread(chart_for, s, range_) for s in symbols))
         quotes = [q for q in results if q]
 
-    return JSONResponse({"ok": True, "range": range_, "at": int(time.time() * 1000), "source": "yfinance", "quotes": quotes})
+    return JSONResponse(
+        {"ok": True, "range": range_, "at": int(time.time() * 1000), "source": "yfinance", "quotes": quotes},
+        headers=_cache(TTL_QUOTE),
+    )
 
 
 @router.get("/api/bolsa/detalhe")
@@ -84,7 +99,7 @@ async def bolsa_detalhe(request: Request) -> JSONResponse:
     data = await asyncio.to_thread(details_for, symbols[0])
     if not data:
         return JSONResponse({"ok": False, "error": "simbolo"}, status_code=404)
-    return JSONResponse({"ok": True, **data})
+    return JSONResponse({"ok": True, **data}, headers=_cache(TTL_DETAILS))
 
 
 @router.get("/api/bolsa/procurar")
@@ -95,4 +110,4 @@ async def bolsa_procurar(request: Request) -> JSONResponse:
     if not q:
         return JSONResponse({"ok": False, "error": "procura"}, status_code=400)
     results = await asyncio.to_thread(search_for, q)
-    return JSONResponse({"ok": True, "results": results})
+    return JSONResponse({"ok": True, "results": results}, headers=_cache(TTL_SEARCH))
