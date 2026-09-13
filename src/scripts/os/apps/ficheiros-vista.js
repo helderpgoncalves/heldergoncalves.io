@@ -30,6 +30,7 @@ export function criarVista(el, t, ctx, estado) {
   const vazioTexto = el.querySelector('[data-fic-vazio-texto]');
   const botaoAdd = el.querySelector('[data-fic-add]');
   const botaoRemoverPasta = el.querySelector('[data-fic-remover-pasta]');
+  const botaoPartilhar = el.querySelector('[data-fic-partilhar]');
   const botaoNova = el.querySelector('[data-fic-nova]');
   const vista = el.querySelector('[data-fic-vista]');
   const vistaNome = el.querySelector('[data-fic-vista-nome]');
@@ -114,6 +115,13 @@ export function criarVista(el, t, ctx, estado) {
       : '';
     botaoAdd.hidden = !aberta;
     botaoRemoverPasta.hidden = !aberta || !estado.dono;
+    // Só o dono partilha. O rótulo diz o que a pasta é agora — privada
+    // ou já de alguém — para não ser preciso abrir o campo só para ver.
+    botaoPartilhar.hidden = !aberta || !estado.dono;
+    if (aberta && estado.dono) {
+      const com = estado.pasta.cliente;
+      botaoPartilhar.textContent = com ? t.sharedWith.replace('{quem}', com) : t.share;
+    }
 
     lista.textContent = '';
     for (const f of estado.ficheiros) {

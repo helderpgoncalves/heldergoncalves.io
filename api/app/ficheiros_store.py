@@ -152,6 +152,28 @@ async def criar_pasta(nome: str, cliente: str) -> dict:
     return _publica(row)
 
 
+async def partilhar_pasta(pasta_id: str, cliente: str) -> Optional[dict]:
+    """Muda com quem a pasta é partilhada — ou tira a partilha, com
+    `cliente` vazio.
+
+    É por isto que uma pasta nasce podendo ser privada: guarda-se
+    primeiro, mostra-se quando estiver pronta. O registo é append-only,
+    por isso mudar é escrever outra linha com o mesmo `id` — fica no
+    histórico com quem esteve partilhada e desde quando.
+
+    Tirar a partilha não mexe em ficheiro nenhum, e não precisa: quem vê
+    o quê decide-se a cada pedido em `pode_ver`, não é uma permissão
+    guardada que fosse preciso ir apagar. No instante seguinte o cliente
+    deixa de abrir a pasta e o que lá está dentro.
+    """
+    antes = pasta(pasta_id)
+    if not antes:
+        return None
+    row = {**antes, "cliente": (cliente or "").strip().lower(), "at": _now_iso()}
+    await _write(_pastas, row)
+    return _publica(row)
+
+
 async def remover_pasta(pasta_id: str) -> Optional[dict]:
     antes = pasta(pasta_id)
     if not antes:

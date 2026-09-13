@@ -3,11 +3,11 @@
 #
 #   GET  /api/ficheiros                     as minhas pastas (todas, se for o dono)
 #   GET  /api/ficheiros/pasta/{id}          o que está numa pasta
-#   POST /api/ficheiros/pastas              cria uma pasta e atribui-a a um email (dono)
-#   POST /api/ficheiros/pastas/remover      remove uma pasta e o que lá está (dono)
 #   POST /api/ficheiros/carregar            larga um ficheiro numa pasta
 #   POST /api/ficheiros/remover             tira um ficheiro de uma pasta
 #   GET  /api/ficheiros/abrir/{id}          os bytes, com a sessão conferida
+#
+# Criar, partilhar e remover pastas é `ficheiros_pastas.py`, ao lado.
 #
 # Tudo com sessão. Sem ela, 401 — e a app abre o ecrã de entrar, como o
 # resto do sistema. Um cliente só alcança as pastas atribuídas ao email
@@ -157,55 +157,6 @@ async def abrir_pasta(request: Request, pasta_id: str) -> JSONResponse:
             "tecto": LIMITS.pasta_max,
         }
     )
-
-
-# ── As pastas, que só o dono cria ────────────────────────────────────
-@router.post("/api/ficheiros/pastas")
-async def criar_pasta(request: Request) -> JSONResponse:
-    email, dono, error = _sessao(request)
-    if error:
-        return error
-    if not dono:
-        return JSONResponse({"ok": False, "error": "dono"}, status_code=403)
-    error = _origem(request) or _limite(request)
-    if error:
-        return error
-    payload = await read_json(request)
-    if payload is None:
-        return JSONResponse({"ok": False, "error": "corpo"}, status_code=400)
-
-    nome = one_line(payload.get("nome"), LIMITS.pasta_nome)
-    # Sem cliente, a pasta é privada — só do dono. Com cliente, tem de
-    # ser um email a sério: um texto qualquer aqui criava uma pasta que
-    # ninguém conseguia abrir, e que parecia partilhada.
-    cliente = one_line(payload.get("cliente"), LIMITS.email).lower()
-    if not nome or (cliente and not EMAIL_RE.match(cliente)):
-        return JSONResponse({"ok": False, "error": "dados"}, status_code=400)
-    if len(loja.pastas_todas()) >= LIMITS.pastas_max:
-        return JSONResponse({"ok": False, "error": "cheio"}, status_code=409)
-
-    pasta = await loja.criar_pasta(nome, cliente)
-    print("[ficheiros] pasta nova criada pelo dono")
-    return JSONResponse({"ok": True, "pasta": pasta})
-
-
-@router.post("/api/ficheiros/pastas/remover")
-async def remover_pasta(request: Request) -> JSONResponse:
-    email, dono, error = _sessao(request)
-    if error:
-        return error
-    if not dono:
-        return JSONResponse({"ok": False, "error": "dono"}, status_code=403)
-    error = _origem(request) or _limite(request)
-    if error:
-        return error
-    payload = await read_json(request)
-    if payload is None:
-        return JSONResponse({"ok": False, "error": "corpo"}, status_code=400)
-    if not await loja.remover_pasta(one_line(payload.get("id"), 40)):
-        return JSONResponse({"ok": False, "error": "inexistente"}, status_code=404)
-    print("[ficheiros] pasta removida pelo dono")
-    return JSONResponse({"ok": True})
 
 
 # ── Largar um ficheiro ───────────────────────────────────────────────

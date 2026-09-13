@@ -326,3 +326,32 @@ def test_only_the_owner_can_create_a_folder(client):
     res = client.post("/api/ficheiros/pastas", json={"nome": "minha", "cliente": ""})
     assert res.status_code == 403
     assert res.json()["error"] == "dono"
+
+
+async def test_a_folder_can_start_private_and_be_shared_later():
+    """É o caso normal: guarda-se primeiro, mostra-se ao cliente quando
+    estiver pronta. E tirar a partilha fecha a porta no instante
+    seguinte, sem ser preciso apagar permissão nenhuma."""
+    from app import ficheiros_store as loja
+
+    pasta = await loja.criar_pasta("Proposta", "")
+    assert pasta["privada"] is True
+    assert loja.pastas_de("cliente@example.test") == []
+
+    depois = await loja.partilhar_pasta(pasta["id"], "cliente@example.test")
+    assert depois["privada"] is False
+    assert [p["id"] for p in loja.pastas_de("cliente@example.test")] == [pasta["id"]]
+    assert loja.pode_ver(loja.pasta(pasta["id"]), "cliente@example.test", False) is True
+
+    await loja.partilhar_pasta(pasta["id"], "")
+    assert loja.pastas_de("cliente@example.test") == []
+    assert loja.pode_ver(loja.pasta(pasta["id"]), "cliente@example.test", False) is False
+
+
+def test_only_the_owner_can_change_who_a_folder_is_shared_with(client):
+    from conftest import sign_in
+
+    sign_in(client, "visitante@example.test")
+    res = client.post("/api/ficheiros/pastas/partilhar", json={"id": "x", "cliente": "eu@example.test"})
+    assert res.status_code == 403
+    assert res.json()["error"] == "dono"

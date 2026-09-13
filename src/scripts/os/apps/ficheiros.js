@@ -242,12 +242,32 @@ export function initFicheiros(ctx) {
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     const nome = campoNome.value.trim();
+    // O cliente é opcional: sem ele a pasta é privada. É o caso normal
+    // — guarda-se primeiro, mostra-se ao cliente quando estiver pronta.
     const cliente = campoCliente.value.trim().toLowerCase();
-    if (!nome || !cliente) {
+    if (!nome) {
       vista.avisar(t.errors.dados);
       return;
     }
     criarPasta(nome, cliente);
+  });
+
+  /** Passa uma pasta a partilhada com um email, ou tira-lhe a partilha
+      com o campo vazio. Tirar não mexe em ficheiro nenhum: quem vê o
+      quê decide-se a cada pedido, não é uma permissão guardada. */
+  async function partilhar(cliente) {
+    if (!estado.pasta) return;
+    const data = await pedir('/api/ficheiros/pastas/partilhar', { id: estado.pasta.id, cliente });
+    if (!data) return;
+    ctx.notify(cliente ? t.sharedWith.replace('{quem}', cliente) : t.unshared);
+    await carregar(false);
+  }
+
+  el.querySelector('[data-fic-partilhar]').addEventListener('click', () => {
+    const actual = (estado.pasta && estado.pasta.cliente) || '';
+    const resposta = window.prompt(t.shareAsk, actual);
+    if (resposta === null) return;  // carregou em cancelar
+    partilhar(resposta.trim().toLowerCase());
   });
 
   el.querySelector('[data-fic-add]').addEventListener('click', () => entrada.click());

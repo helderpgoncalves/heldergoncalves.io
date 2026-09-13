@@ -55,6 +55,11 @@ const k = c.ficheiros;
         <span data-fic-sub></span>
       </div>
       <div class="fic-barra-acoes">
+        {/* Partilhar é uma acção sobre uma pasta que já existe, e não
+            uma decisão do momento em que se cria: guarda-se primeiro,
+            mostra-se ao cliente quando estiver pronta. Só o dono a vê —
+            quem a revela é ficheiros.js, depois do servidor confirmar. */}
+        <button type="button" class="btn" data-fic-partilhar hidden>{k.share}</button>
         <button type="button" class="btn" data-fic-remover-pasta hidden>{k.removeFolder}</button>
         <button type="button" class="btn btn-primary" data-fic-add hidden>{k.add}</button>
         <input type="file" data-fic-input multiple hidden aria-hidden="true" tabindex="-1" />
