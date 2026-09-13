@@ -6,6 +6,7 @@
 #   GET  /api/reunioes/bloqueios               os bloqueios e aberturas activos
 #   POST /api/reunioes/bloqueios                cria um bloqueio ou uma abertura
 #   POST /api/reunioes/bloqueios/remover        remove um, pelo id
+#   POST /api/reunioes/desmarcar                desmarca uma reunião de outra pessoa
 #
 # Tudo exige sessão **e** que o email da sessão seja o `OWNER_EMAIL` —
 # sem essa variável configurada, nenhuma sessão passa, mesmo que a
@@ -19,11 +20,13 @@ from datetime import datetime
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
-from app.availability import to_iso_millis
+from app.availability import describe, to_iso_millis
 from app.availability_store import KINDS, active_overrides, add_override, remove_override
 from app.config import LIMITS, SITE_ORIGIN
+from app.copy import MEETING_COPY, pick_lang
 from app.http import read_json
-from app.meetings import all_between
+from app.mail import send_mail
+from app.meetings import all_between, cancel_any
 from app.owner_guard import require_owner
 from app.security import bump, ip_key, wrong_origin
 from app.validation import clean, one_line
@@ -116,4 +119,33 @@ async def remover_bloqueio(request: Request) -> JSONResponse:
     if not row:
         return JSONResponse({"ok": False, "error": "inexistente"}, status_code=404)
     print("[disponibilidade] alteração removida pelo dono")
+    return JSONResponse({"ok": True})
+
+
+@router.post("/api/reunioes/desmarcar")
+async def desmarcar(request: Request) -> JSONResponse:
+    """Desmarcar a reunião de outra pessoa. `/api/reunioes/cancelar` não
+    serve: essa exige que o email da sessão seja o de quem marcou, e é
+    isso que protege as reuniões umas das outras."""
+    _, error = require_owner(request)
+    if error:
+        return error
+    bad = wrong_origin(request, SITE_ORIGIN)
+    if bad:
+        return JSONResponse({"ok": False, "error": bad}, status_code=403 if bad == "origem" else 415)
+
+    payload = await read_json(request)
+    if payload is None:
+        return JSONResponse({"ok": False, "error": "corpo"}, status_code=400)
+    meeting_id = one_line(payload.get("id"), 40)
+    row = await cancel_any(meeting_id)
+    if not row:
+        return JSONResponse({"ok": False, "error": "reuniao"}, status_code=404)
+    print("[agenda] reunião desmarcada pelo dono")
+
+    lang = pick_lang(row.get("lang"))
+    copy = MEETING_COPY[lang]
+    when = describe(row["start"], lang)
+    # Quem fica a saber é a pessoa: foi a hora dela que desapareceu.
+    await send_mail(to=row["email"], subject=copy["droppedSubject"](when), text=copy["droppedBody"](when))
     return JSONResponse({"ok": True})

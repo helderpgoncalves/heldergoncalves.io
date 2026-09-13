@@ -10,6 +10,7 @@ import { OS_EN } from './os.en';
 import { APPS_EN } from './apps.en';
 import { EDITOR_EN } from './editor.en';
 import { FICHEIROS_EN } from './ficheiros.en';
+import { CALENDARIO_EN } from './calendario.en';
 
 export const EN = {
   htmlLang: 'en',
@@ -38,6 +39,7 @@ export const EN = {
   ...APPS_EN,
   editor: EDITOR_EN,
   ficheiros: FICHEIROS_EN,
+  calendario: CALENDARIO_EN,
 
   notFound: {
     title: 'Page not found',

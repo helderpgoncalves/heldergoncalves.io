@@ -31,7 +31,9 @@ from urllib.parse import urlencode
 
 from app.config import AUTH, DATA_DIR, OWNER_EMAIL, SITE_ORIGIN
 
-_secret: Optional[bytes] = None
+# Os segredos que valem. O primeiro é o que assina; os outros só
+# servem para LER o que foi assinado antes — ver `_load_secrets`.
+_secrets: list[bytes] = []
 
 # As assinaturas de ligações já usadas — só a assinatura, nunca o email
 # em claro. Poucas, e morrem depressa (ver MAGIC_LINK_TTL).
@@ -41,33 +43,77 @@ MAX_USED_LINKS = 5000
 _COOKIE_RE = None  # construído depois de AUTH.cookie ser conhecido
 
 
-def _load_secret() -> bytes:
+def _load_secrets() -> list[bytes]:
+    """Todos os segredos que valem, o primeiro a assinar e os outros só
+    a ler.
+
+    Entrar não pode ser uma coisa que se perde a cada publicação, e é
+    isso que acontece se o segredo mudar: um cookie assinado com o
+    anterior deixa de bater certo e a pessoa aparece de fora sem ter
+    saído. Por isso aceitam-se três origens ao mesmo tempo:
+
+      1. `SESSION_SECRET` — o que se configura, e o que assina.
+      2. `SESSION_SECRET_PREVIOUS` — os antigos, para se poder trocar o
+         de cima sem deitar fora quem estava dentro.
+      3. `DATA_DIR/.session-secret` — o gerado, guardado ao lado dos
+         dados. Continua a valer mesmo depois de alguém configurar o
+         primeiro, senão configurá-lo era ele próprio um despejo.
+
+    Sem nenhum configurado e sem volume por baixo do `DATA_DIR`, o
+    ficheiro nasce de novo a cada arranque e não há nada a fazer quanto
+    a isso do lado do código — por isso o arranque diz-lo em voz alta.
+    """
+    found: list[bytes] = []
     if len(AUTH.secret) >= 16:
-        return AUTH.secret.encode()
+        found.append(AUTH.secret.encode())
+    found.extend(old.encode() for old in AUTH.previous if len(old) >= 16)
+
     secret_file = DATA_DIR / ".session-secret"
     try:
         saved = secret_file.read_text().strip()
         if len(saved) >= 32:
-            return bytes.fromhex(saved)
-    except OSError:
+            found.append(bytes.fromhex(saved))
+    except (OSError, ValueError):
         pass
+
+    if found:
+        return found
+
     fresh = secrets.token_bytes(32)
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    secret_file.write_text(fresh.hex())
-    secret_file.chmod(0o600)
-    print(f"[sessoes] segredo novo gerado em {secret_file}")
-    return fresh
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        secret_file.write_text(fresh.hex())
+        secret_file.chmod(0o600)
+        print(
+            "[sessoes] segredo novo gerado. Se DATA_DIR não for um volume persistente, "
+            "toda a gente sai na próxima publicação — configura SESSION_SECRET (ver DEPLOY.md)"
+        )
+    except OSError:
+        print("[sessoes] segredo novo, só em memória: as sessões acabam quando este processo acabar")
+    return [fresh]
 
 
 async def init_sessions() -> None:
-    global _secret, _COOKIE_RE
-    _secret = await asyncio.to_thread(_load_secret)
+    global _secrets, _COOKIE_RE
+    _secrets = await asyncio.to_thread(_load_secrets)
     _COOKIE_RE = re.compile(r"(?:^|;\s*)" + re.escape(AUTH.cookie) + r"=([A-Za-z0-9_.-]{1,400})")
 
 
-def _hmac(value: str) -> str:
-    assert _secret is not None
-    return base64.urlsafe_b64encode(hmac.new(_secret, value.encode(), hashlib.sha256).digest()).decode().rstrip("=")
+def _hmac(value: str, key: Optional[bytes] = None) -> str:
+    """Assina com o primeiro segredo — é sempre esse que assina."""
+    assert _secrets
+    return base64.urlsafe_b64encode(hmac.new(key or _secrets[0], value.encode(), hashlib.sha256).digest()).decode().rstrip("=")
+
+
+def _matches(value: str, given: str) -> bool:
+    """Confere contra todos os segredos que valem. `compare_digest` em
+    todos, e sem sair mais cedo: a conta demora o mesmo quer acerte no
+    primeiro quer no último."""
+    ok = False
+    for key in _secrets:
+        if hmac.compare_digest(given, _hmac(value, key)):
+            ok = True
+    return ok
 
 
 # ── O magic link ─────────────────────────────────────────────────────
@@ -90,7 +136,7 @@ def verify_magic_link(params: dict) -> Optional[str]:
     """Confere a ligação e devolve o email — ou None. Uma vez só: a
     segunda tentativa com a mesma assinatura falha, mesmo dentro da
     janela de validade."""
-    if _secret is None:
+    if not _secrets:
         return None
     raw = params.get("e", "")
     stamp = params.get("t", "")
@@ -104,8 +150,7 @@ def verify_magic_link(params: dict) -> Optional[str]:
         return None
     if not email or len(email) > 160:
         return None
-    expected = _hmac(f"magic.{email}.{stamp}")
-    if not hmac.compare_digest(given, expected):
+    if not _matches(f"magic.{email}.{stamp}", given):
         return None
     if (time.time() * 1000 - int(stamp)) > AUTH.magic_link_ttl * 1000:
         return None
@@ -144,27 +189,51 @@ def clear_cookie() -> str:
     return _cookie("", 0)
 
 
-def read_session(cookie_header: str) -> Optional[str]:
-    """O email de quem faz o pedido, ou None."""
-    if _secret is None or _COOKIE_RE is None:
-        return None
+def _read(cookie_header: str) -> tuple[Optional[str], float]:
+    """O email de quem faz o pedido e quando a sessão dele acaba (em
+    milissegundos). `(None, 0)` se não houver sessão válida."""
+    if not _secrets or _COOKIE_RE is None:
+        return None, 0
     match = _COOKIE_RE.search(cookie_header)
     if not match:
-        return None
+        return None, 0
     parts = match.group(1).split(".")
     if len(parts) != 3:
-        return None
+        return None, 0
     encoded, exp, sig = parts
-    if not hmac.compare_digest(sig, _hmac(f"session.{encoded}.{exp}")):
-        return None
+    if not _matches(f"session.{encoded}.{exp}", sig):
+        return None, 0
     if not (10 <= len(exp) <= 16 and exp.isdigit()) or int(exp) < time.time() * 1000:
-        return None
+        return None, 0
     try:
         padded = encoded + "=" * (-len(encoded) % 4)
         email = base64.urlsafe_b64decode(padded).decode("utf-8")
     except (ValueError, UnicodeDecodeError):
+        return None, 0
+    return (email, float(exp)) if email and len(email) <= 160 else (None, 0)
+
+
+def read_session(cookie_header: str) -> Optional[str]:
+    """O email de quem faz o pedido, ou None."""
+    return _read(cookie_header)[0]
+
+
+def renewed_cookie(cookie_header: str) -> Optional[str]:
+    """Um cookie novo, se esta sessão já passou de meio da vida — senão
+    `None`.
+
+    Sem isto uma sessão morre ao fim de trinta dias mesmo a quem usa o
+    site todos os dias, e o único aviso é aparecer de fora. Assim o
+    prazo anda para a frente sozinho a cada pedido: quem vai
+    aparecendo nunca é posto fora, e quem desaparece um mês inteiro tem
+    mesmo de voltar a entrar. É também o que volta a assinar com o
+    segredo novo depois de uma troca — a sessão migra sozinha, sem
+    ninguém dar por isso."""
+    email, expires = _read(cookie_header)
+    if not email:
         return None
-    return email if email and len(email) <= 160 else None
+    restante = expires / 1000 - time.time()
+    return session_cookie(email) if restante < AUTH.session_ttl * AUTH.renew_after else None
 
 
 def is_owner(email: Optional[str]) -> bool:

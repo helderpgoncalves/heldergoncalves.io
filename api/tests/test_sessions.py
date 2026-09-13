@@ -95,3 +95,52 @@ def test_is_owner_rejects_everyone_else():
     assert sessions.is_owner("visitante@example.test") is False
     assert sessions.is_owner(None) is False
     assert sessions.is_owner("") is False
+
+
+# ── Entrar sobrevive a uma publicação ────────────────────────────────
+
+
+def test_a_session_signed_with_an_old_secret_is_still_read(monkeypatch):
+    """Trocar o segredo não deita fora quem estava dentro: o antigo
+    continua a ler, e só o novo assina."""
+    from app import sessions
+
+    antigos = sessions._secrets
+    velho = b"x" * 32
+    novo = b"y" * 32
+    try:
+        sessions._secrets = [velho]
+        cookie = sessions.session_cookie("alguem@example.test")
+        valor = cookie.split(";", 1)[0]
+
+        # A publicação seguinte assina com outro, e aceita o anterior.
+        sessions._secrets = [novo, velho]
+        assert sessions.read_session(valor) == "alguem@example.test"
+
+        # Sem o anterior na lista, a sessão morre — que é o que
+        # acontecia antes de haver `SESSION_SECRET_PREVIOUS`.
+        sessions._secrets = [novo]
+        assert sessions.read_session(valor) is None
+    finally:
+        sessions._secrets = antigos
+
+
+def test_a_session_renews_itself_past_half_its_life(monkeypatch):
+    from app import sessions
+    from app.config import AUTH
+
+    # Acabada de emitir, não se renova: seria um cookie novo a cada pedido.
+    fresca = sessions.session_cookie("alguem@example.test").split(";", 1)[0]
+    assert sessions.renewed_cookie(fresca) is None
+
+    # Passado meio do prazo, o próximo pedido traz um cookie novo.
+    monkeypatch.setattr(sessions.time, "time", lambda: __import__("time").time() + AUTH.session_ttl * 0.6)
+    renovado = sessions.renewed_cookie(fresca)
+    assert renovado and renovado.startswith(AUTH.cookie + "=")
+
+
+def test_renewing_an_absent_or_broken_session_gives_nothing():
+    from app import sessions
+
+    assert sessions.renewed_cookie("") is None
+    assert sessions.renewed_cookie("hs=nao.e.valido") is None

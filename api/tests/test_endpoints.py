@@ -223,3 +223,26 @@ def test_chat_refuses_the_owner(client):
     assert res.status_code in (403, 503)
     if res.status_code == 403:
         assert res.json()["error"] == "proprio"
+
+
+def test_only_the_owner_can_unbook_someone_elses_meeting(client):
+    _sign_in(client, "visitante@example.test")
+    res = client.post("/api/reunioes/desmarcar", json={"id": "seja-qual-for"})
+    assert res.status_code == 403
+    assert res.json()["error"] == "dono"
+
+
+def test_unbooking_something_that_is_not_there_is_a_404(client):
+    _sign_in(client, "dono@example.test")
+    res = client.post("/api/reunioes/desmarcar", json={"id": "nao-existe"})
+    assert res.status_code == 404
+
+
+def test_availability_never_says_whose_the_busy_hours_are(client):
+    """A hora aparece tomada; de quem é não sai daqui. É o contrário de
+    `/api/reunioes/todas`, que é do dono e leva tudo."""
+    _sign_in(client, "visitante@example.test")
+    res = client.get("/api/reunioes/disponibilidade", params={"from": "2030-01-01", "to": "2030-01-31"})
+    assert res.status_code == 200
+    for hour in res.json().get("busy", []):
+        assert set(hour) == {"start", "end"}

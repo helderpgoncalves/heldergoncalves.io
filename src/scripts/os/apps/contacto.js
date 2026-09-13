@@ -1,4 +1,4 @@
-import { forgetWho, requestToken, serverFeatures, whoAmI } from '../lib/session.js';
+import { forgetWho, postComToken, requestToken, serverFeatures, whoAmI } from '../lib/session.js';
 import { capturar } from '../lib/retomar.js';
 
 // O envio passa pelo nosso servidor, que é quem tem a chave. Se o
@@ -102,13 +102,11 @@ export function initCompose(ctx) {
     busy = true;
     say(t.sending);
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...v, token }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
+      // `postComToken` pede o token e, se o servidor o recusar por já
+      // não o reconhecer (reiniciou entretanto), pede outro e tenta uma
+      // vez mais — ver lib/session.js.
+      const res = await postComToken('/api/contact', v);
+      if (res.ok) {
         say(t.sent, 'ok');
         ctx.notify(t.sent);
         form.querySelector('#c-body').value = '';

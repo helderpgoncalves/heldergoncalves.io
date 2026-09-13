@@ -135,27 +135,36 @@
   .stk-hold-edit input { corner-shape: superellipse(1.777); }
 }
 
-.cal-list.mine li,
-.cal-login input,
 .cal-form input,
+.cal-form select,
 .cal-form textarea {
   --r: 8px;
   border-radius: var(--r);
 }
 @supports (corner-shape: squircle) {
-  .cal-list.mine li,
-  .cal-login input,
   .cal-form input,
+  .cal-form select,
   .cal-form textarea {
     corner-shape: squircle;
     border-radius: calc(var(--r) * 1.6);
   }
 }
 @supports (corner-shape: superellipse(1.777)) {
-  .cal-list.mine li,
-  .cal-login input,
   .cal-form input,
+  .cal-form select,
   .cal-form textarea { corner-shape: superellipse(1.777); }
+}
+
+/* O bloco de um acontecimento na grelha das horas. */
+.cal-block {
+  --r: 7px;
+  border-radius: var(--r);
+}
+@supports (corner-shape: squircle) {
+  .cal-block { corner-shape: squircle; border-radius: calc(var(--r) * 1.6); }
+}
+@supports (corner-shape: superellipse(1.777)) {
+  .cal-block { corner-shape: superellipse(1.777); }
 }
 
 .entrar-form input {

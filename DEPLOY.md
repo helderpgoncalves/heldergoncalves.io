@@ -173,9 +173,36 @@ numa hora livre. Precisa do email ligado (é por onde vai a ligação), do
 Postgres (é onde fica a conta — ver «Postgres e as contas» acima) e do
 volume em `/app/data` (é onde ficam as reuniões).
 
+### Entrar tem de sobreviver a uma publicação
+
+Uma sessão é um cookie assinado. Se o segredo que a assina mudar, os
+cookies que já andam por aí deixam de bater certo e **toda a gente
+aparece de fora sem ter saído** — no meio de uma conversa, de um
+orçamento, do que for.
+
+- **Define `SESSION_SECRET`.** É a única forma de o segredo ser o mesmo
+  antes e depois de uma publicação, aconteça o que acontecer ao
+  contentor. Uma frase longa e aleatória; nunca a mesma de outro sítio.
+- Sem ela, o segredo é gerado e guardado em `DATA_DIR/.session-secret`.
+  Isso só sobrevive se o `DATA_DIR` for **mesmo um volume persistente**
+  — senão nasce um novo a cada arranque. O arranque diz nos registos
+  quando gerou um segredo novo: se vires essa linha a cada publicação,
+  é este o problema.
+- **Trocar o segredo** sem despejar ninguém: põe o antigo em
+  `SESSION_SECRET_PREVIOUS` (aceita vários, separados por vírgula) e o
+  novo em `SESSION_SECRET`. As sessões antigas continuam a ser lidas, e
+  cada uma migra sozinha para o segredo novo no primeiro pedido que
+  fizer. Passado o prazo das sessões (30 dias), tira-se a variável.
+
+A sessão também **renova-se sozinha**: passado meio do prazo, qualquer
+pedido traz um cookie novo. Quem usa o site com alguma regularidade
+nunca é posto fora; quem desaparece um mês inteiro volta a entrar.
+
+
 | Variável                 | Exemplo                        | Para quê                                          |
 | ------------------------ | ------------------------------ | ------------------------------------------------- |
-| `SESSION_SECRET`         | uma frase longa e aleatória    | assina os cookies de sessão; gerado se faltar     |
+| `SESSION_SECRET`         | uma frase longa e aleatória    | **define-a.** Assina os cookies de sessão — ver abaixo |
+| `SESSION_SECRET_PREVIOUS`| o segredo anterior             | opcional, só enquanto se troca o de cima          |
 | `MEETINGS_FILE`          | `/app/data/meetings.ndjson`    | as reuniões; opcional                             |
 | `MEETINGS_TZ`            | `Europe/Lisbon`                | o fuso da agenda                                  |
 | `MEETINGS_DAYS`          | `1-5`                          | dias da semana (1 = segunda, 0 ou 7 = domingo)    |

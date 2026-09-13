@@ -192,53 +192,9 @@
   }
 }
 
-@utility cal-today {
-  --r: 5px;
-  border-radius: var(--r);
-  @supports (corner-shape: squircle) {
-    corner-shape: squircle;
-    border-radius: calc(var(--r) * 1.6);
-  }
-  @supports (corner-shape: superellipse(1.777)) {
-    corner-shape: superellipse(1.777);
-  }
-}
 
-@utility cal-ev {
-  --r: 4px;
-  border-radius: var(--r);
-  @supports (corner-shape: squircle) {
-    corner-shape: squircle;
-    border-radius: calc(var(--r) * 1.6);
-  }
-  @supports (corner-shape: superellipse(1.777)) {
-    corner-shape: superellipse(1.777);
-  }
-}
 
-@utility cal-free {
-  --r: 4px;
-  border-radius: var(--r);
-  @supports (corner-shape: squircle) {
-    corner-shape: squircle;
-    border-radius: calc(var(--r) * 1.6);
-  }
-  @supports (corner-shape: superellipse(1.777)) {
-    corner-shape: superellipse(1.777);
-  }
-}
 
-@utility cal-slot {
-  --r: 8px;
-  border-radius: var(--r);
-  @supports (corner-shape: squircle) {
-    corner-shape: squircle;
-    border-radius: calc(var(--r) * 1.6);
-  }
-  @supports (corner-shape: superellipse(1.777)) {
-    corner-shape: superellipse(1.777);
-  }
-}
 
 @utility cal-form {
   --r: 16px;

@@ -193,6 +193,19 @@ MEETING_COPY = {
         "ownerBody": _pt_meeting_owner_body,
         "cancelSubject": lambda when: "[agenda] Reunião cancelada: " + when,
         "cancelBody": lambda when, email: f"A reunião de {when} com {email} foi cancelada pela pessoa.\n",
+        # Quando é o Hélder a desmarcar, quem fica a saber é a pessoa —
+        # e o email vai para ela, não para ele.
+        "droppedSubject": lambda when: "Conversa desmarcada: " + when,
+        "droppedBody": lambda when: "\n".join(
+            [
+                "Tive de desmarcar a nossa conversa de " + when + ".",
+                "",
+                "Desculpa a maçada. Podes escolher outra hora no Calendário do site, ou responder a este email.",
+                "",
+                "Hélder Gonçalves",
+                "https://heldergoncalves.io",
+            ]
+        ),
     },
     "en": {
         "userSubject": lambda when: "Meeting booked: " + when,
@@ -213,6 +226,17 @@ MEETING_COPY = {
         "ownerBody": _en_meeting_owner_body,
         "cancelSubject": lambda when: "[agenda] Meeting cancelled: " + when,
         "cancelBody": lambda when, email: f"The meeting on {when} with {email} was cancelled by the person.\n",
+        "droppedSubject": lambda when: "Meeting cancelled: " + when,
+        "droppedBody": lambda when: "\n".join(
+            [
+                "I had to cancel our conversation on " + when + ".",
+                "",
+                "Sorry about that. Pick another time in the Calendar on the site, or just reply to this email.",
+                "",
+                "Hélder Gonçalves",
+                "https://heldergoncalves.io",
+            ]
+        ),
     },
 }
 

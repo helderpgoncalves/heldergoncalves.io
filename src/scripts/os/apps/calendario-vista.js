@@ -1,192 +1,179 @@
 // ─────────────────────────────────────────────────────────────────────
-// O Calendário: o que se vê.
+// O Calendário: o mês, e quem manda nas outras vistas.
 //
-// O mês em grelha, como o do macOS: a semana começa à segunda, o dia de
-// hoje leva o círculo vermelho, cada dia diz quantos horários livres
-// tem, e as reuniões marcadas aparecem como blocos azuis. Ao lado, o
-// dia escolhido, hora a hora — e, sem sessão, o pedido do email.
+// A vista de mês é a do iOS 26: o nome do mês grande à esquerda com o
+// ano na navegação por cima, as iniciais dos dias, e uma pilha de
+// semanas separadas por uma linha a toda a largura — sem grelha
+// vertical, que a app da Apple não tem. Por baixo de cada número, os
+// pontos do que lá acontece.
+//
+// O dia (calendario-dia.js) e as folhas (calendario-folhas.js) são
+// ficheiros ao lado; este é o que os monta e o único que ouve cliques —
+// um listener no conteúdo, ligado uma vez, como manda o padrão das apps.
 // ─────────────────────────────────────────────────────────────────────
 import { esc } from '../lib/dom.js';
-
-const pad = (n) => String(n).padStart(2, '0');
-const keyOf = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+import { diaDoKey, eventosPorDia, keyOf, pontosDoDia, somaDias } from './calendario-dados.js';
+import { criarDia } from './calendario-dia.js';
+import { criarFolhas } from './calendario-folhas.js';
 
 export function createView(el, t, ctx, state) {
   const locale = ctx.data.intlLocale;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const fmt = {
+    cap,
+    mes: new Intl.DateTimeFormat(locale, { month: 'long' }),
+    hora: new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
+    dia: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
+    longo: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+    inicial: new Intl.DateTimeFormat(locale, { weekday: 'narrow' }),
+  };
+
+  const gate = el.querySelector('[data-cal-gate]');
+  const off = el.querySelector('[data-cal-off]');
+  const entrar = el.querySelector('[data-cal-signin]');
+  const panes = el.querySelector('[data-cal-panes]');
+  const float = el.querySelector('[data-cal-float]');
+  const novo = el.querySelector('[data-cal-newblock]');
   const title = el.querySelector('[data-cal-title]');
+  const year = el.querySelector('[data-cal-year]');
   const week = el.querySelector('[data-cal-week]');
   const grid = el.querySelector('[data-cal-grid]');
-  const side = el.querySelector('[data-cal-side]');
-  const session = el.querySelector('[data-cal-session]');
-  const sheet = el.querySelector('[data-cal-sheet]');
-  const form = el.querySelector('[data-cal-book]');
-  const when = el.querySelector('[data-cal-when]');
-  const sheetHintEl = el.querySelector('[data-cal-hint]');
 
-  // Os horários mostram-se sempre no fuso de quem os vê — como o
-  // Calendly, e não no de Lisboa: o servidor manda instantes UTC
-  // (`...Z`), sem opinião nenhuma sobre fuso, e é o browser que os lê
-  // no seu próprio relógio só por não lhe dizermos um `timeZone`.
-  const visitorTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const monthFmt = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' });
-  const timeFmt = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
-  const longFmt = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-  const dayFmt = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' });
-  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-
-  /** O dia local (de quem vê o Calendário) a que um instante pertence —
-   * a mesma regra que agrupa os dias na grelha, `keyOf`. */
-  const localKey = (iso) => keyOf(new Date(iso));
-
-  let pendingStart = null;
   let handlers = {};
+  const dia = criarDia(el, t, fmt, state, () => handlers);
+  const folhas = criarFolhas(el, t, fmt, state, () => handlers);
 
-  function byDay() {
-    const free = new Map();
-    state.slots.forEach((iso) => {
-      const k = localKey(iso);
-      free.set(k, (free.get(k) || []).concat(iso));
-    });
-    const mine = new Map();
-    state.mine.forEach((m) => {
-      const k = localKey(m.start);
-      mine.set(k, (mine.get(k) || []).concat(m));
-    });
-    return { free, mine };
+  const WD = 'py-1 text-center text-[length:var(--t-caption2)] font-semibold uppercase tracking-[0.04em] text-(--ink-3)';
+
+  function renderWeekHeader() {
+    const base = somaDias(new Date(2024, 0, 1), 0); // 1 de Janeiro de 2024 foi uma segunda
+    week.innerHTML = [0, 1, 2, 3, 4, 5, 6]
+      .map((i) => '<span class="' + WD + '">' + esc(fmt.inicial.format(somaDias(base, i))) + '</span>')
+      .join('');
   }
 
-  const WEEK_SPAN = 'text-right px-2 text-[length:var(--t-caption)] font-semibold text-(--ink-3) uppercase';
+  /** O rótulo de uma célula. Um ponto de cor nunca é a única forma de
+   *  saber que há alguma coisa nesse dia: quem ouve o ecrã ouve isto. */
+  function rotulo(d, lista, hoje) {
+    const partes = [fmt.cap(fmt.dia.format(d))];
+    if (hoje) partes.push(t.today);
+    const marcadas = lista.filter((e) => e.kind === 'mine' || e.kind === 'meeting' || e.kind === 'busy').length;
+    const livres = lista.filter((e) => e.kind === 'free').length;
+    const bloqueios = lista.filter((e) => e.kind === 'bloqueio').length;
+    if (marcadas) partes.push(marcadas + ' ' + (marcadas === 1 ? t.meetingOne : t.meetings));
+    if (livres) partes.push(livres + ' ' + (livres === 1 ? t.free : t.frees));
+    if (bloqueios) partes.push(t.block.toLowerCase());
+    return partes.join(', ');
+  }
 
-  function renderWeek() {
-    const base = new Date(2024, 0, 1); // uma segunda-feira
-    week.innerHTML = [0, 1, 2, 3, 4, 5, 6]
-      .map((i) => '<span class="' + WEEK_SPAN + '">' + esc(new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 1 + i)).replace('.', '')) + '</span>')
-      .join('');
-    void base;
+  function celula(d, lista, inMonth) {
+    const k = keyOf(d);
+    const hoje = k === keyOf(new Date());
+    const classes = 'cal-cell' + (inMonth ? '' : ' out') + (hoje ? ' today' : '') + (k === state.selected ? ' on' : '');
+    return (
+      '<button type="button" role="gridcell" class="' + classes + '" data-day="' + k + '"' +
+      ' tabindex="' + (k === state.selected ? '0' : '-1') + '"' +
+      (hoje ? ' aria-current="date"' : '') +
+      ' aria-label="' + esc(rotulo(d, lista, hoje)) + '">' +
+      '<span class="cal-num">' + d.getDate() + '</span>' +
+      '<span class="cal-dots" aria-hidden="true">' +
+      pontosDoDia(lista).map((e) => '<i class="cal-dot ' + e.kind + '"></i>').join('') +
+      '</span></button>'
+    );
   }
 
   function renderGrid() {
-    const { free, mine } = byDay();
+    const porDia = eventosPorDia(state);
     const first = state.month;
-    const startOffset = (first.getDay() + 6) % 7; // segunda = 0
-    const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-    const today = keyOf(new Date());
-    const cells = [];
-    const total = Math.ceil((startOffset + days) / 7) * 7;
-    for (let i = 0; i < total; i++) {
-      const n = i - startOffset + 1;
-      const d = new Date(first.getFullYear(), first.getMonth(), n);
-      const k = keyOf(d);
-      const inMonth = n >= 1 && n <= days;
-      const f = free.get(k) || [];
-      const m = mine.get(k) || [];
-      cells.push(
-        '<button type="button" role="gridcell" class="cal-cell relative flex min-h-16 flex-col items-stretch gap-0.5 border-b-[0.5px] border-r-[0.5px] border-(--line) px-1.5 py-1 overflow-hidden text-left text-[length:var(--t-caption)] text-(--ink) @max-[720px]/app:min-h-12 @max-[720px]/app:px-1 @max-[720px]/app:py-0.75' +
-          (inMonth ? '' : ' out text-(--ink-3) bg-(--surface-2)') +
-          (k === today ? ' today' : '') +
-          (k === state.selected ? ' on bg-(--surface-3)' : '') +
-          '" data-day="' + k + '">' +
-          '<span class="cal-num self-end grid h-[22px] w-[22px] place-items-center rounded-full text-[length:var(--t-foot)] font-semibold' + (k === today ? ' bg-(--red) text-white' : '') + '">' + d.getDate() + '</span>' +
-          m.map((x) => '<span class="cal-ev overflow-hidden text-ellipsis whitespace-nowrap bg-(--accent) px-1.5 py-px font-medium text-white @max-[720px]/app:hidden">' + esc(timeFmt.format(new Date(x.start))) + ' ' + esc(x.title || t.bookTitle) + '</span>').join('') +
-          (f.length ? '<span class="cal-free whitespace-nowrap bg-(--green-tint) px-1.5 py-px font-semibold text-(--green) @max-[720px]/app:bg-transparent @max-[720px]/app:p-0 @max-[720px]/app:text-[length:var(--t-caption2)]">' + f.length + ' ' + esc(f.length === 1 ? t.free : t.frees) + '</span>' : '') +
-          '</button>'
-      );
+    const offset = (first.getDay() + 6) % 7; // a semana começa à segunda
+    const dias = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    const total = Math.ceil((offset + dias) / 7) * 7;
+    const linhas = [];
+    for (let i = 0; i < total; i += 7) {
+      const celulas = [];
+      for (let j = 0; j < 7; j++) {
+        const n = i + j - offset + 1;
+        const d = new Date(first.getFullYear(), first.getMonth(), n);
+        celulas.push(celula(d, porDia.get(keyOf(d)) || [], n >= 1 && n <= dias));
+      }
+      linhas.push('<div class="cal-row" role="row">' + celulas.join('') + '</div>');
     }
-    grid.innerHTML = cells.join('');
-    title.textContent = cap(monthFmt.format(first));
-  }
-
-  function renderSession() {
-    if (!state.enabled) {
-      session.innerHTML = '<span class="cal-off text-(--orange)">' + esc(t.errors.off) + '</span>';
-      return;
-    }
-    if (state.email) {
-      session.innerHTML =
-        '<span class="cal-who @max-[720px]/app:hidden">' + esc(t.signedAs) + ' <strong class="font-semibold text-(--ink)">' + esc(state.email) + '</strong></span>' +
-        '<button type="button" class="cal-link min-h-6 text-[length:var(--t-foot)] font-medium text-(--accent)" data-cal-signout>' + esc(t.signOut) + '</button>';
-      return;
-    }
-    session.innerHTML = '';
-  }
-
-  function renderSide() {
-    if (!state.email) {
-      side.innerHTML =
-        '<div class="cal-login">' +
-        '<h3 class="m-0 mb-1 text-[length:var(--t-headline)]">' + esc(t.signIn) + '</h3><p class="m-0 mb-3 text-[length:var(--t-subhead)] text-(--ink-2)">' + esc(t.signInHint) + '</p>' +
-        '<button type="button" class="btn btn-primary w-full justify-center no-underline" data-cal-signin>' + esc(t.signIn) + '</button>' +
-        '</div>';
-      return;
-    }
-    const { free, mine } = byDay();
-    const f = free.get(state.selected) || [];
-    const m = mine.get(state.selected) || [];
-    const d = new Date(state.selected + 'T12:00:00');
-    side.innerHTML =
-      '<h3 class="cal-dayname m-0 text-[length:var(--t-headline)] font-bold">' + esc(cap(dayFmt.format(d))) + '</h3>' +
-      '<p class="cal-tz my-0.5 mb-3 text-[length:var(--t-caption)] text-(--ink-3)">' + esc(t.tz) + ' (' + esc(visitorTz) + ') · ' + state.minutes + ' ' + esc(t.minutes) + '</p>' +
-      (m.length
-        ? '<ul class="cal-list mine m-0 mb-3.5 grid list-none gap-1.5 p-0">' +
-          m.map((x) => '<li class="flex items-center gap-2.5 bg-(--accent) px-3 py-2.25 text-white"><span class="cal-time min-w-[46px] font-semibold tabular-nums">' + esc(timeFmt.format(new Date(x.start))) + '</span><span class="cal-what flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-subhead)]">' + esc(x.title || t.bookTitle) + '</span>' +
-            '<button type="button" class="cal-link ml-auto min-h-6 text-[length:var(--t-foot)] font-medium text-white/90" data-cal-cancel="' + esc(x.id) + '">' + esc(t.cancelMeeting) + '</button></li>').join('') +
-          '</ul>'
-        : '') +
-      (f.length
-        ? '<ul class="cal-list m-0 mb-3.5 grid list-none gap-1.5 p-0">' +
-          f.map((iso) => '<li class="flex items-center gap-2.5"><button type="button" class="cal-slot flex flex-1 items-center gap-2.5 border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-left text-(--ink) transition-[background,transform] duration-120 ease-(--ease-os) hover:bg-(--surface-3) active:scale-98" data-cal-slot="' + esc(iso) + '"><span class="cal-time min-w-[46px] font-semibold tabular-nums">' + esc(timeFmt.format(new Date(iso))) + '</span><span class="cal-what flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[length:var(--t-subhead)]">' + esc(t.free) + '</span></button></li>').join('') +
-          '</ul>'
-        : '<p class="cal-empty m-0 text-[length:var(--t-subhead)] text-(--ink-3)">' + esc(m.length ? '' : t.noSlots) + '</p>') +
-      '<p class="cal-hint m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)">' + esc(state.hint || '') + '</p>';
+    grid.innerHTML = linhas.join('');
+    title.textContent = fmt.cap(fmt.mes.format(first));
+    year.textContent = String(first.getFullYear());
   }
 
   function render() {
-    renderWeek();
-    renderGrid();
-    renderSession();
-    renderSide();
+    const dentro = Boolean(state.email);
+    // Se as marcações estiverem desligadas no servidor, entrar não leva
+    // a lado nenhum: diz-se isso, em vez de oferecer um botão que falha.
+    off.hidden = state.enabled;
+    entrar.hidden = !state.enabled;
+    gate.hidden = dentro;
+    panes.hidden = !dentro;
+    float.hidden = !dentro;
+    novo.hidden = !state.owner;
     el.dataset.view = state.view;
-    el.querySelectorAll('[data-cal-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.calView === state.view)));
+    el.querySelectorAll('[data-cal-view]').forEach((b) => {
+      const on = b.dataset.calView === state.view;
+      b.setAttribute('aria-pressed', String(on));
+      b.classList.toggle('bg-(--surface-3)', on);
+      b.classList.toggle('text-(--ink)', on);
+      b.classList.toggle('text-(--ink-2)', !on);
+    });
+    if (!dentro) return;
+    renderWeekHeader();
+    renderGrid();
+    dia.render();
   }
 
-  function openSheet(iso) {
-    pendingStart = iso;
-    when.textContent = cap(longFmt.format(new Date(iso)));
-    form.reset();
-    sheetHintEl.textContent = '';
-    sheet.hidden = false;
-    setTimeout(() => form.querySelector('input').focus(), 30);
+  /** Devolve o foco à célula do dia escolhido — a grelha foi reescrita
+   *  e o nó que tinha o foco já não existe. */
+  function focarDia() {
+    const alvo = grid.querySelector('[data-day="' + state.selected + '"]');
+    if (alvo) alvo.focus();
   }
-  const closeSheet = () => {
-    sheet.hidden = true;
-    pendingStart = null;
-  };
-  const sheetHint = (text) => (sheetHintEl.textContent = text || '');
 
+  // ── Teclado ────────────────────────────────────────────────────────
+  // As setas andam pela grelha como no calendário do sistema: um dia de
+  // cada vez, uma semana de cada vez, e o mês muda sozinho ao sair dele.
+  const SALTO = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+  grid.addEventListener('keydown', (ev) => {
+    const salto = SALTO[ev.key];
+    if (salto === undefined) return;
+    ev.preventDefault();
+    // O foco só se devolve depois de a grelha estar reescrita — sair do
+    // mês obriga a ir ao servidor buscar o mês novo primeiro.
+    Promise.resolve(handlers.selectDay(keyOf(somaDias(diaDoKey(state.selected), salto)))).then(focarDia);
+  });
+
+  // ── Um clique, um sítio ────────────────────────────────────────────
   el.addEventListener('click', (ev) => {
     const cell = ev.target.closest('[data-day]');
     if (cell) return handlers.pick(cell.dataset.day);
-    const slot = ev.target.closest('[data-cal-slot]');
-    if (slot) return openSheet(slot.dataset.calSlot);
-    const cancel = ev.target.closest('[data-cal-cancel]');
-    if (cancel) return handlers.cancelMeeting(cancel.dataset.calCancel);
+    const bloco = ev.target.closest('[data-cal-event]');
+    if (bloco) return folhas.abrirEvento(bloco.dataset.calEvent, bloco.dataset.calKind);
+    const strip = ev.target.closest('[data-strip-day]');
+    if (strip) return handlers.selectDay(strip.dataset.stripDay);
     const v = ev.target.closest('[data-cal-view]');
     if (v) return handlers.setView(v.dataset.calView);
     if (ev.target.closest('[data-cal-prev]')) return handlers.prev();
     if (ev.target.closest('[data-cal-next]')) return handlers.next();
     if (ev.target.closest('[data-cal-today]')) return handlers.today();
-    if (ev.target.closest('[data-cal-signout]')) return handlers.signOut();
+    if (ev.target.closest('[data-cal-back]')) return handlers.setView('month');
     if (ev.target.closest('[data-cal-signin]')) return handlers.signIn();
-    if (ev.target.closest('[data-cal-close]') || ev.target === sheet) return closeSheet();
+    if (ev.target.closest('[data-cal-newblock]')) return folhas.abrirBloco();
+    folhas.cliqueNaFolha(ev);
   });
 
-  el.addEventListener('submit', (ev) => {
-    const f = ev.target;
-    if (f === form) {
-      ev.preventDefault();
-      if (pendingStart) handlers.book(pendingStart, form.title.value.trim(), form.note.value.trim());
-    }
-  });
-
-  return { render, closeSheet, sheetHint, wire: (h) => (handlers = h) };
+  return {
+    render,
+    closeSheet: folhas.fechar,
+    sheetHint: folhas.aviso,
+    blockHint: folhas.avisoBloco,
+    wire: (h) => {
+      handlers = h;
+      dia.wire();
+    },
+  };
 }

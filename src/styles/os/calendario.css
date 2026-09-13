@@ -1,13 +1,283 @@
 /* ═══════════════════════════════════════════════════════════════
-   O Calendário: o que o Tailwind não alcança daqui — o layout
-   dependente de contentor (`@container`) e o ajuste por sistema
-   (`[data-mode='ios']`). O resto (toolbar, grelha, marcação) já é
-   utility, em Calendario.astro e calendario-vista.js.
+   O Calendário — a forma da app do iOS 26.
    Parte de os.css — ver o índice lá.
-   ═══════════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════
+   O que está aqui é o que uma utility não alcança: a posição de um
+   bloco pela hora a que começa, a linha do agora, os separadores
+   entre semanas, e a troca entre "duas colunas" e "dois ecrãs".
+   Tudo o resto — espaçamento, cor, tipo — é Tailwind no markup, em
+   Calendario.astro e nos dois ficheiros de vista.
+   ─────────────────────────────────────────────────────────────── */
 
-[data-mode='ios'] .cal-title { font-size: var(--t-title); color: var(--red); }
-[data-mode='ios'] .cal-num { width: 30px; height: 30px; align-self: center; font-size: var(--t-body); }
-[data-mode='ios'] .cal-cell { align-items: center; min-height: 54px; }
-[data-mode='ios'] .cal-slot { min-height: 44px; }
-[data-mode='ios'] .cal-arrow { min-width: 44px; }
+.app-calendario {
+  /* A altura de uma hora na grelha do dia. É esta a única medida de
+     que a posição de um bloco depende: `top` e `height` saem dela e
+     de duas variáveis por bloco (--at, --dur), postas pelo JS. */
+  --cal-hour: 52px;
+  /* A coluna das etiquetas das horas, à esquerda. Os blocos começam
+     depois dela — alinhados, como na app a sério. */
+  --cal-gutter: 62px;
+  --cal-edge: 12px;
+}
+
+/* `hidden` tem de ganhar sempre: metade desta app aparece e
+   desaparece por `el.hidden`, e uma regra de autor com `display`
+   (as utilities `flex`/`grid` do markup) ganha ao `[hidden]` da
+   folha do browser. A mesma linha que salvou a Mensagens. */
+.app-calendario [hidden] { display: none !important; }
+
+/* ── 1. O mês ────────────────────────────────────────────────────
+   Separadores horizontais a toda a largura entre semanas, e nenhuma
+   linha vertical: a grelha da Apple não é uma tabela, é uma pilha de
+   semanas. Por isso cada semana é a sua própria `grid` — a linha vive
+   na semana, não na célula, e vai mesmo de bordo a bordo. */
+.cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 0.5px solid var(--line);
+}
+.cal-row:first-child { border-top: 0; }
+
+.cal-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 2px 8px;
+  color: var(--ink);
+}
+.cal-cell.out { color: var(--ink-3); }
+
+/* O número do dia. Hoje é um círculo cheio a vermelho; o dia escolhido,
+   se não for hoje, é um círculo cheio de tinta esbatida. Um círculo é
+   um semicírculo de cada lado — `corner-shape` não entra (ver
+   .claude/rules/apple.md). */
+.cal-num {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: var(--t-subhead);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.cal-cell.today .cal-num { background: var(--red); color: #fff; font-weight: 600; }
+.cal-cell.on:not(.today) .cal-num {
+  background: color-mix(in srgb, var(--ink) 76%, transparent);
+  color: var(--surface-solid);
+}
+
+/* Os pontos por baixo do número. A cor diz o quê, mas nunca sozinha:
+   a reunião é um disco cheio, o horário livre é um anel, e um
+   bloqueio é um traço. Quem não distingue cores continua a ver três
+   coisas diferentes — e o rótulo da célula di-lo por extenso. */
+.cal-dots { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 6px; }
+.cal-dot { width: 5px; height: 5px; border-radius: 50%; }
+.cal-dot.meeting { background: var(--accent); }
+.cal-dot.mine { background: var(--accent); }
+.cal-dot.busy { background: var(--gray2); }
+.cal-dot.free { background: none; box-shadow: inset 0 0 0 1px var(--green); }
+.cal-dot.abertura { background: var(--green); }
+.cal-dot.bloqueio { width: 9px; height: 3px; border-radius: 1.5px; background: var(--gray2); }
+
+/* ── 2. A tira da semana, no topo do dia ─────────────────────────
+   Sete iniciais e sete números. Arrasta-se para os lados (o gesto vem
+   de scripts/os/gesture.js); enquanto o dedo anda, a tira segue-o. */
+.cal-strip { touch-action: pan-y; }
+.cal-strip-day { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+.cal-strip-wd { font-size: var(--t-caption2); font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.cal-strip-n {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: var(--t-subhead);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.cal-strip-day.out .cal-strip-n { color: var(--ink-3); }
+.cal-strip-day.on .cal-strip-n { background: var(--red); color: #fff; font-weight: 600; }
+
+/* ── 3. A grelha das horas ───────────────────────────────────────
+   Vinte e quatro horas de altura fixa, e tudo o que se desenha por
+   cima sabe a que hora começa. Nada disto é exprimível numa utility:
+   é aritmética entre uma variável por peça e a altura de uma hora. */
+.cal-hours { padding-bottom: 84px; overscroll-behavior: contain; }
+.cal-canvas { height: calc(var(--cal-hour) * 24); }
+
+.cal-hr {
+  position: absolute;
+  inset-inline: var(--cal-edge);
+  top: calc(var(--at) * var(--cal-hour));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.cal-hr > span {
+  flex: none;
+  width: calc(var(--cal-gutter) - var(--cal-edge) - 8px);
+  text-align: right;
+  font-size: var(--t-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.cal-hr > i { flex: 1; height: 0; border-top: 0.5px solid var(--line); }
+
+/* A linha do agora: uma cápsula vermelha com as horas na ponta
+   esquerda e a linha a atravessar o resto. Só existe quando o dia
+   escolhido é hoje — é o JS que decide isso, não o CSS. */
+.cal-now {
+  position: absolute;
+  inset-inline: var(--cal-edge);
+  top: calc(var(--at) * var(--cal-hour));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.cal-now > b {
+  flex: none;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: var(--t-caption2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.cal-now > i { flex: 1; height: 2px; border-radius: 1px; background: var(--red); }
+
+/* Um bloco é uma reunião, um horário livre ou uma alteração do dono.
+   A altura é a duração; a posição é a hora. Alinhados à direita das
+   etiquetas, como na app da Apple. */
+.cal-block {
+  position: absolute;
+  left: var(--cal-gutter);
+  right: var(--cal-edge);
+  top: calc(var(--at) * var(--cal-hour));
+  height: calc(var(--dur) * var(--cal-hour));
+  min-height: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 10px;
+  text-align: left;
+}
+/* A barra de cor à esquerda é o que a Apple usa para dizer de que
+   calendário é o acontecimento — aqui diz de que tipo é. */
+.cal-block::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: currentColor;
+  opacity: 0.9;
+}
+.cal-block.meeting { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.cal-block.free {
+  background: none;
+  color: var(--green);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--green) 55%, transparent);
+}
+/* Tomada, e nada mais — cinzenta, sem nome e sem toque. */
+.cal-block.busy { background: var(--surface-3); color: var(--ink-3); }
+.cal-block.bloqueio {
+  background: repeating-linear-gradient(135deg, var(--surface-3) 0 7px, transparent 7px 14px);
+  color: var(--ink-3);
+}
+.cal-block.abertura { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); }
+.cal-block b { font-size: var(--t-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
+.cal-block span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-caption);
+  color: var(--ink);
+}
+.cal-block.free span { color: inherit; }
+.cal-block:active { transform: scale(0.985); }
+/* O "nada marcado" ocupa o lugar de um bloco para ficar alinhado com
+   eles, mas não é um acontecimento: sem barra de cor, sem fundo. */
+.cal-nota { color: var(--ink-3); }
+.cal-nota::before { display: none; }
+
+/* No telefone uma folha sobe do fundo: os cantos de cima arredondam,
+   os de baixo encostam ao ecrã. Em janela larga é um cartão ao centro,
+   e volta a ter os quatro. */
+@container app (max-width: 559px) {
+  .cal-form { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+}
+
+/* A linha de informação do detalhe de uma reunião. */
+.cal-det-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 0.5px solid var(--line);
+  font-size: var(--t-subhead);
+}
+.cal-det-row > b { flex: none; min-width: 74px; font-weight: 500; color: var(--ink-3); }
+.cal-det-row > span { min-width: 0; overflow-wrap: anywhere; color: var(--ink); }
+
+/* ── 4. Duas colunas, ou dois ecrãs ──────────────────────────────
+   Acima de 860 o mês e o dia vivem lado a lado, como numa janela
+   larga do Mac. Abaixo, o dia entra por cima do mês, como no
+   telefone — e o comutador de vista deixa de fazer sentido em cima
+   de duas colunas que já se veem as duas. */
+@container app (min-width: 860px) {
+  .cal-day { flex: none; width: 380px; }
+  .cal-seg { display: none; }
+}
+@container app (max-width: 859px) {
+  .cal-day {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border-left: 0;
+    background: var(--surface-solid);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform calc(0.34s / var(--speed)) var(--ease-os), visibility 0s linear 0.34s;
+  }
+  .app-calendario[data-view='day'] .cal-day {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .app-calendario[data-view='day'] .cal-back { display: inline-flex; }
+}
+@container app (max-width: 380px) {
+  .app-calendario { --cal-gutter: 54px; --cal-edge: 10px; }
+  .cal-cell { padding: 5px 1px 7px; }
+}
+
+/* ── 5. No telefone ──────────────────────────────────────────────
+   A escala do iOS: título grande, números maiores, alvos de 44. */
+[data-mode='ios'] .app-calendario { --cal-hour: 58px; }
+[data-mode='ios'] .cal-num,
+[data-mode='ios'] .cal-strip-n { width: 34px; height: 34px; font-size: var(--t-callout); }
+[data-mode='ios'] .cal-cell { padding: 7px 2px 9px; }
+[data-mode='ios'] .cal-year,
+[data-mode='ios'] .cal-back { font-size: var(--t-callout); }
+[data-mode='ios'] .cal-arrow { min-width: 44px; min-height: 44px; }
+[data-mode='ios'] .cal-block { min-height: 30px; }
+
+/* Quem pediu menos movimento leva o resultado, sem a viagem. */
+@media (prefers-reduced-motion: reduce) {
+  .cal-day { transition: none; }
+  .cal-block:active { transform: none; }
+}

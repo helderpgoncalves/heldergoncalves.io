@@ -1,7 +1,16 @@
 ---
-// O Calendário. Sem JavaScript é uma explicação do que se pode marcar e
-// um email para o fazer; com JavaScript é o mês, os horários livres e
-// a marcação — depois de se entrar com o código.
+// O Calendário, com a forma do do iOS 26: o mês em cima com os pontos
+// dos acontecimentos por baixo de cada número, o dia com a tira da
+// semana e a grelha das horas, e as cápsulas de vidro a flutuar em
+// baixo — a barra de separadores do iOS 26, recuada do fundo.
+//
+// Sem JavaScript é uma explicação do que se pode marcar e um email para
+// o fazer. Com JavaScript, e só depois de entrar, é a disponibilidade —
+// quem não tem sessão não vê a agenda de ninguém, e é o servidor que o
+// garante (401 em GET /api/reunioes/disponibilidade).
+//
+// O dono vê mais: a agenda cheia com quem marcou, e os bloqueios e
+// aberturas que ele próprio cria. Ver src/scripts/os/apps/calendario.js.
 import { SITE, COPY, type Lang } from '../../../siteConfig';
 import Icon from '../Icon.astro';
 
@@ -9,43 +18,98 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = COPY[lang];
 const k = c.calendario;
+
+const campo = 'w-full border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-body)] text-(--ink) outline-hidden focus:border-(--accent)';
+const rotulo = 'grid gap-1 text-[length:var(--t-caption)] text-(--ink-3)';
+const folha = 'cal-sheet absolute inset-0 z-6 flex items-end justify-center bg-black/28 p-0 @min-[560px]/app:items-center @min-[560px]/app:p-4';
+const cartao = 'cal-form grid max-h-full w-full gap-2.5 overflow-auto bg-(--surface-solid) px-[22px] pb-6 pt-5 shadow-(--shadow-pop) @min-[560px]/app:w-[min(420px,100%)] @min-[560px]/app:pb-5';
 ---
-<section class="app-shell app-calendario bg-(--surface-solid)" data-content="calendario" aria-label={c.apps.calendario.name}>
-  <div class="cal-toolbar flex flex-none items-center gap-3 border-b-[0.5px] border-(--line) px-3.5 py-2">
-    <div class="seg cal-views @max-[400px]/app:w-full @max-[400px]/app:[&_button]:flex-1 @max-[400px]/app:[&_button]:px-1.5 @max-[400px]/app:[&_button]:py-2" role="tablist">
-      <button type="button" data-cal-view="month" aria-pressed="true">{k.month}</button>
-      <button type="button" data-cal-view="day" aria-pressed="false">{k.day}</button>
-    </div>
-    <div class="cal-nav ml-auto flex items-center gap-0.5">
-      <button type="button" class="cal-arrow grid h-6 w-7 place-items-center text-(--ink-2) hover:bg-(--surface-3)" data-cal-prev aria-label={k.prev}><Icon id="ui-chevron" size={14} /></button>
-      <button type="button" class="cal-today h-6 px-2.5 text-[length:var(--t-body)] text-(--ink) hover:bg-(--surface-3)" data-cal-today>{k.today}</button>
-      <button type="button" class="cal-arrow grid h-6 w-7 place-items-center text-(--ink-2) hover:bg-(--surface-3) [&_svg]:rotate-180" data-cal-next aria-label={k.next}><Icon id="ui-chevron" size={14} /></button>
-    </div>
-    <div class="cal-session ml-auto flex items-center gap-2.5 text-[length:var(--t-foot)] text-(--ink-3) [.cal-nav+&]:ml-0" data-cal-session></div>
+<section class="app-shell app-calendario relative bg-(--surface-solid)" data-content="calendario" aria-label={c.apps.calendario.name}>
+  <!-- Sem sessão não há grelha nenhuma para ver: o convite a entrar é o
+       que está visível de raiz, e o JavaScript troca-o pelo resto. -->
+  <div class="cal-gate m-auto flex max-w-[340px] flex-col items-center gap-3 px-6 py-10 text-center" data-cal-gate>
+    <span class="cal-gate-icon grid h-14 w-14 place-items-center text-(--red)" aria-hidden="true"><Icon id="icon-calendario" size={56} /></span>
+    <h2 class="m-0 text-[length:var(--t-title3)] font-semibold">{k.signIn}</h2>
+    <p class="m-0 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)">{k.lead}</p>
+    <p class="m-0 text-[length:var(--t-caption)] leading-[1.4] text-(--ink-3)">{k.signInHint}</p>
+    <button type="button" class="btn btn-primary mt-1" data-cal-signin>{k.signIn}</button>
+    <p class="m-0 text-[length:var(--t-subhead)] text-(--orange)" data-cal-off hidden>{k.errors.off}</p>
+    <p class="m-0 text-[length:var(--t-caption)] text-(--ink-3)"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
   </div>
 
-  <div class="cal-body flex min-h-0 flex-1 @max-[720px]/app:flex-col @max-[720px]/app:overflow-auto">
-    <div class="cal-month flex min-w-0 flex-1 flex-col px-4 pb-4 pt-3.5 @max-[720px]/app:flex-none @max-[720px]/app:px-3 @max-[720px]/app:py-2.5 [.app-calendario[data-view='day']_&]:@max-[720px]/app:hidden">
-      <h2 class="cal-title m-0 mb-2.5 ml-1.5 text-[length:var(--t-title2)] font-bold tracking-[-0.02em]" data-cal-title></h2>
-      <div class="cal-week grid grid-cols-7 pb-1" data-cal-week></div>
-      <div class="cal-grid grid min-h-0 flex-1 grid-cols-7 auto-rows-fr border-l-[0.5px] border-t-[0.5px] border-(--line)" data-cal-grid role="grid"></div>
-    </div>
-    <aside class="cal-side flex-none basis-[300px] overflow-auto border-l-[0.5px] border-(--line) bg-(--surface-2) px-[18px] py-4 @max-[720px]/app:flex-none @max-[720px]/app:basis-auto @max-[720px]/app:border-l-0 @max-[720px]/app:border-t-[0.5px] @max-[720px]/app:border-(--line)" data-cal-side>
-      <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)">{k.lead}</p>
-      <p class="cal-lead m-0 mb-3 text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)"><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
-    </aside>
+  <div class="cal-panes flex min-h-0 flex-1" data-cal-panes hidden>
+    <!-- ── O mês ─────────────────────────────────────────────────── -->
+    <section class="cal-month flex min-h-0 min-w-0 flex-1 flex-col" data-cal-month aria-label={k.month}>
+      <header class="flex flex-none items-center gap-1 px-4 pt-2">
+        <button type="button" class="cal-year flex min-h-6 items-center gap-0.5 text-[length:var(--t-body)] font-medium text-(--red)" data-cal-prev aria-label={k.prev}>
+          <Icon id="ui-chevron" size={12} /><span data-cal-year></span>
+        </button>
+        <button type="button" class="cal-arrow ml-auto grid h-7 w-7 place-items-center text-(--red) [&_svg]:rotate-180" data-cal-next aria-label={k.next}><Icon id="ui-chevron" size={12} /></button>
+        <button type="button" class="cal-arrow grid h-7 w-7 place-items-center text-(--red)" data-cal-newblock hidden aria-label={k.newBlock}><Icon id="ui-compose" size={14} /></button>
+      </header>
+      <h2 class="cal-title m-0 mb-1 px-4 text-[length:var(--t-large)] font-bold tracking-[-0.03em]" data-cal-title></h2>
+      <div class="cal-wd grid flex-none grid-cols-7 pb-1" data-cal-week aria-hidden="true"></div>
+      <div class="cal-grid min-h-0 flex-1 overflow-auto pb-24" data-cal-grid role="grid" aria-label={k.month}></div>
+    </section>
+
+    <!-- ── O dia ─────────────────────────────────────────────────── -->
+    <section class="cal-day flex min-h-0 min-w-0 flex-col border-l-[0.5px] border-(--line)" data-cal-day aria-label={k.day}>
+      <button type="button" class="cal-back hidden min-h-6 items-center gap-0.5 self-start px-3 pt-2 text-[length:var(--t-body)] text-(--red)" data-cal-back><Icon id="ui-chevron" size={12} />{k.month}</button>
+      <div class="cal-strip grid flex-none grid-cols-7 pb-2 pt-2 select-none" data-cal-strip></div>
+      <p class="cal-dateline m-0 flex-none border-t-[0.5px] border-(--line) px-4 py-1.5 text-center text-[length:var(--t-caption)] font-medium text-(--ink-3) uppercase tracking-[0.04em]" data-cal-dateline></p>
+      <div class="cal-hours min-h-0 flex-1 overflow-auto" data-cal-hours>
+        <div class="cal-canvas relative" data-cal-canvas></div>
+      </div>
+    </section>
   </div>
 
-  <div class="cal-sheet absolute inset-0 z-6 grid place-items-center bg-black/28 p-4 [&[hidden]]:hidden" data-cal-sheet hidden>
-    <form class="cal-form grid w-[min(420px,100%)] gap-2.5 bg-(--surface-solid) px-[22px] py-5 shadow-(--shadow-pop)" data-cal-book>
-      <h3 class="m-0 text-[length:var(--t-title3)]">{k.bookTitle}</h3>
-      <p class="cal-when m-0 text-[length:var(--t-subhead)] text-(--ink-2)" data-cal-when></p>
-      <label class="grid gap-1 text-[length:var(--t-caption)] text-(--ink-3)">{k.titleLabel}<input type="text" name="title" maxlength="160" placeholder={k.titlePlaceholder} autocomplete="off" class="border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-body)] text-(--ink) outline-hidden focus:border-(--accent)" /></label>
-      <label class="grid gap-1 text-[length:var(--t-caption)] text-(--ink-3)">{k.noteLabel}<textarea name="note" rows="3" maxlength="1000" placeholder={k.notePlaceholder} class="resize-y border-[0.5px] border-(--line) bg-(--surface-solid) px-3 py-2.25 text-[length:var(--t-body)] text-(--ink) outline-hidden focus:border-(--accent)"></textarea></label>
-      <p class="cal-hint m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)" data-cal-hint></p>
+  <!-- A barra de separadores do iOS 26: cápsulas de vidro recuadas do
+       fundo, não uma barra encostada de lado a lado. -->
+  <div class="cal-float pointer-events-none absolute inset-x-0 bottom-0 z-5 flex items-center justify-between gap-3 px-4 pb-4" data-cal-float hidden>
+    <button type="button" class="glass cal-pill pointer-events-auto flex h-11 items-center rounded-full px-5 text-[length:var(--t-subhead)] font-semibold text-(--red)" data-cal-today>{k.today}</button>
+    <div class="glass cal-seg pointer-events-auto flex h-11 items-center gap-0.5 rounded-full p-1" role="group" aria-label={c.apps.calendario.name}>
+      <button type="button" class="flex h-9 items-center rounded-full px-4 text-[length:var(--t-subhead)] font-medium" data-cal-view="month" aria-pressed="true">{k.month}</button>
+      <button type="button" class="flex h-9 items-center rounded-full px-4 text-[length:var(--t-subhead)] font-medium" data-cal-view="day" aria-pressed="false">{k.day}</button>
+    </div>
+  </div>
+
+  <!-- ── Marcar ──────────────────────────────────────────────────── -->
+  <div class={folha} data-cal-sheet hidden>
+    <form class={cartao} data-cal-book>
+      <h3 class="m-0 text-[length:var(--t-title3)] font-semibold">{k.bookTitle}</h3>
+      <p class="m-0 whitespace-pre-line text-[length:var(--t-subhead)] leading-[1.45] text-(--ink-2)" data-cal-when></p>
+      <label class={rotulo}>{k.titleLabel}<input type="text" name="title" maxlength="160" placeholder={k.titlePlaceholder} autocomplete="off" class={campo} /></label>
+      <label class={rotulo}>{k.noteLabel}<textarea name="note" rows="3" maxlength="1000" placeholder={k.notePlaceholder} class={`${campo} resize-y`}></textarea></label>
+      <p class="m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)" data-cal-hint></p>
       <div class="btn-row mt-1 justify-end">
         <button class="btn" type="button" data-cal-close>{k.cancel}</button>
         <button class="btn btn-primary" type="submit">{k.confirm}</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── O detalhe de uma reunião ────────────────────────────────── -->
+  <div class={folha} data-cal-detail hidden>
+    <div class={cartao} role="dialog" aria-label={k.details} data-cal-detail-card></div>
+  </div>
+
+  <!-- ── Bloqueio ou abertura (só o dono) ────────────────────────── -->
+  <div class={folha} data-cal-block hidden>
+    <form class={cartao} data-cal-block-form>
+      <h3 class="m-0 text-[length:var(--t-title3)] font-semibold">{k.newBlock}</h3>
+      <label class={rotulo}>{k.kindLabel}
+        <select name="kind" class={campo}>
+          <option value="bloqueio">{k.block}</option>
+          <option value="abertura">{k.opening}</option>
+        </select>
+      </label>
+      <label class={rotulo}>{k.startLabel}<input type="datetime-local" name="start" class={campo} required /></label>
+      <label class={rotulo}>{k.endLabel}<input type="datetime-local" name="end" class={campo} required /></label>
+      <label class={rotulo}>{k.blockNote}<input type="text" name="note" maxlength="200" placeholder={k.blockNotePlaceholder} autocomplete="off" class={campo} /></label>
+      <p class="m-0 mt-2.5 min-h-[1.2em] text-[length:var(--t-caption)] text-(--ink-3)" data-cal-block-hint></p>
+      <div class="btn-row mt-1 justify-end">
+        <button class="btn" type="button" data-cal-close>{k.cancel}</button>
+        <button class="btn btn-primary" type="submit">{k.create}</button>
       </div>
     </form>
   </div>

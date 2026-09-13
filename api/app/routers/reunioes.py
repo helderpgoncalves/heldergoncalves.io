@@ -20,7 +20,7 @@ from app.config import LIMITS, MAIL, MEETINGS, SITE_ORIGIN, AUTH_READY
 from app.copy import MEETING_COPY, pick_lang
 from app.http import read_json
 from app.mail import send_mail
-from app.meetings import book, booked_starts, booked_today, cancel, list_for
+from app.meetings import book, booked_starts, booked_today, busy_between, cancel, list_for
 from app.security import bump, ip_key, wrong_origin
 from app.sessions import read_session
 from app.validation import clean, one_line
@@ -60,6 +60,9 @@ async def disponibilidade(request: Request) -> JSONResponse:
             "minutes": MEETINGS.minutes,
             "slots": free_slots(from_day, to_day, booked_starts()),
             "mine": list_for(email),
+            # As dos outros, sem dizer de quem são: a hora aparece tomada
+            # e nada mais sai daqui.
+            "busy": busy_between(from_day, to_day, email),
         }
     )
 

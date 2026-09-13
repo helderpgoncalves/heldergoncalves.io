@@ -143,12 +143,21 @@ FICHEIROS = Ficheiros()
 @dataclass(frozen=True)
 class Auth:
     secret: str = _env("SESSION_SECRET")
+    # Segredos antigos que continuam a valer para LER uma sessão, nunca
+    # para assinar uma nova. É o que deixa trocar o `SESSION_SECRET` sem
+    # deitar fora toda a gente que estava dentro: põe-se o antigo aqui
+    # durante o tempo que as sessões ainda duram, e depois tira-se.
+    previous: tuple[str, ...] = tuple(x.strip() for x in _env("SESSION_SECRET_PREVIOUS").split(",") if x.strip())
     cookie: str = "hs"
     # Curta de propósito: ao contrário da confirmação da newsletter (que
     # tem de sobreviver dias, porque ninguém confirma um email na hora),
     # entrar é um gesto imediato — quem pediu a ligação está mesmo ali.
     magic_link_ttl: int = 10 * 60
     session_ttl: int = 30 * 24 * 60 * 60
+    # Passada esta fatia da vida da sessão, o próximo pedido renova-a.
+    # Metade: quem aparece uma vez por semana nunca é posto fora, e quem
+    # desaparece um mês inteiro tem mesmo de voltar a entrar.
+    renew_after: float = 0.5
 
 
 AUTH = Auth()

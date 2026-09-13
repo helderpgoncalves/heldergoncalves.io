@@ -108,3 +108,32 @@ export async function requestMagicLink(email, lang) {
 /** Faz o POST em si — usado por `chamarComSessao`, em retomar.js, para
  * não haver dois sítios a montar o mesmo `fetch`. */
 export const postJson = post;
+
+/**
+ * Um POST que leva token, e que se desenrasca se o token já não valer.
+ *
+ * O segredo que assina os tokens dos formulários é gerado a cada
+ * arranque, de propósito (ver .claude/rules/api.md). A consequência é
+ * que uma página aberta antes de uma publicação leva um token que o
+ * servidor novo já não reconhece — e a pessoa via «não deu» sem ter
+ * feito nada de errado. Aqui pede-se outro e tenta-se **uma** vez: se
+ * falhar de novo é problema a sério, não um servidor que reiniciou.
+ *
+ * @param {string} path
+ * @param {object} body — sem `token`; é este que o põe
+ * @returns {Promise<{ok: boolean, status: number, data: any}>}
+ */
+export async function postComToken(path, body) {
+  const enviar = async (token) => {
+    const res = await post(path, { ...body, token });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok && data.ok === true, status: res.status, data };
+  };
+  try {
+    let out = await enviar(await requestToken());
+    if (out.status === 400 && out.data && out.data.error === 'token') out = await enviar(await requestToken());
+    return out;
+  } catch (_) {
+    return { ok: false, status: 0, data: {} };
+  }
+}

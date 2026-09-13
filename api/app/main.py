@@ -23,6 +23,7 @@ from starlette.responses import JSONResponse, Response
 
 from app import security, sessions
 from app.config import (
+    AUTH,
     BOLSA_SNAPSHOT_FILE,
     CHAT,
     CHAT_READY,
@@ -44,7 +45,7 @@ from app.meetings import init_meetings
 from app.reactions_store import init_reactions_store
 from app.routers import agenda, auth, bolsa, chat, comments, contact, escritos, ficheiros, health, inbox, mcp, oauth_google, pessoas, reunioes, subscribe, token
 from app.security import SECURITY_HEADERS
-from app.sessions import init_sessions
+from app.sessions import init_sessions, renewed_cookie
 from app.static_files import cache_stats, handle_static, warm_cache
 from app.subscribers import init_subscribers
 
@@ -112,10 +113,23 @@ app = FastAPI(title="heldergoncalves.io", docs_url=None, redoc_url=None, openapi
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     """Vão em todas as respostas, sem excepção — inclusive nas que o
-    FastAPI gera sozinho (404, 422, erros não apanhados)."""
+    FastAPI gera sozinho (404, 422, erros não apanhados).
+
+    E é também aqui que a sessão se renova sozinha: um pedido qualquer
+    de quem já passou de meio do prazo leva um cookie novo de volta.
+    Fica no meio por onde tudo passa de propósito — pô-lo em cada rota
+    era garantir que uma rota nova se esqueceria dele."""
     response: Response = await call_next(request)
     for name, value in SECURITY_HEADERS.items():
         response.headers.setdefault(name, value)
+
+    # Nunca por cima de quem já decidiu sobre o cookie: entrar e sair
+    # são exactamente os dois sítios que o escrevem, e renovar por cima
+    # de um `logout` voltava a pôr a pessoa dentro.
+    if not any(c.lower().startswith(AUTH.cookie + "=") for c in response.headers.getlist("set-cookie")):
+        fresh = renewed_cookie(request.headers.get("cookie", ""))
+        if fresh:
+            response.headers.append("Set-Cookie", fresh)
     return response
 
 

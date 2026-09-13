@@ -76,9 +76,29 @@ def list_for(email: str) -> list[dict]:
 def all_between(from_day: str, to_day: str) -> list[dict]:
     """Todas as reuniões marcadas num intervalo de dias — só para o dono
     ver a agenda cheia. Ao contrário de `list_for`, leva o email de quem
-    marcou: é exactamente o que não se serve a mais ninguém."""
+    marcou: é exactamente o que não se serve a mais ninguém.
+
+    Os campos saem escolhidos à mão, não a linha inteira: `status` e `at`
+    são contabilidade interna, e uma linha nova no ficheiro não deve
+    passar a sair por HTTP só por ter sido acrescentada aqui."""
     rows = [r for r in _rows.values() if r.get("status") == "booked" and from_day <= r["start"][:10] <= to_day]
-    return sorted(rows, key=lambda r: r["start"])
+    return [
+        {"id": r["id"], "start": r["start"], "end": r["end"], "title": r.get("title"), "note": r.get("note"), "email": r.get("email")}
+        for r in sorted(rows, key=lambda r: r["start"])
+    ]
+
+
+def busy_between(from_day: str, to_day: str, email: str) -> list[dict]:
+    """As horas ocupadas por reuniões que NÃO são desta pessoa, e só as
+    horas. Sem id, sem assunto, sem email — quem vê fica a saber que
+    aquela hora está tomada, e mais nada. É o oposto de `all_between`,
+    que é para o dono e leva tudo."""
+    rows = [
+        r
+        for r in _rows.values()
+        if r.get("status") == "booked" and from_day <= r["start"][:10] <= to_day and r.get("email") != email
+    ]
+    return [{"start": r["start"], "end": r["end"]} for r in sorted(rows, key=lambda r: r["start"])]
 
 
 def booked_today(email: str) -> int:
@@ -110,6 +130,20 @@ async def book(email: str, start: str, end: str, title: str, note: str, lang: st
 async def cancel(meeting_id: str, email: str) -> Optional[dict]:
     before = _rows.get(meeting_id)
     if not before or before.get("email") != email or before.get("status") != "booked":
+        return None
+    row = {**before, "status": "cancelled", "at": _now_iso()}
+    await _write(row)
+    return row
+
+
+async def cancel_any(meeting_id: str) -> Optional[dict]:
+    """Desmarcar sem ser quem marcou. Fica numa função à parte de
+    propósito: `cancel` continua a exigir o email, e quem quiser esta
+    tem de passar antes pelo `require_owner`. Duas permissões
+    diferentes não cabem na mesma função com um parâmetro opcional —
+    era assim que um dia se esquecia o portão."""
+    before = _rows.get(meeting_id)
+    if not before or before.get("status") != "booked":
         return None
     row = {**before, "status": "cancelled", "at": _now_iso()}
     await _write(row)
