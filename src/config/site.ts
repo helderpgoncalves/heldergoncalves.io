@@ -67,7 +67,10 @@ export const APPS: AppMeta[] = [
   // conversa É o cabeçalho da app (avatar ao centro, nome por baixo), e
   // um título grande por cima dela dava duas barras a dizer o mesmo.
   { id: 'mensagens', win: { w: 700, h: 560, minW: 420, minH: 380 }, dock: true, iosDock: true, ownHead: true },
-  { id: 'contacto', win: { w: 660, h: 540, minW: 420, minH: 380 }, dock: true, iosDock: true },
+  // O Mail desenha o próprio cabeçalho: no telefone uma folha de
+  // escrever («Nova mensagem» e o botão de enviar), não o título da app
+  // com um formulário por baixo — que é o que a Mail a sério faz.
+  { id: 'contacto', win: { w: 660, h: 540, minW: 420, minH: 380 }, dock: true, iosDock: true, ownHead: true },
   { id: 'projetos', win: { w: 860, h: 600, minW: 480, minH: 380 }, dock: true, iosDock: false, ownHead: true },
   { id: 'terminal', win: { w: 720, h: 460, minW: 380, minH: 240 }, dock: true, iosDock: true, bare: true },
   { id: 'definicoes', win: { w: 760, h: 540, minW: 460, minH: 380 }, dock: true, iosDock: false },

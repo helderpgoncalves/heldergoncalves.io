@@ -25,6 +25,33 @@ const CAMPO =
 ---
 <section class="app-shell app-contacto flex-col bg-(--surface-solid)" data-content="contacto" aria-label={c.apps.contacto.name}>
   <form class="compose flex min-h-0 flex-1 flex-col" data-compose novalidate action={`mailto:${SITE.email}`} method="post" enctype="text/plain">
+    {/* O cabeçalho é o da Mail a sério, e é diferente nos dois sistemas
+        porque as duas apps são diferentes: no telefone uma folha, com o
+        título grande por baixo dos botões; no Mac uma barra de
+        ferramentas fina, com o enviar à esquerda — o título já está na
+        barra da janela e não se repete. */}
+    <header class="compose-head flex flex-none items-center gap-2.5 border-b-[0.5px] border-(--line) px-4 py-2.5 [[data-mode='ios']_&]:flex-col [[data-mode='ios']_&]:items-stretch [[data-mode='ios']_&]:gap-2 [[data-mode='ios']_&]:px-5 [[data-mode='ios']_&]:pb-3 [[data-mode='ios']_&]:pt-1">
+      <div class="compose-acts flex items-center gap-2.5 [[data-mode='ios']_&]:flex-row-reverse">
+        <button class="compose-send grid h-8 w-8 flex-none place-items-center rounded-full bg-(--accent) text-(--accent-ink) transition-[filter,transform] duration-150 hover:brightness-110 active:scale-94 [&_svg]:-rotate-90" type="submit" aria-label={k.send}>
+          <Icon id="ui-arrow" size={15} />
+        </button>
+        <button class="btn mr-auto" type="button" data-copy-email>{k.copy}</button>
+      </div>
+      {/* Só no telefone: no Mac o título vive na barra da janela. */}
+      <h2 class="compose-title m-0 hidden font-(--display) text-[length:var(--t-title)] font-bold tracking-[-0.02em] [[data-mode='ios']_&]:block">{c.apps.contacto.window}</h2>
+    </header>
+
+    {/* O aviso fica numa linha sua, a toda a largura: dentro do
+        cabeçalho era cortado, e as frases que importam — «entra
+        primeiro», «não consegui enviar» — são precisamente as compridas.
+        A cor vem do tom que contacto.js escreve. */}
+    <p
+      class="compose-hint m-0 flex-none px-4 pb-2 text-[length:var(--t-caption)] leading-[1.4] text-(--ink-3) data-[tone=warn]:text-(--orange) data-[tone=ok]:text-(--green)"
+      data-compose-hint
+      role="status"
+      aria-live="polite"
+    >{k.sendHint}</p>
+
     {/* O único sítio que rola. */}
     <div class="compose-scroll min-h-0 flex-1 overflow-auto">
       <div class="compose-fields flex-none">
@@ -78,15 +105,6 @@ const CAMPO =
           ))}
         </div>
       </div>
-    </div>
-
-    {/* A barra não rola: o enviar está sempre onde a pessoa o deixou. */}
-    <div class="compose-bar flex flex-none flex-wrap items-center gap-2.5 border-t-[0.5px] border-(--line) bg-(--surface-2) px-4 py-2.5">
-      <button class="btn btn-primary" type="submit">
-        <Icon id="ui-arrow" size={12} />{k.send}
-      </button>
-      <button class="btn" type="button" data-copy-email>{k.copy}</button>
-      <span class="hintline ml-auto min-w-0 flex-1 text-right text-[length:var(--t-caption)] text-(--ink-3) @max-[420px]/app:basis-full @max-[420px]/app:text-left" data-compose-hint role="status" aria-live="polite">{k.sendHint}</span>
     </div>
   </form>
 </section>
