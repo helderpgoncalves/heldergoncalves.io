@@ -8,13 +8,40 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* Sem vidro por trás — quando alguém pediu menos transparência — a
-   coluna volta a ter fundo próprio. `.app-escritos`/`.app-side` não
-   são `.glass` (deixam passar o papel de parede por trás, não
-   desfocam-no), por isso este recuo é local, não o de acesso.css. */
+   aplicação volta a ter fundo próprio. As duas colunas de navegação
+   já são `.glass` (ver abaixo) e por isso passam pelo recuo de
+   acesso.css; o que fica aqui é o fundo do resto da app, e o das
+   colunas quando *não* flutuam, que não é vidro nenhum. */
 @media (prefers-reduced-transparency: reduce) {
   .app-escritos { background: var(--surface-solid); }
   .app-side { background: var(--surface-2); }
   .notes-folders { background: var(--surface-solid); }
+}
+
+/* ── A barra lateral flutua: aqui são duas ───────────────────────
+   O Blog tem duas colunas de navegação — as pastas e a lista de
+   escritos — e no Mac as duas flutuam, lado a lado. O escrito é que é
+   o conteúdo: começa na borda da janela e passa por trás delas.
+
+   A geometria mora em `os/barra-lateral.css`, uma vez só. O que é
+   desta app são as medidas, e mudam três vezes: as pastas escondem-se
+   abaixo de 820 (e pelo botão da barra), e a lista cresce de 268 para
+   320 acima de 900 — as mesmas fronteiras de EscritosPastas.astro e
+   de Escritos.astro. */
+.notes-folders { --bl-w: 190px; }
+.app-escritos .app-side { --bl-w: 268px; }
+/* Sem as pastas à frente, a lista é a primeira coluna e encosta à
+   folga; o escrito recua o que ela ocupa, mais uma folga. */
+.app-escritos .app-main { --bl-pad: calc(var(--bl-folga) * 2 + 268px); }
+
+@container app (min-width: 821px) {
+  .app-escritos:not(.side-hidden) .app-side { --bl-x: calc(var(--bl-folga) * 2 + 190px); }
+  .app-escritos:not(.side-hidden) .app-main { --bl-pad: calc(var(--bl-folga) * 3 + 190px + 268px); }
+}
+@container app (min-width: 900px) {
+  .app-escritos .app-side { --bl-w: 320px; }
+  .app-escritos .app-main { --bl-pad: calc(var(--bl-folga) * 2 + 320px); }
+  .app-escritos:not(.side-hidden) .app-main { --bl-pad: calc(var(--bl-folga) * 3 + 190px + 320px); }
 }
 
 /* O fio entre entradas desaparece à volta da entrada cheia — o de
@@ -49,18 +76,22 @@
    ferramentas — 12 de margem, os três semáforos (52) e a folga (8).
    As larguras das colunas são as de Escritos.astro e EscritosPastas
    .astro, e mudam com a janela pelas mesmas fronteiras (o contentor
-   `win` está em contentor.css). */
+   `win` está em contentor.css).
+
+   Desde que as colunas flutuam, cada uma começa uma folga mais à
+   direita do que começava: o `+ var(--bl-folga)` em cada conta é
+   isso, e não um número solto. */
 .notes-toolbar { --notes-side: 190px; --notes-list: 268px; }
-.notes-tb-side { width: calc(var(--notes-side) - 72px); }
-.notes-tb-list { width: calc(var(--notes-list) - 8px); }
+.notes-tb-side { width: calc(var(--notes-side) - 72px + var(--bl-folga)); }
+.notes-tb-list { width: calc(var(--notes-list) - 8px + var(--bl-folga)); }
 .notes-toolbar.side-hidden .notes-tb-side { width: auto; }
-.notes-toolbar.side-hidden .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px); }
+.notes-toolbar.side-hidden .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px + var(--bl-folga)); }
 @container win (min-width: 900px) {
   .notes-toolbar { --notes-list: 320px; }
 }
 @container win (max-width: 820px) {
   .notes-tb-side { width: auto; }
-  .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px); }
+  .notes-tb-list { width: calc(var(--notes-list) - 72px - 32px - 8px + var(--bl-folga)); }
 }
 @container win (max-width: 640px) {
   .notes-tb-list { width: 0; }

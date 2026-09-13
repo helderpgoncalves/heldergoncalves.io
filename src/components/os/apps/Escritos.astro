@@ -65,7 +65,10 @@ const folders = [
 
   <div class="notes-panes flex min-h-0 flex-1 flex-row @max-[640px]/app:flex-col">
   <EscritosPastas folders={folders} heading={e.folders} drafts={c.editor.drafts} />
-  <div class="app-side flex min-h-0 min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0 @max-[640px]/app:bg-transparent @min-[900px]/app:basis-[320px]">
+  {/* A lista de escritos é navegação tal como as pastas, e no Mac
+      flutua ao lado delas — `glass bl-flutua`, geometria em
+      `os/barra-lateral.css`, medidas em `os/notas.css`. */}
+  <div class="app-side glass bl-flutua flex min-h-0 min-w-0 flex-none basis-[268px] flex-col border-r-[0.5px] border-(--line) bg-transparent [[data-mode='ios']_&]:border-r-0 [[data-mode='ios']_&]:bg-(--surface-2) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0 @max-[640px]/app:bg-transparent @min-[900px]/app:basis-[320px]">
     {/* O cabeçalho da lista: no Mac, o nome da pasta e a contagem em
         pequeno; no telefone, o título grande do iOS com a contagem por
         baixo, como em «Todas - iCloud / 21 notas». */}
@@ -161,7 +164,7 @@ const folders = [
     </div>
   </div>
 
-  <div class="app-main flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)] @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-data-[detail='1']:translate-x-0 @max-[640px]/app:group-data-[detail='1']:visible">
+  <div class="app-main bl-conteudo flex min-w-0 flex-1 flex-col bg-(--surface-solid) [&.dragging]:!transition-none [&.dragging]:visible [&.dragging]:shadow-[-14px_0_34px_rgba(0,0,0,0.22)] @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-data-[detail='1']:translate-x-0 @max-[640px]/app:group-data-[detail='1']:visible">
     {/* Voltar à lista. No telefone é o círculo de vidro das Notas, só
         com o chevron; no Mac estreito, o texto de sempre. */}
     <button class="back-btn hidden items-center gap-1 px-4 pt-2.5 text-[15px] text-(--accent) @max-[640px]/app:inline-flex [[data-mode='ios']_&]:glass [[data-mode='ios']_&]:mx-4 [[data-mode='ios']_&]:mt-2 [[data-mode='ios']_&]:h-11 [[data-mode='ios']_&]:w-11 [[data-mode='ios']_&]:flex-none [[data-mode='ios']_&]:justify-center [[data-mode='ios']_&]:rounded-full [[data-mode='ios']_&]:p-0 [[data-mode='ios']_&]:text-(--ink) [[data-mode='ios']_&]:[&_svg]:h-4.5 [[data-mode='ios']_&]:[&_svg]:w-4.5" type="button" data-back-list aria-label={e.backToList}>

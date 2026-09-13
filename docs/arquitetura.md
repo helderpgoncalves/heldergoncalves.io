@@ -699,3 +699,26 @@ fica — o que se desfaz é o acesso, não a contabilidade.
 - As taxas e limites a sério, e a partir de que data valem.
 - Se as faturas se importam do e-fatura ou se são lançadas à mão.
 - A moeda — euro sempre, ou há clientes noutra.
+
+## A forma de uma app no Tahoe
+
+*Isto não é gosto nem detalhe de acabamento: é a forma que o macOS 26
+deu a todas as apps, e uma nossa que não a tenha vê-se à distância. A
+regra completa, com as medidas, está em `.claude/rules/apple.md` — aqui
+fica só o porquê, para quem estiver a decidir o desenho de uma app nova.*
+
+**A barra lateral flutua.** No Tahoe deixou de ser uma coluna encostada
+à parede da janela com um risco a separá-la do conteúdo: é um painel de
+Liquid Glass recuado das bordas, com cantos contínuos, e **o conteúdo
+passa por trás dela**. Finder, Mail, Mensagens, Notas, Bolsa — são todas
+assim. O risco vertical que dividia a janela ao meio é exactamente o que
+desapareceu.
+
+**O nome da app vive na barra de título, e só lá.** Uma janela do macOS
+já diz de que app é; repeti-lo em grande dentro do conteúdo é coisa que
+o sistema não faz em lado nenhum. No iPhone é ao contrário — não há
+barra de título, e o título grande é a forma de uma app.
+
+É a mesma ideia das duas molduras que este projecto tem desde o início:
+o conteúdo é o mesmo, o que muda é o sistema à volta. O erro a evitar é
+dar a uma app as duas molduras ao mesmo tempo.

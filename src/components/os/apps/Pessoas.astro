@@ -18,7 +18,9 @@ const k = c.pessoas;
   </p>
 
   <div class="ppl-shell flex min-h-0 flex-1 flex-row [&[hidden]]:hidden" data-ppl-shell hidden>
-    <nav class="ppl-side w-[190px] flex-none overflow-y-auto border-r-[0.5px] border-(--line) bg-(--surface-2) px-2.5 py-3.5 @max-[480px]/app:hidden">
+    {/* `glass bl-flutua`: o painel recuado do Tahoe, quando há duas
+        colunas e estamos no Mac — ver `os/barra-lateral.css`. */}
+    <nav class="ppl-side glass bl-flutua w-[190px] flex-none overflow-y-auto border-r-[0.5px] border-(--line) bg-(--surface-2) px-2.5 py-3.5 @max-[480px]/app:hidden">
       <p class="m-0 mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-[0.07em] text-(--ink-3)">{k.sectionAll}</p>
       <button type="button" class="ppl-nav-item post-link flex w-full items-center px-2 py-1.5 text-left text-[13px] text-(--ink) aria-pressed:bg-(--accent) aria-pressed:text-white" data-ppl-filter="all" aria-pressed="true">
         {k.everyone}
@@ -28,7 +30,7 @@ const k = c.pessoas;
       </button>
     </nav>
 
-    <div class="ppl-main flex min-h-0 min-w-0 flex-1 flex-col">
+    <div class="ppl-main bl-conteudo flex min-h-0 min-w-0 flex-1 flex-col">
       <div class="ppl-toolbar flex flex-none items-center gap-2.5 border-b-[0.5px] border-(--line) px-3.5 py-2">
         <h2 class="m-0 flex-1 truncate text-[13px] font-semibold" data-ppl-title>{k.everyone}</h2>
         <label class="ppl-search flex h-6.5 w-[150px] flex-none items-center gap-1.5 rounded-full border-[0.5px] border-(--line) bg-(--surface-2) px-2.5 text-(--ink-3) focus-within:border-(--accent)">

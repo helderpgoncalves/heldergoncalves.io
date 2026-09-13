@@ -24,7 +24,10 @@ const k = c.ficheiros;
     <button type="button" class="btn btn-primary" data-action="entrar">{k.signIn}</button>
   </div>
 
-  <aside class="fic-lado" data-fic-lado hidden>
+  {/* `glass bl-flutua`: no Mac, com a janela larga, esta coluna é o
+      painel recuado do Tahoe e a grelha passa por trás dela — ver
+      `os/barra-lateral.css`. */}
+  <aside class="fic-lado glass bl-flutua" data-fic-lado hidden>
     <div class="fic-lado-head">
       <h2>{k.folders}</h2>
       <button type="button" class="fic-nova" data-fic-nova hidden aria-label={k.newFolder}>
@@ -45,7 +48,7 @@ const k = c.ficheiros;
     <p class="fic-lado-vazio" data-fic-sem-pastas hidden>{k.noFolders}</p>
   </aside>
 
-  <div class="fic-main" data-fic-main hidden>
+  <div class="fic-main bl-conteudo" data-fic-main hidden>
     <div class="fic-barra">
       <button type="button" class="fic-voltar" data-fic-voltar>
         <Icon id="ui-chevron" size={13} />{k.back}

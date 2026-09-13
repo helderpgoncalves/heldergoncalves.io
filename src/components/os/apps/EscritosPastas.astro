@@ -9,7 +9,10 @@ interface Folder { id: string; label: string; count: number }
 interface Props { folders: Folder[]; heading: string; drafts: string }
 const { folders, heading, drafts } = Astro.props;
 ---
-<nav class="notes-folders flex-none basis-[190px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2 @max-[820px]/app:hidden" aria-label={heading}>
+{/* `glass bl-flutua`: no Mac com a janela larga isto é o painel
+    recuado do Tahoe, e o escrito passa por trás dele. A geometria vem
+    de `os/barra-lateral.css`; as medidas desta app, de `os/notas.css`. */}
+<nav class="notes-folders glass bl-flutua flex-none basis-[190px] overflow-auto border-r-[0.5px] border-(--line) bg-transparent py-2 @max-[820px]/app:hidden" aria-label={heading}>
   <p class="m-0 px-4.5 pb-1 pt-1.5 text-[length:var(--t-subhead,11px)] font-semibold text-(--ink-3)">{heading}</p>
   <ul class="m-0 list-none p-0 px-2">
     {folders.map((f, i) => (

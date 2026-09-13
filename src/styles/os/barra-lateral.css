@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════
+   A barra lateral flutua — a forma do macOS 26 Tahoe.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Em Tahoe a barra lateral deixou de ser uma coluna encostada à
+   parede da janela com um risco a separá-la do conteúdo: é um painel
+   de vidro recuado da moldura, com o conteúdo a passar por trás
+   dele. Finder, Mail, Mensagens, Notas, Bolsa — são todas assim, e
+   uma app nossa que não seja denuncia-se. Está escrito em
+   `.claude/rules/apple.md`, secção «A barra lateral flutua».
+
+   Isto é um tratamento de sistema, como os cantos e a métrica: mora
+   aqui, uma vez, e as aplicações só dizem *qual* é a barra e *onde*
+   é o seu ponto de quebra. Seis cópias da mesma geometria seriam
+   seis sítios onde ela podia divergir.
+
+   Três peças:
+
+     .bl-flutua    a barra. Sai do fluxo e passa a painel: recuada da
+                   esquerda, do topo e do fundo, cantos contínuos, e o
+                   vidro que já lhe vem do `class="glass"` no markup.
+     .bl-conteudo  o irmão que fica por baixo dela. Começa na borda da
+                   janela — é o que faz a barra parecer pousada em
+                   cima da app em vez de a cortar ao meio — e ganha
+                   folga à esquerda para o texto não nascer escondido.
+     --bl          o interruptor: 1 quando a barra deve flutuar.
+
+   Porquê um interruptor em vez de escrever a regra dentro de cada
+   `@container`: cada app tem o seu ponto de quebra (a Bolsa 640, o
+   Blog 640, as Mensagens 640, os Ficheiros 620, as Pessoas 480), e
+   uma *media/container query* não aceita uma variável no limite. Com
+   o interruptor, cada app liga-o onde quiser (a tabela abaixo) e a
+   geometria é lida uma vez só, de dentro de uma *style query*. O
+   preço é depender de `@container style()` — Chrome 111, Safari 18,
+   Firefox 128 — a mesma aposta que o projecto já faz em
+   `corner-shape`: onde não houver, a barra fica a coluna de antes.
+   ─────────────────────────────────────────────────────────────── */
+
+:root {
+  /* A folga à moldura. Múltiplo de 8, como manda a métrica — e é ela
+     que torna o raio concêntrico: a janela tem 16 de raio, a barra
+     recua 8, logo 16 − 8 = 8 de raio por dentro (apple.md, «Cantos»). */
+  --bl-folga: 8px;
+  --bl-r: 8px;
+}
+
+/* ── O interruptor, app a app ────────────────────────────────────
+   Desligado por omissão: uma app nova não passa a flutuar sozinha, e
+   uma app estreita — a barra a ocupar a largura toda — nunca flutua,
+   porque não há conteúdo nenhum ao lado por onde passar.
+
+   Os limites são os complementos dos pontos de quebra de cada app
+   (`@max-[640px]/app` ⇒ duas colunas a partir de 641), e a largura é
+   a que a barra já tem no markup ou na folha da app. Se uma mudar,
+   muda aqui ao lado. */
+.app-shell { --bl: 0; }
+
+/* A Bolsa: lista à esquerda, título à direita (Bolsa.astro). */
+.app-bolsa { --bl-w: 300px; }
+/* As Mensagens: as conversas do dono (mensagens-lista.css). */
+.app-mensagens { --bl-w: 300px; }
+/* Os Ficheiros: as pastas partilhadas (ficheiros.css). */
+.app-ficheiros { --bl-w: 250px; }
+/* As Pessoas: os dois filtros (Pessoas.astro). */
+.app-pessoas { --bl-w: 190px; }
+/* O Blog tem duas colunas de navegação, e cada uma diz de si — ver
+   notas.css, que é também onde a barra unificada se lhes alinha. */
+/* O Calendário fica de fora, e de propósito: o mês e o dia são duas
+   faces do mesmo conteúdo — como no Calendário a sério, que também
+   não tem barra lateral nenhuma —, e quem flutua lá já é a cápsula
+   de «Hoje» e o segmentado, em Calendario.astro. */
+
+@container app (min-width: 641px) {
+  .app-bolsa,
+  .app-escritos,
+  .app-mensagens { --bl: 1; }
+}
+@container app (min-width: 621px) {
+  .app-ficheiros { --bl: 1; }
+}
+@container app (min-width: 481px) {
+  .app-pessoas { --bl: 1; }
+}
+
+/* No telefone não há nada disto: no iOS navega-se por ecrãs, não por
+   uma coluna ao lado, e a barra flutuante é uma forma do Mac. Ganha
+   às linhas de cima por especificidade, seja qual for a largura. */
+[data-mode='ios'] .app-shell { --bl: 0; }
+
+/* ── Ligada: o painel ────────────────────────────────────────────
+   `position: absolute` e não margens: assim o irmão do lado enche a
+   janela inteira sozinho, sem ninguém ter de lhe refazer as contas de
+   flex. O contentor é o `.app-shell`, que já é `relative`. */
+@container style(--bl: 1) {
+  [data-mode='mac'] .bl-flutua {
+    position: absolute;
+    z-index: 2;
+    left: var(--bl-x, var(--bl-folga));
+    top: var(--bl-folga);
+    bottom: var(--bl-folga);
+    width: var(--bl-w);
+    /* O risco vertical que separava as duas metades é exactamente o
+       que deixou de existir em Tahoe. */
+    border-right: 0;
+    /* Os cantos cortam o que rola lá dentro — sem isto uma linha
+       realçada espreitava para fora da curva. */
+    overflow: hidden;
+    --r: var(--bl-r);
+    border-radius: var(--r);
+  }
+  /* O canto contínuo, como em `.msg-conv` e em `.fic-vista-corpo`: a
+     peça só existe dentro desta condição, e uma `@utility` da tabela
+     de `apple-cantos-*.css` aplicar-se-ia também ao telefone e à app
+     estreita, onde a barra não é painel nenhum. O raio nominal é o
+     `--r`; o 1,6× é o comprimento do canto (apple.md, «Cantos»). */
+  @supports (corner-shape: superellipse(1.777)) {
+    [data-mode='mac'] .bl-flutua {
+      corner-shape: superellipse(1.777);
+      border-radius: calc(var(--r) * 1.6);
+    }
+  }
+
+  /* O conteúdo passa por trás: começa na borda da janela e só o texto
+     é que recua. `:not([hidden])` porque há barras que só o dono vê —
+     a das Mensagens, a dos Ficheiros — e sem barra não há recuo. */
+  [data-mode='mac'] .bl-flutua:not([hidden]) ~ .bl-conteudo {
+    padding-left: var(--bl-pad, calc(var(--bl-x, var(--bl-folga)) + var(--bl-w) + var(--bl-folga)));
+  }
+}
+
+/* ── Desligada: não é vidro nenhum ───────────────────────────────
+   A classe `glass` está no markup e não se pode tirar de lá conforme
+   o modo. Aqui desfaz-se o material — o fundo volta a ser o que a
+   aplicação lhe deu (`revert-layer` deita fora só o que esta camada
+   diz, e por baixo estão as utilities `bg-…` de cada app), e as
+   camadas do vidro apagam-se. Sem isto o telefone ganhava um aro e
+   uma sombra que lá não existem. */
+/* O telefone desfaz o vidro FORA de qualquer `@container style()`.
+   ─────────────────────────────────────────────────────────────
+   O bloco a seguir desfá-lo quando `--bl` é 0, mas um browser que não
+   suporte consultas de estilo não aplica nem esse nem o de cima: ficava
+   o `class="glass"` do markup a pintar um aro e uma sombra no telefone,
+   onde a barra lateral flutuante nem existe. Isto não depende de
+   suporte nenhum — é um selector normal, e no telefone ganha sempre. */
+[data-mode='ios'] .bl-flutua {
+  background: revert-layer;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+[data-mode='ios'] .bl-flutua::before { display: none; }
+[data-mode='ios'] .msg-list-pane.bl-flutua,
+[data-mode='ios'] .fic-lado.bl-flutua { background: var(--surface-solid); }
+
+@container style(--bl: 0) {
+  .bl-flutua {
+    background: revert-layer;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  /* O aro. */
+  .bl-flutua::before { display: none; }
+  /* Estas duas pintam-se em CSS à mão, na mesma camada que o
+     `revert-layer` acabou de deitar fora — por isso repetem-se aqui.
+     São os valores de mensagens-lista.css e de ficheiros.css. */
+  .msg-list-pane.bl-flutua,
+  .fic-lado.bl-flutua { background: var(--sidebar); }
+  [data-mode='ios'] .msg-list-pane.bl-flutua,
+  [data-mode='ios'] .fic-lado.bl-flutua { background: var(--surface-solid); }
+}

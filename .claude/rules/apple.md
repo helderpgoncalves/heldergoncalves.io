@@ -103,6 +103,34 @@ fundos com cor misturam-se em vez de escurecerem.
 Um hexadecimal cru só se escreve quando é mesmo uma cor de hardware — os
 semáforos das janelas (`#ff5f57`, `#febc2e`, `#28c840`) são o caso.
 
+## A barra lateral flutua
+
+**Isto é obrigatório no Mac**, e é a mudança de forma que o Tahoe trouxe
+a toda a gente — Finder, Mail, Mensagens, Notas, Bolsa: são todas
+assim, e uma app nossa que não seja denuncia-se de imediato.
+
+Uma barra lateral do macOS 26 **já não é uma coluna encostada à parede
+da janela com um risco a separá-la do conteúdo**. É um painel que
+flutua por cima:
+
+- **Recuada da moldura** — afasta-se da esquerda, do topo e do fundo do
+  corpo da janela, e não encosta a nenhum deles.
+- **Cantos contínuos**, como tudo o resto (ver acima).
+- **Liquid Glass**: translúcida, refracta o que está por baixo e apanha
+  a cor do papel de parede. É navegação, e por isso pode ser vidro — a
+  regra de que o vidro nunca é do conteúdo continua de pé.
+- **O conteúdo passa por trás dela.** A vista de detalhe começa na
+  borda da janela, não onde a barra acaba; é isso que faz a barra
+  parecer pousada em cima da app em vez de a cortar ao meio. Um risco
+  vertical a separar as duas metades é exactamente o que deixou de
+  existir.
+- **A selecção é uma forma cheia** de cantos contínuos, dentro da
+  barra, e não uma linha inteira pintada de lado a lado.
+
+No telefone **não há nada disto**: no iOS navega-se por ecrãs, não por
+uma coluna ao lado. A barra lateral flutuante é uma forma do Mac, e
+aplicá-la ao iPhone seria inventar uma coisa que não existe.
+
 ## Vidro
 
 Uma superfície de vidro leva `class="glass"` e as cinco camadas vêm de

@@ -28,7 +28,12 @@ const PORTFOLIO = [
       caixa limitada, o `overflow-auto` dele nunca chegava a ligar, e o
       que sobrava era cortado pelo `overflow: hidden` da app. A lista
       não rolava: estava inteira lá, escondida. */}
-  <div class="stk-side flex min-h-0 min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
+  {/* `glass bl-flutua`: no Mac com a janela larga isto deixa de ser uma
+      coluna encostada e passa a ser o painel recuado do Tahoe — a
+      geometria toda mora em `os/barra-lateral.css`. O fundo e o risco
+      que aqui ficam são os de quando não flutua (telefone, janela
+      estreita). */}
+  <div class="stk-side glass bl-flutua flex min-h-0 min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
     <div class="stk-head flex items-center justify-between px-4 pb-1.5 pt-3.5">
       {/* No Mac isto não se mostra: a barra de título da janela já diz o
     nome da app, e repeti-lo dentro do conteúdo é coisa que o macOS não
@@ -92,7 +97,7 @@ const PORTFOLIO = [
     </div>
     <p class="stk-note m-0 border-t-[0.5px] border-(--line) px-4 pb-3 pt-2.5 text-[length:var(--t-caption)] text-(--ink-3)" data-stk-note>{b.lead}</p>
   </div>
-  <div class="stk-main min-w-0 flex-1 overflow-auto bg-(--surface-solid) @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-[.detail]:translate-x-0 @max-[640px]/app:group-[.detail]:visible" data-stk-main>
+  <div class="stk-main bl-conteudo min-w-0 flex-1 overflow-auto bg-(--surface-solid) @max-[640px]/app:absolute @max-[640px]/app:inset-0 @max-[640px]/app:z-3 @max-[640px]/app:translate-x-full @max-[640px]/app:invisible @max-[640px]/app:transition-transform @max-[640px]/app:duration-[0.34s] @max-[640px]/app:ease-(--ease-os) @max-[640px]/app:group-[.detail]:translate-x-0 @max-[640px]/app:group-[.detail]:visible" data-stk-main>
     <button class="stk-back hidden @max-[640px]/app:inline-flex @max-[640px]/app:items-center @max-[640px]/app:gap-1 @max-[640px]/app:px-4 @max-[640px]/app:pt-3 @max-[640px]/app:text-(--accent) @max-[640px]/app:text-[length:var(--t-subhead)]" type="button" data-stk-back><Icon id="ui-chevron" size={14} />{b.list}</button>
     <div class="stk-empty grid h-full place-content-center justify-items-center gap-2 text-(--ink-3)"><Icon id="bolsa" size={44} /><p>{b.pick}</p></div>
   </div>

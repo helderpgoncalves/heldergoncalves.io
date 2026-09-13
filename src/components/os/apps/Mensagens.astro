@@ -20,7 +20,7 @@ const m = c.mensagens;
   {/* A lista de conversas — só existe para o dono. O JS revela-a
       depois de confirmar `amIOwner()`; o conteúdo vem de
       /api/mensagens, que o backend já recusa a quem não é o dono. */}
-  <aside class="msg-list-pane" data-msg-sidebar hidden aria-hidden="true">
+  <aside class="msg-list-pane glass bl-flutua" data-msg-sidebar hidden aria-hidden="true">
     <div class="msg-list-head">
       <h2>{m.inbox}</h2>
       <span class="msg-list-count" data-msg-count></span>
@@ -37,7 +37,7 @@ const m = c.mensagens;
     </div>
   </aside>
 
-  <div class="msg-thread" data-msg-thread>
+  <div class="msg-thread bl-conteudo" data-msg-thread>
     <div class="msg-head">
       <button class="msg-back" type="button" data-msg-back>
         <Icon id="ui-chevron" size={13} />{m.inbox}

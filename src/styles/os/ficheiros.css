@@ -134,6 +134,14 @@
   --r: 9px;
   border-radius: var(--r);
 }
+/* A selecção dentro da barra lateral é uma forma cheia de cantos
+   contínuos — nunca uma linha pintada de lado a lado. O raio nominal
+   é o `--r`; o 1,6× é o comprimento do canto (.claude/rules/apple.md,
+   «Cantos»), e é aqui, como em `.msg-conv`, porque o selector já
+   existe nesta folha. */
+@supports (corner-shape: superellipse(1.777)) {
+  .fic-pasta { corner-shape: superellipse(1.777); border-radius: calc(var(--r) * 1.6); }
+}
 .fic-pasta:hover { background: var(--surface-3); }
 .fic-pasta.on { background: var(--accent); color: var(--accent-ink); }
 .fic-pasta-icone { flex: none; color: var(--accent); }

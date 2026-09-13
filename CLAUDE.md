@@ -55,7 +55,11 @@ Ver `docs/arquitetura.md` para o raciocínio por trás de cada uma.
    Vale para as áreas novas tal como para as antigas. **O telefone é
    iOS 26 e o computador é macOS 26 Tahoe**: é contra essas versões que
    se decide se uma app está certa, e é lá que se vai ver como ela é
-   antes de a desenhar.
+   antes de a desenhar. Duas formas do Tahoe são **obrigatórias** e uma
+   app que não as tenha denuncia-se: a **barra lateral flutuante** (um
+   painel de vidro recuado, com o conteúdo a passar por trás) e o
+   **nome da app só na barra de título**, nunca repetido dentro do
+   conteúdo. As duas estão escritas em `.claude/rules/apple.md`.
 6. **Nenhum ficheiro passa das 400 linhas.** Quando um cresce, parte-se
    por assunto, não ao meio.
 7. **Nada que seja segredo ou dado de visitante entra no repositório.**

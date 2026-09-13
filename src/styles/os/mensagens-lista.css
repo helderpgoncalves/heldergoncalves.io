@@ -11,7 +11,12 @@
    Uma coluna à esquerda, como no Mac; o ecrã inteiro, como no
    telefone. A linha divisória começa depois do avatar — o recuo
    de Apple, que agrupa a linha com a fotografia em vez de cortar
-   a lista de lado a lado. */
+   a lista de lado a lado.
+
+   No Mac com a janela larga esta coluna é o painel flutuante do
+   Tahoe (`glass bl-flutua` no markup, geometria em
+   `os/barra-lateral.css`): o fundo e o risco que ficam aqui são os
+   de quando não flutua — o telefone e a janela estreita. */
 .msg-list-pane {
   display: flex;
   flex-direction: column;

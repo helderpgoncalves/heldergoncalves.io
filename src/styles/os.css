@@ -27,6 +27,7 @@
      toque       o que separa um site de uma aplicação
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
+     barra-lateral  a barra lateral flutuante do Tahoe, uma vez só
      contentor   cada aplicação responde ao seu contentor, não ao ecrã
      reordenar   arrastar ícones: o que anima, e o que está na mão
      acesso      contraste, menos transparência, browsers sem desfoque
@@ -117,6 +118,10 @@
   @import './os/toque.css';
   @import './os/vidro.css';
   @import './os/apple.css';
+  /* Depois de apple.css e de todas as folhas das apps: a barra
+     flutuante tira o risco e o fundo que cada app já tinha posto à
+     sua coluna, e para isso tem de vir por último. */
+  @import './os/barra-lateral.css';
   @import './os/contentor.css';
   /* Depois de contentor.css: é lá que os realces se apagam durante um
      gesto, e o ícone na mão tem de ficar de fora dessa regra. */
