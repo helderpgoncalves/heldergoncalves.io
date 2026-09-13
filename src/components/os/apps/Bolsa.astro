@@ -20,7 +20,14 @@ const PORTFOLIO = [
 ];
 ---
 <section class="app-shell app-bolsa group flex-row @max-[640px]/app:flex-col" data-content="bolsa" aria-label={c.apps.bolsa.name} data-default={DEFAULT.join(',')} data-portfolio={PORTFOLIO.map((p) => p.symbol).join(',')}>
-  <div class="stk-side flex min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
+  {/* `min-h-0` não é decoração: no telefone a app passa a coluna
+      (`flex-col`) e esta metade passa a `flex-1`. Um item de flex mede
+      `min-height: auto` — o mínimo é a altura do que tem dentro — por
+      isso crescia com a lista toda, `.stk-groups` nunca ficava com uma
+      caixa limitada, o `overflow-auto` dele nunca chegava a ligar, e o
+      que sobrava era cortado pelo `overflow: hidden` da app. A lista
+      não rolava: estava inteira lá, escondida. */}
+  <div class="stk-side flex min-h-0 min-w-0 flex-none basis-[300px] flex-col border-r-[0.5px] border-(--line) bg-(--surface-2) [[data-mode='ios']_&]:bg-(--surface-solid) @max-[640px]/app:flex-1 @max-[640px]/app:border-r-0">
     <div class="stk-head flex items-center justify-between px-4 pb-1.5 pt-3.5">
       <h2 class="m-0 text-[length:var(--t-title2)] font-bold tracking-[-0.02em] [[data-mode='ios']_&]:text-[length:var(--t-large)]">{c.apps.bolsa.name}</h2>
       <button class="stk-edit min-h-7 text-[length:var(--t-body)] font-medium text-(--accent)" type="button" data-stk-edit>{b.edit}</button>

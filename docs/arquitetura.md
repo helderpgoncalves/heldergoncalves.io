@@ -70,6 +70,14 @@ de `roles`; não há hierarquia. Se um dia houver um segundo
 administrador, essa é a migração que resolve isso — não se antecipa
 agora.
 
+> **Isto vai deixar de chegar.** Ver [Projectos e a área
+> financeira](#projectos-e-a-área-financeira): um projecto tem várias
+> pessoas, e elas não podem todas o mesmo. Continua a haver um dono do
+> *sítio* (`OWNER_EMAIL`, e essa parte não muda); o que passa a existir
+> é quem pode o quê **dentro de um projecto**, que é outra pergunta e
+> pede outra resposta. Enquanto essa secção não estiver implementada,
+> o que está escrito acima é o que o código faz.
+
 O que muda é o que a sessão do dono desbloqueia:
 
 - **Modo visitante** (sessão de uma pessoa qualquer): o site de sempre,
@@ -519,3 +527,56 @@ Para que fique claro que isto é uma extensão, não uma reescrita:
 - `knowledge/*.md` como forma de ensinar o assistente — sem mudanças;
   ganha só mais contexto (o que a app Contactos é, o que os Orçamentos
   são) para o bot saber explicar-se a um visitante.
+
+## Projectos e a área financeira
+
+*Desenho, ainda não implementado. Escrito quando ficou decidido para
+onde isto vai, para o que se construir a seguir já nascer com a forma
+certa.*
+
+O site passa a ter um lado de trabalho com clientes: projectos,
+orçamentos, facturas e pagamentos. Mora ao lado da Bolsa — é a mesma
+família de app (números, listas, uma coluna e um detalhe) e o mesmo
+vocabulário visual.
+
+### Quem é quem
+
+A forma é esta, e é ela que manda no esquema:
+
+```
+cliente  1 ─── N  projecto  N ─── N  pessoa (com papel)
+```
+
+- **Um cliente tem vários projectos.** Uma empresa com três frentes
+  abertas são três projectos, uma factura por cada, não uma gaveta só.
+- **Um projecto tem várias pessoas**, e elas não podem todas o mesmo:
+  quem aprova um orçamento não é necessariamente quem larga ficheiros,
+  e quem vê as facturas não é toda a gente que vê o trabalho.
+- **A mesma pessoa pode estar em projectos de clientes diferentes**,
+  com papéis diferentes em cada um. O papel é da ligação
+  pessoa–projecto, nunca da pessoa: uma coluna `role` em `users` dava a
+  resposta errada no dia em que alguém é uma coisa aqui e outra ali.
+
+### O que isto muda na decisão do dono
+
+`OWNER_EMAIL` continua a ser o dono do **sítio**, comparado à sessão a
+cada pedido — isso não muda, e não nasce nenhuma tabela de
+administradores. O que nasce é permissão **dentro de um projecto**, que
+é outra pergunta: não é «esta pessoa manda no site?», é «esta pessoa
+pode ver esta factura?». O dono do sítio vê tudo, por cima de tudo;
+toda a gente responde à ligação ao projecto.
+
+Um portão só, do lado do servidor, como `pode_ver` já é para as pastas
+partilhadas (`ficheiros_store.py`) — nunca a decisão espalhada por
+endpoints. Um papel novo acrescenta-se lá dentro, num sítio só.
+
+### O que fica por decidir
+
+Não se inventa aqui. Antes de escrever código, decidir com o Hélder:
+
+- que papéis existem, e o que cada um pode — a lista curta e sem
+  «talvez um dia»;
+- se uma factura se paga no site (e então entra o Stripe, com o segredo
+  em `config.py` como todos os outros) ou se é só um documento a
+  descarregar;
+- o que acontece a um projecto fechado: some, ou fica a ler.

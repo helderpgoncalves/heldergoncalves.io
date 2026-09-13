@@ -4,9 +4,26 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── 2. Fundos ──────────────────────────────────────────────── */
+/* A cor de base de cada papel de parede vive numa variável porque não é
+   só a `.wall` que precisa dela.
+   ─────────────────────────────────────────────────────────────
+   Instalado no ecrã inicial, o iOS deixa à vista uma tira por baixo do
+   que a página desenha — a área do indicador de início. O que lá
+   aparece é o fundo da tela do documento, e esse era um preto fixo: uma
+   barra preta debaixo da Dock, numa app que é toda papel de parede.
+   Pintando a tela com a cor do papel, a tira deixa de se notar. */
+:root { --wall-base: #6a7ba2; }
+[data-wallpaper='sonoma'] { --wall-base: #2f4858; }
+[data-wallpaper='night'] { --wall-base: #05060d; }
+[data-wallpaper='graphite'] { --wall-base: #2b2b30; }
+/* No `html`, não no `body`: a tela é pintada pelo elemento raiz, e é a
+   tela — não a caixa do `body` — que se estende para lá do que a página
+   ocupa. O `body` continua preto, que é o que o arranque precisa. */
+html { background: var(--wall-base); }
+
 .wall {
   position: absolute; inset: 0; z-index: 0;
-  background-color: #6a7ba2;
+  background-color: var(--wall-base);
   background-image:
     radial-gradient(120% 90% at 12% 8%, #ffd9a8 0%, rgba(255, 217, 168, 0) 55%),
     radial-gradient(110% 80% at 88% 12%, #ff9ec2 0%, rgba(255, 158, 194, 0) 52%),
@@ -15,21 +32,18 @@
   transition: background-image 0.6s ease, background-color 0.6s ease;
 }
 [data-wallpaper='sonoma'] .wall {
-  background-color: #2f4858;
   background-image:
     radial-gradient(100% 70% at 20% 100%, #ffb26b 0%, rgba(255, 178, 107, 0) 60%),
     radial-gradient(90% 60% at 80% 0%, #ffe6a7 0%, rgba(255, 230, 167, 0) 55%),
     linear-gradient(180deg, #1d3557 0%, #457b9d 50%, #e07a5f 100%);
 }
 [data-wallpaper='night'] .wall {
-  background-color: #05060d;
   background-image:
     radial-gradient(80% 55% at 50% 110%, #2a4d8f 0%, rgba(42, 77, 143, 0) 60%),
     radial-gradient(60% 40% at 15% 15%, #1b2a56 0%, rgba(27, 42, 86, 0) 60%),
     linear-gradient(180deg, #05060d 0%, #0b1024 60%, #131a3a 100%);
 }
 [data-wallpaper='graphite'] .wall {
-  background-color: #2b2b30;
   background-image:
     radial-gradient(90% 70% at 70% 20%, #4a4a52 0%, rgba(74, 74, 82, 0) 60%),
     linear-gradient(160deg, #1a1a1e 0%, #37373d 100%);
