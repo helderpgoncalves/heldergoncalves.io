@@ -28,6 +28,7 @@
      vidro       Liquid Glass, as cinco camadas
      apple       cantos, concentricidade, métrica — as regras, aplicadas
      contentor   cada aplicação responde ao seu contentor, não ao ecrã
+     reordenar   arrastar ícones: o que anima, e o que está na mão
      acesso      contraste, menos transparência, browsers sem desfoque
 
    `apple` vem depois de tudo o que desenha porque é ele que manda nos
@@ -117,5 +118,8 @@
   @import './os/vidro.css';
   @import './os/apple.css';
   @import './os/contentor.css';
+  /* Depois de contentor.css: é lá que os realces se apagam durante um
+     gesto, e o ícone na mão tem de ficar de fora dessa regra. */
+  @import './os/reordenar.css';
   @import './os/acesso.css';
 }

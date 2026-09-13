@@ -7,6 +7,7 @@
 //
 //   dialogs    a caixa de aviso — não depende de ninguém
 //   dock       o ponto, o salto, a ampliação
+//   dock-ordem arrastar um ícone da Dock para outro lugar
 //   snap       encaixar nas margens
 //   dragging   arrastar e redimensionar
 //   windows    abrir, fechar, focar, minimizar, ampliar, empilhar
@@ -22,6 +23,7 @@
 import { prefs } from '../state.js';
 import { createDialogs } from './dialogs.js';
 import { createDock } from './dock.js';
+import { ordenarDock } from './dock-ordem.js';
 import { createSnap } from './snap.js';
 import { createDragging } from './dragging.js';
 import { createWindows } from './windows.js';
@@ -60,6 +62,7 @@ export function createMac(ctx) {
 
   desk.dialogs = createDialogs(desk);
   desk.dock = createDock(desk);
+  ordenarDock(desk);
   desk.snap = createSnap(desk);
   desk.dragging = createDragging(desk);
   desk.windows = createWindows(desk);

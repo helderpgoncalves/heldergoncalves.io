@@ -108,6 +108,12 @@ const osData = {
     <Saudacao lang={lang} label={c.os.greeting} />
   </div>
 
+  <!-- Onde se diz, a quem não vê, o que um gesto acabou de fazer — por
+       agora, para onde foi o ícone que mudou de lugar. Fica fora dos
+       dois mundos de propósito: o que está escondido não é lido, e um
+       dos dois está sempre em `display: none`. -->
+  <p class="sr" id="anuncio" role="status" aria-live="polite"></p>
+
   <!-- ── macOS ─────────────────────────────────────────────── -->
   <div class="mac" id="mac">
     <div class="wall" aria-hidden="true"></div>
@@ -151,8 +157,11 @@ const osData = {
 
     <div class="dock-wrap">
       <div class="dock glass" id="dock" role="toolbar" aria-label="Dock">
+        {/* `aria-keyshortcuts`: reordenar não pode ser só com o rato.
+            As setas com Option movem o ícone com foco — ver
+            scripts/os/mac/dock-ordem.js. */}
         {dockApps.map((a) => (
-          <button class="dock-item" type="button" data-open={a.id} aria-label={c.apps[a.id].name}>
+          <button class="dock-item" type="button" data-open={a.id} aria-label={c.apps[a.id].name} aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight">
             <Icon id={a.id} />
             <span class="dot" aria-hidden="true"></span>
             <span class="dock-tip" aria-hidden="true">{c.apps[a.id].name}</span>
@@ -190,8 +199,10 @@ const osData = {
                 o visitante escolheu, ou os de origem. */}
             <div class="sb-widgets grid grid-cols-2 gap-x-[22px] gap-y-[18px] pt-1 [.editing-widgets_&]:pt-10" data-widgets="p1"></div>
             <div class="sb-grid">
+              {/* Em edição, as setas com Option movem o ícone com foco, e
+                  Option‑Shift troca-o com a Dock — ver ios/ordenar.js. */}
               {iosGrid.map((a) => (
-                <button class="sb-app" type="button" data-open={a.id}>
+                <button class="sb-app" type="button" data-open={a.id} aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight">
                   <Icon id={a.id} />
                   <span class="label">{c.apps[a.id].name}</span>
                 </button>
@@ -213,7 +224,7 @@ const osData = {
 
         <div class="ios-dock glass glass-clear">
           {iosDock.map((a) => (
-            <button class="sb-app" type="button" data-open={a.id}>
+            <button class="sb-app" type="button" data-open={a.id} aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight">
               <Icon id={a.id} />
               <span class="label">{c.apps[a.id].name}</span>
             </button>

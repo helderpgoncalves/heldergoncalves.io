@@ -176,7 +176,18 @@ export function createPages(ph) {
           if (count > 1) endX(g);
         },
       },
-      { axis: 'x', threshold: 10 }
+      {
+        axis: 'x',
+        threshold: 10,
+        // Em edição, um dedo pousado num ícone vai reordená-lo
+        // (ios/ordenar.js) — a página não pode virar por baixo dele.
+        filter: (ev) =>
+          !(
+            document.documentElement.classList.contains('editing-widgets') &&
+            ev.target.closest &&
+            ev.target.closest('.sb-app')
+          ),
+      }
     );
     goTo(0, { animate: false });
     window.addEventListener('resize', reflow);

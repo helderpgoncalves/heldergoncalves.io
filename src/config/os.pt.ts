@@ -38,6 +38,16 @@ export const OS_PT = {
   // tem badge: «Mensagens, 3 por ler». `{n}` é o número a sério, sem o
   // tecto dos 99+ — quem ouve merece a conta certa.
   badge: { unread: '{n} por ler' },
+  // Mudar um ícone de lugar com o teclado não tem imagem nenhuma: sem
+  // isto, quem usa as setas não fica a saber para onde ele foi. `{app}`
+  // é o nome da aplicação, `{n}` o lugar e `{total}` quantos são.
+  reordenar: {
+    moved: '{app}: posição {n} de {total}',
+    dock: '{app}: na Dock, posição {n} de {total}',
+    home: '{app}: no ecrã inicial, posição {n} de {total}',
+    hint: 'Option com as setas muda este ícone de lugar.',
+    hintDock: 'Option‑Shift para baixo põe-no na Dock; para cima tira-o de lá.',
+  },
   wallpaperNames: { aurora: 'Aurora', sonoma: 'Serra', night: 'Noite', graphite: 'Grafite' },
   today: 'Hoje',
   widgets: {

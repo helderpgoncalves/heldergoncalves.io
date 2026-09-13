@@ -18,6 +18,7 @@
 //   views     as vistas de aplicação e a barra inferior
 //   switcher  os cartões que se arrastam para fora
 //   pages     as páginas do ecrã inicial
+//   ordenar   arrastar ícones pela grelha e pela Dock, em edição
 //   lock      o ecrã bloqueado
 //   back      voltar atrás pela margem esquerda
 //   search    puxar o ecrã inicial para baixo abre a pesquisa
@@ -28,6 +29,7 @@ import { createPanels } from './panels.js';
 import { createViews } from './views.js';
 import { createSwitcher } from './switcher.js';
 import { createPages } from './pages.js';
+import { criarOrdenar } from './ordenar.js';
 import { createLock } from './lock.js';
 import { wireBackGesture } from './back.js';
 import { wireSearch } from './search.js';
@@ -67,6 +69,8 @@ export function createPhone(ctx) {
   ph.views = createViews(ph);
   ph.switcher = createSwitcher(ph);
   ph.pages = createPages(ph);
+  // Depois das páginas: aplicar a ordem guardada pede o `reflow()` delas.
+  criarOrdenar(ph);
   ph.lock = createLock(ph);
   wireBackGesture(ph);
   wireSearch(ph);

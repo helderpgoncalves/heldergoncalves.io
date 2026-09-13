@@ -35,6 +35,13 @@ export const OS_EN = {
   appSwitcher: 'Open apps',
   notifications: 'Notifications',
   badge: { unread: '{n} unread' },
+  reordenar: {
+    moved: '{app}: position {n} of {total}',
+    dock: '{app}: in the Dock, position {n} of {total}',
+    home: '{app}: on the Home Screen, position {n} of {total}',
+    hint: 'Option with the arrow keys moves this icon.',
+    hintDock: 'Option‑Shift down puts it in the Dock; up takes it out.',
+  },
   wallpaperNames: { aurora: 'Aurora', sonoma: 'Ridge', night: 'Night', graphite: 'Graphite' },
   today: 'Today',
   widgets: {

@@ -148,6 +148,8 @@ export function createDock(desk) {
   let cursor = null;
   let frame = 0;
   let last = 0;
+  /** A ampliação está suspensa: alguém anda a arrastar um ícone. */
+  let suspensa = false;
 
   function step(now) {
     frame = 0;
@@ -180,6 +182,32 @@ export function createDock(desk) {
     run();
   }
 
+  /**
+   * Suspende a ampliação enquanto se arrasta um ícone. As duas coisas
+   * escrevem na mesma transformação: à solta ao mesmo tempo, o ponteiro
+   * passa por cima do vizinho, a fila estica, as medidas do arrasto
+   * deixam de valer, e o resultado treme. Fica tudo em repouso — sem
+   * animação, que uma fila a assentar durante o arrasto era o mesmo
+   * problema mais devagar — e `row` vazia obriga a remedir a seguir.
+   */
+  function pausar() {
+    suspensa = true;
+    cursor = null;
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    row = [];
+    dock.querySelectorAll('.dock-item').forEach((el) => {
+      el.style.removeProperty('--dx');
+      el.style.removeProperty('--s');
+      el.style.zIndex = '';
+    });
+    dock.style.width = '';
+  }
+
+  function retomar() {
+    suspensa = false;
+  }
+
   /** A largura da fila tal como está agora. */
   function rowWidth() {
     const l = row[row.length - 1];
@@ -193,21 +221,23 @@ export function createDock(desk) {
   }
 
   dock.addEventListener('pointerenter', (ev) => {
-    if (reducedMotion() || ev.pointerType === 'touch') return;
+    if (suspensa || reducedMotion() || ev.pointerType === 'touch') return;
     // Só se não houver medida: a fila pode ainda estar a assentar de uma
     // saída há um instante, e medir agora punha-a a saltar.
     if (!row.length) measure();
   });
 
   dock.addEventListener('pointermove', (ev) => {
-    if (reducedMotion() || ev.pointerType === 'touch') return;
+    if (suspensa || reducedMotion() || ev.pointerType === 'touch') return;
     if (!row.length) measure();
     cursor = toRest(ev.clientX - rowLeft());
     retarget(cursor);
     run();
   });
 
-  dock.addEventListener('pointerleave', relax);
+  dock.addEventListener('pointerleave', () => {
+    if (!suspensa) relax();
+  });
 
   // Se o ecrã mudar de tamanho, a medida anterior deixou de valer.
   window.addEventListener('resize', () => {
@@ -218,5 +248,5 @@ export function createDock(desk) {
   const trash = dock.querySelector('[data-trash]');
   if (trash) trash.addEventListener('click', () => desk.dialogs.alert(desk.s.trash, desk.s.trashEmpty));
 
-  return { sync, bounce, iconFor };
+  return { sync, bounce, iconFor, pausar, retomar };
 }

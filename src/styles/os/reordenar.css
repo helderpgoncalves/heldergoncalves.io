@@ -1,0 +1,48 @@
+/* ═══════════════════════════════════════════════════════════════
+   Reordenar ícones — a Dock do Mac e o ecrã inicial do telefone.
+   Parte de os.css — ver o índice lá.
+
+   O desvio de cada ícone (`--ox`, `--oy`) e a elevação do que está na
+   mão (`--lift`) entram na transformação dos próprios ícones, onde ela
+   já estava escrita: `.dock-item` em mac.css, ao lado da ampliação, e
+   `.sb-app` em ios.css. Aqui fica só o que é desta peça: quem anima e
+   quem não, e o ícone que está pegado.
+
+   Quem calcula os desvios é scripts/os/reordenar.js, por FLIP — mede,
+   muda a ordem, mede outra vez, e deixa cada um compensar a diferença
+   até zero. Nada disto anima `left`/`top`: uma transformação não
+   obriga o browser a refazer o layout a cada quadro, e é essa a
+   diferença entre um refluxo suave e uma fila aos saltos.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* O refluxo dos vizinhos: curto, e com a curva do sistema. */
+.reordenar-mover { transition: transform 0.24s var(--ease-os); }
+
+/* O ícone na mão não tem transição nenhuma — uma transição aqui era o
+   mesmo que ele chegar sempre atrasado ao dedo. Sobe um pouco e ganha
+   sombra, que é o que faz um ícone parecer levantado da superfície. */
+.reordenar-preso {
+  --lift: 1.08;
+  transition: none;
+  z-index: 60;
+  cursor: grabbing;
+}
+.reordenar-preso svg { filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.38)); }
+
+/* Com um ícone na mão, a etiqueta da Dock só estorva. */
+.reordenando .dock-tip { opacity: 0; }
+
+/* Arrastar um ícone precisa dos dois eixos: com `touch-action` a deixar
+   o browser tratar de algum deles, o gesto era interrompido a meio pela
+   rolagem. Na Dock do Mac vale sempre; no telefone só em edição, para
+   não roubar o deslize entre páginas do ecrã inicial. */
+.dock-item { touch-action: none; }
+.editing-widgets .sb-app { touch-action: none; }
+
+/* Quem pediu menos movimento leva o resultado, sem a viagem: a ordem
+   nova aparece feita. O JavaScript já o respeita (`reducedMotion()`);
+   isto é o mesmo dito onde o browser o vê. */
+@media (prefers-reduced-motion: reduce) {
+  .reordenar-mover { transition: none; }
+}
+[data-motion='off'] .reordenar-mover { transition: none; }

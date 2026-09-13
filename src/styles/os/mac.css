@@ -226,8 +226,13 @@
 .dock-item {
   position: relative; flex: none; width: var(--dock-icon); height: var(--dock-icon);
   transform-origin: bottom center;
-  /* Abrir lugar ao vizinho, e crescer a partir do chão da Dock. */
-  transform: translateX(var(--dx, 0px)) scale(var(--s, 1));
+  /* Abrir lugar ao vizinho, e crescer a partir do chão da Dock.
+     `--dx`/`--s` são da ampliação (mac/dock.js); `--ox`/`--oy`/`--lift`
+     são de reordenar (reordenar.js, e as classes em reordenar.css). As
+     duas não andam ao mesmo tempo — arrastar suspende a ampliação —,
+     mas vivem na mesma transformação e por isso escrevem-se aqui. */
+  transform: translateX(calc(var(--dx, 0px) + var(--ox, 0px))) translateY(var(--oy, 0px))
+    scale(calc(var(--s, 1) * var(--lift, 1)));
   will-change: transform;
 }
 .dock-item svg {

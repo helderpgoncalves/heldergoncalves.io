@@ -41,9 +41,10 @@
   .app-pad { padding: 30px 36px 40px; }
 }
 
-/* Durante um gesto, nada se acende como se tivesse sido tocado. */
-.gesturing button:active,
+/* Durante um gesto, nada se acende como se tivesse sido tocado — menos
+   o ícone que está a ser arrastado, cuja transformação é o gesto. */
+.gesturing button:active:not(.reordenar-preso),
 .gesturing a:active,
 .gesturing .widget:active,
-.gesturing .glass:active { transform: none !important; }
+.gesturing .glass:active:not(.reordenar-preso) { transform: none !important; }
 .gesturing .sb-app:active svg { transform: none !important; }

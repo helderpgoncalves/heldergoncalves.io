@@ -79,6 +79,10 @@
 .sb-app {
   display: grid; justify-items: center; gap: 4px; width: var(--sb-icon); color: #fff;
   -webkit-tap-highlight-color: transparent;
+  /* O desvio de reordenar (ios/ordenar.js, classes em reordenar.css).
+     Fica no botão e não no `svg`: a tremura da edição é do `svg`, e as
+     duas transformações na mesma peça apagavam-se uma à outra. */
+  transform: translate(var(--ox, 0px), var(--oy, 0px)) scale(var(--lift, 1));
 }
 /* Sem sombra: no iPhone os ícones assentam no fundo, não flutuam. */
 .sb-app svg { --shadow: none; width: var(--sb-icon); height: var(--sb-icon); display: block; }
