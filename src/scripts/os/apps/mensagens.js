@@ -70,7 +70,7 @@ export function initChat(ctx) {
 
   /** O retrato do Hélder é o mesmo do favicon; o de quem escreve são
       as iniciais, como um contacto sem foto. */
-  const HELDER = '<img src="/favicon.svg" alt="" width="42" height="42" />';
+  const HELDER = '<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#icon-sobre"/></svg>';
   const comoHelder = () => (avatar.innerHTML = HELDER);
 
   /** Rótulo → duas letras, como o círculo de um contacto sem foto. */
