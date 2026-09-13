@@ -1,0 +1,130 @@
+/* ═══════════════════════════════════════════════════════════════
+   Terminal — o Terminal.app, e o que uma utility não alcança.
+   Parte de os.css — ver o índice lá.
+   ═══════════════════════════════════════════════════════════════
+   Aqui mora o que um terminal tem e uma caixa de texto não: o cursor
+   em bloco, o campo invisível por baixo do espelho, a cor da selecção,
+   e o perfil de cores. O resto — o layout, o rolamento — é utility,
+   em Terminal.astro.
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── O perfil de cores ───────────────────────────────────────────
+   O Terminal.app não tem «um» aspecto: tem perfis. O que vem
+   escolhido de origem é o **Basic**, e a partir do Tahoe ele segue a
+   aparência do sistema — branco com texto preto em claro, quase preto
+   com texto quase branco em escuro. É isso que aqui está, e é por isso
+   que a cor não está cravada no markup: um terminal sempre escuro por
+   cima de um sistema claro é outra coisa, não o Basic.
+
+   Os oito tons a seguir são os do perfil, e usam-se como um terminal
+   os usa — o verde para o que correu bem, o vermelho para o que não,
+   o amarelo para um nome de comando, o azul para uma ligação. */
+.app-terminal {
+  --term-bg: #ffffff;
+  --term-fg: #1d1d1f;
+  --term-dim: #6f6f76;
+  --term-green: #1a7f37;
+  --term-red: #c1121f;
+  --term-yellow: #8a6d00;
+  --term-blue: #0a58ca;
+  --term-sel: rgba(0, 122, 255, 0.26);
+  background: var(--term-bg);
+}
+[data-theme='dark'] .app-terminal,
+:root:not([data-theme='light']) .app-terminal {
+  --term-bg: #101013;
+  --term-fg: #e6e6e9;
+  --term-dim: #8e8e93;
+  --term-green: #30d158;
+  --term-red: #ff453a;
+  --term-yellow: #ffd60a;
+  --term-blue: #64d2ff;
+  --term-sel: rgba(10, 132, 255, 0.34);
+}
+/* A media query não pode ganhar ao `[data-theme='light']` — por isso é
+   que o selector acima leva o `:not`, e este bloco só existe para o
+   caso em que ninguém escolheu tema nenhum. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .app-terminal {
+    --term-bg: #ffffff;
+    --term-fg: #1d1d1f;
+    --term-dim: #6f6f76;
+    --term-green: #1a7f37;
+    --term-red: #c1121f;
+    --term-yellow: #8a6d00;
+    --term-blue: #0a58ca;
+    --term-sel: rgba(0, 122, 255, 0.26);
+  }
+}
+
+.term {
+  font-family: var(--mono);
+  /* 13 pontos é o tamanho de origem do Terminal.app. A altura de linha
+     também é dele: um terminal é uma grelha, e as linhas encostam. */
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--term-fg);
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+  tab-size: 8;
+}
+.term ::selection,
+.term::selection { background: var(--term-sel); }
+.term b { font-weight: 600; color: var(--term-yellow); }
+.term i { font-style: normal; color: var(--term-blue); }
+.term a { color: var(--term-blue); }
+.term .muted { color: var(--term-dim); }
+.term .ok { color: var(--term-green); }
+.term .err { color: var(--term-red); }
+
+/* ── O campo, e o espelho ────────────────────────────────────────
+   O `<input>` continua a ser quem recebe as teclas — é ele que traz o
+   teclado do telefone, o IME de quem escreve noutro alfabeto, e o
+   colar. O que não faz é aparecer: o texto é transparente e o cursor
+   do browser também. Quem se vê é o espelho ao lado, que desenha o
+   mesmo texto com um bloco no meio.
+
+   Sobrepostos e não escondidos: um campo com `display: none` não
+   recebe foco, e um fora do ecrã faz a página saltar quando o
+   recebe. */
+.term-line { position: relative; }
+.term-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  color: transparent;
+  caret-color: transparent;
+}
+.term-input::selection { background: transparent; }
+.term-ps1 { color: var(--term-fg); }
+
+/* ── O cursor ────────────────────────────────────────────────────
+   Um bloco cheio, da largura de um carácter (`1ch` numa fonte
+   monoespaçada é exactamente isso). Cheio quando a janela tem foco,
+   só o contorno quando não tem — como o Terminal.app faz, e é o que
+   diz a quem olha qual das janelas está a receber o que se escreve.
+
+   Não pisca: no Terminal.app o piscar vem desligado de origem. */
+.term-cursor {
+  display: inline-block;
+  width: 1ch;
+  vertical-align: baseline;
+  background: var(--term-fg);
+  color: var(--term-bg);
+}
+.term:not(:focus-within) .term-cursor {
+  background: none;
+  color: inherit;
+  box-shadow: inset 0 0 0 1px var(--term-dim);
+}
+
+/* Num ecrã estreito, a mesma grelha com menos corpo — um terminal não
+   quebra as colunas, encolhe a letra. */
+@container app (max-width: 420px) {
+  .term { font-size: 12px; }
+}

@@ -18,6 +18,7 @@
      bolsa       a lista com as cápsulas, e o título com o gráfico
      financas    a terceira face da Bolsa: o ano, os azulejos, os clientes
      calendario  o mês com os pontos, o dia hora a hora, e a marcação
+     terminal    o cursor em bloco, o perfil de cores, o campo invisível
      mensagens   as bolhas com cauda, o cabeçalho, a barra de escrever
      mensagens-lista  as conversas do dono, e os dois ecrãs quando é estreito
      mail        a caixa de entrada do dono: as linhas, a conversa, a resposta
@@ -106,6 +107,7 @@
   @import './os/bolsa.css';
   @import './os/financas.css';
   @import './os/calendario.css';
+  @import './os/terminal.css';
   @import './os/mensagens.css';
   @import './os/mensagens-lista.css';
   @import './os/mail.css';

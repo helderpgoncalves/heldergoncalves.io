@@ -1,16 +1,54 @@
 ---
+// Terminal — o Terminal.app do macOS, com o zsh que o macOS traz.
+//
+// Três coisas fazem um terminal parecer um terminal, e não uma caixa de
+// texto com letra monoespaçada:
+//
+//   1. O **cursor em bloco**. O Terminal.app não usa a barra vertical do
+//      browser: usa um bloco cheio da largura de um carácter, e é a
+//      primeira coisa que se reconhece. Por isso o `<input>` fica com o
+//      texto e o cursor invisíveis, e o que se vê é um espelho desenhado
+//      ao lado (terminal.js) — o campo continua lá por baixo para o
+//      teclado do telefone, o IME e o colar funcionarem.
+//   2. O **prompt do zsh do macOS**, que é `%n@%m %1~ %#` — utilizador,
+//      arroba, máquina, a pasta, e um `%`. E **sem cor**: o prompt por
+//      omissão do macOS não tem cor nenhuma, e pintá-lo de verde é o
+//      pormenor que denuncia uma imitação.
+//   3. O **«Last login»**, que é a primeira linha de qualquer sessão.
+//
+// Não existe no telefone — o iOS não tem Terminal (ver NOTICE.md).
 import { COPY, type Lang } from '../../../siteConfig';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = COPY[lang];
+const t = c.terminal;
 ---
-<section class="app-shell app-terminal relative flex min-h-0 flex-col overflow-hidden bg-(--surface-solid)" data-content="terminal" aria-label={c.apps.terminal.name}>
-  <div class="term flex min-h-0 flex-1 flex-col overflow-auto bg-[#101013] px-4 py-3.5 font-(family-name:--mono) text-[13px] leading-[1.62] text-[#e6e6e9] [&_b]:font-semibold [&_b]:text-[#ffd60a] [&_i]:not-italic [&_i]:text-[#64d2ff] [&_.muted]:text-[#8e8e93] [&_a]:text-[#64d2ff] @max-[400px]/app:text-[length:var(--t-caption)]" data-term tabindex="-1">
-    <div class="term-out whitespace-pre-wrap break-words" data-term-out>helder@heldergoncalves.io — zsh
-{c.terminal.welcome}</div>
-    <div class="term-line flex gap-2">
-      <span class="ps1 flex-none text-[#30d158]">helder ~ %</span>
-      <input type="text" data-term-input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal" class="min-w-0 flex-1 border-0 bg-transparent font-(family-name:--mono) text-inherit text-[#e6e6e9] outline-none focus-visible:outline-none [caret-color:#30d158]" />
+<section class="app-shell app-terminal flex-col" data-content="terminal" aria-label={c.apps.terminal.name}>
+  {/* O corpo inteiro é a área de rolamento, como uma janela do Terminal:
+      o que sai fica em cima, o prompt vive sempre no fundo. */}
+  <div class="term min-h-0 flex-1 overflow-auto px-3 py-2" data-term tabindex="-1">
+    {/* A linha do «Last login» escreve-se no arranque, em terminal.js,
+        com a data a sério. Fica em inglês de propósito: quem a escreve
+        é o zsh, e o zsh não fala português — traduzi-la era estragar
+        exactamente o que se está a imitar. */}
+    <div class="term-out whitespace-pre-wrap break-words" data-term-out>{t.welcome}</div>
+
+    <div class="term-line flex" data-term-line>
+      <span class="term-ps1 flex-none whitespace-pre" data-term-ps1></span>
+      {/* O espelho: é isto que se vê. O bloco do cursor é um filho
+          dele, posto onde o cursor está. */}
+      <span class="term-echo min-w-0 flex-1 whitespace-pre-wrap break-words" data-term-echo aria-hidden="true"></span>
+      <label class="sr" for="term-input">{c.apps.terminal.name}</label>
+      <input
+        class="term-input"
+        id="term-input"
+        type="text"
+        data-term-input
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
     </div>
   </div>
 </section>
