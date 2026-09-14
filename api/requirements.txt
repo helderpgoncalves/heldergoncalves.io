@@ -14,7 +14,7 @@ tzdata==2025.2
 # Versões mínimas por causa do Python 3.14 (imagem `node:24-alpine`):
 # `greenlet` só tem roda pronta para 3.14 a partir da 3.2, e `asyncpg`
 # a partir da 0.31 — versões mais antigas obrigam a compilar na imagem.
-sqlalchemy==2.0.36
+sqlalchemy==2.0.52
 asyncpg==0.31.0
-greenlet==3.2.4
-alembic==1.14.0
+greenlet==3.5.5
+alembic==1.19.2
