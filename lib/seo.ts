@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { copy, htmlLang, locale, rotas, type Lang } from './copy';
-import { traducao, type Artigo } from './escritos';
+import { copy, htmlLang, linguaPadrao, linguas, locale, rotas, type Lang } from './copy';
+import { traducao, type Artigo } from './blog';
 import { SITE } from './site';
 
 type Args = {
@@ -19,8 +19,8 @@ type Args = {
 export function meta({ lang, titulo, tituloAbsoluto, descricao, caminho, alt, tipo = 'website', data, etiquetas, privado }: Args): Metadata {
   const languages: Record<string, string> = {};
   if (alt) {
-    for (const l of ['pt', 'en'] as const) if (alt[l]) languages[htmlLang[l]] = alt[l]!;
-    languages['x-default'] = alt.pt ?? alt.en!;
+    for (const l of linguas) if (alt[l]) languages[htmlLang[l]] = alt[l]!;
+    languages['x-default'] = alt[linguaPadrao] ?? Object.values(alt)[0]!;
   }
   const t = tituloAbsoluto ?? titulo ?? copy[lang].titulo;
   return {
@@ -35,7 +35,7 @@ export function meta({ lang, titulo, tituloAbsoluto, descricao, caminho, alt, ti
       description: descricao,
       url: caminho,
       locale: locale[lang],
-      alternateLocale: locale[lang === 'pt' ? 'en' : 'pt'],
+      alternateLocale: linguas.filter((l) => l !== lang).map((l) => locale[l]),
       images: [{ url: '/og.jpg', width: 1200, height: 630, alt: copy[lang].imagem }],
       ...(tipo === 'article' ? { publishedTime: data, authors: [SITE.nome], tags: etiquetas } : {}),
     },
@@ -54,7 +54,8 @@ export function metaArtigo(a: Artigo): Metadata {
     titulo: a.titulo,
     descricao: a.resumo,
     caminho: rotas[a.lang].artigo(a.slug),
-    alt: outra ? { [a.lang]: rotas[a.lang].artigo(a.slug), [outra.lang]: rotas[outra.lang].artigo(outra.slug) } : undefined,
+    // Cada página aponta para si própria e para as suas traduções, se existirem.
+    alt: { [a.lang]: rotas[a.lang].artigo(a.slug), ...(outra && { [outra.lang]: rotas[outra.lang].artigo(outra.slug) }) },
     tipo: 'article',
     data: a.data,
     etiquetas: a.etiquetas,

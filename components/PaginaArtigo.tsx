@@ -4,7 +4,7 @@ import { Rodape } from './Rodape';
 import { FormSubscrever } from './FormSubscrever';
 import { Json } from './Json';
 import { copy, htmlLang, rotas } from '@/lib/copy';
-import { artigos, dataLonga, html, traducao, type Artigo } from '@/lib/escritos';
+import { artigos, dataLonga, html, traducao, type Artigo } from '@/lib/blog';
 import { abs } from '@/lib/seo';
 import { SITE } from '@/lib/site';
 
@@ -12,7 +12,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
   const lang = a.lang;
   const c = copy[lang];
   const outra = traducao(a);
-  const alt = outra ? rotas[outra.lang].artigo(outra.slug) : rotas[lang === 'pt' ? 'en' : 'pt'].escritos;
+  const alt = outra ? rotas[outra.lang].artigo(outra.slug) : rotas[lang === 'pt' ? 'en' : 'pt'].blog;
 
   // Seguinte e anterior, para não deixar o leitor num beco.
   const todos = artigos(lang);
@@ -43,7 +43,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: SITE.nome, item: abs(rotas[lang].inicio) },
-          { '@type': 'ListItem', position: 2, name: c.escritos.titulo, item: abs(rotas[lang].escritos) },
+          { '@type': 'ListItem', position: 2, name: c.blog.titulo, item: abs(rotas[lang].blog) },
           { '@type': 'ListItem', position: 3, name: a.titulo, item: url },
         ],
       },
@@ -58,14 +58,14 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
         <article>
           <header>
             <p className="font-mono text-[0.78rem] text-suave">
-              <Link href={rotas[lang].escritos} className="hover:text-tinta">← {c.escritos.voltar}</Link>
+              <Link href={rotas[lang].blog} className="hover:text-tinta">← {c.blog.voltar}</Link>
             </p>
             <h1 className="mt-8 font-serif text-[clamp(2.7rem,7.2vw,4.9rem)] leading-[0.98] tracking-[-0.028em] text-balance">{a.titulo}</h1>
             <p className="mt-6 font-leitura text-[clamp(1.25rem,1.8vw,1.5rem)] leading-[1.5] text-suave italic text-pretty">{a.resumo}</p>
             <p className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-1 border-y border-linha py-3.5 font-mono text-[0.76rem] text-suave">
               <span>{SITE.nome}</span>
               <time dateTime={a.data}>{dataLonga(a.data, lang)}</time>
-              <span>{a.minutos} {c.escritos.min}</span>
+              <span>{a.minutos} {c.blog.min}</span>
             </p>
           </header>
 
@@ -74,13 +74,13 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
           <footer className="mt-14 space-y-5 border-t border-linha pt-8 font-mono text-[0.78rem] text-suave">
             {a.fonte && (
               <p>
-                {c.escritos.fonteLabel}: <a className="underline decoration-linha underline-offset-4 hover:text-tinta" href={a.fonte.url} target="_blank" rel="noopener noreferrer">{a.fonte.nome} ↗</a>
+                {c.blog.fonteLabel}: <a className="underline decoration-linha underline-offset-4 hover:text-tinta" href={a.fonte.url} target="_blank" rel="noopener noreferrer">{a.fonte.nome} ↗</a>
               </p>
             )}
             {a.etiquetas.length > 0 && <p className="flex flex-wrap gap-x-4 uppercase tracking-[0.06em]">{a.etiquetas.map((e) => <span key={e}>{e}</span>)}</p>}
             {outra && (
               <p>
-                <Link href={rotas[outra.lang].artigo(outra.slug)} hrefLang={htmlLang[outra.lang]} className="underline decoration-linha underline-offset-4 hover:text-tinta">{c.escritos.tradLabel} →</Link>
+                <Link href={rotas[outra.lang].artigo(outra.slug)} hrefLang={htmlLang[outra.lang]} className="underline decoration-linha underline-offset-4 hover:text-tinta">{c.blog.tradLabel} →</Link>
               </p>
             )}
           </footer>

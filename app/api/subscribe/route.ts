@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { ipDe, json, lerJson, origemPermitida } from '@/lib/api';
-import { configurado, dentroDoLimite, emailValido, enviarConfirmacao } from '@/lib/newsletter';
+import { dentroDoLimite, ipDe, json, lerJson, origemPermitida } from '@/lib/api';
+import { configurado, emailValido, enviarConfirmacao } from '@/lib/newsletter';
 import type { Lang } from '@/lib/copy';
 
 export async function POST(req: NextRequest) {

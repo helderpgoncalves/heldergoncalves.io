@@ -9,7 +9,8 @@
     "imagens": "node scripts/imagens.mjs",
     "enviar": "node --env-file-if-exists=.env.local scripts/enviar.mjs",
     "notificar": "node --env-file-if-exists=.env.local scripts/notificar.mjs",
-    "nova-app": "node scripts/nova-app.mjs"
+    "nova-app": "node scripts/nova-app.mjs",
+    "verificar": "node scripts/verificar-seo.mjs"
   },
   "dependencies": {
     "marked": "^18.1.0",

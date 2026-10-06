@@ -66,7 +66,7 @@ export function Landing({ lang }: { lang: Lang }) {
       <header className="absolute inset-x-0 top-0 flex items-center justify-between p-6 text-[0.8rem] tracking-[0.02em] sm:p-10">
         <span className="font-medium">{c.nome}</span>
         <nav aria-label="Principal" className="flex items-center gap-6 font-mono">
-          <Link href={rotas[lang].escritos} className="text-nevoa/80 transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">{c.navEscritos}</Link>
+          <Link href={rotas[lang].blog} className="text-nevoa/80 transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">{c.navBlog}</Link>
           <Link
             href={rotas[outra].inicio}
             hrefLang={htmlLang[outra]}

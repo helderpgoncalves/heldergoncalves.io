@@ -43,8 +43,8 @@ const config: NextConfig = {
     ];
   },
 
-  // Um sítio, dois endereços: tudo o que não for heldergoncalves.io segue para lá (301),
-  // para o Google juntar os sinais num só domínio.
+  // helder.si (e www.*) segue para o domínio canónico, para o Google juntar os sinais num só.
+  // As mini-apps (<app>.helder.si) ficam onde estão: é o domínio delas.
   async redirects() {
     const paraApex = ['helder.si', 'www.helder.si', 'www.heldergoncalves.io'].map((host) => ({
       source: '/:path*',
@@ -52,14 +52,19 @@ const config: NextConfig = {
       destination: 'https://heldergoncalves.io/:path*',
       permanent: true,
     }));
-    // lab.helder.si → lab.heldergoncalves.io: o alias acompanha as mini-apps.
+    // <app>.heldergoncalves.io → <app>.helder.si: as mini-apps vivem só em helder.si.
     const subdominios = {
       source: '/:path*',
-      has: [{ type: 'host' as const, value: '(?<sub>[a-z0-9-]+)\\.helder\\.si' }],
-      destination: 'https://:sub.heldergoncalves.io/:path*',
+      has: [{ type: 'host' as const, value: '(?<sub>[a-z0-9-]+)\\.heldergoncalves\\.io' }],
+      destination: 'https://:sub.helder.si/:path*',
       permanent: true,
     };
-    return [...paraApex, subdominios];
+    // Os URLs de antes de o espaço se chamar Blog continuam a funcionar (e passam o que valiam).
+    const antigos = [
+      { source: '/escritos/:path*', destination: '/blog/:path*', permanent: true },
+      { source: '/en/articles/:path*', destination: '/en/blog/:path*', permanent: true },
+    ];
+    return [...paraApex, subdominios, ...antigos];
   },
 };
 

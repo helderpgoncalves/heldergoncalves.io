@@ -50,6 +50,10 @@ body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
 @keyframes trava { from { color: #f8dcc0; transform: translateY(-.06em); } }
 @media (prefers-reduced-motion: reduce) { .viva { opacity: 1; animation: none; } .viva .c { transition: none; } }
 
+/* ---------- Mini-apps de ecrã inteiro ---------- */
+/* `tela`: largo E com altura para tudo caber sem scroll. Fora disto, a página rola normalmente. */
+@custom-variant tela (@media (min-width: 64rem) and (min-height: 42rem));
+
 /* ---------- Leitura longa ---------- */
 .leitura {
   font-family: var(--font-leitura);

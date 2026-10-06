@@ -10,3 +10,4 @@ docs
 !content/**/*.md
 npm-debug.log
 .DS_Store
+data

@@ -41,20 +41,9 @@ export function lerToken(token: string): Carga | null {
   }
 }
 
-/* ---------- Validação e limites (em memória: só travam abusos óbvios) ---------- */
+/* ---------- Validação ---------- */
 
 export const emailValido = (e: string) => e.length <= 254 && /^[^\s@<>()"]+@[^\s@<>()"]+\.[^\s@<>()"]{2,}$/.test(e);
-
-const janelas = new Map<string, number[]>();
-export function dentroDoLimite(chave: string, max: number, ms: number): boolean {
-  const agora = Date.now();
-  const lista = (janelas.get(chave) ?? []).filter((t) => agora - t < ms);
-  if (lista.length >= max) { janelas.set(chave, lista); return false; }
-  lista.push(agora);
-  janelas.set(chave, lista);
-  if (janelas.size > 5000) for (const [k, v] of janelas) if (!v.some((t) => agora - t < ms)) janelas.delete(k);
-  return true;
-}
 
 /* ---------- Resend ---------- */
 

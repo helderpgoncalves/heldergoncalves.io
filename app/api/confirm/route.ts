@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { json, lerJson, origemPermitida } from '@/lib/api';
-import { adicionarContacto, configurado, dentroDoLimite, lerToken } from '@/lib/newsletter';
+import { dentroDoLimite, json, lerJson, origemPermitida } from '@/lib/api';
+import { adicionarContacto, configurado, lerToken } from '@/lib/newsletter';
 
 // POST (e não GET): só uma pessoa a carregar no botão confirma. Um antivírus que
 // abra o link do e-mail apenas vê a página, sem efeitos.

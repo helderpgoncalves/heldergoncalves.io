@@ -1,4 +1,8 @@
-export type Lang = 'pt' | 'en';
+// As línguas do site. O sitemap, o hreflang e o feed percorrem esta lista: para acrescentar uma
+// língua basta uma entrada em `copy` e em `rotas`, as pastas de rotas e `content/<lang>/`.
+export const linguas = ['pt', 'en'] as const;
+export type Lang = (typeof linguas)[number];
+export const linguaPadrao: Lang = 'pt'; // a do x-default
 
 // Um só tipo para as duas línguas: se faltar uma chave numa delas, o TypeScript recusa.
 export type Copy = {
@@ -10,8 +14,8 @@ export type Copy = {
   imagem: string;
   trocar: string;
   trocarRotulo: string;
-  navEscritos: string;
-  escritos: {
+  navBlog: string;
+  blog: {
     titulo: string;
     descricao: string;
     cabeca: string;
@@ -50,7 +54,7 @@ export type Copy = {
 export const copy = {
   pt: {
     titulo: 'Hélder Gonçalves',
-    descricao: 'Software que pensa antes de falar. Escritos sobre tecnologia, inteligência artificial e ofício.',
+    descricao: 'Software que pensa antes de falar. Um blog sobre tecnologia, inteligência artificial e ofício — e sobre o que me vai na cabeça.',
     nome: 'Hélder Gonçalves',
     frases: [
       ['Software que pensa', 'antes de falar.'],
@@ -64,15 +68,15 @@ export const copy = {
     imagem: 'Uma figura sentada numa colina florida, a olhar o vale ao pôr do sol.',
     trocar: 'EN',
     trocarRotulo: 'Read in English',
-    navEscritos: 'Escritos',
-    escritos: {
-      titulo: 'Escritos',
-      descricao: 'Ensaios sobre tecnologia, inteligência artificial e ofício, e notas sobre o que leio. Com newsletter.',
-      cabeca: 'Escritos',
-      intro: 'Ensaios curtos sobre software, inteligência artificial e ofício — e o que ando a ler. Uma carta de vez em quando, sem spam.',
-      vazio: 'Ainda não há escritos publicados.',
+    navBlog: 'Blog',
+    blog: {
+      titulo: 'Blog',
+      descricao: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo: tecnologia, inteligência artificial, ofício — e o que me vai na cabeça.',
+      cabeca: 'Blog',
+      intro: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo. Tecnologia, inteligência artificial, ofício — e o que me vai na cabeça. Uma carta de vez em quando, sem spam.',
+      vazio: 'Ainda não há nada publicado.',
       min: 'min de leitura',
-      voltar: 'Todos os escritos',
+      voltar: 'Todo o blog',
       feed: 'RSS',
       tradLabel: 'Also in English',
       fonteLabel: 'Fonte',
@@ -96,12 +100,12 @@ export const copy = {
       ok: ['Subscrição confirmada.', 'Obrigado. A próxima carta chega ao teu e-mail.'],
       invalido: ['Esta ligação já não é válida.', 'Pode ter expirado. Subscreve outra vez e eu envio uma nova.'],
       erro: ['Algo correu mal.', 'Não consegui concluir a subscrição. Tenta outra vez daqui a pouco.'],
-      voltar: 'Ir para os escritos',
+      voltar: 'Ir para o blog',
     },
     mail: {
       assunto: 'Confirma a tua subscrição',
       titulo: 'Confirma a tua subscrição',
-      texto: 'Pediste para receber os escritos do Hélder Gonçalves. Confirma que este e-mail é teu:',
+      texto: 'Pediste para receber as cartas do blog do Hélder Gonçalves. Confirma que este e-mail é teu:',
       botao: 'Confirmar subscrição',
       ignora: 'Se não foste tu, ignora esta mensagem — não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
@@ -109,7 +113,7 @@ export const copy = {
   },
   en: {
     titulo: 'Hélder Gonçalves',
-    descricao: 'Software that thinks before it speaks. Writing on technology, artificial intelligence and craft.',
+    descricao: 'Software that thinks before it speaks. A blog about technology, artificial intelligence and craft — and whatever is on my mind.',
     nome: 'Hélder Gonçalves',
     frases: [
       ['Software that thinks', 'before it speaks.'],
@@ -123,15 +127,15 @@ export const copy = {
     imagem: 'A figure sitting on a flower-covered hill, looking over the valley at sunset.',
     trocar: 'PT',
     trocarRotulo: 'Ler em português',
-    navEscritos: 'Writing',
-    escritos: {
-      titulo: 'Writing',
-      descricao: 'Essays on technology, artificial intelligence and craft, plus notes on what I read. With a newsletter.',
-      cabeca: 'Writing',
-      intro: 'Short essays on software, artificial intelligence and craft — and what I am reading. A letter now and then, no spam.',
+    navBlog: 'Blog',
+    blog: {
+      titulo: 'Blog',
+      descricao: 'A place where I share ideas, think out loud and, now and then, vent: technology, artificial intelligence, craft — and whatever is on my mind.',
+      cabeca: 'Blog',
+      intro: 'A place where I share ideas, think out loud and, now and then, vent. Technology, artificial intelligence, craft — and whatever is on my mind. A letter now and then, no spam.',
       vazio: 'Nothing published yet.',
       min: 'min read',
-      voltar: 'All writing',
+      voltar: 'The whole blog',
       feed: 'RSS',
       tradLabel: 'Também em português',
       fonteLabel: 'Source',
@@ -155,12 +159,12 @@ export const copy = {
       ok: ['Subscription confirmed.', 'Thank you. The next letter will land in your inbox.'],
       invalido: ['This link is no longer valid.', 'It may have expired. Subscribe again and I will send a fresh one.'],
       erro: ['Something went wrong.', 'I could not complete your subscription. Please try again shortly.'],
-      voltar: 'Go to the writing',
+      voltar: 'Go to the blog',
     },
     mail: {
       assunto: 'Confirm your subscription',
       titulo: 'Confirm your subscription',
-      texto: 'You asked to receive Hélder Gonçalves’s writing. Please confirm this email address is yours:',
+      texto: 'You asked to receive letters from Hélder Gonçalves’s blog. Please confirm this email address is yours:',
       botao: 'Confirm subscription',
       ignora: 'If this was not you, ignore this message — nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
@@ -171,17 +175,17 @@ export const copy = {
 export const rotas = {
   pt: {
     inicio: '/',
-    escritos: '/escritos',
-    artigo: (slug: string) => `/escritos/${slug}`,
-    feed: '/escritos/feed.xml',
-    confirmar: '/escritos/confirmar',
+    blog: '/blog',
+    artigo: (slug: string) => `/blog/${slug}`,
+    feed: '/blog/feed.xml',
+    confirmar: '/blog/confirmar',
   },
   en: {
     inicio: '/en',
-    escritos: '/en/articles',
-    artigo: (slug: string) => `/en/articles/${slug}`,
-    feed: '/en/articles/feed.xml',
-    confirmar: '/en/articles/confirm',
+    blog: '/en/blog',
+    artigo: (slug: string) => `/en/blog/${slug}`,
+    feed: '/en/blog/feed.xml',
+    confirmar: '/en/blog/confirm',
   },
 } as const;
 

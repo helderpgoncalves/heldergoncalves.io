@@ -1,4 +1,4 @@
-import { artigos, html } from './escritos';
+import { artigos, html } from './blog';
 import { copy, rotas, htmlLang, type Lang } from './copy';
 import { SITE } from './site';
 import { abs } from './seo';
@@ -27,9 +27,9 @@ ${a.etiquetas.map((e) => `<category>${xml(e)}</category>`).join('')}
   const corpo = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
-<title>${xml(`${c.escritos.titulo} — ${SITE.nome}`)}</title>
-<link>${abs(rotas[lang].escritos)}</link>
-<description>${xml(c.escritos.descricao)}</description>
+<title>${xml(`${c.blog.titulo} — ${SITE.nome}`)}</title>
+<link>${abs(rotas[lang].blog)}</link>
+<description>${xml(c.blog.descricao)}</description>
 <language>${htmlLang[lang]}</language>
 <atom:link href="${abs(rotas[lang].feed)}" rel="self" type="application/rss+xml"/>
 ${lista[0] ? `<lastBuildDate>${new Date(lista[0].data + 'T12:00:00Z').toUTCString()}</lastBuildDate>` : ''}

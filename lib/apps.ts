@@ -1,4 +1,4 @@
-// As mini-apps. Cada uma vive em <sub>.heldergoncalves.io e é uma pasta em app/(<sub>)/s/<sub>/.
+// As mini-apps. Cada uma vive em <sub>.helder.si e é uma pasta em app/(<sub>)/s/<sub>/.
 // Uma só aplicação serve tudo: o proxy.ts lê o subdomínio e reescreve para a pasta certa,
 // por isso não há um processo (nem RAM) por mini-app.
 //
@@ -8,14 +8,15 @@ type App = { sub: string; ativo: boolean };
 
 const apps: readonly App[] = [
   { sub: 'lab', ativo: false },
+  { sub: 'microsoft', ativo: true },
   // NOVAS-APPS (o gerador acrescenta aqui — não apagar esta linha)
 ];
 
-/** Domínios onde as mini-apps podem viver. */
-const BASES = ['heldergoncalves.io', 'localhost'];
+/** Onde as mini-apps vivem: `helder.si` em produção, `*.localhost` em desenvolvimento. */
+const BASES = ['helder.si', 'localhost'];
 const RESERVADOS = new Set(['www']);
 
-/** `lab.heldergoncalves.io` → `lab`. O apex, `www` e hosts desconhecidos → null. */
+/** `lab.helder.si` → `lab`. O apex, `www` e hosts desconhecidos → null. */
 export function subDe(host: string): string | null {
   const h = host.split(':')[0].toLowerCase();
   for (const base of BASES) {

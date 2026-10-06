@@ -24,7 +24,11 @@ ENV NODE_ENV=production \
 WORKDIR /app
 # Sem npm/yarn na imagem final: só o Node. Menos peso e menos coisas para atacar.
 RUN addgroup -S app && adduser -S app -G app \
- && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn* /usr/local/bin/corepack
+ && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn* /usr/local/bin/corepack \
+ && mkdir /data && chown app:app /data
+# Os dados das mini-apps (ex.: os comentários do chat da Microsoft) vivem aqui: no Coolify, este caminho
+# tem de ser um volume persistente, senão perdem-se a cada deploy.
+ENV DATA_DIR=/data
 
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static

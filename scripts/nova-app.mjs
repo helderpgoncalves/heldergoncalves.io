@@ -3,7 +3,7 @@
 //   npm run nova-app -- <nome> ["<descrição>"]   (a descrição vai para os metadados da página)
 //
 // Gera app/(<nome>)/s/<nome>/ (layout, página, robots) e regista-a em lib/apps.ts como inactiva.
-// Depois: escreve a app, põe `ativo: true`, e acrescenta https://<nome>.heldergoncalves.io ao Coolify.
+// Depois: escreve a app, põe `ativo: true`, e acrescenta https://<nome>.helder.si ao Coolify.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -11,7 +11,7 @@ const [nome, ...resto] = process.argv.slice(2);
 const descricao = resto.join(' ').trim() || 'Uma mini-app.';
 const sair = (m) => { console.error(`✗ ${m}`); process.exit(1); };
 
-const RESERVADOS = ['www', 'api', 'mail', 'smtp', 'admin', 'static', 'cdn', 'ftp', 'ns1', 'ns2', 'localhost', 's', 'en', 'escritos'];
+const RESERVADOS = ['www', 'api', 'mail', 'smtp', 'admin', 'static', 'cdn', 'ftp', 'ns1', 'ns2', 'localhost', 's', 'en', 'blog'];
 if (!nome || !/^[a-z][a-z0-9-]{1,30}$/.test(nome)) sair('Nome inválido. Usa minúsculas, números e hífenes (2–31 caracteres), a começar por uma letra.');
 if (RESERVADOS.includes(nome)) sair(`"${nome}" é um nome reservado.`);
 
@@ -26,7 +26,7 @@ import '../../../globals.css';
 import { fontes } from '@/lib/fontes';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://${nome}.heldergoncalves.io'),
+  metadataBase: new URL('https://${nome}.helder.si'),
   title: { default: '${titulo}', template: '%s — ${titulo}' },
   description: '${esc(descricao)}',
   robots: { index: false, follow: false }, // muda para true quando estiver pronta
@@ -61,4 +61,4 @@ fs.writeFileSync(reg, src.replace(marca, `  { sub: '${nome}', ativo: false },\n$
 
 console.log(`✓ ${pasta}/ criada e registada (inactiva).
   Ver em desenvolvimento:  http://${nome}.localhost:3100
-  Quando estiver pronta:   ativo: true em lib/apps.ts, robots.index: true, e https://${nome}.heldergoncalves.io no Coolify.`);
+  Quando estiver pronta:   ativo: true em lib/apps.ts, robots.index: true, e https://${nome}.helder.si no Coolify.`);

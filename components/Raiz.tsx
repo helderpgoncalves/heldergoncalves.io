@@ -14,7 +14,7 @@ export function metaRaiz(lang: Lang): Metadata {
     authors: [{ name: SITE.nome, url: SITE.canonico }],
     creator: SITE.nome,
     formatDetection: { email: false, address: false, telephone: false },
-    alternates: { types: { 'application/rss+xml': [{ url: lang === 'pt' ? '/escritos/feed.xml' : '/en/articles/feed.xml', title: copy[lang].escritos.titulo }] } },
+    alternates: { types: { 'application/rss+xml': [{ url: lang === 'pt' ? '/blog/feed.xml' : '/en/blog/feed.xml', title: copy[lang].blog.titulo }] } },
   };
 }
 

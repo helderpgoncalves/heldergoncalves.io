@@ -9,7 +9,7 @@ export function Rodape({ lang }: { lang: Lang }) {
         © {new Date().getFullYear()} {c.nome} · <a className="underline decoration-linha underline-offset-4 hover:text-tinta" href={`mailto:${SITE.email}`}>{SITE.email}</a>
       </p>
       <p className="flex gap-5 font-mono">
-        <a className="hover:text-tinta" href={rotas[lang].feed}>{c.escritos.feed}</a>
+        <a className="hover:text-tinta" href={rotas[lang].feed}>{c.blog.feed}</a>
         <a className="hover:text-tinta" href={SITE.github} rel="me noopener noreferrer" target="_blank">GitHub</a>
       </p>
     </footer>

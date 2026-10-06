@@ -1,9 +1,9 @@
 # heldergoncalves.io
 
-Landing page, escritos e newsletter de Hélder Gonçalves — e a casa das mini-apps em subdomínios.
+Landing page, blog e newsletter de Hélder Gonçalves — e a casa das mini-apps em subdomínios.
 Next.js 16 (App Router) + Tailwind 4, em português e inglês. Sem base de dados.
 
-**Domínios:** `heldergoncalves.io` (canónico) e `helder.si` (redireciona, 308). Mini-apps em `<nome>.heldergoncalves.io`.
+**Domínios:** `heldergoncalves.io` (canónico) e `helder.si` (redireciona, 308). Mini-apps em `<nome>.helder.si`, por exemplo [`microsoft.helder.si`](https://microsoft.helder.si).
 
 ## Correr
 
@@ -18,15 +18,18 @@ npm run dev                    # http://127.0.0.1:3100
 | `npm run build` | compila (modo `standalone`; em produção corre-se a imagem do `Dockerfile`) |
 | `npm run typecheck` | TypeScript |
 | `npm run imagens` | regenera as versões AVIF/WebP/JPEG a partir de `fonte/hero.png` |
-| `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.heldergoncalves.io` |
+| `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.helder.si` |
+| `npm run verificar [-- <url>]` | verifica o SEO de ponta a ponta a partir do sitemap (contra o dev, ou contra produção) |
 | `npm run enviar -- <slug> --lang pt` | cria o rascunho de um artigo como newsletter no Resend |
 | `npm run notificar -- --dry` | ensaio do aviso automático de artigos novos |
 
 ## Onde está cada coisa
 
 ```
-app/(pt)/ app/(en)/en/   landing, escritos e confirmação, uma pasta por língua
+app/(pt)/ app/(en)/en/   landing, blog e confirmação, uma pasta por língua
 app/(<mini-app>)/s/<sub>/ cada mini-app, com layout próprio (ver docs/deploy.md §5)
+components/microsoft/    a interface da mini-app Microsoft (preço, escala, gráfico, chat)
+lib/microsoft/           o seu servidor: cotação (Yahoo), tempo real (SSE) e comentários
 app/api/                 subscribe, confirm, health
 proxy.ts                 subdomínio → pasta da mini-app
 content/pt|en/*.md       os artigos, em Markdown com cabeçalho YAML
@@ -39,7 +42,7 @@ Dockerfile               imagem de produção (~280 MB, ~40 MB de RAM)
 ## Como funciona (em curto)
 
 - **Imagem:** a original (4096 px) gera AVIF 4:4:4, WebP e JPEG em 4 tamanhos; o HTML serve a certa por `<picture>`.
-- **SEO:** `canonical` + `hreflang` em todas as páginas, sitemap com alternativas, `robots`, RSS por língua, JSON-LD
+- **SEO:** `canonical` + `hreflang` (com a própria página e `x-default`) em todas as páginas, sitemap gerado a partir das línguas e dos textos, com `lastmod` verdadeiro, `robots`, RSS por língua, JSON-LD
   (`Person`, `WebSite`, `Blog`, `BlogPosting`, `BreadcrumbList`), Open Graph, `manifest`, `security.txt`.
 - **Newsletter:** dupla confirmação sem base de dados (token assinado com HMAC + botão `POST`, para os antivírus que
   abrem links não subscreverem ninguém). Os contactos ficam no Resend, num segmento por língua.
