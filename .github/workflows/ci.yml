@@ -1,226 +1,26 @@
-# ─────────────────────────────────────────────────────────────────────
-# O que corre a cada alteração.
-#
-# Da mais barata para a mais cara, para que um erro tolo falhe em
-# segundos e não em minutos:
-#
-#   1. verificar   as invariantes do repositório, em Python, sem instalar
-#                  nada. Segundos.
-#   2. build       o site constrói mesmo, e a compressão corre. Minuto.
-#   3. api         a suite de testes da API (pytest). Meio minuto.
-#   4. imagem      o Dockerfile constrói a sério — Astro e a API juntos —
-#                  e o container arranca e responde. Só em pull requests
-#                  e no main, porque é o mais caro dos quatro.
-# ─────────────────────────────────────────────────────────────────────
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch:
-
-# Uma alteração nova cancela a corrida anterior do mesmo ramo: não vale
-# a pena gastar minutos a validar código que já foi substituído.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   verificar:
-    name: Invariantes
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # O verificador olha para os ficheiros rastreados; não precisa
-          # do histórico todo.
-          fetch-depth: 1
-
-      - name: Verificações estáticas
-        run: python3 .claude/skills/verificar/verificar.py
-
-  build:
-    name: Build (Astro)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: verificar
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24
-          cache: npm
-
-      # `npm install` e não `npm ci`, para o CI validar exactamente o que
-      # o Dockerfile faz. Quando o lockfile estiver em dia, passam os
-      # dois a `npm ci` — ver o workflow `lockfile`.
-      - run: npm install --no-audit --no-fund
-
-      - name: O lockfile está em dia?
-        continue-on-error: true
-        run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "package-lock.json em dia." >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo "### ⚠️ package-lock.json desactualizado"
-              echo ""
-              echo "O \`npm install\` mexeu no lockfile, o que quer dizer que ele não"
-              echo "descreve a árvore que este \`package.json\` resolve. Enquanto"
-              echo "assim for, dois builds do mesmo commit podem instalar versões"
-              echo "diferentes — e o \`npm ci\` não funciona."
-              echo ""
-              echo "Correr o workflow **Lockfile** para o pôr em dia."
-            } >> "$GITHUB_STEP_SUMMARY"
-            git --no-pager diff --stat -- package-lock.json
-          fi
-          exit 0
-
-      - name: Construir e comprimir
-        run: npm run build
-
-      - name: O que ficou
-        run: |
-          echo "### Tamanho do site" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "sem comprimir: $(du -sh --exclude='*.br' --exclude='*.gz' dist | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
-          echo "html + css + js, comprimido:" >> "$GITHUB_STEP_SUMMARY"
-          find dist -name '*.br' -printf '%s %p\n' | sort -rn | head -10 \
-            | awk '{ printf "  %6.1f KB  %s\n", $1/1024, $2 }' >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-
-  api:
-    name: Testes da API
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: verificar
-    # Os testes de repositório correm contra Postgres a sério (ver
-    # api/tests/conftest.py) — sem este serviço, o `postgres` do
-    # docker-compose.dev.yml não existe aqui e a suite inteira cai na
-    # resolução do nome.
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: helder
-          POSTGRES_PASSWORD: helder
-          POSTGRES_DB: heldergoncalves_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U helder -d heldergoncalves_test"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
-    env:
-      TEST_DATABASE_URL: postgresql+asyncpg://helder:helder@127.0.0.1:5432/heldergoncalves_test
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      # Por tag, e não por SHA fixo como as outras — Dependabot
-      # (.github/dependabot.yml) trata de a manter em dia; fixar aqui um
-      # SHA por adivinhação seria pior do que não fixar nenhum.
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: api/requirements-dev.txt
-
-      - run: pip install -r api/requirements-dev.txt
-
-      - name: pytest
-        run: pytest -q
-        working-directory: api
-
-  imagem:
-    name: Imagem
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: verificar
-    # A imagem de produção migra a base de dados no arranque (Dockerfile:
-    # `alembic upgrade head` antes do uvicorn) — sem um Postgres a
-    # responder, o container nunca chega a ficar saudável. O serviço
-    # aqui é a mesma imagem que docker-compose.yml usa em produção.
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: helder
-          POSTGRES_PASSWORD: helder
-          POSTGRES_DB: heldergoncalves
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U helder -d heldergoncalves"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
-
-      - name: Construir a imagem
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          context: .
-          push: false
-          load: true
-          tags: heldergoncalves:ci
-
-      - name: A imagem arranca, migra, e responde
-        run: |
-          docker run -d --name site --network host \
-            -e DATABASE_URL="postgresql+asyncpg://helder:helder@127.0.0.1:5432/heldergoncalves" \
-            heldergoncalves:ci
-          for i in $(seq 1 30); do
-            sleep 1
-            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
-          done
-          curl -fsS http://127.0.0.1:3000/healthz | grep -qx ok
-          curl -fsS http://127.0.0.1:3000/ >/dev/null
-          # E o brotli sai mesmo do disco, sem a API comprimir nada.
-          curl -fsS -H 'Accept-Encoding: br' -o /dev/null -D - http://127.0.0.1:3000/ \
-            | grep -qi 'content-encoding: br'
-          # A migração correu, e a API sabe-o.
-          docker logs site 2>&1 | grep -q 'Running upgrade'
-          docker logs site 2>&1 | grep -qx 'postgres:   ligado'
-          docker logs site
-          docker rm -f site
-
-      - name: Quanto pesa, em disco e em memória
-        run: |
-          docker run -d --name peso --network host \
-            -e DATABASE_URL="postgresql+asyncpg://helder:helder@127.0.0.1:5432/heldergoncalves" \
-            heldergoncalves:ci
-          for i in $(seq 1 30); do
-            sleep 1
-            curl -fsS http://127.0.0.1:3000/healthz >/dev/null 2>&1 && break
-          done
-          # Uma centena de pedidos, para a cache encher com o que
-          # realmente se serve.
-          for i in $(seq 1 100); do curl -fsS http://127.0.0.1:3000/ >/dev/null; done
-          curl -fsS http://127.0.0.1:3000/en/ >/dev/null
-          sleep 2
-          # `tee` e não `>`: os números vão para o resumo da corrida e para
-          # o log. Uma medição que só se vê numa página web é uma medição
-          # que ninguém vai lá ver.
-          {
-            echo "### Peso"
-            echo ""
-            echo "| | |"
-            echo "| --- | --- |"
-            echo "| imagem | $(docker image ls heldergoncalves:ci --format '{{.Size}}') |"
-            echo "| memória, depois de 100 pedidos | $(docker stats peso --no-stream --format '{{.MemUsage}}') |"
-            echo ""
-            echo '```'
-            docker logs peso 2>&1 | grep -E 'cache:|origem:' || true
-            echo '```'
-          } | tee -a "$GITHUB_STEP_SUMMARY"
-          docker rm -f peso
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm audit --omit=dev --audit-level=high
+      # O build apanha artigos com o cabeçalho mal escrito (data, título, resumo em falta).
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1

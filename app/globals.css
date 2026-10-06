@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+  --font-leitura: var(--font-leitura), ui-serif, Georgia, serif;
+  --color-noite: #070a14;
+  --color-nevoa: #e8ecf4;
+  /* Páginas de leitura: papel quente de dia, azul-noite à noite. */
+  --color-fundo: var(--p-fundo);
+  --color-tinta: var(--p-tinta);
+  --color-suave: var(--p-suave);
+  --color-linha: var(--p-linha);
+  --color-acento: var(--p-acento);
+}
+
+:root {
+  --p-fundo: #f6f3ee;
+  --p-tinta: #15171d;
+  --p-suave: #686b75;
+  --p-linha: #ddd8cf;
+  --p-acento: #b4491a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --p-fundo: #0a1020;
+    --p-tinta: #eef1f7;
+    --p-suave: #99a0b2;
+    --p-linha: #222a3e;
+    --p-acento: #f4b36a;
+  }
+}
+
+html { background: var(--color-noite); color-scheme: dark light; }
+body { @apply bg-noite font-sans text-nevoa antialiased; text-rendering: optimizeLegibility; }
+body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
+.papel { min-height: 100svh; background: var(--p-fundo); color: var(--p-tinta); }
+::selection { background: #f4d9c0; color: #070a14; }
+:focus-visible { outline: 2px solid var(--p-acento); outline-offset: 3px; border-radius: 4px; }
+
+/* Único efeito do site: a frase da landing descodifica-se letra a letra e transforma-se
+   na seguinte (ver FraseViva). Sem JavaScript, ou com pouco movimento pedido, fica o texto parado. */
+.viva { display: block; opacity: 0; animation: mostrar .01s 2.4s forwards; }
+@keyframes mostrar { to { opacity: 1; } }
+.viva [data-linha] { display: block; white-space: pre; }
+.viva .c { display: inline-block; text-align: center; white-space: pre; transition: width .55s cubic-bezier(.16, 1, .3, 1); }
+.viva .c[data-s] { font-family: var(--font-mono); font-style: normal; font-size: .58em; color: #b9e6ff; opacity: .85; }
+.viva .c.trava { animation: trava .8s cubic-bezier(.16, 1, .3, 1); }
+@keyframes trava { from { color: #f8dcc0; transform: translateY(-.06em); } }
+@media (prefers-reduced-motion: reduce) { .viva { opacity: 1; animation: none; } .viva .c { transition: none; } }
+
+/* ---------- Leitura longa ---------- */
+.leitura {
+  font-family: var(--font-leitura);
+  font-optical-sizing: auto;
+  font-size: clamp(1.14rem, 1.25vw + .8rem, 1.32rem);
+  line-height: 1.72;
+  hyphens: auto;
+  color: var(--p-tinta);
+}
+.leitura > * + * { margin-top: 1.35em; }
+.leitura p { text-wrap: pretty; }
+.leitura h2 { font-family: var(--font-serif); font-weight: 400; font-size: 2.1em; line-height: 1.08; letter-spacing: -.02em; margin-top: 2.2em; text-wrap: balance; }
+.leitura h3 { font-family: var(--font-sans); font-weight: 600; font-size: 1.02em; letter-spacing: -.005em; margin-top: 1.9em; }
+.leitura h2 + *, .leitura h3 + * { margin-top: .7em; }
+.leitura a { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--p-acento) 55%, transparent); text-underline-offset: .22em; text-decoration-thickness: 1px; transition: text-decoration-color .2s; }
+.leitura a:hover { text-decoration-color: var(--p-acento); }
+.leitura strong { font-weight: 600; }
+.leitura ul, .leitura ol { padding-left: 1.3em; }
+.leitura ul { list-style: disc; }
+.leitura ol { list-style: decimal; }
+.leitura li + li { margin-top: .45em; }
+.leitura li::marker { color: var(--p-suave); }
+.leitura blockquote { border-left: 2px solid var(--p-acento); padding-left: 1.2em; font-style: italic; color: var(--p-suave); }
+.leitura hr { border: 0; height: 1px; background: var(--p-linha); margin-block: 2.6em; }
+.leitura code { font-family: var(--font-mono); font-size: .82em; background: color-mix(in srgb, var(--p-tinta) 7%, transparent); padding: .12em .38em; border-radius: .35em; }
+.leitura pre { overflow-x: auto; padding: 1.1em 1.3em; border-radius: .8em; background: color-mix(in srgb, var(--p-tinta) 6%, transparent); border: 1px solid var(--p-linha); font-size: .85em; line-height: 1.6; }
+.leitura pre code { background: none; padding: 0; font-size: 1em; }
+.leitura img { max-width: 100%; height: auto; border-radius: .8em; }
+.leitura table { width: 100%; border-collapse: collapse; font-size: .9em; }
+.leitura th, .leitura td { text-align: left; padding: .6em .8em; border-bottom: 1px solid var(--p-linha); }
+.leitura > p:first-of-type::first-letter { font-family: var(--font-serif); float: left; font-size: 4.6em; line-height: .82; padding: .06em .1em 0 0; color: var(--p-acento); }

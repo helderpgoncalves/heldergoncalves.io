@@ -1,71 +1,47 @@
-# ─────────────────────────────────────────────────────────────
-# heldergoncalves.io — Astro no stage 1, a API em FastAPI (api/) no
-# stage 2: ficheiros estáticos, cabeçalhos de segurança, contacto,
-# newsletter, o assistente das Mensagens, MCP, a Bolsa e o Calendário —
-# um processo só. Pronto para Coolify (build pack: Dockerfile — deteta
-# o EXPOSE 3000).
-# ─────────────────────────────────────────────────────────────
+# syntax=docker/dockerfile:1
+# Imagem pequena e com pouca RAM: Next em modo `standalone`, um só processo Node, utilizador sem privilégios.
 
-# ── Stage 1 — o site estático ────────────────────────────────
-FROM node:24-alpine AS build
+FROM node:22-alpine AS deps
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-# `npm install` (não `npm ci`) resolve de forma tolerante deps
-# opcionais específicas da plataforma linux do container — o lockfile
-# pode ter sido gerado noutra plataforma. Para um site estático é
-# seguro e mantém o build reprodutível em qualquer host.
-COPY package.json package-lock.json* ./
-RUN npm install --no-audit --no-fund
-
-# Copia o resto e gera o site estático em /app/dist. O `npm run build`
-# corre o Astro e a seguir a compressão: o `.br` e o `.gz` de cada
-# ficheiro ficam prontos aqui, para a API nunca ter de comprimir nada
-# em tempo de pedido.
-COPY astro.config.mjs tsconfig.json ./
-COPY public ./public
-COPY src ./src
-COPY scripts ./scripts
+FROM node:22-alpine AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# As fontes (Geist, Newsreader, Instrument Serif) são descarregadas do Google aqui, uma vez,
+# e ficam dentro da imagem: em produção o site não fala com o Google.
 RUN npm run build
 
-# ── Stage 2 — a API (FastAPI + uvicorn) ──────────────────────
-FROM python:3.12-slim AS runtime
+FROM node:22-alpine AS run
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0 \
+    NODE_OPTIONS=--max-old-space-size=160
 WORKDIR /app
+# Sem npm/yarn na imagem final: só o Node. Menos peso e menos coisas para atacar.
+RUN addgroup -S app && adduser -S app -G app \
+ && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn* /usr/local/bin/corepack
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    HOME=/app
+COPY --from=build --chown=app:app /app/.next/standalone ./
+COPY --from=build --chown=app:app /app/.next/static ./.next/static
+COPY --from=build --chown=app:app /app/public ./public
+# O que o aviso automático de artigos (scripts/notificar.mjs) precisa em execução. O Next só leva
+# para o standalone o que o servidor importa, e as páginas já vêm geradas: estes dois ficam de fora.
+COPY --from=build --chown=app:app /app/node_modules/yaml ./node_modules/yaml
+COPY --from=build --chown=app:app /app/node_modules/marked ./node_modules/marked
+COPY --from=build --chown=app:app /app/content ./content
+COPY --from=build --chown=app:app /app/lib/md.mjs /app/lib/email.mjs ./lib/
+COPY --from=build --chown=app:app /app/scripts/notificar.mjs ./scripts/notificar.mjs
 
-COPY api/requirements.txt ./api/requirements.txt
-RUN pip install --no-cache-dir -r api/requirements.txt
-
-COPY api/app ./app
-COPY api/alembic ./alembic
-COPY api/alembic.ini ./alembic.ini
-COPY --from=build /app/dist ./dist
-COPY knowledge ./knowledge
-
-# A lista da newsletter e as reuniões vivem aqui. Sem um volume montado
-# neste caminho, desaparecem quando o container é substituído — ver
-# DEPLOY.md.
-RUN useradd --system --uid 1001 site \
-    && mkdir -p /app/data \
-    && chown -R site /app
-VOLUME ["/app/data"]
-
-USER site
-
-# Coolify lê o EXPOSE para detetar a porta.
+USER app
 EXPOSE 3000
 
-# `/healthz` confirma que há um index.html para servir — não só que o
-# processo está vivo. O start-period é curto porque a API atende antes
-# de aquecer a cache: fica verde no segundo em que está mesmo pronta.
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/healthz', timeout=2)" || exit 1
+# O Coolify usa este HEALTHCHECK (a imagem tem wget). Sem resposta, não troca de versão.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1
 
-# Um processo só: os limites por visitante e as caches vivem em
-# memória, e mais do que um worker deixava de os partilhar. As
-# migrações do Alembic correm sempre antes — `upgrade head` é
-# idempotente, por isso um arranque com a base de dados já em dia não
-# faz nada.
-CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 3000 --workers 1 --no-access-log"]
+CMD ["node", "server.js"]

@@ -1,22 +1,7 @@
-node_modules/
-dist/
-.astro/
-.DS_Store
-.env
-.env.*
+node_modules
+.next
+.env*
 !.env.example
-
-# A lista da newsletter e o segredo que assina as ligações.
-# Vivem num volume no servidor, nunca aqui.
-data/
-
-# Configuração do Claude Code que é desta máquina, não do projecto.
-# O que é do projecto está em .claude/settings.json e vai no repositório.
-.claude/settings.local.json
-CLAUDE.local.md
-__pycache__/
-*.pyc
-.pytest_cache/
-.venv/
-api/tests/.tmp-data/
-api/tests/.tmp-dist/
+.DS_Store
+next-env.d.ts
+*.tsbuildinfo

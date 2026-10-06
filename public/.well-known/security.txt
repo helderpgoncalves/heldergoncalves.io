@@ -1,0 +1,4 @@
+Contact: mailto:work@heldergoncalves.io
+Expires: 2027-10-01T00:00:00.000Z
+Preferred-Languages: pt, en
+Canonical: https://heldergoncalves.io/.well-known/security.txt
