@@ -29,7 +29,4 @@ await sharp(fonte)
   .jpeg({ quality: 90, mozjpeg: true })
   .toFile('public/og.jpg');
 
-// Ícone: um H sóbrio com um ponto quente, o sol da imagem.
-const icone = (s) => `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0a1224"/><path d="M19 15v34M45 15v34M19 32h26" stroke="#eef2f9" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="50" cy="14" r="3.5" fill="#f4b36a"/></svg>`;
-await sharp(Buffer.from(icone(180))).png().toFile('app/apple-icon.png');
-console.log('og.jpg + ícones ok');
+console.log('og.jpg ok (o ícone é gerado por `npm run icone`)');
