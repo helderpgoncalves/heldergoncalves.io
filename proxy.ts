@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { appDe, subDe } from '@/lib/apps';
 
 // Ficheiros que são do site todo e não de uma mini-app em particular.
-const PARTILHADO = ['/_next/', '/api/health', '/img/', '/icon.svg', '/apple-icon.png', '/.well-known/'];
+const PARTILHADO = ['/_next/', '/api/health', '/img/', '/icon.png', '/favicon.ico', '/apple-icon.png', '/icon-192.png', '/icon-512.png', '/.well-known/'];
 const naoExiste = (req: NextRequest) => NextResponse.rewrite(new URL('/__nao-existe', req.url));
 
 export function proxy(req: NextRequest) {
