@@ -19,6 +19,7 @@ npm run dev                    # http://127.0.0.1:3100
 | `npm run typecheck` | TypeScript |
 | `npm run imagens` | regenera as versões AVIF/WebP/JPEG a partir de `fonte/hero.png` |
 | `npm run imagens-blog` | prepara as imagens dos textos a partir de `fonte/blog/` (ver [`docs/blog.md`](docs/blog.md)) |
+| `npm run texto -- <slug>` | revê um texto: português de Portugal, travessões, tiques de máquina, voz pessoal, cabeçalho |
 | `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.helder.si` |
 | `npm run verificar [-- <url>]` | verifica o SEO de ponta a ponta a partir do sitemap (contra o dev, ou contra produção) |
 | `npm run enviar -- <slug> --lang pt` | cria o rascunho de um artigo como newsletter no Resend |
@@ -53,3 +54,7 @@ Dockerfile               imagem de produção (~280 MB, ~40 MB de RAM)
   origem verificada, limites de tamanho e de pedidos, isco para robôs; contentor `read_only`, sem privilégios.
 
 **Deploy:** [`docs/deploy.md`](docs/deploy.md).
+
+**Escrever textos:** `/novo-post <tema, ligação ou notas>` no Claude Code (skill em `.claude/skills/novo-post`, com os
+agentes `redator-blog`, `revisor-blog` e `tradutor-blog`). A voz e as regras de português estão em
+`.claude/skills/novo-post/references/`; o formato e as imagens em [`docs/blog.md`](docs/blog.md).

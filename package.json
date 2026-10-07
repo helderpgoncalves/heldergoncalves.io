@@ -12,7 +12,8 @@
     "enviar": "node --env-file-if-exists=.env.local scripts/enviar.mjs",
     "notificar": "node --env-file-if-exists=.env.local scripts/notificar.mjs",
     "nova-app": "node scripts/nova-app.mjs",
-    "verificar": "node scripts/verificar-seo.mjs"
+    "verificar": "node scripts/verificar-seo.mjs",
+    "texto": "node scripts/verificar-texto.mjs"
   },
   "dependencies": {
     "highlight.js": "^11.12.0",
