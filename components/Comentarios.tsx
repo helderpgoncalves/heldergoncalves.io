@@ -5,22 +5,22 @@ import type { Copy, Lang } from '@/lib/copy';
 import type { ComentarioBlog } from '@/lib/comentarios';
 
 type C = ComentarioBlog & { meu: boolean };
-type Estado = 'parado' | 'a-enviar' | 'erro' | 'limite' | 'ligacoes';
+type Estado = 'parado' | 'a-enviar' | 'erro' | 'limite' | 'ligacoes' | 'email' | 'pendente';
 
 const post = (url: string, corpo?: unknown) =>
   fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo ?? {}) });
 
-// Só carrega quando o leitor chega perto (zero custo para quem não desce até aqui). Só subscritores comentam:
-// a sessão abre-se com uma ligação enviada ao e-mail subscrito (ver /api/comentarios/entrar).
+// Só carrega quando o leitor chega perto (zero custo para quem não desce até aqui). Qualquer pessoa escreve; para
+// publicar confirma o e-mail, o que a subscreve (ver /api/comentarios). Depois fica com sessão e comenta direto.
 export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Copy['comentarios'] }) {
   const raiz = useRef<HTMLElement>(null);
   const [lista, setLista] = useState<C[] | null>(null);
   const [sessao, setSessao] = useState<{ nome: string } | null>(null);
   const [nome, setNome] = useState('');
   const [texto, setTexto] = useState('');
+  const [email, setEmail] = useState('');
   const [pai, setPai] = useState<string | null>(null);
   const [estado, setEstado] = useState<Estado>('parado');
-  const [entrar, setEntrar] = useState<'fechado' | 'aberto' | 'a-enviar' | 'ok' | 'invalido' | 'limite'>('fechado');
 
   useEffect(() => {
     const el = raiz.current!;
@@ -47,16 +47,16 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
     if (estado === 'a-enviar') return;
     setEstado('a-enviar');
     try {
-      const r = await post('/api/comentarios', { slug, lang, nome, texto, pai });
+      const r = await post('/api/comentarios', { slug, lang, nome, texto, pai, ...(!sessao && { email, website: (document.getElementById('website-comentar') as HTMLInputElement | null)?.value ?? '' }) });
       if (r.status === 201) {
         const { comentario } = (await r.json()) as { comentario: C };
         setLista((l) => [...(l ?? []), comentario]);
         setTexto(''); setPai(null); setEstado('parado');
         return;
       }
-      if (r.status === 401) { setSessao(null); setEstado('parado'); return; }
+      if (r.status === 202) { setTexto(''); setPai(null); setEstado('pendente'); return; }
       const erro = ((await r.json().catch(() => ({}))) as { erro?: string }).erro;
-      setEstado(r.status === 429 ? 'limite' : erro === 'ligacoes' ? 'ligacoes' : 'erro');
+      setEstado(r.status === 429 ? 'limite' : erro === 'ligacoes' ? 'ligacoes' : erro === 'email' ? 'email' : 'erro');
     } catch { setEstado('erro'); }
   }
 
@@ -64,16 +64,6 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
     if (!confirm(t.apagarConfirma)) return;
     const r = await fetch(`/api/comentarios?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
     if (r.ok) setLista((l) => (l ?? []).filter((c) => c.id !== id && c.pai !== id));
-  }
-
-  async function pedirEntrada(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const email = new FormData(e.currentTarget).get('email-comentar');
-    setEntrar('a-enviar');
-    try {
-      const r = await post('/api/comentarios/entrar', { email, lang });
-      setEntrar(r.ok ? 'ok' : r.status === 400 ? 'invalido' : r.status === 429 ? 'limite' : 'invalido');
-    } catch { setEntrar('invalido'); }
   }
 
   async function sair() { await post('/api/comentarios/sair'); setSessao(null); }
@@ -92,7 +82,7 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
       </p>
       <p className="mt-1.5 font-leitura text-[1.08rem] leading-[1.6] break-words whitespace-pre-line text-pretty">{c.texto}</p>
       <p className="mt-2 flex gap-4 font-mono text-[0.74rem] text-suave">
-        {sessao && !resposta && <button type="button" onClick={() => { setPai(c.id); document.getElementById('form-comentar')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }} className="hover:text-tinta">{t.responder}</button>}
+        {!resposta && <button type="button" onClick={() => { setPai(c.id); document.getElementById('form-comentar')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }} className="hover:text-tinta">{t.responder}</button>}
         {c.meu && <button type="button" onClick={() => apagar(c.id)} className="hover:text-acento">{t.apagar}</button>}
       </p>
       {!resposta && respostas(c.id).length > 0 && <ul>{respostas(c.id).map((r) => <Cartao key={r.id} c={r} resposta />)}</ul>}
@@ -108,9 +98,12 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
       {lista && (topo.length === 0 ? <p className="mt-5 font-leitura text-lg text-suave">{t.vazio}</p> : <ul className="mt-2">{topo.map((c) => <Cartao key={c.id} c={c} />)}</ul>)}
 
       {lista && (
-        <div className="mt-8 rounded-2xl border border-linha p-6 sm:p-7">
-          {sessao ? (
+        <div className="relative mt-8 rounded-2xl border border-linha p-5 sm:p-7">
+          {estado === 'pendente' ? (
+            <p role="status" className="font-leitura text-[1.12rem] leading-[1.6] text-pretty">{t.pendenteEnviado}</p>
+          ) : (
             <form id="form-comentar" onSubmit={publicar} className="space-y-3">
+              {!sessao && <p className="pb-1 font-leitura text-[1.05rem] leading-[1.55] text-pretty">{t.soSubscritores}</p>}
               {alvo && (
                 <p className="flex items-center justify-between font-mono text-[0.76rem] text-suave">
                   <span>{t.respostaA} {alvo.nome}</span>
@@ -123,34 +116,26 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
               <label className="block font-mono text-[0.72rem] tracking-[0.12em] text-suave uppercase">{t.texto}
                 <textarea value={texto} onChange={(e) => setTexto(e.target.value)} required minLength={2} maxLength={2000} rows={5} placeholder={t.placeholder} className={`${campo} mt-2 resize-y normal-case [font-family:var(--font-sans)] tracking-normal`} />
               </label>
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              {!sessao && (
+                <>
+                  <label className="block font-mono text-[0.72rem] tracking-[0.12em] text-suave uppercase">{t.email}
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" inputMode="email" required maxLength={254} autoComplete="email" placeholder={lang === 'pt' ? 'o.teu@email.com' : 'your@email.com'} aria-describedby="email-nota" className={`${campo} mt-2 normal-case [font-family:var(--font-sans)] tracking-normal`} />
+                  </label>
+                  <p id="email-nota" className="text-[0.84rem] leading-snug text-suave">{t.emailNota}</p>
+                  {/* Isco para robôs: fora do ecrã e sem foco; uma pessoa nunca o preenche. */}
+                  <input id="website-comentar" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 opacity-0" />
+                </>
+              )}
+              <div className="flex flex-col-reverse items-stretch gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
                 <p role="status" aria-live="polite" className="text-[0.88rem] text-suave">
-                  {estado === 'erro' ? <span className="text-acento">{t.erro}</span> : estado === 'limite' ? <span className="text-acento">{t.limite}</span> : estado === 'ligacoes' ? <span className="text-acento">{t.ligacoes}</span> : t.regras}
+                  {estado === 'erro' ? <span className="text-acento">{t.erro}</span> : estado === 'limite' ? <span className="text-acento">{t.limite}</span> : estado === 'ligacoes' ? <span className="text-acento">{t.ligacoes}</span> : estado === 'email' ? <span className="text-acento">{t.entrarInvalido}</span> : t.regras}
                 </p>
-                <div className="flex items-center gap-4">
-                  <button type="button" onClick={sair} className="font-mono text-[0.76rem] text-suave hover:text-tinta">{t.sair}</button>
+                <div className="flex items-center justify-between gap-4 sm:justify-end">
+                  {sessao && <button type="button" onClick={sair} className="font-mono text-[0.76rem] text-suave hover:text-tinta">{t.sair}</button>}
                   <button type="submit" disabled={estado === 'a-enviar'} className="rounded-xl bg-tinta px-6 py-3 text-base font-medium text-fundo transition-opacity hover:opacity-90 disabled:opacity-50">{estado === 'a-enviar' ? t.aPublicar : t.publicar}</button>
                 </div>
               </div>
             </form>
-          ) : (
-            <div>
-              <p className="font-leitura text-[1.12rem] leading-[1.6] text-pretty">{t.soSubscritores}</p>
-              <p className="mt-3 font-mono text-[0.78rem]">
-                <a href="#subscrever" className="underline decoration-linha underline-offset-4 hover:text-acento">{lang === 'pt' ? 'Subscrever' : 'Subscribe'} ↑</a>
-                <span className="mx-3 text-suave">·</span>
-                <button type="button" onClick={() => setEntrar('aberto')} className="underline decoration-linha underline-offset-4 hover:text-acento">{t.jaSubscrevi}</button>
-              </p>
-              {entrar !== 'fechado' && (
-                <form onSubmit={pedirEntrada} noValidate className="mt-5 flex flex-col gap-2.5 sm:flex-row">
-                  <input name="email-comentar" type="email" inputMode="email" autoComplete="email" required maxLength={254} placeholder={lang === 'pt' ? 'o.teu@email.com' : 'your@email.com'} disabled={entrar === 'ok'} aria-label="E-mail" className={`${campo} min-w-0 flex-1`} />
-                  <button type="submit" disabled={entrar === 'a-enviar' || entrar === 'ok'} className="rounded-xl bg-tinta px-6 py-3 text-base font-medium text-fundo disabled:opacity-50">{entrar === 'a-enviar' ? t.entrarAEnviar : t.entrarBotao}</button>
-                </form>
-              )}
-              <p role="status" aria-live="polite" className="mt-3 min-h-[1.2rem] text-[0.92rem] text-acento">
-                {entrar === 'ok' ? <span className="text-tinta">{t.entrarEnviado}</span> : entrar === 'invalido' ? t.entrarInvalido : entrar === 'limite' ? t.entrarLimite : null}
-              </p>
-            </div>
           )}
         </div>
       )}

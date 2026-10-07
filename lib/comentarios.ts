@@ -76,3 +76,58 @@ export async function remover(id: string, h: string | null, admin = false) {
 export async function contar(lang: Lang, slug: string) {
   return [...(await todos()).values()].filter((c) => c.slug === slug && c.lang === lang).length;
 }
+
+/* ---------- Comentários à espera de confirmação do e-mail ---------- */
+// Quem escreve sem sessão deixa o comentário «pendente»; só se publica quando abre a ligação enviada ao seu e-mail
+// (que também o subscreve). Mesmo formato: JSON por linha, só de acrescentar. O e-mail nunca é guardado aqui.
+
+const PENDENTES = path.join(DIR, 'comentarios-pendentes.jsonl');
+const VALIDADE_PENDENTE = 48 * 3600_000;
+export type Pendente = { p: string; slug: string; lang: Lang; nome: string; texto: string; pai: string | null; h: string; criado: string };
+type LinhaPendente = Pendente | { usado: string };
+
+const gp = globalThis as { __pendBlog?: { todos?: Promise<Map<string, Pendente>>; escritas: Promise<unknown> } };
+const estadoP = (gp.__pendBlog ??= { escritas: Promise.resolve() });
+
+async function lerPendentes() {
+  const mapa = new Map<string, Pendente>();
+  let conteudo = '';
+  try { conteudo = await fs.readFile(PENDENTES, 'utf8'); } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'ENOENT') return mapa;
+    throw e;
+  }
+  for (const linha of conteudo.split('\n')) {
+    if (!linha) continue;
+    try {
+      const o = JSON.parse(linha) as Record<string, unknown>;
+      if (typeof o.usado === 'string') mapa.delete(o.usado);
+      else if (typeof o.p === 'string' && typeof o.texto === 'string') mapa.set(o.p, o as unknown as Pendente);
+    } catch { /* linha estragada */ }
+  }
+  return mapa;
+}
+const pendentes = () => (estadoP.todos ??= lerPendentes().catch((e) => { estadoP.todos = undefined; throw e; }));
+function acrescentarP(linha: LinhaPendente) {
+  estadoP.escritas = estadoP.escritas.catch(() => {}).then(async () => {
+    await fs.mkdir(DIR, { recursive: true });
+    await fs.appendFile(PENDENTES, JSON.stringify(linha) + '\n');
+  });
+  return estadoP.escritas;
+}
+
+export async function guardarPendente(d: Omit<Pendente, 'p' | 'criado'>) {
+  const pend: Pendente = { ...d, p: randomUUID(), criado: new Date().toISOString() };
+  (await pendentes()).set(pend.p, pend);
+  await acrescentarP(pend);
+  return pend.p;
+}
+
+/** Publica o comentário pendente (uma só vez). Devolve-o, ou null se não existe, já foi usado ou expirou. */
+export async function publicarPendente(id: string, h: string) {
+  const mapa = await pendentes();
+  const pend = mapa.get(id);
+  if (!pend || pend.h !== h || Date.now() - Date.parse(pend.criado) > VALIDADE_PENDENTE) return null;
+  mapa.delete(id);
+  await acrescentarP({ usado: id });
+  return criar({ lang: pend.lang, slug: pend.slug, nome: pend.nome, texto: pend.texto, pai: pend.pai, h: pend.h });
+}

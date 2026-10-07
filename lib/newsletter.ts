@@ -17,12 +17,12 @@ export const configurado = (lang: Lang) =>
 
 /* ---------- Token assinado: a confirmação não precisa de base de dados ---------- */
 
-type Carga = { e: string; l: Lang; x: number; k?: 's' | 'c' }; // k: 's' subscrever (por omissão), 'c' entrar para comentar
+type Carga = { e: string; l: Lang; x: number; k?: 's' | 'p'; p?: string }; // k: 's' subscrever (por omissão), 'p' subscrever e publicar o comentário pendente `p`
 const b64 = (b: Buffer | string) => Buffer.from(b).toString('base64url');
 const assinar = (dados: string) => createHmac('sha256', process.env.NEWSLETTER_SECRET!).update(dados).digest();
 
-function criarToken(email: string, lang: Lang, k: 's' | 'c' = 's', horas = HORAS): string {
-  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + horas * 3600_000, k } satisfies Carga));
+function criarToken(email: string, lang: Lang, k: 's' | 'p' = 's', horas = HORAS, p?: string): string {
+  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + horas * 3600_000, k, ...(p && { p }) } satisfies Carga));
   return `${carga}.${b64(assinar(carga))}`;
 }
 
@@ -35,7 +35,7 @@ export function lerToken(token: string): Carga | null {
   try {
     const c = JSON.parse(Buffer.from(carga, 'base64url').toString()) as Carga;
     if (typeof c.e !== 'string' || (c.l !== 'pt' && c.l !== 'en') || c.x < Date.now()) return null;
-    return { ...c, k: c.k === 'c' ? 'c' : 's' };
+    return { ...c, k: c.k === 'p' ? 'p' : 's', p: typeof c.p === 'string' ? c.p : undefined };
   } catch {
     return null;
   }
@@ -88,7 +88,7 @@ export async function adicionarContacto(email: string, lang: Lang): Promise<bool
   return true;
 }
 
-/* ---------- Comentários: só quem subscreve entra ---------- */
+/* ---------- Comentários: publicar exige e-mail confirmado (e subscrito) ---------- */
 
 /** Está subscrito (existe no Resend e não cancelou)? Em caso de dúvida, não. */
 export async function eSubscritor(email: string): Promise<boolean> {
@@ -96,23 +96,6 @@ export async function eSubscritor(email: string): Promise<boolean> {
   if (!r?.ok) return false;
   const c = (await r.json().catch(() => null)) as { unsubscribed?: boolean } | null;
   return Boolean(c) && c!.unsubscribed !== true;
-}
-
-/** O e-mail com a ligação que abre a sessão de comentários (30 minutos). */
-export async function enviarEntrada(email: string, lang: Lang): Promise<boolean> {
-  const m = copy[lang].mail.comentar;
-  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(criarToken(email, lang, 'c', 0.5))}`;
-  const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ec;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;color:#0a1224">
-<table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:36px 32px"><tr><td>
-<p style="margin:0 0 6px;font:600 13px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.04em;color:#6b7280">${esc(SITE.nome)}</p>
-<h1 style="margin:14px 0 14px;font-size:28px;line-height:1.15;font-weight:500">${esc(m.titulo)}</h1>
-<p style="margin:0 0 26px;font-size:17px;line-height:1.6;color:#374151">${esc(m.texto)}</p>
-<p style="margin:0 0 28px"><a href="${link}" style="display:inline-block;background:#0a1224;color:#fff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 22px;border-radius:10px">${esc(m.botao)}</a></p>
-<p style="margin:0;font:14px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#6b7280">${esc(copy[lang].mail.ignora)}</p>
-</td></tr></table></body></html>`;
-  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: m.assunto, html, text: `${m.titulo}\n\n${m.texto}\n${link}\n\n${copy[lang].mail.ignora}` });
-  if (!r.ok) console.error(`[comentarios] Resend /emails respondeu ${r.status}`);
-  return r.ok;
 }
 
 /* ---------- Sessão de quem comenta: um cookie assinado, sem guardar o e-mail ---------- */
@@ -146,4 +129,21 @@ export function lerSessao(valor: string | undefined): Sessao | null {
 export function sessaoComNome(s: { h: string; x: number }, nome: string): { valor: string; segundos: number } {
   const carga = b64(JSON.stringify({ h: s.h, x: s.x, n: nome } satisfies Sessao));
   return { valor: `${carga}.${b64(assinar(carga))}`, segundos: Math.max(60, Math.floor((s.x - Date.now()) / 1000)) };
+}
+
+/** O e-mail «confirma e publica»: a ligação subscreve (se ainda não estiver) e publica o comentário pendente. */
+export async function enviarPublicacao(email: string, lang: Lang, pendente: string, jaSubscrito: boolean): Promise<boolean> {
+  const m = copy[lang].mail[jaSubscrito ? 'publicar' : 'subscreverPublicar'];
+  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(criarToken(email, lang, 'p', HORAS, pendente))}`;
+  const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ec;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;color:#0a1224">
+<table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:36px 32px"><tr><td>
+<p style="margin:0 0 6px;font:600 13px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.04em;color:#6b7280">${esc(SITE.nome)}</p>
+<h1 style="margin:14px 0 14px;font-size:28px;line-height:1.15;font-weight:500">${esc(m.titulo)}</h1>
+<p style="margin:0 0 26px;font-size:17px;line-height:1.6;color:#374151">${esc(m.texto)}</p>
+<p style="margin:0 0 28px"><a href="${link}" style="display:inline-block;background:#0a1224;color:#fff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 22px;border-radius:10px">${esc(m.botao)}</a></p>
+<p style="margin:0;font:14px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#6b7280">${esc(copy[lang].mail.ignora)} ${esc(copy[lang].mail.rodape)}</p>
+</td></tr></table></body></html>`;
+  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: m.assunto, html, text: `${m.titulo}\n\n${m.texto}\n${link}\n\n${copy[lang].mail.ignora} ${copy[lang].mail.rodape}` });
+  if (!r.ok) console.error(`[comentarios] Resend /emails respondeu ${r.status}`);
+  return r.ok;
 }

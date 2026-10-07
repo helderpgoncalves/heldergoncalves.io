@@ -74,19 +74,14 @@ export type Copy = {
     erro: [string, string];
     voltar: string;
   };
-  mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string; comentar: { assunto: string; titulo: string; texto: string; botao: string } };
+  mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string; publicar: { assunto: string; titulo: string; texto: string; botao: string }; subscreverPublicar: { assunto: string; titulo: string; texto: string; botao: string } };
   comentarios: {
     titulo: string;
     um: string;                 // «1 comentário»
     varios: string;             // «{n} comentários»
     vazio: string;
     soSubscritores: string;     // explica a regra
-    jaSubscrevi: string;        // abre o formulário de entrada
-    entrarBotao: string;
-    entrarAEnviar: string;
-    entrarEnviado: string;
     entrarInvalido: string;
-    entrarLimite: string;
     nome: string;
     texto: string;
     placeholder: string;
@@ -103,6 +98,11 @@ export type Copy = {
     regras: string;
     respostaA: string;
     sessaoOk: [string, string];  // título e texto da página de confirmação
+    email: string;               // rótulo do e-mail no formulário
+    emailNota: string;           // explica porque se pede o e-mail
+    pendenteEnviado: string;     // depois de escrever sem sessão
+    publicadoOk: [string, string];  // página de confirmação: comentário publicado
+    confirmarPublicar: { titulo: string; texto: string; botao: string };
   };
 };
 
@@ -193,20 +193,16 @@ export const copy = {
       botao: 'Confirmar subscrição',
       ignora: 'Se não foste tu, ignora esta mensagem. Não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
-      comentar: { assunto: 'A tua ligação para comentar', titulo: 'Entra para comentar', texto: 'Carrega no botão para abrires a sessão e comentares no blog. A ligação vale 30 minutos.', botao: 'Entrar e comentar' },
+      publicar: { assunto: 'Confirma o teu comentário', titulo: 'Confirma o teu comentário', texto: 'Escreveste um comentário no blog do Hélder Gonçalves. Confirma que este e-mail é teu e o comentário fica publicado.', botao: 'Publicar o comentário' },
+      subscreverPublicar: { assunto: 'Confirma e publica o teu comentário', titulo: 'Confirma e publica o teu comentário', texto: 'Escreveste um comentário no blog do Hélder Gonçalves. Para comentar basta subscrever as cartas do blog (é grátis, sem spam, e sais com um clique). Ao confirmares, ficas subscrito e o comentário é publicado.', botao: 'Subscrever e publicar' },
     },
     comentarios: {
       titulo: 'Conversa',
       um: '1 comentário',
       varios: '{n} comentários',
       vazio: 'Ainda ninguém disse nada. Podes ser a primeira pessoa.',
-      soSubscritores: 'Para manter a conversa boa, só comenta quem subscreve a newsletter. É grátis, sem spam, e sais com um clique.',
-      jaSubscrevi: 'Já subscrevi, quero comentar',
-      entrarBotao: 'Enviar ligação',
-      entrarAEnviar: 'A enviar…',
-      entrarEnviado: 'Se esse e-mail estiver subscrito, enviei-te uma ligação. Abre-a para comentares.',
+      soSubscritores: 'Escreve já o que pensas. Para manter a conversa boa, o comentário só é publicado quando confirmas o e-mail, o que te subscreve às cartas do blog (grátis, sem spam, sais com um clique).',
       entrarInvalido: 'Esse e-mail não parece válido.',
-      entrarLimite: 'Demasiadas tentativas. Tenta mais tarde.',
       nome: 'O teu nome',
       texto: 'O teu comentário',
       placeholder: 'Diz o que pensas, com educação. Discordar é bem-vindo.',
@@ -223,6 +219,11 @@ export const copy = {
       regras: 'Sê simpático. Comentários ofensivos ou spam são apagados.',
       respostaA: 'Em resposta a',
       sessaoOk: ['Já podes comentar.', 'A sessão está aberta neste navegador. Volta ao texto e deixa o teu comentário.'],
+      email: 'O teu e-mail',
+      emailNota: 'Só para confirmar que és tu e te subscrever às cartas do blog. Não aparece junto ao comentário.',
+      pendenteEnviado: 'Quase! Enviei-te um e-mail: abre a ligação e o comentário fica publicado (e ficas subscrito).',
+      publicadoOk: ['Comentário publicado.', 'Obrigado. Ficas subscrito às cartas do blog e já podes comentar neste navegador sem confirmar outra vez.'],
+      confirmarPublicar: { titulo: 'Confirma o teu comentário', texto: 'Carrega no botão para confirmares o e-mail, subscreveres as cartas do blog e publicares o comentário.', botao: 'Publicar o comentário' },
     },
   },
   en: {
@@ -311,20 +312,16 @@ export const copy = {
       botao: 'Confirm subscription',
       ignora: 'If this was not you, ignore this message. Nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
-      comentar: { assunto: 'Your link to comment', titulo: 'Sign in to comment', texto: 'Press the button to open your session and comment on the blog. The link is valid for 30 minutes.', botao: 'Sign in and comment' },
+      publicar: { assunto: 'Confirm your comment', titulo: 'Confirm your comment', texto: 'You wrote a comment on Hélder Gonçalves’s blog. Confirm this email address is yours and the comment goes live.', botao: 'Publish the comment' },
+      subscreverPublicar: { assunto: 'Confirm and publish your comment', titulo: 'Confirm and publish your comment', texto: 'You wrote a comment on Hélder Gonçalves’s blog. To comment you just subscribe to the blog letters (free, no spam, and you can leave with one click). When you confirm, you are subscribed and the comment goes live.', botao: 'Subscribe and publish' },
     },
     comentarios: {
       titulo: 'Conversation',
       um: '1 comment',
       varios: '{n} comments',
       vazio: 'Nobody has said anything yet. You could be the first.',
-      soSubscritores: 'To keep the conversation good, only newsletter subscribers can comment. It is free, no spam, and you can leave with one click.',
-      jaSubscrevi: 'I already subscribed, I want to comment',
-      entrarBotao: 'Send link',
-      entrarAEnviar: 'Sending…',
-      entrarEnviado: 'If that email is subscribed, I sent you a link. Open it to comment.',
+      soSubscritores: 'Write what you think right away. To keep the conversation good, the comment goes live once you confirm your email, which subscribes you to the blog letters (free, no spam, leave with one click).',
       entrarInvalido: 'That email does not look valid.',
-      entrarLimite: 'Too many attempts. Try again later.',
       nome: 'Your name',
       texto: 'Your comment',
       placeholder: 'Say what you think, politely. Disagreeing is welcome.',
@@ -341,6 +338,11 @@ export const copy = {
       regras: 'Be kind. Offensive comments and spam are deleted.',
       respostaA: 'In reply to',
       sessaoOk: ['You can comment now.', 'Your session is open in this browser. Go back to the post and leave your comment.'],
+      email: 'Your email',
+      emailNota: 'Only to confirm it is you and subscribe you to the blog letters. It is not shown with the comment.',
+      pendenteEnviado: 'Almost! I sent you an email: open the link and the comment goes live (and you are subscribed).',
+      publicadoOk: ['Comment published.', 'Thank you. You are subscribed to the blog letters and can now comment in this browser without confirming again.'],
+      confirmarPublicar: { titulo: 'Confirm your comment', texto: 'Press the button to confirm your email, subscribe to the blog letters and publish the comment.', botao: 'Publish the comment' },
     },
   },
 } satisfies Record<Lang, Copy>;
