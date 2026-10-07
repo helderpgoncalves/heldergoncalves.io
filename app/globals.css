@@ -159,3 +159,16 @@ a:hover .fig.miniatura img { filter: brightness(1.04); }
 .capa-blog img { display: block; width: 100%; height: 100%; object-fit: cover; }
 @media (min-width: 40rem) { .capa-blog { margin: 3.5rem 0; } }
 @media print { .capa-blog { display: none; } }
+
+/* ---------- Bio: entrada suave (só opacidade e transformação, que correm na GPU e não pesam no telemóvel) ---------- */
+@keyframes bio-subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes bio-revelar { from { opacity: 0; } to { opacity: 1; } }
+.bio-entra { animation: bio-subir .7s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+.bio-fundo img { animation: bio-revelar 1.2s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .bio-entra, .bio-fundo img { animation: none; } }
+
+/* ---------- Página de confirmação: o visto desenha-se ---------- */
+.confirmar-circulo { stroke-dasharray: 132; stroke-dashoffset: 132; animation: confirmar-desenhar .7s cubic-bezier(.65, 0, .35, 1) forwards; }
+.confirmar-visto { stroke-dasharray: 40; stroke-dashoffset: 40; animation: confirmar-desenhar .45s .5s cubic-bezier(.65, 0, .35, 1) forwards; }
+@keyframes confirmar-desenhar { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .confirmar-circulo, .confirmar-visto { animation: none; stroke-dashoffset: 0; } }

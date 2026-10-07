@@ -8,6 +8,8 @@ export const linguaPadrao: Lang = 'pt'; // a do x-default
 export type Frase = { linhas: readonly string[]; autor?: string };
 
 // Um só tipo para as duas línguas: se faltar uma chave numa delas, o TypeScript recusa.
+type Carta = { assunto: string; preheader: string; titulo: string; texto: string; botao: string; fallback: string };
+
 export type Copy = {
   titulo: string;
   descricao: string;
@@ -65,6 +67,7 @@ export type Copy = {
     nota: string;
   };
   confirmar: {
+    etiqueta: string;
     titulo: string;
     texto: string;
     botao: string;
@@ -74,7 +77,7 @@ export type Copy = {
     erro: [string, string];
     voltar: string;
   };
-  mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string; publicar: { assunto: string; titulo: string; texto: string; botao: string }; subscreverPublicar: { assunto: string; titulo: string; texto: string; botao: string } };
+  mail: { subscrever: Carta; publicar: Carta; subscreverPublicar: Carta; ignora: string; rodape: string; assinatura: string; sobre: string };
   comentarios: {
     titulo: string;
     um: string;                 // «1 comentário»
@@ -177,24 +180,45 @@ export const copy = {
       nota: 'Sem spam e sem tracking. Sais com um clique.',
     },
     confirmar: {
-      titulo: 'Confirma a tua subscrição',
-      texto: 'Um último passo: carrega no botão para ficares subscrito.',
-      botao: 'Confirmar subscrição',
+      etiqueta: 'Quase lá',
+      titulo: 'Só falta um clique.',
+      texto: 'Carrega no botão para confirmares que o e-mail é teu e ficares a receber as cartas do blog. Prometo escrever só quando houver alguma coisa que valha a pena.',
+      botao: 'Confirmar a minha subscrição',
       aConfirmar: 'A confirmar…',
-      ok: ['Subscrição confirmada.', 'Obrigado. A próxima carta chega ao teu e-mail.'],
-      invalido: ['Esta ligação já não é válida.', 'Pode ter expirado. Subscreve outra vez e eu envio uma nova.'],
-      erro: ['Algo correu mal.', 'Não consegui concluir a subscrição. Tenta outra vez daqui a pouco.'],
+      ok: ['Estás dentro. Obrigado.', 'A subscrição está confirmada. A próxima carta chega ao teu e-mail, e nunca te escrevo só por escrever.'],
+      invalido: ['Esta ligação já não vale.', 'Pode ter expirado ou já ter sido usada. Subscreve outra vez e eu envio-te uma nova, sem problema nenhum.'],
+      erro: ['Isto não correu bem.', 'Não consegui concluir agora, e a culpa não é tua. Tenta outra vez daqui a pouco.'],
       voltar: 'Ir para o blog',
     },
     mail: {
-      assunto: 'Confirma a tua subscrição',
-      titulo: 'Confirma a tua subscrição',
-      texto: 'Pediste para receber as cartas do blog do Hélder Gonçalves. Confirma que este e-mail é teu:',
-      botao: 'Confirmar subscrição',
-      ignora: 'Se não foste tu, ignora esta mensagem. Não acontece nada.',
+      subscrever: {
+        assunto: 'Falta só um clique para entrares',
+        preheader: 'Confirma o teu e-mail e as próximas cartas do blog chegam até ti.',
+        titulo: 'Que bom ter-te por aqui.',
+        texto: 'Pediste para receber as cartas do meu blog. Escrevo sobre dinheiro, vida, ideias e software, quando tenho alguma coisa que valha a pena dizer. Sem spam e sem rotinas forçadas.\n\nSó falta confirmar que este e-mail é mesmo teu. É um clique:',
+        botao: 'Confirmar a minha subscrição',
+        fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
+      },
+      publicar: {
+        assunto: 'O teu comentário está quase a sair',
+        preheader: 'Um clique para o teu comentário aparecer no texto.',
+        titulo: 'O teu comentário está quase a sair.',
+        texto: 'Obrigado por teres escrito. Ainda não o publiquei porque primeiro confirmo que o e-mail é teu, para a conversa continuar a ser entre pessoas de verdade.\n\nCarrega no botão e ele aparece logo no texto:',
+        botao: 'Publicar o meu comentário',
+        fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
+      },
+      subscreverPublicar: {
+        assunto: 'Confirma e o teu comentário sai',
+        preheader: 'Um clique: ficas nas cartas do blog e o teu comentário é publicado.',
+        titulo: 'Obrigado por teres escrito.',
+        texto: 'O teu comentário ficou guardado e está pronto a sair. Para comentar aqui basta subscreveres as cartas do blog, que é grátis, sem spam e podes sair com um clique, quando quiseres.\n\nAo confirmares, ficas subscrito e o comentário aparece no texto:',
+        botao: 'Subscrever e publicar',
+        fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
+      },
+      ignora: 'Se não foste tu, ignora esta mensagem: não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
-      publicar: { assunto: 'Confirma o teu comentário', titulo: 'Confirma o teu comentário', texto: 'Escreveste um comentário no blog do Hélder Gonçalves. Confirma que este e-mail é teu e o comentário fica publicado.', botao: 'Publicar o comentário' },
-      subscreverPublicar: { assunto: 'Confirma e publica o teu comentário', titulo: 'Confirma e publica o teu comentário', texto: 'Escreveste um comentário no blog do Hélder Gonçalves. Para comentar basta subscrever as cartas do blog (é grátis, sem spam, e sais com um clique). Ao confirmares, ficas subscrito e o comentário é publicado.', botao: 'Subscrever e publicar' },
+      assinatura: 'Um abraço,',
+      sobre: 'Hélder Gonçalves · heldergoncalves.io',
     },
     comentarios: {
       titulo: 'Conversa',
@@ -222,8 +246,8 @@ export const copy = {
       email: 'O teu e-mail',
       emailNota: 'Só para confirmar que és tu e te subscrever às cartas do blog. Não aparece junto ao comentário.',
       pendenteEnviado: 'Quase! Enviei-te um e-mail: abre a ligação e o comentário fica publicado (e ficas subscrito).',
-      publicadoOk: ['Comentário publicado.', 'Obrigado. Ficas subscrito às cartas do blog e já podes comentar neste navegador sem confirmar outra vez.'],
-      confirmarPublicar: { titulo: 'Confirma o teu comentário', texto: 'Carrega no botão para confirmares o e-mail, subscreveres as cartas do blog e publicares o comentário.', botao: 'Publicar o comentário' },
+      publicadoOk: ['Comentário publicado. Obrigado!', 'Ficas subscrito às cartas do blog e podes voltar a comentar neste navegador sem confirmar outra vez.'],
+      confirmarPublicar: { titulo: 'O teu comentário está quase a sair.', texto: 'Carrega no botão para confirmares o e-mail, ficares nas cartas do blog e publicares o comentário. É um clique.', botao: 'Publicar o meu comentário' },
     },
   },
   en: {
@@ -296,24 +320,45 @@ export const copy = {
       nota: 'No spam, no tracking. One click to leave.',
     },
     confirmar: {
-      titulo: 'Confirm your subscription',
-      texto: 'One last step: press the button to complete your subscription.',
-      botao: 'Confirm subscription',
+      etiqueta: 'Almost there',
+      titulo: 'Just one click left.',
+      texto: 'Press the button to confirm the email address is yours and start receiving the blog letters. I promise to write only when there is something worth saying.',
+      botao: 'Confirm my subscription',
       aConfirmar: 'Confirming…',
-      ok: ['Subscription confirmed.', 'Thank you. The next letter will land in your inbox.'],
-      invalido: ['This link is no longer valid.', 'It may have expired. Subscribe again and I will send a fresh one.'],
-      erro: ['Something went wrong.', 'I could not complete your subscription. Please try again shortly.'],
+      ok: ['You are in. Thank you.', 'Your subscription is confirmed. The next letter lands in your inbox, and I never write just for the sake of it.'],
+      invalido: ['This link is no longer valid.', 'It may have expired or already been used. Subscribe again and I will send you a fresh one, no problem at all.'],
+      erro: ['That did not go well.', 'I could not finish just now, and it is not your fault. Please try again shortly.'],
       voltar: 'Go to the blog',
     },
     mail: {
-      assunto: 'Confirm your subscription',
-      titulo: 'Confirm your subscription',
-      texto: 'You asked to receive letters from Hélder Gonçalves’s blog. Please confirm this email address is yours:',
-      botao: 'Confirm subscription',
-      ignora: 'If this was not you, ignore this message. Nothing will happen.',
+      subscrever: {
+        assunto: 'One click and you are in',
+        preheader: 'Confirm your email and the next letters from the blog will find you.',
+        titulo: 'So good to have you here.',
+        texto: 'You asked to receive letters from my blog. I write about money, life, ideas and software, whenever I have something worth saying. No spam and no forced routines.\n\nThe only thing left is confirming this email address is really yours. It takes one click:',
+        botao: 'Confirm my subscription',
+        fallback: 'If the button does not open, copy this link into your browser:',
+      },
+      publicar: {
+        assunto: 'Your comment is almost live',
+        preheader: 'One click and your comment appears under the post.',
+        titulo: 'Your comment is almost live.',
+        texto: 'Thank you for writing. I have not published it yet because I first confirm the email address is yours, so the conversation stays between real people.\n\nPress the button and it appears right under the post:',
+        botao: 'Publish my comment',
+        fallback: 'If the button does not open, copy this link into your browser:',
+      },
+      subscreverPublicar: {
+        assunto: 'Confirm and your comment goes live',
+        preheader: 'One click: you join the blog letters and your comment is published.',
+        titulo: 'Thank you for writing.',
+        texto: 'Your comment is saved and ready to go. To comment here you just subscribe to the blog letters, which is free, spam-free, and you can leave with one click whenever you like.\n\nWhen you confirm, you are subscribed and the comment appears under the post:',
+        botao: 'Subscribe and publish',
+        fallback: 'If the button does not open, copy this link into your browser:',
+      },
+      ignora: 'If this was not you, ignore this message: nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
-      publicar: { assunto: 'Confirm your comment', titulo: 'Confirm your comment', texto: 'You wrote a comment on Hélder Gonçalves’s blog. Confirm this email address is yours and the comment goes live.', botao: 'Publish the comment' },
-      subscreverPublicar: { assunto: 'Confirm and publish your comment', titulo: 'Confirm and publish your comment', texto: 'You wrote a comment on Hélder Gonçalves’s blog. To comment you just subscribe to the blog letters (free, no spam, and you can leave with one click). When you confirm, you are subscribed and the comment goes live.', botao: 'Subscribe and publish' },
+      assinatura: 'Warmly,',
+      sobre: 'Hélder Gonçalves · heldergoncalves.io',
     },
     comentarios: {
       titulo: 'Conversation',
@@ -341,8 +386,8 @@ export const copy = {
       email: 'Your email',
       emailNota: 'Only to confirm it is you and subscribe you to the blog letters. It is not shown with the comment.',
       pendenteEnviado: 'Almost! I sent you an email: open the link and the comment goes live (and you are subscribed).',
-      publicadoOk: ['Comment published.', 'Thank you. You are subscribed to the blog letters and can now comment in this browser without confirming again.'],
-      confirmarPublicar: { titulo: 'Confirm your comment', texto: 'Press the button to confirm your email, subscribe to the blog letters and publish the comment.', botao: 'Publish the comment' },
+      publicadoOk: ['Comment published. Thank you!', 'You are subscribed to the blog letters and can comment again in this browser without confirming.'],
+      confirmarPublicar: { titulo: 'Your comment is almost live.', texto: 'Press the button to confirm your email, join the blog letters and publish the comment. It takes one click.', botao: 'Publish my comment' },
     },
   },
 } satisfies Record<Lang, Copy>;

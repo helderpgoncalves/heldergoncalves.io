@@ -58,24 +58,46 @@ async function resend(caminho: string, metodo: 'POST' | 'PATCH' | 'GET', corpo?:
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
-export async function enviarConfirmacao(email: string, lang: Lang): Promise<boolean> {
-  const m = copy[lang].mail;
+type Tipo = 'subscrever' | 'publicar' | 'subscreverPublicar';
+
+/** A carta de confirmação: a mesma casa nos três casos (subscrever, publicar, subscrever e publicar). */
+function carta(lang: Lang, tipo: Tipo, link: string) {
+  const { mail } = copy[lang];
+  const m = mail[tipo];
+  const paragrafos = m.texto.split('\n\n').map((p) => `<p class="t2" style="margin:0 0 18px;font-size:17px;line-height:1.65;color:#3a3f4b">${esc(p)}</p>`).join('');
+  const sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+  const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${esc(m.assunto)}</title>
+<style>@media (prefers-color-scheme: dark){.fundo{background:#0a1020!important}.cartao{background:#121a2e!important}.t1{color:#eef1f7!important}.t2{color:#c4cad8!important}.t3{color:#8f97ab!important}.lk{color:#f4b36a!important}.linha{border-color:#222a3e!important}}@media (max-width:480px){.cartao{padding:30px 22px!important}.h1{font-size:27px!important}}</style></head>
+<body class="fundo" style="margin:0;padding:0;background:#f4f1ec">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${esc(m.preheader)}${'&nbsp;&zwnj;'.repeat(40)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="fundo" style="background:#f4f1ec"><tr><td align="center" style="padding:36px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px"><tr><td style="padding:0 6px 18px;font:600 13px/1 ${sans};letter-spacing:.06em;color:#6b7280" class="t3"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f4b36a;margin-right:8px"></span>${esc(SITE.nome.toUpperCase())}</td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="cartao" style="max-width:540px;background:#ffffff;border-radius:18px;padding:42px 38px"><tr><td>
+<h1 class="h1 t1" style="margin:0 0 22px;font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.01em;color:#0a1224">${esc(m.titulo)}</h1>
+<div class="t2" style="font-family:Georgia,'Times New Roman',serif">${paragrafos}</div>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:30px 0 26px"><tr><td style="border-radius:12px;background:#f4b36a"><a href="${link}" style="display:inline-block;padding:16px 28px;font:600 16px/1 ${sans};color:#0a1224;text-decoration:none;border-radius:12px">${esc(m.botao)} &rarr;</a></td></tr></table>
+<p class="t3" style="margin:0 0 6px;font:13px/1.55 ${sans};color:#8a8f9c">${esc(m.fallback)}</p>
+<p style="margin:0 0 30px;font:12px/1.5 ${sans};word-break:break-all"><a href="${link}" class="lk" style="color:#b4491a">${esc(link)}</a></p>
+<p class="t2" style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.5;color:#3a3f4b">${esc(mail.assinatura)}</p>
+<p class="t1" style="margin:2px 0 0;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:24px;line-height:1.3;color:#0a1224">Hélder</p>
+</td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px"><tr><td class="t3" style="padding:22px 10px 0;font:12.5px/1.65 ${sans};color:#8a8f9c;text-align:center">${esc(mail.ignora)} ${esc(mail.rodape)}<br>${esc(mail.sobre)}</td></tr></table>
+</td></tr></table></body></html>`;
+  const text = `${m.titulo}\n\n${m.texto}\n${link}\n\n${mail.assinatura} Hélder\n\n${mail.ignora} ${mail.rodape}\n${mail.sobre}`;
+  return { assunto: m.assunto, html, text };
+}
+
+async function enviarCarta(email: string, lang: Lang, tipo: Tipo, token: string): Promise<boolean> {
   // A ligação abre uma página com botão (POST), nunca confirma sozinha: os antivírus
   // e as pré-visualizações de e-mail abrem links, e não podem subscrever ninguém.
-  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(criarToken(email, lang))}`;
-  const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ec;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;color:#0a1224">
-<table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:36px 32px"><tr><td>
-<p style="margin:0 0 6px;font:600 13px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.04em;color:#6b7280">${esc(SITE.nome)}</p>
-<h1 style="margin:14px 0 14px;font-size:28px;line-height:1.15;font-weight:500">${esc(m.titulo)}</h1>
-<p style="margin:0 0 26px;font-size:17px;line-height:1.6;color:#374151">${esc(m.texto)}</p>
-<p style="margin:0 0 28px"><a href="${link}" style="display:inline-block;background:#0a1224;color:#fff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 22px;border-radius:10px">${esc(m.botao)}</a></p>
-<p style="margin:0;font:14px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#6b7280">${esc(m.ignora)} ${esc(m.rodape)}</p>
-</td></tr></table></body></html>`;
-  const text = `${m.titulo}\n\n${m.texto}\n${link}\n\n${m.ignora} ${m.rodape}`;
-  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: m.assunto, html, text });
+  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(token)}`;
+  const { assunto, html, text } = carta(lang, tipo, link);
+  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: assunto, html, text });
   if (!r.ok) console.error(`[newsletter] Resend /emails respondeu ${r.status}`);
   return r.ok;
 }
+
+export const enviarConfirmacao = (email: string, lang: Lang) => enviarCarta(email, lang, 'subscrever', criarToken(email, lang));
 
 /** Cria o contacto no segmento; se já existir, garante que volta a estar subscrito. */
 export async function adicionarContacto(email: string, lang: Lang): Promise<boolean> {
@@ -132,18 +154,5 @@ export function sessaoComNome(s: { h: string; x: number }, nome: string): { valo
 }
 
 /** O e-mail «confirma e publica»: a ligação subscreve (se ainda não estiver) e publica o comentário pendente. */
-export async function enviarPublicacao(email: string, lang: Lang, pendente: string, jaSubscrito: boolean): Promise<boolean> {
-  const m = copy[lang].mail[jaSubscrito ? 'publicar' : 'subscreverPublicar'];
-  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(criarToken(email, lang, 'p', HORAS, pendente))}`;
-  const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ec;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;color:#0a1224">
-<table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:36px 32px"><tr><td>
-<p style="margin:0 0 6px;font:600 13px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.04em;color:#6b7280">${esc(SITE.nome)}</p>
-<h1 style="margin:14px 0 14px;font-size:28px;line-height:1.15;font-weight:500">${esc(m.titulo)}</h1>
-<p style="margin:0 0 26px;font-size:17px;line-height:1.6;color:#374151">${esc(m.texto)}</p>
-<p style="margin:0 0 28px"><a href="${link}" style="display:inline-block;background:#0a1224;color:#fff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 22px;border-radius:10px">${esc(m.botao)}</a></p>
-<p style="margin:0;font:14px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#6b7280">${esc(copy[lang].mail.ignora)} ${esc(copy[lang].mail.rodape)}</p>
-</td></tr></table></body></html>`;
-  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: m.assunto, html, text: `${m.titulo}\n\n${m.texto}\n${link}\n\n${copy[lang].mail.ignora} ${copy[lang].mail.rodape}` });
-  if (!r.ok) console.error(`[comentarios] Resend /emails respondeu ${r.status}`);
-  return r.ok;
-}
+export const enviarPublicacao = (email: string, lang: Lang, pendente: string, jaSubscrito: boolean) =>
+  enviarCarta(email, lang, jaSubscrito ? 'publicar' : 'subscreverPublicar', criarToken(email, lang, 'p', HORAS, pendente));
