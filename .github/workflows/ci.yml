@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verificar:
     runs-on: ubuntu-latest
@@ -19,6 +23,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
+      # Barra textos com marcadores por preencher, travessões, brasileirismos e cabeçalhos incompletos.
+      - run: npm run texto
       - run: npm audit --omit=dev --audit-level=high
       # O build apanha artigos com o cabeçalho mal escrito (data, título, resumo em falta).
       - run: npm run build

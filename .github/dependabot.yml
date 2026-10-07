@@ -1,0 +1,32 @@
+# Atualizações semanais, agrupadas: um PR por ecossistema com as subidas pequenas (minor e patch).
+# As subidas grandes (major) vêm em PR à parte, para se lerem as notas de versão antes de aceitar.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Lisbon }
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message: { prefix: "deps" }
+    groups:
+      minor-e-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Lisbon }
+    labels: [dependencies]
+    commit-message: { prefix: "docker" }
+    ignore:
+      # O Node da imagem acompanha o `.nvmrc` e o CI: muda-se à mão, de propósito, de LTS em LTS.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "07:00", timezone: Europe/Lisbon }
+    labels: [dependencies]
+    commit-message: { prefix: "ci" }
+    groups:
+      actions:
+        patterns: ["*"]

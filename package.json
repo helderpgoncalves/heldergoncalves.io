@@ -11,6 +11,7 @@
     "icone": "node scripts/icone.mjs",
     "ascii": "node scripts/ascii.mjs",
     "imagens-blog": "node scripts/imagens-blog.mjs",
+    "imagem-bio": "node scripts/imagem-bio.mjs",
     "enviar": "node --env-file-if-exists=.env.local scripts/enviar.mjs",
     "notificar": "node --env-file-if-exists=.env.local scripts/notificar.mjs",
     "nova-app": "node scripts/nova-app.mjs",
