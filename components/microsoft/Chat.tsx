@@ -5,6 +5,7 @@ import { corCss } from '@/lib/microsoft/chat';
 import type { Comentario } from '@/lib/microsoft/tipos';
 import { Mensagem } from './Mensagem';
 import { Perfil, PerfilBalao } from './Perfil';
+import { toque } from './toque';
 import { useIdentidade } from './useIdentidade';
 
 const MENSAGENS: Record<string, string> = {
@@ -64,6 +65,16 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
     minhaUltima.current = false;
   }, [comentarios.length, paraOFim]);
 
+  // Se estavas a ver o fim, continuas a vê-lo quando a lista muda de tamanho: ao abrir a aba do chat
+  // (estava escondida) ou quando o teclado sobe e o compositor ocupa o espaço.
+  useEffect(() => {
+    const el = lista.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => { if (perto.current) el.scrollTo({ top: el.scrollHeight }); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const aoRolar = () => {
     const el = lista.current;
     if (!el) return;
@@ -83,6 +94,7 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
       const j = (await r.json().catch(() => ({}))) as { erro?: string; comentario?: Comentario; segredo?: string };
       if (r.ok && j.comentario) {
         minhaUltima.current = true;
+        toque();
         if (j.segredo) id.guardarSegredo(j.comentario.id, j.segredo);
         acoes.adicionar(j.comentario);
         setTexto('');
@@ -98,10 +110,19 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
     }
   }
 
-  // Enter envia; Shift+Enter muda de linha (e nunca a meio de uma composição de teclado).
+  // Desktop: Enter envia e Shift+Enter muda de linha. Telemóvel: Enter muda de linha (como no WhatsApp)
+  // e o botão envia. Nunca a meio de uma composição de teclado.
   const aoTeclar = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void enviar(); }
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); void enviar(); }
   };
+
+  // A caixa cresce com o texto, até um limite (não dependemos do `field-sizing`, que nem todos os browsers têm).
+  useLayoutEffect(() => {
+    const el = caixa.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [texto, id.pronto]);
 
   async function reagir(c: Comentario, emoji: string) {
     if (!id.cliente) return;
@@ -134,9 +155,9 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
   const entrar = id.carregado && !id.pronto && !espreitar;
 
   return (
-    <section aria-labelledby="t-chat" className="@container flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]">
-      <header className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 @[28rem]:px-5 @[28rem]:py-3.5">
-        <h2 id="t-chat" className="font-serif text-[1.7rem] leading-none tracking-[-0.02em]">A selva <span aria-hidden>🦍</span></h2>
+    <section aria-labelledby="t-chat" className="@container flex h-full min-h-0 flex-col overflow-hidden bg-transparent tela:rounded-3xl tela:border tela:border-white/10 tela:bg-white/[0.025]">
+      <header className="flex items-center justify-between gap-3 border-y border-white/10 px-4 py-2.5 tela:border-t-0 tela:px-5 tela:py-3.5">
+        <h2 id="t-chat" className="font-serif text-[1.55rem] leading-none tracking-[-0.02em] tela:text-[1.7rem]">A selva <span aria-hidden>🦍</span></h2>
         <p className="flex items-center gap-2 font-mono text-[0.72rem] text-nevoa/55">
           <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${ligado ? 'bg-[#34d399]' : 'bg-[#fbbf24]'}`} />
           {ligado ? `${Math.max(1, online)} ${online === 1 ? 'macaco online' : 'macacos online'}` : 'a reconectar…'}
@@ -144,7 +165,7 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
       </header>
 
       <div className="relative min-h-0 flex-1">
-        <div ref={lista} onScroll={aoRolar} role="log" aria-live="polite" aria-relevant="additions" tabIndex={0} aria-label="Mensagens" className="h-full overflow-y-auto overscroll-contain px-4 py-4 @[28rem]:px-5">
+        <div ref={lista} onScroll={aoRolar} role="log" aria-live="polite" aria-relevant="additions" tabIndex={0} aria-label="Mensagens" className="h-full overflow-y-auto overscroll-contain px-3 py-4 [scrollbar-width:thin] @[28rem]:px-5">
           {comentarios.length === 0 ? (
             <p className="grid h-full place-items-center text-center text-nevoa/45">A selva está em silêncio.<br />Sê o primeiro macaco a falar. 🍌</p>
           ) : (
@@ -160,7 +181,7 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
         </div>
 
         {novas > 0 && (
-          <button type="button" onClick={() => paraOFim(true)} className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-nevoa px-4 py-1.5 font-mono text-[0.78rem] text-noite shadow-[0_8px_30px_-6px_#000]">
+          <button type="button" onClick={() => paraOFim(true)} className="absolute bottom-3 left-1/2 min-h-10 -translate-x-1/2 rounded-full bg-nevoa px-4 font-mono text-[0.82rem] text-noite shadow-[0_8px_30px_-6px_#000] active:scale-95">
             ↓ {novas} {novas === 1 ? 'mensagem nova' : 'mensagens novas'}
           </button>
         )}
@@ -174,14 +195,14 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
                 <p className="mt-2 text-[0.95rem] text-nevoa/60">Escolhe um nome e um avatar. Só precisas de o fazer uma vez.</p>
               </div>
               <Perfil key="entrar" inicial={{ nome: id.nome, avatar: id.avatar, cor: id.cor }} botao="Entrar 🚀" aoGuardar={id.definir} />
-              <button type="button" onClick={() => setEspreitar(true)} className="justify-self-center font-mono text-[0.78rem] text-nevoa/45 underline-offset-4 transition-colors hover:text-nevoa hover:underline">só espreitar</button>
+              <button type="button" onClick={() => setEspreitar(true)} className="min-h-11 justify-self-center px-4 font-mono text-[0.85rem] text-nevoa/55 underline-offset-4 transition-colors active:text-nevoa tela:hover:text-nevoa tela:hover:underline">só espreitar</button>
             </div>
           </div>
         )}
       </div>
 
       {!entrar && (
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-white/10 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {!id.carregado ? (
           <div className="h-11" />
         ) : id.pronto ? (
@@ -199,17 +220,17 @@ export function Chat({ comentarios, online, ligado, acoes }: Props) {
               </div>
               <form onSubmit={enviar} className="flex min-w-0 flex-1 items-end gap-2">
                 <textarea
-                  ref={caixa} value={texto} onChange={(e) => setTexto(e.target.value)} onKeyDown={aoTeclar} maxLength={280} rows={1} aria-label="Mensagem" placeholder="Fala com a selva…" enterKeyHint="send"
-                  className="max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-3xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-base leading-snug outline-none transition-colors placeholder:text-nevoa/35 focus:border-nevoa/50 [field-sizing:content]"
+                  ref={caixa} value={texto} onChange={(e) => setTexto(e.target.value)} onKeyDown={aoTeclar} maxLength={280} rows={1} aria-label="Mensagem" placeholder="Fala com a selva…" enterKeyHint="enter" autoCapitalize="sentences"
+                  className="max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-3xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-base leading-snug outline-none transition-colors placeholder:text-nevoa/35 focus:border-nevoa/50"
                 />
                 <button
-                  type="submit" disabled={aEnviar || !texto.trim()} aria-label="Enviar"
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nevoa text-[1.2rem] text-noite transition-[opacity,scale] hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nevoa disabled:scale-100 disabled:opacity-35"
+                  type="submit" disabled={aEnviar || !texto.trim()} aria-label="Enviar" onPointerDown={(e) => e.preventDefault()}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nevoa text-[1.2rem] text-noite transition-[opacity,scale] active:scale-90 tela:hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nevoa disabled:scale-100 disabled:opacity-35"
                 >{aEnviar ? '…' : '🚀'}</button>
               </form>
             </div>
             <p className="mt-1.5 flex justify-between px-1 font-mono text-[0.66rem] text-nevoa/35">
-              <span className="hidden [@media(hover:hover)]:inline">Enter envia · Shift+Enter nova linha</span>
+              <span className="hidden [@media(hover:hover)_and_(pointer:fine)]:inline">Enter envia · Shift+Enter nova linha</span>
               {[...texto].length >= 200 && <span className="ml-auto tabular-nums">{[...texto].length}/280</span>}
             </p>
           </div>

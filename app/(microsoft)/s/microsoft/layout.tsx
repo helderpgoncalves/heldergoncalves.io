@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   openGraph: { title: '🦍 Microsoft — falta quanto para os 50%?', description: 'A Microsoft em tempo real, até chegar aos 50% de lucro. Mãos de diamante. 💎🙌', locale: 'pt_PT', type: 'website' },
 };
-export const viewport: Viewport = { themeColor: '#070a14', colorScheme: 'dark' };
+// viewportFit: ocupa o ecrã todo (a app trata das zonas seguras); interactiveWidget: o teclado encolhe a página.
+export const viewport: Viewport = { themeColor: '#070a14', colorScheme: 'dark', viewportFit: 'cover', interactiveWidget: 'resizes-content' };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

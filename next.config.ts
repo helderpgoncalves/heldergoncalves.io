@@ -33,6 +33,7 @@ const config: NextConfig = {
   outputFileTracingExcludes: { '*': ['node_modules/sharp/**', 'node_modules/@img/**'] },
   experimental: { globalNotFound: true }, // um 404 só, com as duas línguas, apesar das várias raízes
   agentRules: false, // não gerar AGENTS.md
+  devIndicators: false, // o selo do Next em desenvolvimento tapava o avatar do chat no telemóvel
   poweredByHeader: false,
   reactStrictMode: true,
   async headers() {

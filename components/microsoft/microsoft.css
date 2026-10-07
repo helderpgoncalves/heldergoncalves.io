@@ -19,7 +19,17 @@
 .msft-marcador { transition: left 1.1s cubic-bezier(.16, 1, .3, 1); }
 .msft-enchimento { transition: clip-path 1.1s cubic-bezier(.16, 1, .3, 1); }
 
+@keyframes msft-sobe-folha { from { transform: translateY(100%); } }
+@keyframes msft-fundo { from { opacity: 0; } }
+.msft-folha { animation: msft-sobe-folha .38s cubic-bezier(.16, 1, .3, 1); }
+.msft-fundo { animation: msft-fundo .25s ease-out; }
+@media (min-width: 64rem) and (min-height: 42rem) { .msft-folha { animation: msft-entra .3s cubic-bezier(.16, 1, .3, 1); } }
+
+/* A app ocupa o ecrã: nada de "puxar para recarregar" nem de ressalto ao rolar. */
+:root:has(.msft-raiz) { overscroll-behavior: none; }
+
 @media (prefers-reduced-motion: reduce) {
+  .msft-folha, .msft-fundo { animation: none; }
   .msft-sobe, .msft-desce, .msft-ping, .msft-entra, .msft-meta, .msft-sobe-emoji { animation: none; }
   .msft-sobe-emoji { display: none; }
   .msft-marcador, .msft-enchimento { transition: none; }
