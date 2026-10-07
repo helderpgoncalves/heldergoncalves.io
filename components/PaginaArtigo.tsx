@@ -5,6 +5,7 @@ import { FormSubscrever } from './FormSubscrever';
 import { Json } from './Json';
 import { ExtrasArtigo } from './ExtrasArtigo';
 import { Partilhar } from './Partilhar';
+import { Comentarios } from './Comentarios';
 import { copy, htmlLang, rotas } from '@/lib/copy';
 import { artigos, dataLonga, figuraHtml, html, imagemDe, indice, modificado, relacionados, serieDe, slugEtiqueta, traducao, etiqueta, MIN_INDEXAVEL, type Artigo, type Titulo } from '@/lib/blog';
 import { abs } from '@/lib/seo';
@@ -202,9 +203,11 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
           </footer>
         </article>
 
-        <section aria-label={c.form.rotulo} className="mt-14 rounded-2xl border border-linha p-7 sm:p-9">
+        <section id="subscrever" aria-label={c.form.rotulo} className="mt-14 scroll-mt-8 rounded-2xl border border-linha p-7 sm:p-9">
           <FormSubscrever lang={lang} t={c.form} />
         </section>
+
+        <Comentarios lang={lang} slug={a.slug} t={c.comentarios} />
 
         {parecidos.length > 0 && (
           <section aria-labelledby="relacionados" className="mt-16">

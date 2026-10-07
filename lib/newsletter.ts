@@ -17,12 +17,12 @@ export const configurado = (lang: Lang) =>
 
 /* ---------- Token assinado: a confirmação não precisa de base de dados ---------- */
 
-type Carga = { e: string; l: Lang; x: number };
+type Carga = { e: string; l: Lang; x: number; k?: 's' | 'c' }; // k: 's' subscrever (por omissão), 'c' entrar para comentar
 const b64 = (b: Buffer | string) => Buffer.from(b).toString('base64url');
 const assinar = (dados: string) => createHmac('sha256', process.env.NEWSLETTER_SECRET!).update(dados).digest();
 
-function criarToken(email: string, lang: Lang): string {
-  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + HORAS * 3600_000 } satisfies Carga));
+function criarToken(email: string, lang: Lang, k: 's' | 'c' = 's', horas = HORAS): string {
+  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + horas * 3600_000, k } satisfies Carga));
   return `${carga}.${b64(assinar(carga))}`;
 }
 
@@ -35,7 +35,7 @@ export function lerToken(token: string): Carga | null {
   try {
     const c = JSON.parse(Buffer.from(carga, 'base64url').toString()) as Carga;
     if (typeof c.e !== 'string' || (c.l !== 'pt' && c.l !== 'en') || c.x < Date.now()) return null;
-    return c;
+    return { ...c, k: c.k === 'c' ? 'c' : 's' };
   } catch {
     return null;
   }
@@ -47,11 +47,11 @@ export const emailValido = (e: string) => e.length <= 254 && /^[^\s@<>()"]+@[^\s
 
 /* ---------- Resend ---------- */
 
-async function resend(caminho: string, metodo: 'POST' | 'PATCH', corpo: unknown, extra: Record<string, string> = {}) {
+async function resend(caminho: string, metodo: 'POST' | 'PATCH' | 'GET', corpo?: unknown, extra: Record<string, string> = {}) {
   return fetch(`${API}${caminho}`, {
     method: metodo,
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json', ...extra },
-    body: JSON.stringify(corpo),
+    ...(corpo !== undefined && { body: JSON.stringify(corpo) }),
     signal: AbortSignal.timeout(10_000),
   });
 }
@@ -86,4 +86,64 @@ export async function adicionarContacto(email: string, lang: Lang): Promise<bool
   if (!atual.ok) return false;
   await resend(`/contacts/${encodeURIComponent(email)}/segments/${id}`, 'POST', {}).catch(() => {});
   return true;
+}
+
+/* ---------- Comentários: só quem subscreve entra ---------- */
+
+/** Está subscrito (existe no Resend e não cancelou)? Em caso de dúvida, não. */
+export async function eSubscritor(email: string): Promise<boolean> {
+  const r = await resend(`/contacts/${encodeURIComponent(email)}`, 'GET').catch(() => null);
+  if (!r?.ok) return false;
+  const c = (await r.json().catch(() => null)) as { unsubscribed?: boolean } | null;
+  return Boolean(c) && c!.unsubscribed !== true;
+}
+
+/** O e-mail com a ligação que abre a sessão de comentários (30 minutos). */
+export async function enviarEntrada(email: string, lang: Lang): Promise<boolean> {
+  const m = copy[lang].mail.comentar;
+  const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(criarToken(email, lang, 'c', 0.5))}`;
+  const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ec;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;color:#0a1224">
+<table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:36px 32px"><tr><td>
+<p style="margin:0 0 6px;font:600 13px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.04em;color:#6b7280">${esc(SITE.nome)}</p>
+<h1 style="margin:14px 0 14px;font-size:28px;line-height:1.15;font-weight:500">${esc(m.titulo)}</h1>
+<p style="margin:0 0 26px;font-size:17px;line-height:1.6;color:#374151">${esc(m.texto)}</p>
+<p style="margin:0 0 28px"><a href="${link}" style="display:inline-block;background:#0a1224;color:#fff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 22px;border-radius:10px">${esc(m.botao)}</a></p>
+<p style="margin:0;font:14px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#6b7280">${esc(copy[lang].mail.ignora)}</p>
+</td></tr></table></body></html>`;
+  const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: m.assunto, html, text: `${m.titulo}\n\n${m.texto}\n${link}\n\n${copy[lang].mail.ignora}` });
+  if (!r.ok) console.error(`[comentarios] Resend /emails respondeu ${r.status}`);
+  return r.ok;
+}
+
+/* ---------- Sessão de quem comenta: um cookie assinado, sem guardar o e-mail ---------- */
+
+export const COOKIE = 'hg_c';
+const DIAS = 60;
+type Sessao = { h: string; x: number; n?: string };
+
+/** Identificador estável e anónimo de um e-mail (HMAC): serve para saber quem escreveu o quê sem guardar o endereço. */
+export const idDe = (email: string) => createHmac('sha256', `id:${process.env.NEWSLETTER_SECRET}`).update(email.trim().toLowerCase()).digest('hex').slice(0, 32);
+
+export function criarSessao(email: string, nome?: string): { valor: string; segundos: number } {
+  const carga = b64(JSON.stringify({ h: idDe(email), x: Date.now() + DIAS * 86_400_000, ...(nome && { n: nome }) } satisfies Sessao));
+  return { valor: `${carga}.${b64(assinar(carga))}`, segundos: DIAS * 86_400 };
+}
+
+export function lerSessao(valor: string | undefined): Sessao | null {
+  if (!valor) return null;
+  const [carga, sig] = valor.split('.');
+  if (!carga || !sig || !process.env.NEWSLETTER_SECRET) return null;
+  const esperado = assinar(carga);
+  const recebido = Buffer.from(sig, 'base64url');
+  if (recebido.length !== esperado.length || !timingSafeEqual(recebido, esperado)) return null;
+  try {
+    const s = JSON.parse(Buffer.from(carga, 'base64url').toString()) as Sessao;
+    return typeof s.h === 'string' && s.x > Date.now() ? s : null;
+  } catch { return null; }
+}
+
+/** A mesma sessão (mesmo identificador e mesma validade) com um nome guardado. */
+export function sessaoComNome(s: { h: string; x: number }, nome: string): { valor: string; segundos: number } {
+  const carga = b64(JSON.stringify({ h: s.h, x: s.x, n: nome } satisfies Sessao));
+  return { valor: `${carga}.${b64(assinar(carga))}`, segundos: Math.max(60, Math.floor((s.x - Date.now()) / 1000)) };
 }

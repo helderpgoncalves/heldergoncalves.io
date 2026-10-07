@@ -4,20 +4,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Copy } from '@/lib/copy';
 
-export function Confirmar({ token, t, destino }: { token: string; t: Copy['confirmar']; destino: string }) {
-  const [estado, setEstado] = useState<'parado' | 'a-confirmar' | 'ok' | 'invalido' | 'erro'>(token ? 'parado' : 'invalido');
+export function Confirmar({ token, t, comentarios, destino }: { token: string; t: Copy['confirmar']; comentarios: Copy['comentarios']['sessaoOk']; destino: string }) {
+  const [estado, setEstado] = useState<'parado' | 'a-confirmar' | 'ok' | 'ok-comentar' | 'invalido' | 'erro'>(token ? 'parado' : 'invalido');
 
   async function confirmar() {
     setEstado('a-confirmar');
     try {
       const r = await fetch('/api/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token }) });
-      setEstado(r.ok ? 'ok' : r.status === 400 ? 'invalido' : 'erro');
+      const d = r.ok ? ((await r.json().catch(() => ({}))) as { comentar?: boolean }) : {};
+      setEstado(r.ok ? (d.comentar ? 'ok-comentar' : 'ok') : r.status === 400 ? 'invalido' : 'erro');
     } catch {
       setEstado('erro');
     }
   }
 
-  const [titulo, texto] = estado === 'parado' || estado === 'a-confirmar' ? [t.titulo, t.texto] : t[estado];
+  const [titulo, texto] = estado === 'parado' || estado === 'a-confirmar' ? [t.titulo, t.texto] : estado === 'ok-comentar' ? comentarios : t[estado];
 
   return (
     <div role="status" aria-live="polite">

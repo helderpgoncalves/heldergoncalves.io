@@ -15,7 +15,7 @@ export function PaginaConfirmar({ lang, token }: { lang: Lang; token?: string })
     <div className="papel">
       <Cabecalho lang={lang} alt={rotas[lang === 'pt' ? 'en' : 'pt'].blog} />
       <main className="mx-auto w-full max-w-[44rem] px-6 pt-16 sm:pt-24">
-        <Confirmar token={typeof token === 'string' ? token.slice(0, 1024) : ''} t={copy[lang].confirmar} destino={rotas[lang].blog} />
+        <Confirmar token={typeof token === 'string' ? token.slice(0, 1024) : ''} t={copy[lang].confirmar} comentarios={copy[lang].comentarios.sessaoOk} destino={rotas[lang].blog} />
       </main>
       <Rodape lang={lang} />
     </div>

@@ -74,7 +74,35 @@ export type Copy = {
     erro: [string, string];
     voltar: string;
   };
-  mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string };
+  mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string; comentar: { assunto: string; titulo: string; texto: string; botao: string } };
+  comentarios: {
+    titulo: string;
+    n: (n: number) => string;
+    vazio: string;
+    soSubscritores: string;     // explica a regra
+    jaSubscrevi: string;        // abre o formulário de entrada
+    entrarBotao: string;
+    entrarAEnviar: string;
+    entrarEnviado: string;
+    entrarInvalido: string;
+    entrarLimite: string;
+    nome: string;
+    texto: string;
+    placeholder: string;
+    publicar: string;
+    aPublicar: string;
+    responder: string;
+    cancelar: string;
+    apagar: string;
+    apagarConfirma: string;
+    sair: string;
+    erro: string;
+    limite: string;
+    ligacoes: string;
+    regras: string;
+    respostaA: string;
+    sessaoOk: [string, string];  // título e texto da página de confirmação
+  };
 };
 
 export const copy = {
@@ -164,6 +192,35 @@ export const copy = {
       botao: 'Confirmar subscrição',
       ignora: 'Se não foste tu, ignora esta mensagem. Não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
+      comentar: { assunto: 'A tua ligação para comentar', titulo: 'Entra para comentar', texto: 'Carrega no botão para abrires a sessão e comentares no blog. A ligação vale 30 minutos.', botao: 'Entrar e comentar' },
+    },
+    comentarios: {
+      titulo: 'Conversa',
+      n: (n) => (n === 1 ? '1 comentário' : `${n} comentários`),
+      vazio: 'Ainda ninguém disse nada. Podes ser a primeira pessoa.',
+      soSubscritores: 'Para manter a conversa boa, só comenta quem subscreve a newsletter. É grátis, sem spam, e sais com um clique.',
+      jaSubscrevi: 'Já subscrevi, quero comentar',
+      entrarBotao: 'Enviar ligação',
+      entrarAEnviar: 'A enviar…',
+      entrarEnviado: 'Se esse e-mail estiver subscrito, enviei-te uma ligação. Abre-a para comentares.',
+      entrarInvalido: 'Esse e-mail não parece válido.',
+      entrarLimite: 'Demasiadas tentativas. Tenta mais tarde.',
+      nome: 'O teu nome',
+      texto: 'O teu comentário',
+      placeholder: 'Diz o que pensas, com educação. Discordar é bem-vindo.',
+      publicar: 'Publicar',
+      aPublicar: 'A publicar…',
+      responder: 'Responder',
+      cancelar: 'Cancelar',
+      apagar: 'Apagar',
+      apagarConfirma: 'Apagar este comentário?',
+      sair: 'Sair',
+      erro: 'Não consegui publicar agora. Tenta daqui a pouco.',
+      limite: 'Calma: espera um pouco antes de comentares outra vez.',
+      ligacoes: 'Demasiadas ligações no comentário.',
+      regras: 'Sê simpático. Comentários ofensivos ou spam são apagados.',
+      respostaA: 'Em resposta a',
+      sessaoOk: ['Já podes comentar.', 'A sessão está aberta neste navegador. Volta ao texto e deixa o teu comentário.'],
     },
   },
   en: {
@@ -252,6 +309,35 @@ export const copy = {
       botao: 'Confirm subscription',
       ignora: 'If this was not you, ignore this message. Nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
+      comentar: { assunto: 'Your link to comment', titulo: 'Sign in to comment', texto: 'Press the button to open your session and comment on the blog. The link is valid for 30 minutes.', botao: 'Sign in and comment' },
+    },
+    comentarios: {
+      titulo: 'Conversation',
+      n: (n) => (n === 1 ? '1 comment' : `${n} comments`),
+      vazio: 'Nobody has said anything yet. You could be the first.',
+      soSubscritores: 'To keep the conversation good, only newsletter subscribers can comment. It is free, no spam, and you can leave with one click.',
+      jaSubscrevi: 'I already subscribed, I want to comment',
+      entrarBotao: 'Send link',
+      entrarAEnviar: 'Sending…',
+      entrarEnviado: 'If that email is subscribed, I sent you a link. Open it to comment.',
+      entrarInvalido: 'That email does not look valid.',
+      entrarLimite: 'Too many attempts. Try again later.',
+      nome: 'Your name',
+      texto: 'Your comment',
+      placeholder: 'Say what you think, politely. Disagreeing is welcome.',
+      publicar: 'Post',
+      aPublicar: 'Posting…',
+      responder: 'Reply',
+      cancelar: 'Cancel',
+      apagar: 'Delete',
+      apagarConfirma: 'Delete this comment?',
+      sair: 'Sign out',
+      erro: 'I could not post right now. Try again soon.',
+      limite: 'Easy: wait a little before commenting again.',
+      ligacoes: 'Too many links in the comment.',
+      regras: 'Be kind. Offensive comments and spam are deleted.',
+      respostaA: 'In reply to',
+      sessaoOk: ['You can comment now.', 'Your session is open in this browser. Go back to the post and leave your comment.'],
     },
   },
 } satisfies Record<Lang, Copy>;

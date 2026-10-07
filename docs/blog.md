@@ -44,3 +44,13 @@ A capa passa a ser a imagem de partilha (Open Graph / X). Sem capa, usa-se a ima
 ## Antes de publicar
 
 `npm run dev` e `npm run verificar` (verifica sitemap, hreflang, canonical, JSON-LD, imagens e og:image de todas as páginas).
+
+## Comentários
+
+Cada texto tem uma secção «Conversa» (carrega só quando o leitor chega perto). **Só comenta quem subscreve a newsletter**: o leitor pede uma ligação para o e-mail subscrito (`/api/comentarios/entrar`; a resposta é sempre igual, para ninguém descobrir quem está na lista), abre-a, e fica com uma sessão de 60 dias neste navegador (cookie assinado, sem guardar o e-mail: só um identificador anónimo). Limites: 1 comentário por 20 s, 6 por 10 min, no máximo 2 ligações por comentário. Um nível de respostas. Cada pessoa apaga os seus; tu apagas qualquer um com `COMENTARIOS_ADMIN_TOKEN`:
+
+```bash
+curl -X DELETE -H "Origin: https://heldergoncalves.io" -H "Authorization: Bearer $TOKEN" "https://heldergoncalves.io/api/comentarios?id=<id>"
+```
+
+Os comentários vivem em `DATA_DIR/comentarios-blog.jsonl` (só de acrescentar), no volume `/data`. Precisam das mesmas variáveis da newsletter (Resend) para funcionar.
