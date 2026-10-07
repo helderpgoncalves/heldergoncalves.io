@@ -6,7 +6,7 @@ import { Json } from './Json';
 import { ExtrasArtigo } from './ExtrasArtigo';
 import { Partilhar } from './Partilhar';
 import { copy, htmlLang, rotas } from '@/lib/copy';
-import { artigos, dataLonga, figuraHtml, html, imagemDe, indice, modificado, relacionados, slugEtiqueta, traducao, etiqueta, MIN_INDEXAVEL, type Artigo, type Titulo } from '@/lib/blog';
+import { artigos, dataLonga, figuraHtml, html, imagemDe, indice, modificado, relacionados, serieDe, slugEtiqueta, traducao, etiqueta, MIN_INDEXAVEL, type Artigo, type Titulo } from '@/lib/blog';
 import { abs } from '@/lib/seo';
 import { SITE } from '@/lib/site';
 
@@ -54,6 +54,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
   const depois = todos[i - 1]; // a lista vai do mais recente para o mais antigo
   const antes = todos[i + 1];
   const parecidos = relacionados(a, 3);
+  const serie = serieDe(a);
 
   const titulos = indice(a);
   const comIndice = titulos.filter((t) => t.nivel === 2).length >= 3;
@@ -84,8 +85,10 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
         wordCount: a.palavras,
         timeRequired: `PT${a.minutos}M`,
         isAccessibleForFree: true,
-        author: { '@type': 'Person', name: SITE.nome, url: SITE.canonico },
-        publisher: { '@type': 'Person', name: SITE.nome, url: SITE.canonico },
+        author: { '@type': 'Person', '@id': `${SITE.canonico}/#eu`, name: SITE.nome, url: SITE.canonico, sameAs: [SITE.instagram, SITE.github] },
+        publisher: { '@id': `${SITE.canonico}/#eu` },
+        // Uma parte de uma série diz a que série pertence e que lugar ocupa.
+        ...(serie && { isPartOf: { '@type': 'CreativeWorkSeries', name: serie.nome }, position: a.parte }),
         // Um achado cita de onde veio: o Google percebe a relação com a fonte.
         ...(a.fonte && { citation: { '@type': 'WebPage', name: a.fonte.nome, url: a.fonte.url }, isBasedOn: a.fonte.url }),
         ...(outra && { workTranslation: { '@type': 'BlogPosting', url: abs(rotas[outra.lang].artigo(outra.slug)), inLanguage: htmlLang[outra.lang] } }),
@@ -125,6 +128,12 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
             </p>
           </header>
 
+          {serie && (
+            <p className="mt-6 font-mono text-[0.78rem] text-acento">
+              {c.blog.serie}: {serie.nome} · {c.blog.parte} {a.parte}
+            </p>
+          )}
+
           {a.capa && (
             <div
               className="mt-10"
@@ -155,6 +164,23 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
             )}
             <div lang={htmlLang[lang]} className="leitura" dangerouslySetInnerHTML={{ __html: html(a) }} />
           </div>
+
+          {serie && (serie.anterior || serie.seguinte) && (
+            <nav aria-label={`${c.blog.serie}: ${serie.nome}`} className="mt-14 rounded-2xl border border-linha p-6 sm:p-7">
+              <p className="font-mono text-[0.72rem] tracking-[0.14em] text-suave uppercase">{c.blog.serie}: {serie.nome}</p>
+              <ol className="mt-3 space-y-1.5">
+                {serie.partes.map((p) => (
+                  <li key={p.slug} className="font-serif text-[1.2rem] leading-snug">
+                    <span className="mr-2 font-mono text-[0.76rem] text-suave">{p.parte}.</span>
+                    {p.slug === a.slug ? <span aria-current="page" className="text-acento">{p.titulo}</span> : <Link href={rotas[lang].artigo(p.slug)} className="underline decoration-linha underline-offset-4 hover:text-acento">{p.titulo}</Link>}
+                  </li>
+                ))}
+              </ol>
+              {serie.seguinte && (
+                <Link href={rotas[lang].artigo(serie.seguinte.slug)} rel="next" className="mt-5 block font-mono text-[0.8rem] text-tinta underline decoration-linha underline-offset-4 hover:text-acento">{c.blog.serieSeguinte} →</Link>
+              )}
+            </nav>
+          )}
 
           <footer className="mt-14 space-y-6 border-t border-linha pt-8 font-mono text-[0.78rem] text-suave">
             {a.etiquetas.length > 0 && (

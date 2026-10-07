@@ -9,6 +9,7 @@ type App = { sub: string; ativo: boolean };
 const apps: readonly App[] = [
   { sub: 'lab', ativo: false },
   { sub: 'microsoft', ativo: true },
+  { sub: 'bio', ativo: true },
   // NOVAS-APPS (o gerador acrescenta aqui — não apagar esta linha)
 ];
 
@@ -19,6 +20,8 @@ const RESERVADOS = new Set(['www']);
 /** `lab.helder.si` → `lab`. O apex, `www` e hosts desconhecidos → null. */
 export function subDe(host: string): string | null {
   const h = host.split(':')[0].toLowerCase();
+  // A página de bio também vive no domínio principal: bio.heldergoncalves.io.
+  if (h === 'bio.heldergoncalves.io') return 'bio';
   for (const base of BASES) {
     const m = h.match(new RegExp(`^([a-z0-9-]+)\\.${base.replace(/\./g, '\\.')}$`));
     if (m && !RESERVADOS.has(m[1])) return m[1];

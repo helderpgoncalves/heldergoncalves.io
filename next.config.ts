@@ -39,6 +39,19 @@ const config: NextConfig = {
   async headers() {
     return [
       { source: '/:path*', headers: seguranca },
+      // Descoberta para agentes (RFC 8288): o sitemap, o catálogo de APIs, as skills e o resumo em texto.
+      // `Vary: Accept` porque as mesmas páginas também saem em Markdown a quem o pedir.
+      { source: '/:path*', headers: [{ key: 'Vary', value: 'Accept' }] },
+      {
+        source: '/',
+        headers: [{ key: 'Link', value: [
+          '</sitemap.xml>; rel="sitemap"',
+          '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
+          '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
+          '</llms.txt>; rel="describedby"; type="text/plain"',
+          '</blog/feed.xml>; rel="alternate"; type="application/rss+xml"',
+        ].join(', ') }],
+      },
       { source: '/img/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }] },
       { source: '/api/:path*', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
     ];
@@ -53,10 +66,10 @@ const config: NextConfig = {
       destination: 'https://heldergoncalves.io/:path*',
       permanent: true,
     }));
-    // <app>.heldergoncalves.io → <app>.helder.si: as mini-apps vivem só em helder.si.
+    // <app>.heldergoncalves.io → <app>.helder.si: as mini-apps vivem só em helder.si (excepto bio, que vive nos dois).
     const subdominios = {
       source: '/:path*',
-      has: [{ type: 'host' as const, value: '(?<sub>[a-z0-9-]+)\\.heldergoncalves\\.io' }],
+      has: [{ type: 'host' as const, value: '(?<sub>(?!bio\\.)[a-z0-9-]+)\\.heldergoncalves\\.io' }],
       destination: 'https://:sub.helder.si/:path*',
       permanent: true,
     };

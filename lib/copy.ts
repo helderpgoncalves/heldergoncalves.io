@@ -44,6 +44,10 @@ export type Copy = {
     antes: string;
     depois: string;
     etiquetas: string;       // "Temas"
+    serie: string;           // "Série"
+    parte: string;           // "Parte"
+    serieAnterior: string;
+    serieSeguinte: string;
     etiquetaTitulo: (nome: string) => string;
     etiquetaDescricao: (nome: string, n: number) => string;
     etiquetaCabeca: string;
@@ -123,6 +127,10 @@ export const copy = {
       antes: 'Antes deste',
       depois: 'Depois deste',
       etiquetas: 'Temas',
+      serie: 'Série',
+      parte: 'Parte',
+      serieAnterior: 'Parte anterior',
+      serieSeguinte: 'Continua na parte seguinte',
       etiquetaTitulo: (nome) => `${nome} · Blog`,
       etiquetaDescricao: (nome, n) => `${n === 1 ? 'O texto' : `Os ${n} textos`} do blog de Hélder Gonçalves no tema «${nome}».`,
       etiquetaCabeca: 'Tema',
@@ -207,6 +215,10 @@ export const copy = {
       antes: 'Before this one',
       depois: 'After this one',
       etiquetas: 'Topics',
+      serie: 'Series',
+      parte: 'Part',
+      serieAnterior: 'Previous part',
+      serieSeguinte: 'Continues in the next part',
       etiquetaTitulo: (nome) => `${nome} · Blog`,
       etiquetaDescricao: (nome, n) => `${n === 1 ? 'The piece' : `All ${n} pieces`} on Hélder Gonçalves’s blog under “${nome}”.`,
       etiquetaCabeca: 'Topic',

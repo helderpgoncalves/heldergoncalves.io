@@ -13,6 +13,8 @@ export type Artigo = {
   capa: Capa | null;
   etiquetas: string[];
   fonte: { nome: string; url: string } | null;
+  serie: string | null;
+  parte: number | null;
   par: string;
   minutos: number;
   palavras: number;
@@ -82,4 +84,15 @@ export function relacionados(a: Artigo, n = 3) {
     .sort((p, q) => q.pontos - p.pontos || q.x.data.localeCompare(p.x.data))
     .slice(0, n)
     .map((p) => p.x);
+}
+
+/* ---------- séries ---------- */
+
+/** As partes publicadas da série deste texto, por ordem. Um texto sem série devolve null. */
+export function serieDe(a: Artigo) {
+  if (!a.serie) return null;
+  const nome = a.serie;
+  const partes = artigos(a.lang).filter((x) => x.serie && slugEtiqueta(x.serie) === slugEtiqueta(nome)).sort((x, y) => (x.parte ?? 0) - (y.parte ?? 0));
+  const i = partes.findIndex((x) => x.slug === a.slug);
+  return { nome, partes, anterior: partes[i - 1] ?? null, seguinte: partes[i + 1] ?? null };
 }
