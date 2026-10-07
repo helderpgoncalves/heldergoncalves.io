@@ -116,6 +116,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
             <p className="font-mono text-[0.78rem] text-suave">
               <Link href={rotas[lang].blog} className="hover:text-tinta">← {c.blog.voltar}</Link>
             </p>
+            {a.rascunho && <p className="mt-8 rounded-lg border border-acento px-3 py-2 font-mono text-[0.78rem] text-acento">RASCUNHO: só tu vês isto, em local. Não existe em produção.</p>}
             {a.fonte && (
               <p className="mt-8 font-mono text-[0.78rem] text-acento">[{c.blog.achado.toLowerCase()}]</p>
             )}

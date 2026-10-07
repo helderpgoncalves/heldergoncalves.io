@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3100",
+    "rascunhos": "VER_RASCUNHOS=1 next dev --port 3100",
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "imagens": "node scripts/imagens.mjs",

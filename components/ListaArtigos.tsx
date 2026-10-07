@@ -23,7 +23,7 @@ export function ListaArtigos({ lang, lista }: { lang: Lang; lista: Artigo[] }) {
                   </p>
                   <div className="mt-2 sm:mt-0">
                     <h3 className="font-serif text-[clamp(1.7rem,3.4vw,2.35rem)] leading-[1.08] tracking-[-0.018em] text-balance transition-colors group-hover:text-acento">
-                      {a.titulo}
+                      {a.rascunho && <span className="mr-3 align-middle font-mono text-[0.7rem] tracking-[0.1em] text-acento uppercase">rascunho</span>}{a.titulo}
                       <span aria-hidden className="ml-3 inline-block translate-x-[-0.4rem] font-sans text-[0.7em] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100">→</span>
                     </h3>
                     <p className="mt-3 max-w-[38rem] font-leitura text-[1.06rem] leading-[1.6] text-suave text-pretty">{a.resumo}</p>

@@ -77,7 +77,8 @@ export type Copy = {
   mail: { assunto: string; titulo: string; texto: string; botao: string; ignora: string; rodape: string; comentar: { assunto: string; titulo: string; texto: string; botao: string } };
   comentarios: {
     titulo: string;
-    n: (n: number) => string;
+    um: string;                 // «1 comentário»
+    varios: string;             // «{n} comentários»
     vazio: string;
     soSubscritores: string;     // explica a regra
     jaSubscrevi: string;        // abre o formulário de entrada
@@ -196,7 +197,8 @@ export const copy = {
     },
     comentarios: {
       titulo: 'Conversa',
-      n: (n) => (n === 1 ? '1 comentário' : `${n} comentários`),
+      um: '1 comentário',
+      varios: '{n} comentários',
       vazio: 'Ainda ninguém disse nada. Podes ser a primeira pessoa.',
       soSubscritores: 'Para manter a conversa boa, só comenta quem subscreve a newsletter. É grátis, sem spam, e sais com um clique.',
       jaSubscrevi: 'Já subscrevi, quero comentar',
@@ -313,7 +315,8 @@ export const copy = {
     },
     comentarios: {
       titulo: 'Conversation',
-      n: (n) => (n === 1 ? '1 comment' : `${n} comments`),
+      um: '1 comment',
+      varios: '{n} comments',
       vazio: 'Nobody has said anything yet. You could be the first.',
       soSubscritores: 'To keep the conversation good, only newsletter subscribers can comment. It is free, no spam, and you can leave with one click.',
       jaSubscrevi: 'I already subscribed, I want to comment',

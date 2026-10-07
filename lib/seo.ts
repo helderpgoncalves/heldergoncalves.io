@@ -66,5 +66,6 @@ export function metaArtigo(a: Artigo): Metadata {
     modificado: modificado(a),
     etiquetas: a.etiquetas,
     imagem: capa?.og ? { url: capa.og, w: 1200, h: 630, alt: capa.alt } : undefined,
+    privado: a.rascunho, // um rascunho (só visível em local) nunca se indexa
   });
 }

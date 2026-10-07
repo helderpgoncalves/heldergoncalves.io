@@ -102,7 +102,7 @@ export function Comentarios({ lang, slug, t }: { lang: Lang; slug: string; t: Co
   return (
     <section ref={raiz} aria-labelledby="comentarios" className="mt-16">
       <h2 id="comentarios" className="font-mono text-[0.72rem] tracking-[0.14em] text-suave uppercase">
-        {t.titulo}{lista && lista.length > 0 ? ` · ${t.n(lista.length)}` : ''}
+        {t.titulo}{lista && lista.length > 0 ? ` · ${(lista.length === 1 ? t.um : t.varios.replace('{n}', String(lista.length)))}` : ''}
       </h2>
 
       {lista && (topo.length === 0 ? <p className="mt-5 font-leitura text-lg text-suave">{t.vazio}</p> : <ul className="mt-2">{topo.map((c) => <Cartao key={c.id} c={c} />)}</ul>)}

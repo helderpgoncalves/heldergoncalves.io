@@ -13,6 +13,7 @@ export type Artigo = {
   capa: Capa | null;
   etiquetas: string[];
   fonte: { nome: string; url: string } | null;
+  rascunho: boolean;
   serie: string | null;
   parte: number | null;
   par: string;
