@@ -4,7 +4,7 @@ import { FormSubscrever } from './FormSubscrever';
 import { Json } from './Json';
 import { ListaArtigos } from './ListaArtigos';
 import { ChipsEtiquetas } from './ChipsEtiquetas';
-import { AsciiBanner } from './AsciiBanner';
+import { CapaBlog } from './CapaBlog';
 import { copy, htmlLang, rotas, type Lang } from '@/lib/copy';
 import { artigos, imagemDe } from '@/lib/blog';
 import { abs } from '@/lib/seo';
@@ -15,8 +15,7 @@ export function PaginaBlog({ lang }: { lang: Lang }) {
   const lista = artigos(lang);
   const alt = lang === 'pt' ? rotas.en.blog : rotas.pt.blog;
 
-  const dados = {
-    '@context': 'https://schema.org',
+  const blog = {
     '@type': 'Blog',
     '@id': `${abs(rotas[lang].blog)}#blog`,
     name: `${c.blog.titulo} · ${SITE.nome}`,
@@ -34,6 +33,20 @@ export function PaginaBlog({ lang }: { lang: Lang }) {
     })),
   };
 
+  const dados = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: SITE.nome, item: abs(rotas[lang].inicio) },
+          { '@type': 'ListItem', position: 2, name: c.blog.titulo, item: abs(rotas[lang].blog) },
+        ],
+      },
+      blog,
+    ],
+  };
+
   return (
     <div className="papel">
       <Json dados={dados} />
@@ -43,7 +56,7 @@ export function PaginaBlog({ lang }: { lang: Lang }) {
         <h1 className="mt-5 font-serif text-[clamp(3.2rem,9vw,6rem)] leading-[0.95] tracking-[-0.03em]">{c.blog.cabeca}</h1>
         <p className="mt-6 max-w-[34rem] font-leitura text-[clamp(1.15rem,1.5vw,1.3rem)] leading-[1.6] text-suave text-pretty">{c.blog.intro}</p>
 
-        <AsciiBanner alt={c.blog.banner} />
+        <CapaBlog alt={c.blog.banner} />
 
         <section aria-label={c.form.rotulo} className="border-t border-linha pt-8">
           <FormSubscrever lang={lang} t={c.form} />

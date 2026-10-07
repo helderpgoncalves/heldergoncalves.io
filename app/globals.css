@@ -44,20 +44,22 @@ body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
 ::selection { background: #f4d9c0; color: #070a14; }
 :focus-visible { outline: 2px solid var(--p-acento); outline-offset: 3px; border-radius: 4px; }
 
-/* Único efeito do site: a frase da landing descodifica-se letra a letra e transforma-se
-   na seguinte (ver FraseViva). Sem JavaScript, ou com pouco movimento pedido, fica o texto parado. */
-.viva { display: block; opacity: 0; animation: mostrar .01s 2.4s forwards; }
-@keyframes mostrar { to { opacity: 1; } }
-.viva [data-linha] { display: block; white-space: pre; }
-.viva [data-linha]:not(:first-child):not([data-autor]) { font-style: italic; color: rgb(232 236 244 / .8); }
+/* Único efeito do site: a frase da landing sobe linha a linha e troca na seguinte (ver FraseViva).
+   Só transform e opacidade. Sem JavaScript, ou com pouco movimento pedido, fica o texto parado. */
+.viva { display: block; }
+.viva .linha { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.viva .linha > span { display: block; white-space: pre; animation: sobe 1.1s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--k) * 110ms + 250ms); }
+.viva .linha:not(:first-child) > span { font-style: italic; color: rgb(232 236 244 / .8); }
 /* O autor de uma citação: pequeno, em mono, na cor do pôr do sol. */
-.viva [data-autor] { font-family: var(--font-mono); font-style: normal; font-size: max(.74rem, .16em); letter-spacing: .04em; line-height: 1.4; margin-top: 1.6em; color: #f4b36a; }
+.viva [data-autor] { display: block; font-family: var(--font-mono); font-size: max(.74rem, .16em); letter-spacing: .04em; line-height: 1.4; margin-top: 1.6em; color: #f4b36a; animation: aparece 1.1s ease both; animation-delay: calc(var(--k) * 110ms + 350ms); }
 .viva [data-autor]:empty { margin-top: 0; }
-.viva .c { display: inline-block; text-align: center; white-space: pre; transition: width .55s cubic-bezier(.16, 1, .3, 1); }
-.viva .c[data-s] { font-family: var(--font-mono); font-style: normal; font-size: .58em; color: #b9e6ff; opacity: .85; }
-.viva .c.trava { animation: trava .8s cubic-bezier(.16, 1, .3, 1); }
-@keyframes trava { from { color: #f8dcc0; transform: translateY(-.06em); } }
-@media (prefers-reduced-motion: reduce) { .viva { opacity: 1; animation: none; } .viva .c { transition: none; } }
+.viva[data-f='sai'] .linha > span { animation: desce .52s cubic-bezier(.7, 0, .84, 0) both; animation-delay: calc(var(--k) * 40ms); }
+.viva[data-f='sai'] [data-autor] { animation: some .3s ease both; }
+@keyframes sobe { from { transform: translateY(105%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes desce { to { transform: translateY(-105%); opacity: 0; } }
+@keyframes aparece { from { opacity: 0; transform: translateY(.5em); } to { opacity: 1; transform: none; } }
+@keyframes some { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .viva .linha > span, .viva [data-autor] { animation: none; } }
 
 /* ---------- Mini-apps de ecrã inteiro ---------- */
 /* `tela`: largo E com altura para tudo caber sem scroll. Fora disto, a página rola normalmente. */
@@ -153,16 +155,9 @@ a:hover .fig.miniatura img { filter: brightness(1.04); }
   .fig, pre { break-inside: avoid; }
 }
 
-/* ---------- Imagem em ASCII do blog ---------- */
-/* A letra ajusta-se à largura da caixa: 140 colunas no ecrã largo, 56 no telemóvel (uma letra mono tem 0,6 em de largura). */
-.ascii { position: relative; margin-inline: 0; container-type: inline-size; background: #0a1020; border-radius: 1rem; padding: clamp(.8rem, 3cqw, 1.6rem); overflow: hidden; }
-.ascii-tinta { margin: 0; font-family: var(--font-mono); line-height: 1.2; white-space: pre; letter-spacing: 0; user-select: none;
-  background: linear-gradient(180deg, #ffe0b4 0%, #f7b26a 34%, #d77f55 62%, #8a6aa0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.ascii-largo { display: none; font-size: calc((100cqw - 2 * clamp(.8rem, 3cqw, 1.6rem)) / 79); }
-.ascii-estreito { display: block; font-size: calc((100cqw - 2 * clamp(.8rem, 3cqw, 1.6rem)) / 31.6); }
-@container (min-width: 36rem) { .ascii-largo { display: block; } .ascii-estreito { display: none; } }
-.ascii-foto { position: absolute; inset: 0; opacity: 0; transition: opacity .9s cubic-bezier(.16, 1, .3, 1); pointer-events: none; }
-.ascii-foto img { width: 100%; height: 100%; object-fit: cover; }
-@media (hover: hover) { .ascii:hover .ascii-foto { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .ascii-foto { transition: none; } }
-@media print { .ascii { display: none; } }
+/* ---------- Imagem do blog ---------- */
+/* A imagem já é ASCII: mostra-se tal como é. A caixa reserva o espaço (3:2) e o marcador evita saltos. */
+.capa-blog { margin: 3rem 0; background: #0a1020; border-radius: 1rem; overflow: hidden; aspect-ratio: 3 / 2; }
+.capa-blog img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (min-width: 40rem) { .capa-blog { margin: 3.5rem 0; } }
+@media print { .capa-blog { display: none; } }

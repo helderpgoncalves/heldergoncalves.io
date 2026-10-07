@@ -23,6 +23,8 @@ export function Landing({ lang }: { lang: Lang }) {
         image: `${SITE.canonico}/og.jpg`,
         email: `mailto:${SITE.email}`,
         sameAs: [SITE.github, SITE.alias],
+        jobTitle: 'Software engineer',
+        description: c.descricao,
         knowsAbout: ['Software engineering', 'Artificial intelligence'],
       },
       {
@@ -31,6 +33,7 @@ export function Landing({ lang }: { lang: Lang }) {
         url: SITE.canonico,
         name: SITE.nome,
         alternateName: ['helder.si', 'heldergoncalves.io'],
+        description: c.descricao,
         inLanguage: ['pt-PT', 'en'],
         publisher: { '@id': `${SITE.canonico}/#eu` },
       },
@@ -79,9 +82,10 @@ export function Landing({ lang }: { lang: Lang }) {
         </nav>
       </header>
 
-      <h1 className="pointer-events-none absolute top-[15svh] left-6 font-serif text-[clamp(2.5rem,6.9vw,7.2rem)] leading-[0.97] tracking-[-0.025em] sm:left-10 lg:left-[7vw]">
+      <h1 className="sr-only">{c.nome}: {c.frases[0].linhas.join(' ')}</h1>
+      <div aria-hidden className="pointer-events-none absolute top-[15svh] left-6 font-serif text-[clamp(2.5rem,6.9vw,7.2rem)] leading-[0.97] tracking-[-0.025em] sm:left-10 lg:left-[7vw]">
         <FraseViva frases={c.frases} />
-      </h1>
+      </div>
 
       <footer className="absolute inset-x-0 bottom-0 flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-10">
         <p className="flex flex-col gap-1.5 text-[0.8rem]">

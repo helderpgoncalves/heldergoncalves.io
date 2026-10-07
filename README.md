@@ -20,7 +20,7 @@ npm run dev                    # http://127.0.0.1:3100
 | `npm run imagens` | regenera as versões AVIF/WebP/JPEG a partir de `fonte/hero.png` |
 | `npm run imagens-blog` | prepara as imagens dos textos a partir de `fonte/blog/` (ver [`docs/blog.md`](docs/blog.md)) |
 | `npm run texto -- <slug>` | revê um texto: português de Portugal, travessões, tiques de máquina, voz pessoal, cabeçalho |
-| `npm run ascii` | gera o banner em ASCII do blog e as versões reais da imagem a partir de `fonte/blog-ascii.png` |
+| `npm run ascii` | gera as versões da imagem do blog (que já é ASCII) a partir de `fonte/blog-ascii.png` |
 | `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.helder.si` |
 | `npm run verificar [-- <url>]` | verifica o SEO de ponta a ponta a partir do sitemap (contra o dev, ou contra produção) |
 | `npm run enviar -- <slug> --lang pt` | cria o rascunho de um artigo como newsletter no Resend |
