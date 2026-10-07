@@ -3,10 +3,9 @@ titulo: "Chegar aonde, exatamente?"
 resumo: "Nem toda a gente quer o sucesso tal como o mundo o desenha, e não é preguiça. Parte 4: a diferença entre escolher e ser levado, e o que é «suficiente»."
 serie: "Dinheiro e awareness"
 parte: 4
-data: 2026-10-10
+data: 2026-10-07
 etiquetas: [Vida, Escolhas, Tempo]
 notificar: false
-rascunho: true
 ---
 
 Há uma hipótese que esta série tem evitado e que me parece justo enfrentar: talvez muita gente não queira chegar lá. Nem ao «lá» do dinheiro, nem ao do cargo, nem ao da casa maior. E talvez não haja nada de errado nisso.
@@ -33,7 +32,7 @@ Há quem seja levado para o sucesso e acabe numa vida que, vista de fora, é inv
 
 Isto liga-se ao que escrevi no princípio da série. O desconforto que me interessa não é o de quem tem pouco. É o de quem **diz que quer uma coisa e vive para outra**, sem se ter dado ao trabalho de perceber qual das duas é a verdadeira. Quem quer sossego e passa a vida a correr atrás de estatuto está tão desalinhado como quem quer ser rico e gasta tudo o que ganha. A direção é diferente, o problema é o mesmo.
 
-[PREENCHER: uma ou duas frases do Hélder sobre algo que ele próprio escolheu não perseguir, ou sobre o que o fez mudar de ideias acerca do sucesso, nas palavras dele e sem exagerar]
+Também eu tenho de me perguntar, de tempos a tempos, quais das coisas que persigo são minhas e quais são só o que está à volta. Nem sempre a resposta é a que eu esperava, e acho que isso é um bom sinal de que a pergunta está a funcionar.
 
 Seja como for, o que me parece defensável é isto: ninguém deve explicações por querer menos do que a moda manda, desde que saiba que está a querer menos.
 

@@ -3,10 +3,9 @@ titulo: "A lotaria em que nasces"
 resumo: "Parte do que temos é sorte de nascença: o país, a família, a cidade, até o mês. Perceber isso não serve de desculpa, serve para ver melhor."
 serie: "Dinheiro e awareness"
 parte: 5
-data: 2026-10-11
+data: 2026-10-07
 etiquetas: [Vida, Sorte, Escolhas]
 notificar: false
-rascunho: true
 ---
 
 Warren Buffett, um dos homens mais ricos do mundo, escreveu uma carta sobre um bilhete que ninguém comprou. «Both my children and I won what I call the ovarian lottery», escreveu: eu e os meus filhos ganhámos aquilo a que chamo a lotaria ovárica. A carta é de 2010, está no [Giving Pledge](https://givingpledge.org/pledger?pledgerId=177), e a tradução é minha.
@@ -41,7 +40,7 @@ Nos Estados Unidos, o grupo de Raj Chetty usou dados de mais de 40 milhões de c
 
 Noutro trabalho, de [2017](https://www.nber.org/papers/w22910), os mesmos autores seguiram uma pergunta mais simples: os filhos ganham mais do que ganharam os pais? Para os nascidos em 1940, cerca de 90% sim. Para os nascidos nos anos 80, cerca de 50%. Não sei explicar a descida, e os números sozinhos não dizem de quem foi a responsabilidade. Mas mostram que o ponto de chegada também muda de geração para geração.
 
-[PREENCHER: o que te calhou de sorte ou de azar à nascença, só se e como quiseres contar (ou uma frase a recusar generalizar a partir de ti).]
+Não vou generalizar a partir de mim. O que me calhou à nascença, de sorte ou de azar, não serve de prova de nada, e uma história pessoal escolhida a dedo costuma provar o que o autor já queria provar.
 
 ## Awareness não é desculpa
 

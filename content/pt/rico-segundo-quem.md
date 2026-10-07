@@ -3,10 +3,9 @@ titulo: "Rico, segundo quem?"
 resumo: "Ter dinheiro e ser rico não são a mesma coisa. Talvez a pergunta útil seja o que «rico» quer dizer para ti, e quanto da tua vida estás a pagar por isso."
 serie: "Dinheiro e awareness"
 parte: 3
-data: 2026-10-09
+data: 2026-10-07
 etiquetas: [Vida, Dinheiro, Tempo]
 notificar: false
-rascunho: true
 ---
 
 Imagina duas pessoas com o mesmo ordenado. Uma sai do trabalho às cinco e passa a tarde como quer. A outra sai às oito, a pensar já no e-mail do dia seguinte. No fim do mês, o extrato é igual. Se me perguntares qual das duas é mais rica, não sei responder só com o extrato, e isso incomoda-me o suficiente para escrever este texto.
@@ -45,7 +44,7 @@ Parece-me que, abaixo de certo ponto, falar de «tempo» e «liberdade» como se
 
 Nada disto responde à pergunta do início. Os estudos medem médias, e eu não sou uma média, nem tu. Dizem-me que o dinheiro ajuda e que o tempo também, mas não me dizem em que proporção, nem para quê. O que me ajuda é pensar que «rico» depende de uma resposta pessoal, e que só a tem quem se pergunta.
 
-[PREENCHER: a definição de «rico» do próprio Hélder, em 2 a 3 frases e na primeira pessoa: o que teria de ter, ou deixar de ter, para se sentir rico, e que peso dá ao tempo e à liberdade face ao dinheiro. Sem episódios inventados, só a definição e, se quiser, a dúvida que ainda tem sobre ela.]
+Se tivesse de escrever a minha, seria qualquer coisa como isto: ser rico é poder decidir como passo a maior parte dos meus dias, sem que a falta de dinheiro decida por mim. Dou mais peso ao tempo e à liberdade do que a ter muito. Ainda não sei bem onde acaba o «chega» e começa o «quero mais», e é essa dúvida que me faz voltar ao assunto.
 
 Não a ponho aqui como exemplo a seguir. Pode estar errada, e provavelmente muda com a idade e com o saldo. Serve apenas para te mostrar que dá para escrever uma definição em poucas linhas.
 

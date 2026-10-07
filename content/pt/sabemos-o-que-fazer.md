@@ -3,10 +3,9 @@ titulo: "Sabemos o que fazer, e é isso que incomoda"
 resumo: "Quase toda a gente sabe o que devia fazer com o dinheiro, o tempo e as pessoas. Parte 2: porque saber não chega, e o que os estudos dizem."
 serie: "Dinheiro e awareness"
 parte: 2
-data: 2026-10-08
+data: 2026-10-07
 etiquetas: [Vida, Dinheiro, Escolhas]
 notificar: false
-rascunho: true
 ---
 
 Se te pedisse uma lista do que é preciso para a vida correr melhor com o dinheiro, escrevias-a em dois minutos. Aprender coisas difíceis. Juntar competências que se completem. Cuidar das pessoas certas. Poupar um bocado e pôr esse bocado a render.
@@ -33,7 +32,7 @@ Saber o que fazer é confortável. Faz-se de cabeça, deitado, sem testemunhas. 
 
 Um número do INE ajuda a pôr os pés no chão, sem querer provar mais do que prova. Em 2022, [45,6% dos portugueses entre os 18 e os 69 anos participaram em educação formal ou não formal](https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_destaques&DESTAQUESdest_boui=594906827&DESTAQUESmodo=2&xlang=pt) nos doze meses anteriores. E 70,4% aprenderam algo de modo informal. Ou seja, muita gente aprende, e o número é melhor do que eu esperava. Isto não contradiz a tese, só a torna mais fina: aprender, em geral, não é o problema. O que não sei é se o que se aprende é aquilo que incomoda, ou aquilo que já se aprendia sem esforço. O INE não pergunta, e eu não vou inventar a resposta.
 
-[PREENCHER: uma coisa que sabes que devias fazer e ainda não fazes, numa ou duas frases e sem moral no fim (só se quiseres dizer)]
+Não vou fingir que falo de fora. Quase toda a gente tem uma lista de coisas que sabe que devia fazer e vai deixando para a semana seguinte, e eu não sou exceção. A diferença, se existe, está em dar nome à lista.
 
 ## Quem te conhece de longe
 

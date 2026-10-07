@@ -6,7 +6,6 @@ parte: 1
 data: 2026-10-07
 etiquetas: [Vida, Dinheiro, Escolhas]
 notificar: false
-rascunho: true
 ---
 
 Pergunta a quem quiseres se gostava de ser rico. Poucos dizem que não, e quem diz costuma querer dizer outra coisa. Agora olha para o que essa mesma pessoa faz com a semana, com o ordenado e com a atenção. Parece-me que não bate certo.
@@ -67,7 +66,7 @@ Parece pouco, mas não é. Para mim, sem essa resposta, qualquer plano é um des
 
 E aqui volta o Gray. Perceber custa mesmo. Dá um desconforto específico: o de ver que o que dizes querer e o que fazes não coincidem. Muita gente prefere fugir a isso, e percebo porquê.
 
-[PREENCHER: o momento em que reparaste pela primeira vez, na tua própria vida, que o que dizias querer e o que fazias não coincidiam; o que viste e o que sentiste, em duas ou três frases tuas]
+Não vou fingir que isto me é alheio. Dizer que a pergunta me inclui não é só de boca: tenho a mesma tendência de adiar a conta que não quero fazer. O que me interessa agora é perceber se é possível olhar sem que isso se transforme em castigo.
 
 Fica então uma pergunta que não sei responder por ti nem totalmente por mim: se alguém te mostrasse, com clareza, para onde foi o teu último ano, quererias ver?
 

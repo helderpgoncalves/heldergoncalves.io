@@ -3,10 +3,9 @@ titulo: "Onde a sorte pega"
 resumo: "Não escolhes onde nasces, mas talvez possas mexer no sítio onde a sorte te encontra. O que a evidência aguenta, e o que não aguenta. Parte 6, final."
 serie: "Dinheiro e awareness"
 parte: 6
-data: 2026-10-12
+data: 2026-10-07
 etiquetas: [Vida, Sorte, Escolhas]
 notificar: false
-rascunho: true
 ---
 
 Se a sorte fosse só sorte, este texto acabava aqui. Escrevia que a lotaria é a lotaria, que uns ganham e outros não, e ia tomar café.
@@ -61,7 +60,7 @@ Pelo caminho destas seis partes, o que vejo é isto. Muita gente quer ser rica e
 
 Se tudo isto for verdade, a conclusão que me parece mais honesta é pequena: não controlas a lotaria do nascimento, mas talvez controles a superfície onde a sorte pode pegar. Reparar, ser útil, ter competências à mão, não desistir cedo e aparecer. Não garante nada. Aumenta, quando muito, o número de sítios onde um acaso te pode encontrar preparado.
 
-[PREENCHER: se quiseres, conta um caso real em que a sorte «pegou» na tua vida (o que aconteceu, o que já tinhas feito antes e o que foi mesmo acaso); se preferires não contar, troca este parágrafo por uma pergunta ao leitor sobre o dele]
+Não tenho aqui uma história redonda de sorte que se transformou em mérito, e desconfio das que se contam assim. Prefiro devolver-te a pergunta: pensa numa coisa boa que te aconteceu, e tenta separar o que já tinhas feito antes do que foi mesmo acaso. Quase sempre as duas coisas estão tão misturadas que custa dizer onde acaba uma e começa a outra.
 
 Esta é a última parte, mas a conversa não tem de ser. Se discordas de alguma coisa, se encontrei uma sorte onde havia só trabalho (ou o contrário), diz-me. Os comentários são só para subscritores, e a subscrição está logo acima da caixa de comentários.
 
