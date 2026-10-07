@@ -1,13 +1,15 @@
 // Revê um ou mais textos do blog contra as regras da casa: português de Portugal, sem travessões nem
 // tiques de texto de máquina, voz pessoal e cabeçalho completo.
 //
-//   npm run texto -- <slug> [<slug> ...] [--lang pt|en]     (sem slugs: todos os textos dessa língua)
+//   npm run texto -- <slug> [<slug> ...] [--lang pt|en] [--saber]     (sem slugs: todos os textos dessa língua)
 //
+// Com --saber (textos de conhecimento e novidades) não se exige voz pessoal, mas exige-se fontes com ligação.
 // Sai com código 1 se houver erros. Os avisos pedem uma segunda leitura, não bloqueiam.
 import { artigos } from '../lib/md.mjs';
 
 const args = process.argv.slice(2);
 const lang = args.includes('--lang') ? args[args.indexOf('--lang') + 1] : 'pt';
+const saber = args.includes('--saber');
 const slugs = args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '--lang');
 const lista = artigos(lang).filter((a) => !slugs.length || slugs.includes(a.slug));
 if (!lista.length) { console.error(`Nenhum texto encontrado em content/${lang}/${slugs.length ? ' para ' + slugs.join(', ') : ''}.`); process.exit(1); }
@@ -67,7 +69,13 @@ for (const a of lista) {
   if (palavras < 250) achados.push(['aviso', `só ${palavras} palavras: um texto pessoal curto tem pelo menos 250`]);
   if (palavras > 1800) achados.push(['aviso', `${palavras} palavras: considera dividir em dois textos`]);
   const pessoais = (corpo.match(/\b(eu|me|meu|minha|meus|minhas|comigo|mim|fiz|achei|pensei|descobri|encontrei|percebi|aprendi|gosto|dei|vi|li|usei|escrevi|tentei|errei)\b/gi) ?? []).length;
-  if (a.lang === 'pt' && pessoais < 4) achados.push(['aviso', `pouca voz pessoal (${pessoais} marcas de primeira pessoa): conta o que viveste, não só o que pensas`]);
+  if (!saber && a.lang === 'pt' && pessoais < 4) achados.push(['aviso', `pouca voz pessoal (${pessoais} marcas de primeira pessoa): conta o que viveste, não só o que pensas`]);
+  if (saber) {
+    const externas = new Set([...a.md.matchAll(/\]\((https:\/\/[^)\s]+)/g)].map((m) => m[1])).size + (a.fonte ? 1 : 0);
+    if (externas < 2) achados.push(['aviso', `só ${externas} ligação(ões) externa(s): um texto de conhecimento precisa de fontes (idealmente 2 ou mais)`]);
+    if (!/^#{2}\s*(fontes|sources|referências|references)\s*$/im.test(a.md)) achados.push(['aviso', 'falta a secção "## Fontes" no fim']);
+    if (/\b\d[\d.,\s]*\s?(%|€|euros|milhões|mil milhões|dólares|USD)/i.test(corpo) && externas < 1) achados.push(['erro', 'há números e dinheiro sem nenhuma fonte com ligação']);
+  }
   const frases = corpo.replace(/^#.*$/gm, '').split(/(?<=[.!?…:])\s+/).filter((f) => f.split(/\s+/).length > 2);
   const media = frases.reduce((n, f) => n + f.split(/\s+/).length, 0) / Math.max(1, frases.length);
   if (media > 24) achados.push(['aviso', `frases com ${media.toFixed(0)} palavras em média: corta, fala como falas`]);
