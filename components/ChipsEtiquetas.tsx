@@ -13,9 +13,9 @@ export function ChipsEtiquetas({ lang, atual }: { lang: Lang; atual?: string }) 
   const inativo = 'text-suave';
   return (
     <nav aria-label={c.etiquetas} className="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.78rem]">
-      <Link href={rotas[lang].blog} aria-current={atual ? undefined : 'page'} className={`${base} ${atual ? inativo : ativo}`}>{lang === 'pt' ? 'tudo' : 'all'}</Link>
+      <Link href={rotas[lang].blog} prefetch={false} aria-current={atual ? undefined : 'page'} className={`${base} ${atual ? inativo : ativo}`}>{lang === 'pt' ? 'tudo' : 'all'}</Link>
       {lista.map((e) => (
-        <Link key={e.slug} href={rotas[lang].etiqueta(e.slug)} aria-current={atual === e.slug ? 'page' : undefined} className={`${base} ${atual === e.slug ? ativo : inativo}`}>
+        <Link key={e.slug} href={rotas[lang].etiqueta(e.slug)} prefetch={false} aria-current={atual === e.slug ? 'page' : undefined} className={`${base} ${atual === e.slug ? ativo : inativo}`}>
           {e.nome.toLowerCase()} <span className="opacity-50">{e.artigos.length}</span>
         </Link>
       ))}

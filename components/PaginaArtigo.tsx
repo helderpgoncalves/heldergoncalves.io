@@ -216,7 +216,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
             <ul className="mt-2">
               {parecidos.map((p) => (
                 <li key={p.slug} className="border-b border-linha">
-                  <Link href={rotas[lang].artigo(p.slug)} className="group block py-5">
+                  <Link href={rotas[lang].artigo(p.slug)} prefetch={false} className="group block py-5">
                     <span className="block font-serif text-[1.65rem] leading-tight tracking-[-0.015em] text-balance transition-colors group-hover:text-acento">{p.titulo}</span>
                     <span className="mt-1.5 block font-mono text-[0.72rem] text-suave">{dataLonga(p.data, lang)} · {p.minutos} {c.blog.min}</span>
                   </Link>
@@ -229,7 +229,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
         {(antes || depois) && (
           <nav aria-label={c.blog.titulo} className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {antes && (
-              <Link href={rotas[lang].artigo(antes.slug)} rel="prev" className="group block border-t border-linha pt-5">
+              <Link href={rotas[lang].artigo(antes.slug)} prefetch={false} rel="prev" className="group block border-t border-linha pt-5">
                 <span className="font-mono text-[0.72rem] tracking-[0.14em] text-suave uppercase">← {c.blog.antes}</span>
                 <span className="mt-2 block font-serif text-[1.45rem] leading-tight tracking-[-0.015em] text-balance transition-colors group-hover:text-acento">{antes.titulo}</span>
               </Link>

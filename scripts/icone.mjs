@@ -10,11 +10,13 @@ const corte = { left: 1260, top: 1200, width: 1000, height: 1000 };
 // O original tem um padrão de barras finas: um desfoque leve apaga-o antes de reduzir.
 const recorte = await sharp('fonte/hero.png').extract(corte).blur(6.5).png().toBuffer();
 const base = (s) => sharp(recorte).resize(s, s, { kernel: 'lanczos3' }).sharpen({ sigma: s < 64 ? 0.8 : 0.5 });
+// PNG com paleta: o ícone é uma foto suave, e assim pesa um quinto sem se notar a diferença.
+const png = { palette: true, quality: 85, effort: 10, dither: 1 };
 const arredondado = async (s, canto = 0.22) => {
   const mascara = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><rect width="${s}" height="${s}" rx="${s * canto}"/></svg>`);
-  return base(s).composite([{ input: mascara, blend: 'dest-in' }]).png({ compressionLevel: 9 }).toBuffer();
+  return base(s).composite([{ input: mascara, blend: 'dest-in' }]).png(png).toBuffer();
 };
-const quadrado = (s) => base(s).png({ compressionLevel: 9 }).toBuffer();
+const quadrado = (s) => base(s).png(png).toBuffer();
 
 // .ico com PNGs lá dentro (16, 32 e 48 px), aceite por todos os navegadores actuais.
 async function ico(tamanhos) {
@@ -32,7 +34,7 @@ async function ico(tamanhos) {
 }
 
 await unlink('app/icon.svg').catch(() => {});
-await writeFile('app/icon.png', await arredondado(512));
+await writeFile('app/icon.png', await arredondado(192)); // os separadores mostram 32 px: 192 chega e sobra
 await writeFile('app/favicon.ico', await ico([16, 32, 48]));
 await writeFile('app/apple-icon.png', await quadrado(180)); // o iOS arredonda sozinho
 await writeFile('public/icon-192.png', await quadrado(192));

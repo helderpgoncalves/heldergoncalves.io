@@ -16,7 +16,7 @@ export function ListaArtigos({ lang, lista }: { lang: Lang; lista: Artigo[] }) {
           <ol className="mt-4">
             {lista.filter((a) => a.data.startsWith(ano)).map((a) => (
               <li key={a.slug} className="border-t border-linha last:border-b">
-                <Link href={rotas[lang].artigo(a.slug)} className="group block py-7 sm:grid sm:grid-cols-[4.5rem_1fr_auto] sm:gap-x-8 sm:py-8">
+                <Link href={rotas[lang].artigo(a.slug)} prefetch={false} className="group block py-7 sm:grid sm:grid-cols-[4.5rem_1fr_auto] sm:gap-x-8 sm:py-8">
                   <p className="font-mono text-[0.76rem] leading-relaxed text-suave sm:pt-[0.55rem]">
                     <time dateTime={a.data}>{diaMes(a.data)}</time>
                     <span className="sm:hidden"> · {a.minutos} min</span>
