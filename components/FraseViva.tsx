@@ -2,57 +2,140 @@
 
 import { useEffect, useRef } from 'react';
 
-// A frase do topo: cada linha sobe de uma máscara, uma a seguir à outra, e passados uns segundos
-// a frase desfaz-se e dá lugar à seguinte. Só CSS anima (transform e opacidade, no compositor); o JavaScript
-// só troca o texto, por isso é leve em qualquer telemóvel.
+// A frase do topo: descodifica-se letra a letra (cada uma atravessa glifos de máquina
+// antes de assentar) e, passados uns segundos, transforma-se na seguinte. Só mudam as
+// letras que diferem; as que coincidem ficam quietas. Cada célula tem a largura exacta
+// da letra final, por isso o texto nunca treme.
 //
-// O HTML do servidor já traz a primeira frase, visível e animada só por CSS: sem JavaScript,
-// ou com `prefers-reduced-motion`, fica parada e legível. O <h1> da página é estável e vive fora daqui.
+// O HTML do servidor já traz a primeira frase (o <h1> da página, estável, vive fora daqui),
+// por isso sem JavaScript, ou com `prefers-reduced-motion`, fica a frase parada e legível.
 
-const PAUSA = 6200; // quanto tempo cada frase fica inteira
-const SAIDA = 520;  // duração da saída
+const GLIFOS = '01<>/\\|_-+*#=%$&?[]{}~^';
+const PAUSA = 5200; // quanto tempo cada frase fica inteira
 
 type Frase = { linhas: readonly string[]; autor?: string };
+type Tarefa = { cel: HTMLElement; para: string; ini: number; fim: number; ult: number; feito: boolean };
 
 export function FraseViva({ frases }: { frases: readonly Frase[] }) {
-  const N = Math.max(...frases.map((f) => f.linhas.length));
-  const raiz = useRef<HTMLDivElement>(null);
+  // Todas as frases ocupam as mesmas linhas: as de texto (até ao máximo de qualquer frase) e, no fim, a do autor.
+  const N = Math.max(...frases.map((f) => f.linhas.length)) + 1;
+  const alvosDe = (f: Frase) => Array.from({ length: N }, (_, i) => (i === N - 1 ? (f.autor ?? '') : (f.linhas[i] ?? '')));
+  const raiz = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = raiz.current!;
-    if (frases.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const linhas = [...el.querySelectorAll<HTMLElement>('[data-t]')];
-    const autor = el.querySelector<HTMLElement>('[data-autor]')!;
-    let i = 0, tempo = 0;
+    const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.style.opacity = '1'; el.style.animation = 'none';
+    if (reduzido || frases.length < 2) return;
 
-    const escrever = (f: Frase) => {
-      linhas.forEach((l, k) => { l.textContent = f.linhas[k] ?? ''; });
-      autor.textContent = f.autor ?? '';
+    const linhas = [...el.querySelectorAll<HTMLElement>('[data-linha]')];
+    const celulas: HTMLElement[][] = linhas.map(() => []);
+    const atual: string[] = linhas.map(() => '');
+    const medidas = new Map<string, number>();
+    const ctx = document.createElement('canvas').getContext('2d')!;
+
+    const largura = (l: number, ch: string) => {
+      if (ch === '') return 0;
+      const k = `${l}|${ch}`;
+      let w = medidas.get(k);
+      if (w === undefined) {
+        const cs = getComputedStyle(linhas[l]);
+        ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+        w = ctx.measureText(ch).width;
+        medidas.set(k, w);
+      }
+      return w;
     };
-    const seguinte = () => {
-      if (document.hidden) { tempo = window.setTimeout(seguinte, 600); return; }
-      el.dataset.f = 'sai';
-      tempo = window.setTimeout(() => {
-        i = (i + 1) % frases.length;
-        escrever(frases[i]);
-        delete el.dataset.f;
-        void el.offsetWidth; // reinicia as animações de entrada
-        el.dataset.f = 'entra';
-        tempo = window.setTimeout(seguinte, PAUSA);
-      }, SAIDA);
+
+    let tarefas: Tarefa[] = [];
+    let raf = 0, espera = 0, indice = 0, vivo = true;
+
+    const lampejo = (t: Tarefa) => {
+      t.cel.removeAttribute('data-s');
+      t.cel.textContent = t.para;
+      t.cel.classList.add('trava');
+      t.cel.addEventListener('animationend', () => t.cel.classList.remove('trava'), { once: true });
+      t.feito = true;
     };
 
-    tempo = window.setTimeout(seguinte, PAUSA);
-    return () => clearTimeout(tempo);
-  }, [frases]);
+    const passo = (agora: number) => {
+      if (!vivo) return;
+      let restam = false;
+      for (const t of tarefas) {
+        if (t.feito) continue;
+        restam = true;
+        if (agora < t.ini) continue;
+        if (agora >= t.fim) { lampejo(t); continue; }
+        if (agora - t.ult > 55) {
+          t.cel.dataset.s = '1';
+          t.cel.textContent = GLIFOS[(Math.random() * GLIFOS.length) | 0];
+          t.ult = agora;
+        }
+      }
+      if (restam) raf = requestAnimationFrame(passo);
+      else terminar();
+    };
 
-  const f = frases[0];
+    const terminar = () => {
+      // Limpa as células que sobraram quando a frase nova é mais curta.
+      celulas.forEach((cs, l) => {
+        while (cs.length > atual[l].length) cs.pop()!.remove();
+      });
+      espera = window.setTimeout(() => { indice = (indice + 1) % frases.length; transformar(frases[indice]); }, PAUSA);
+    };
+
+    const transformar = (frase: Frase) => {
+      if (document.hidden) { espera = window.setTimeout(() => transformar(frase), 800); return; }
+      const agora = performance.now();
+      tarefas = [];
+      alvosDe(frase).forEach((alvo, l) => {
+        const antes = atual[l];
+        const n = Math.max(antes.length, alvo.length);
+        for (let i = 0; i < n; i++) {
+          let cel = celulas[l][i];
+          if (!cel) {
+            cel = document.createElement('span');
+            cel.className = 'c';
+            cel.style.width = '0px';
+            linhas[l].append(cel);
+            celulas[l][i] = cel;
+          }
+          const de = antes[i] ?? '', para = alvo[i] ?? '';
+          cel.style.width = `${largura(l, para)}px`;
+          if (de === para) continue; // igual: fica quieta
+          const ini = agora + i * 30 + l * 170 + Math.random() * 50;
+          tarefas.push({ cel, para, ini, fim: ini + 340 + Math.random() * 280, ult: 0, feito: false });
+        }
+        atual[l] = alvo;
+      });
+      raf = requestAnimationFrame(passo);
+    };
+
+    let redim = 0;
+    const medirTudo = () => {
+      medidas.clear();
+      celulas.forEach((cs, l) => cs.forEach((c, i) => { c.style.width = `${largura(l, atual[l][i] ?? '')}px`; }));
+    };
+    const aoRedimensionar = () => { clearTimeout(redim); redim = window.setTimeout(medirTudo, 120); };
+    addEventListener('resize', aoRedimensionar);
+
+    // Começa quando as fontes estão prontas, para medir letras verdadeiras.
+    linhas.forEach((l) => (l.textContent = ''));
+    document.fonts.ready.then(() => { if (vivo) transformar(frases[0]); });
+
+    return () => {
+      vivo = false; cancelAnimationFrame(raf); clearTimeout(espera); clearTimeout(redim);
+      removeEventListener('resize', aoRedimensionar);
+    };
+  }, [frases, N]);
+
+  const inicial = alvosDe(frases[0]);
   return (
-    <div ref={raiz} aria-hidden className="viva">
-      {Array.from({ length: N }, (_, k) => (
-        <span key={k} className="linha" style={{ '--k': k } as React.CSSProperties}><span data-t>{f.linhas[k] ?? ''}</span></span>
-      ))}
-      <span data-autor style={{ '--k': N } as React.CSSProperties}>{f.autor ?? ''}</span>
-    </div>
+    <>
+      <span ref={raiz} aria-hidden className="viva">
+        {inicial.map((texto, i) => <span key={i} data-linha {...(i === N - 1 ? { 'data-autor': '' } : {})}>{texto}</span>)}
+      </span>
+      <noscript><style>{'.viva{opacity:1!important;animation:none!important}'}</style></noscript>
+    </>
   );
 }

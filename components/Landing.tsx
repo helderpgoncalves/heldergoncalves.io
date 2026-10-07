@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FraseViva } from './FraseViva';
 import { Json } from './Json';
 import { copy, htmlLang, rotas, type Lang } from '@/lib/copy';
-import { PROJETOS, SITE } from '@/lib/site';
+import { SITE } from '@/lib/site';
 
 const LARGURAS = [1280, 2048, 3072, 4096];
 const srcset = (ext: string) => LARGURAS.map((w) => `/img/hero-${w}.${ext} ${w}w`).join(', ');
@@ -38,8 +38,6 @@ export function Landing({ lang }: { lang: Lang }) {
         inLanguage: ['pt-PT', 'en'],
         publisher: { '@id': `${SITE.canonico}/#eu` },
       },
-      // Os projectos assinam este site como autor: o Google liga-os a mim.
-      ...PROJETOS.map((p) => ({ '@type': 'SoftwareApplication', name: p.nome, url: p.url, description: p.descricao[lang], applicationCategory: 'WebApplication', author: { '@id': `${SITE.canonico}/#eu` } })),
     ],
   };
 
@@ -100,10 +98,9 @@ export function Landing({ lang }: { lang: Lang }) {
             {SITE.email}
           </a>
         </p>
-        <nav aria-label={lang === 'pt' ? 'Perfis e projetos' : 'Profiles and projects'} className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.72rem] text-nevoa/60">
+        <nav aria-label={lang === 'pt' ? 'Perfis' : 'Profiles'} className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.72rem] text-nevoa/60">
           <a href={SITE.instagram} rel="me noopener" target="_blank" className="transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">Instagram</a>
           <a href={SITE.github} rel="me noopener" target="_blank" className="transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">GitHub</a>
-          {PROJETOS.map((p) => <a key={p.url} href={p.url} target="_blank" rel="noopener" className="transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">{p.nome}</a>)}
         </nav>
       </footer>
     </main>
