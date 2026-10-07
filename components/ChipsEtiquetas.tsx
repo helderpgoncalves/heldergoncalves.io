@@ -2,25 +2,21 @@ import Link from 'next/link';
 import { copy, rotas, type Lang } from '@/lib/copy';
 import { MIN_INDEXAVEL, etiquetas } from '@/lib/blog';
 
-// Os temas do blog, como atalhos. Só entram os que têm pelo menos 2 textos: com um só, a página de tema não valia a pena.
+// Os temas do blog como uma linha de texto em mono. Só entram os que têm 2 ou mais textos
+// (com um só, a página de tema não valia a pena).
 export function ChipsEtiquetas({ lang, atual }: { lang: Lang; atual?: string }) {
   const c = copy[lang].blog;
   const lista = etiquetas(lang).filter((e) => e.artigos.length >= MIN_INDEXAVEL || e.slug === atual);
   if (lista.length === 0) return null;
-  const chip = 'rounded-full border px-3.5 py-1.5 transition-colors';
+  const base = 'underline-offset-[6px] transition-colors hover:text-tinta';
+  const ativo = 'text-tinta underline decoration-acento decoration-2';
+  const inativo = 'text-suave';
   return (
-    <nav aria-label={c.etiquetas} className="mt-9 flex flex-wrap gap-2 font-mono text-[0.76rem]">
-      <Link href={rotas[lang].blog} aria-current={atual ? undefined : 'page'} className={`${chip} ${atual ? 'border-linha text-suave hover:border-suave hover:text-tinta' : 'border-tinta bg-tinta text-fundo'}`}>
-        {lang === 'pt' ? 'Tudo' : 'All'}
-      </Link>
+    <nav aria-label={c.etiquetas} className="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.78rem]">
+      <Link href={rotas[lang].blog} aria-current={atual ? undefined : 'page'} className={`${base} ${atual ? inativo : ativo}`}>{lang === 'pt' ? 'tudo' : 'all'}</Link>
       {lista.map((e) => (
-        <Link
-          key={e.slug}
-          href={rotas[lang].etiqueta(e.slug)}
-          aria-current={atual === e.slug ? 'page' : undefined}
-          className={`${chip} ${atual === e.slug ? 'border-tinta bg-tinta text-fundo' : 'border-linha text-suave hover:border-suave hover:text-tinta'}`}
-        >
-          {e.nome} <span className="opacity-60">{e.artigos.length}</span>
+        <Link key={e.slug} href={rotas[lang].etiqueta(e.slug)} aria-current={atual === e.slug ? 'page' : undefined} className={`${base} ${atual === e.slug ? ativo : inativo}`}>
+          {e.nome.toLowerCase()} <span className="opacity-50">{e.artigos.length}</span>
         </Link>
       ))}
     </nav>

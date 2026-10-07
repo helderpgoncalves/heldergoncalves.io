@@ -46,12 +46,12 @@ export function PaginaEtiqueta({ lang, slug }: { lang: Lang; slug: string }) {
     <div className="papel">
       <Json dados={dados} />
       <Cabecalho lang={lang} alt={lang === 'pt' ? rotas.en.blog : rotas.pt.blog} />
-      <main className="mx-auto w-full max-w-[64rem] px-6 pt-10 sm:px-10 sm:pt-16">
+      <main className="mx-auto w-full max-w-[52rem] px-6 pt-12 sm:pt-20">
         <p className="font-mono text-[0.78rem] text-suave">
           <Link href={rotas[lang].blog} className="hover:text-tinta">← {c.blog.voltar}</Link>
         </p>
-        <p className="mt-10 font-mono text-[0.78rem] tracking-[0.14em] text-suave uppercase">{c.blog.etiquetaCabeca} · {c.blog.textos(e.artigos.length)}</p>
-        <h1 className="mt-3 font-serif text-[clamp(3rem,9vw,6.5rem)] leading-[0.95] tracking-[-0.03em] text-balance">{e.nome}</h1>
+        <p className="mt-10 font-mono text-[0.78rem] text-suave">{c.blog.prompt}/{slug} <span className="opacity-60">({c.blog.textos(e.artigos.length)})</span></p>
+        <h1 className="mt-4 font-serif text-[clamp(3rem,8vw,5.5rem)] leading-[0.95] tracking-[-0.03em] text-balance">{e.nome}</h1>
 
         <ChipsEtiquetas lang={lang} atual={slug} />
         <ListaArtigos lang={lang} lista={e.artigos} />

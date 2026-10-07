@@ -10,7 +10,7 @@ export function metaRaiz(lang: Lang): Metadata {
   return {
     metadataBase: new URL(SITE.canonico),
     applicationName: SITE.nome,
-    title: { default: copy[lang].titulo, template: `%s — ${SITE.nome}` },
+    title: { default: copy[lang].titulo, template: `%s · ${SITE.nome}` },
     authors: [{ name: SITE.nome, url: SITE.canonico }],
     creator: SITE.nome,
     formatDetection: { email: false, address: false, telephone: false },

@@ -4,7 +4,7 @@ import { meta } from '@/lib/seo';
 
 export const metadata = meta({
   lang: 'en',
-  tituloAbsoluto: `${copy.en.nome} — ${copy.en.frases[0].join(' ')}`,
+  tituloAbsoluto: `${copy.en.nome} · ${copy.en.frases[0].linhas.join(' ')}`,
   descricao: copy.en.descricao,
   caminho: rotas.en.inicio,
   alt: { pt: rotas.pt.inicio, en: rotas.en.inicio },

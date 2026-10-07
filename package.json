@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit",
     "imagens": "node scripts/imagens.mjs",
     "icone": "node scripts/icone.mjs",
+    "ascii": "node scripts/ascii.mjs",
     "imagens-blog": "node scripts/imagens-blog.mjs",
     "enviar": "node --env-file-if-exists=.env.local scripts/enviar.mjs",
     "notificar": "node --env-file-if-exists=.env.local scripts/notificar.mjs",

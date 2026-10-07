@@ -13,10 +13,13 @@ import { useEffect, useRef } from 'react';
 const GLIFOS = '01<>/\\|_-+*#=%$&?[]{}~^';
 const PAUSA = 5200; // quanto tempo cada frase fica inteira
 
-type Frase = readonly [string, string];
+type Frase = { linhas: readonly string[]; autor?: string };
 type Tarefa = { cel: HTMLElement; para: string; ini: number; fim: number; ult: number; feito: boolean };
 
 export function FraseViva({ frases }: { frases: readonly Frase[] }) {
+  // Todas as frases ocupam as mesmas linhas: as de texto (até ao máximo de qualquer frase) e, no fim, a do autor.
+  const N = Math.max(...frases.map((f) => f.linhas.length)) + 1;
+  const alvosDe = (f: Frase) => Array.from({ length: N }, (_, i) => (i === N - 1 ? (f.autor ?? '') : (f.linhas[i] ?? '')));
   const raiz = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export function FraseViva({ frases }: { frases: readonly Frase[] }) {
       if (document.hidden) { espera = window.setTimeout(() => transformar(frase), 800); return; }
       const agora = performance.now();
       tarefas = [];
-      frase.forEach((alvo, l) => {
+      alvosDe(frase).forEach((alvo, l) => {
         const antes = atual[l];
         const n = Math.max(antes.length, alvo.length);
         for (let i = 0; i < n; i++) {
@@ -124,15 +127,14 @@ export function FraseViva({ frases }: { frases: readonly Frase[] }) {
       vivo = false; cancelAnimationFrame(raf); clearTimeout(espera); clearTimeout(redim);
       removeEventListener('resize', aoRedimensionar);
     };
-  }, [frases]);
+  }, [frases, N]);
 
-  const [a, b] = frases[0];
+  const inicial = alvosDe(frases[0]);
   return (
     <>
-      <span className="sr-only">{a} {b}</span>
+      <span className="sr-only">{frases[0].linhas.join(' ')}{frases[0].autor ? `. ${frases[0].autor}` : ''}</span>
       <span ref={raiz} aria-hidden className="viva">
-        <span data-linha>{a}</span>
-        <em data-linha className="text-nevoa/80">{b}</em>
+        {inicial.map((texto, i) => <span key={i} data-linha {...(i === N - 1 ? { 'data-autor': '' } : {})}>{texto}</span>)}
       </span>
       <noscript><style>{'.viva{opacity:1!important;animation:none!important}'}</style></noscript>
     </>

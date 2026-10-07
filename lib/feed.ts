@@ -32,7 +32,7 @@ ${cartao ? `<media:thumbnail url="${cartao}" width="1200" height="630"/>` : ''}
   const corpo = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:media="http://search.yahoo.com/mrss/">
 <channel>
-<title>${xml(`${c.blog.titulo} — ${SITE.nome}`)}</title>
+<title>${xml(`${c.blog.titulo} · ${SITE.nome}`)}</title>
 <link>${abs(rotas[lang].blog)}</link>
 <description>${xml(c.blog.descricao)}</description>
 <language>${htmlLang[lang]}</language>

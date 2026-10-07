@@ -1,42 +1,46 @@
 import Link from 'next/link';
 import { copy, rotas, type Lang } from '@/lib/copy';
-import { dataLonga, figuraHtml, slugEtiqueta, type Artigo } from '@/lib/blog';
+import { slugEtiqueta, type Artigo } from '@/lib/blog';
 
-const SIZES_MINIATURA = '(min-width: 1024px) 560px, (min-width: 640px) 60vw, calc(100vw - 48px)';
+const diaMes = (iso: string) => `${iso.slice(8)}.${iso.slice(5, 7)}`;
 
-// A lista de textos, partilhada pelo blog e pelas páginas de tema. Cada entrada é uma só ligação
-// (título, resumo e capa), com a data à esquerda em ecrãs largos.
+// O índice do blog: um ano de cada vez, uma linha por texto. Data e tempo em mono, título em serifa.
 export function ListaArtigos({ lang, lista }: { lang: Lang; lista: Artigo[] }) {
   const c = copy[lang].blog;
+  const anos = [...new Set(lista.map((a) => a.data.slice(0, 4)))];
   return (
-    <ol className="mt-4">
-      {lista.map((a, i) => (
-        <li key={a.slug} className="border-b border-linha">
-          <Link href={rotas[lang].artigo(a.slug)} className="group grid gap-4 py-9 sm:grid-cols-[11rem_1fr] sm:gap-10">
-            <p className="font-mono text-[0.78rem] leading-relaxed text-suave">
-              <time dateTime={a.data}>{dataLonga(a.data, lang)}</time>
-              <br />
-              {a.minutos} {c.min}
-              {a.fonte && <><br /><span className="mt-2 inline-block rounded-full border border-linha px-2.5 py-0.5 text-[0.68rem] tracking-[0.08em] text-acento uppercase">{c.achado}</span></>}
-            </p>
-            <div>
-              {a.capa && (
-                <div
-                  className="miniatura mb-6"
-                  dangerouslySetInnerHTML={{ __html: figuraHtml(a.capa.imagem, { alt: a.capa.alt, sizes: SIZES_MINIATURA, classe: 'miniatura', ansiosa: i === 0 }) }}
-                />
-              )}
-              <h2 className="font-serif text-[clamp(1.9rem,3.6vw,2.7rem)] leading-[1.06] tracking-[-0.02em] text-balance transition-colors group-hover:text-acento">{a.titulo}</h2>
-              <p className="mt-3 max-w-[38rem] font-leitura text-[1.12rem] leading-[1.6] text-suave text-pretty">{a.resumo}</p>
-              {a.etiquetas.length > 0 && (
-                <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.72rem] tracking-[0.06em] text-suave/80 uppercase">
-                  {a.etiquetas.map((e) => <span key={slugEtiqueta(e)}>{e}</span>)}
-                </p>
-              )}
-            </div>
-          </Link>
-        </li>
+    <div className="mt-14 space-y-14">
+      {anos.map((ano) => (
+        <section key={ano} aria-label={ano}>
+          <h2 className="font-mono text-[0.74rem] tracking-[0.18em] text-suave">{ano}</h2>
+          <ol className="mt-4">
+            {lista.filter((a) => a.data.startsWith(ano)).map((a) => (
+              <li key={a.slug} className="border-t border-linha last:border-b">
+                <Link href={rotas[lang].artigo(a.slug)} className="group block py-7 sm:grid sm:grid-cols-[4.5rem_1fr_auto] sm:gap-x-8 sm:py-8">
+                  <p className="font-mono text-[0.76rem] leading-relaxed text-suave sm:pt-[0.55rem]">
+                    <time dateTime={a.data}>{diaMes(a.data)}</time>
+                    <span className="sm:hidden"> · {a.minutos} min</span>
+                  </p>
+                  <div className="mt-2 sm:mt-0">
+                    <h3 className="font-serif text-[clamp(1.7rem,3.4vw,2.35rem)] leading-[1.08] tracking-[-0.018em] text-balance transition-colors group-hover:text-acento">
+                      {a.titulo}
+                      <span aria-hidden className="ml-3 inline-block translate-x-[-0.4rem] font-sans text-[0.7em] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100">→</span>
+                    </h3>
+                    <p className="mt-3 max-w-[38rem] font-leitura text-[1.06rem] leading-[1.6] text-suave text-pretty">{a.resumo}</p>
+                    {(a.fonte || a.etiquetas.length > 0) && (
+                      <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.72rem] text-suave/80">
+                        {a.fonte && <span className="text-acento">[{c.achado.toLowerCase()}]</span>}
+                        {a.etiquetas.map((e) => <span key={slugEtiqueta(e)}>{e.toLowerCase()}</span>)}
+                      </p>
+                    )}
+                  </div>
+                  <p className="hidden font-mono text-[0.76rem] text-suave sm:block sm:pt-[0.55rem]">{a.minutos} min</p>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
       ))}
-    </ol>
+    </div>
   );
 }

@@ -113,7 +113,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
               <Link href={rotas[lang].blog} className="hover:text-tinta">← {c.blog.voltar}</Link>
             </p>
             {a.fonte && (
-              <p className="mt-8 inline-block rounded-full border border-linha px-3 py-1 font-mono text-[0.7rem] tracking-[0.1em] text-acento uppercase">{c.blog.achado}</p>
+              <p className="mt-8 font-mono text-[0.78rem] text-acento">[{c.blog.achado.toLowerCase()}]</p>
             )}
             <h1 className={`${a.fonte ? 'mt-5' : 'mt-8'} font-serif text-[clamp(2.7rem,7.2vw,4.9rem)] leading-[0.98] tracking-[-0.028em] text-balance`}>{a.titulo}</h1>
             <p className="mt-6 font-leitura text-[clamp(1.25rem,1.8vw,1.5rem)] leading-[1.5] text-suave italic text-pretty">{a.resumo}</p>

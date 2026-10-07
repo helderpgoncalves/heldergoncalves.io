@@ -4,6 +4,7 @@ import { FormSubscrever } from './FormSubscrever';
 import { Json } from './Json';
 import { ListaArtigos } from './ListaArtigos';
 import { ChipsEtiquetas } from './ChipsEtiquetas';
+import { AsciiBanner } from './AsciiBanner';
 import { copy, htmlLang, rotas, type Lang } from '@/lib/copy';
 import { artigos, imagemDe } from '@/lib/blog';
 import { abs } from '@/lib/seo';
@@ -18,7 +19,7 @@ export function PaginaBlog({ lang }: { lang: Lang }) {
     '@context': 'https://schema.org',
     '@type': 'Blog',
     '@id': `${abs(rotas[lang].blog)}#blog`,
-    name: `${c.blog.titulo} — ${SITE.nome}`,
+    name: `${c.blog.titulo} · ${SITE.nome}`,
     description: c.blog.descricao,
     url: abs(rotas[lang].blog),
     inLanguage: htmlLang[lang],
@@ -37,17 +38,20 @@ export function PaginaBlog({ lang }: { lang: Lang }) {
     <div className="papel">
       <Json dados={dados} />
       <Cabecalho lang={lang} alt={alt} />
-      <main className="mx-auto w-full max-w-[64rem] px-6 pt-10 sm:px-10 sm:pt-16">
-        <h1 className="font-serif text-[clamp(3.4rem,10vw,7.5rem)] leading-[0.92] tracking-[-0.03em]">{c.blog.cabeca}</h1>
-        <p className="mt-7 max-w-[36rem] font-leitura text-[clamp(1.2rem,1.6vw,1.45rem)] leading-[1.55] text-suave text-pretty">{c.blog.intro}</p>
+      <main className="mx-auto w-full max-w-[52rem] px-6 pt-12 sm:pt-20">
+        <p className="font-mono text-[0.78rem] text-suave">{c.blog.prompt}<span aria-hidden className="ml-1 inline-block animate-pulse">▍</span></p>
+        <h1 className="mt-5 font-serif text-[clamp(3.2rem,9vw,6rem)] leading-[0.95] tracking-[-0.03em]">{c.blog.cabeca}</h1>
+        <p className="mt-6 max-w-[34rem] font-leitura text-[clamp(1.15rem,1.5vw,1.3rem)] leading-[1.6] text-suave text-pretty">{c.blog.intro}</p>
 
-        <ChipsEtiquetas lang={lang} />
+        <AsciiBanner alt={c.blog.banner} />
 
-        <section aria-label={c.form.rotulo} className="mt-10 border-y border-linha py-9">
+        <section aria-label={c.form.rotulo} className="border-t border-linha pt-8">
           <FormSubscrever lang={lang} t={c.form} />
         </section>
 
-        {lista.length === 0 ? <p className="mt-16 text-suave">{c.blog.vazio}</p> : <ListaArtigos lang={lang} lista={lista} />}
+        <ChipsEtiquetas lang={lang} />
+
+        {lista.length === 0 ? <p className="mt-16 font-mono text-[0.84rem] text-suave">{c.blog.vazio}</p> : <ListaArtigos lang={lang} lista={lista} />}
       </main>
       <Rodape lang={lang} />
     </div>

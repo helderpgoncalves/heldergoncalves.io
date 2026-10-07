@@ -7,6 +7,7 @@ export const metadata = meta({
   titulo: copy.en.blog.titulo,
   descricao: copy.en.blog.descricao,
   caminho: rotas.en.blog,
+  imagem: { url: '/img/blog-og.jpg', w: 1200, h: 630, alt: copy.en.blog.banner },
   alt: { pt: rotas.pt.blog, en: rotas.en.blog },
 });
 

@@ -4,12 +4,15 @@ export const linguas = ['pt', 'en'] as const;
 export type Lang = (typeof linguas)[number];
 export const linguaPadrao: Lang = 'pt'; // a do x-default
 
+// Uma frase do topo da landing: até 3 linhas (com 22 letras no máximo cada, para caberem no telemóvel) e, nas citações, o autor.
+export type Frase = { linhas: readonly string[]; autor?: string };
+
 // Um só tipo para as duas línguas: se faltar uma chave numa delas, o TypeScript recusa.
 export type Copy = {
   titulo: string;
   descricao: string;
   nome: string;
-  frases: readonly (readonly [string, string])[];
+  frases: readonly Frase[];
   contacto: string;
   imagem: string;
   trocar: string;
@@ -21,6 +24,8 @@ export type Copy = {
     cabeca: string;
     intro: string;
     vazio: string;
+    banner: string;          // descrição da imagem do blog
+    prompt: string;          // a linha de terminal por cima do título
     min: string;
     voltar: string;
     feed: string;
@@ -71,15 +76,25 @@ export type Copy = {
 export const copy = {
   pt: {
     titulo: 'Hélder Gonçalves',
-    descricao: 'Software que pensa antes de falar. Um blog sobre tecnologia, inteligência artificial e ofício — e sobre o que me vai na cabeça.',
+    descricao: 'Software que pensa antes de falar. Um blog sobre tecnologia, inteligência artificial e ofício, e sobre o que me vai na cabeça.',
     nome: 'Hélder Gonçalves',
     frases: [
-      ['Software que pensa', 'antes de falar.'],
-      ['Máquinas que sabem', 'quando parar.'],
-      ['Inteligência com', 'bom senso.'],
-      ['Construo o que', 'ainda não existe.'],
-      ['Menos ruído,', 'mais sinal.'],
-      ['Escrevo código', 'para durar.'],
+      { linhas: ['Software que pensa', 'antes de falar.'] },
+      { linhas: ['Procura riqueza,', 'não dinheiro', 'nem estatuto.'], autor: 'Naval Ravikant, tradução minha' },
+      { linhas: ['Menos ruído,', 'mais sinal.'] },
+      { linhas: ['Ganha com a cabeça,', 'não com o tempo.'], autor: 'Naval Ravikant, tradução minha' },
+      { linhas: ['Escrevo código', 'para durar.'] },
+      { linhas: ['O essencial é', 'invisível aos olhos.'], autor: 'Antoine de Saint-Exupéry, O Principezinho' },
+      { linhas: ['Construo o que', 'ainda não existe.'] },
+      { linhas: ['Lê o que amas', 'até amares ler.'], autor: 'Naval Ravikant, tradução minha' },
+      { linhas: ['Faço pouco,', 'bem feito.'] },
+      { linhas: ['Tudo vale a pena', 'se a alma', 'não é pequena.'], autor: 'Fernando Pessoa, Mensagem' },
+      { linhas: ['Aprende a vender.', 'Aprende a construir.'], autor: 'Naval Ravikant, tradução minha' },
+      { linhas: ['Inteligência com', 'bom senso.'] },
+      { linhas: ['Não temos pouco tempo,', 'perdemos muito.'], autor: 'Séneca, Sobre a brevidade da vida' },
+      { linhas: ['Sê difícil', 'de igualar.'], autor: 'Sam Altman, How to Be Successful' },
+      { linhas: ['Aprendo em público,', 'e engano-me à vista.'] },
+      { linhas: ['Quase demasiada', 'confiança em ti.'], autor: 'Sam Altman, How to Be Successful' },
     ],
     contacto: 'Contacto',
     imagem: 'Uma figura sentada numa colina florida, a olhar o vale ao pôr do sol.',
@@ -88,10 +103,12 @@ export const copy = {
     navBlog: 'Blog',
     blog: {
       titulo: 'Blog',
-      descricao: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo: tecnologia, inteligência artificial, ofício — e o que me vai na cabeça.',
+      descricao: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo: tecnologia, inteligência artificial, ofício, e o que me vai na cabeça.',
       cabeca: 'Blog',
-      intro: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo. Tecnologia, inteligência artificial, ofício — e o que me vai na cabeça. Uma carta de vez em quando, sem spam.',
-      vazio: 'Ainda não há nada publicado.',
+      intro: 'Um espaço onde partilho ideias, falo de coisas e, às vezes, desabafo. Tecnologia, inteligência artificial, ofício, e o que me vai na cabeça. Uma carta de vez em quando, sem spam.',
+      vazio: 'Ainda nada por aqui. A primeira carta vem a caminho.',
+      banner: 'Uma figura sentada numa rocha, a ver os raios do sol atravessarem um vale de montanhas.',
+      prompt: '~/blog',
       min: 'min de leitura',
       voltar: 'Todo o blog',
       feed: 'RSS',
@@ -141,21 +158,31 @@ export const copy = {
       titulo: 'Confirma a tua subscrição',
       texto: 'Pediste para receber as cartas do blog do Hélder Gonçalves. Confirma que este e-mail é teu:',
       botao: 'Confirmar subscrição',
-      ignora: 'Se não foste tu, ignora esta mensagem — não acontece nada.',
+      ignora: 'Se não foste tu, ignora esta mensagem. Não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
     },
   },
   en: {
     titulo: 'Hélder Gonçalves',
-    descricao: 'Software that thinks before it speaks. A blog about technology, artificial intelligence and craft — and whatever is on my mind.',
+    descricao: 'Software that thinks before it speaks. A blog about technology, artificial intelligence and craft, and whatever is on my mind.',
     nome: 'Hélder Gonçalves',
     frases: [
-      ['Software that thinks', 'before it speaks.'],
-      ['Machines that know', 'when to stop.'],
-      ['Intelligence with', 'good judgment.'],
-      ['I build what', 'does not exist yet.'],
-      ['Less noise,', 'more signal.'],
-      ['Code written', 'to last.'],
+      { linhas: ['Software that thinks', 'before it speaks.'] },
+      { linhas: ['Seek wealth,', 'not money', 'or status.'], autor: 'Naval Ravikant' },
+      { linhas: ['Less noise,', 'more signal.'] },
+      { linhas: ['Earn with your mind,', 'not your time.'], autor: 'Naval Ravikant' },
+      { linhas: ['Code written', 'to last.'] },
+      { linhas: ['What is essential', 'is invisible', 'to the eye.'], autor: 'Antoine de Saint-Exupéry, The Little Prince' },
+      { linhas: ['I build what', 'does not exist yet.'] },
+      { linhas: ['Read what you love', 'until you love', 'to read.'], autor: 'Naval Ravikant' },
+      { linhas: ['Doing little,', 'done well.'] },
+      { linhas: ['It is all worth it', 'if the soul', 'is not small.'], autor: 'Fernando Pessoa, Mensagem, my translation' },
+      { linhas: ['Learn to sell.', 'Learn to build.'], autor: 'Naval Ravikant' },
+      { linhas: ['Intelligence with', 'good judgment.'] },
+      { linhas: ['We do not have', 'too little time,', 'we waste too much.'], autor: 'Seneca, On the Shortness of Life, my translation' },
+      { linhas: ['Be hard', 'to compete with.'], autor: 'Sam Altman, How to Be Successful' },
+      { linhas: ['I learn in public,', 'and get it wrong', 'in plain sight.'] },
+      { linhas: ['Almost too much', 'self-belief.'], autor: 'Sam Altman, How to Be Successful' },
     ],
     contacto: 'Contact',
     imagem: 'A figure sitting on a flower-covered hill, looking over the valley at sunset.',
@@ -164,10 +191,12 @@ export const copy = {
     navBlog: 'Blog',
     blog: {
       titulo: 'Blog',
-      descricao: 'A place where I share ideas, think out loud and, now and then, vent: technology, artificial intelligence, craft — and whatever is on my mind.',
+      descricao: 'A place where I share ideas, think out loud and, now and then, vent: technology, artificial intelligence, craft, and whatever is on my mind.',
       cabeca: 'Blog',
-      intro: 'A place where I share ideas, think out loud and, now and then, vent. Technology, artificial intelligence, craft — and whatever is on my mind. A letter now and then, no spam.',
-      vazio: 'Nothing published yet.',
+      intro: 'A place where I share ideas, think out loud and, now and then, vent. Technology, artificial intelligence, craft, and whatever is on my mind. A letter now and then, no spam.',
+      vazio: 'Nothing here yet. The first letter is on its way.',
+      banner: 'A figure sitting on a rock, watching sunbeams cross a mountain valley.',
+      prompt: '~/blog',
       min: 'min read',
       voltar: 'The whole blog',
       feed: 'RSS',
@@ -217,7 +246,7 @@ export const copy = {
       titulo: 'Confirm your subscription',
       texto: 'You asked to receive letters from Hélder Gonçalves’s blog. Please confirm this email address is yours:',
       botao: 'Confirm subscription',
-      ignora: 'If this was not you, ignore this message — nothing will happen.',
+      ignora: 'If this was not you, ignore this message. Nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
     },
   },
