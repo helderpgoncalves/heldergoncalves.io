@@ -6,7 +6,7 @@ export function Rodape({ lang }: { lang: Lang }) {
   return (
     <footer className="mx-auto mt-24 w-full max-w-[64rem] border-t border-linha px-6 py-10 text-[0.85rem] text-suave sm:px-10">
       <div className="flex flex-col gap-8 sm:flex-row sm:justify-between">
-        <div>
+        {PROJETOS.length > 0 && <div>
           <p className="font-mono text-[0.7rem] tracking-[0.14em] uppercase">{lang === 'pt' ? 'Projetos' : 'Projects'}</p>
           <ul className="mt-3 space-y-2">
             {PROJETOS.map((p) => (
@@ -16,8 +16,8 @@ export function Rodape({ lang }: { lang: Lang }) {
               </li>
             ))}
           </ul>
-        </div>
-        <div className="sm:text-right">
+        </div>}
+        <div className="sm:text-right sm:ml-auto">
           <p className="font-mono text-[0.7rem] tracking-[0.14em] uppercase">{lang === 'pt' ? 'Fala comigo' : 'Elsewhere'}</p>
           <p className="mt-3 flex gap-5 font-mono sm:justify-end">
             <a className="hover:text-tinta" href={SITE.instagram} rel="me noopener noreferrer" target="_blank">Instagram</a>

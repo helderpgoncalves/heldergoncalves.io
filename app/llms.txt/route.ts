@@ -16,7 +16,7 @@ export const GET = () => {
 
 > ${copy.pt.descricao} ${copy.en.descricao}
 
-${SITE.nome} é engenheiro de software, em Portugal. Este site é o seu blog pessoal (português de Portugal e inglês) e o ponto de partida dos seus projetos. Qualquer página de texto responde em Markdown com o cabeçalho \`Accept: text/markdown\`.
+${SITE.nome} é engenheiro de software, em Portugal. Este site é o seu blog pessoal (português de Portugal e inglês). Qualquer página de texto responde em Markdown com o cabeçalho \`Accept: text/markdown\`.
 
 ## Páginas
 
@@ -28,11 +28,7 @@ ${SITE.nome} é engenheiro de software, em Portugal. Este site é o seu blog pes
 
 ${textos.join('\n\n')}
 
-## Projetos
-
-${PROJETOS.map((p) => `- [${p.nome}](${p.url}): ${p.descricao.pt}`).join('\n')}
-
-## Perfis
+${PROJETOS.length ? `## Projetos\n\n${PROJETOS.map((p) => `- [${p.nome}](${p.url}): ${p.descricao.pt}`).join('\n')}\n\n` : ''}## Perfis
 
 - [GitHub](${SITE.github})
 - [Instagram](${SITE.instagram}): @${SITE.instagramNome}

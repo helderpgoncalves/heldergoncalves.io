@@ -14,6 +14,8 @@ export const SITE = {
 
 // Os projectos que fiz e que assinam este site como autor. Aparecem no rodapé e no JSON-LD (author → #eu).
 // Para acrescentar um, basta uma linha aqui.
-export const PROJETOS = [
-  { nome: 'Microsoft', url: 'https://microsoft.helder.si', descricao: { pt: 'A Microsoft em tempo real, com chat, até chegar aos 50% de lucro.', en: 'Microsoft in real time, with a live chat, until it hits 50% profit.' } },
-] as const;
+type Projeto = { nome: string; url: string; descricao: { pt: string; en: string } };
+export const PROJETOS: readonly Projeto[] = [
+  // Vazio de propósito. Para mostrar um projecto no rodapé, na bio e no llms.txt, acrescenta uma linha:
+  // { nome: 'Nome', url: 'https://…', descricao: { pt: '…', en: '…' } },
+];

@@ -18,7 +18,7 @@ const md = (corpo: string, estado = 200) => new Response(corpo, { status: estado
 
 function inicio(lang: Lang) {
   const c = copy[lang];
-  return `# ${c.nome}\n\n${c.descricao}\n\n- [Blog](${abs(rotas[lang].blog)})\n- [${lang === 'pt' ? 'Bio e ligações' : 'Bio and links'}](${SITE.bio})\n- [GitHub](${SITE.github})\n- [Instagram](${SITE.instagram})\n- ${lang === 'pt' ? 'Contacto' : 'Contact'}: ${SITE.email}\n\n## ${lang === 'pt' ? 'Projetos' : 'Projects'}\n\n${PROJETOS.map((p) => `- [${p.nome}](${p.url}): ${p.descricao[lang]}`).join('\n')}\n`;
+  return `# ${c.nome}\n\n${c.descricao}\n\n- [Blog](${abs(rotas[lang].blog)})\n- [${lang === 'pt' ? 'Bio e ligações' : 'Bio and links'}](${SITE.bio})\n- [GitHub](${SITE.github})\n- [Instagram](${SITE.instagram})\n- ${lang === 'pt' ? 'Contacto' : 'Contact'}: ${SITE.email}\n${PROJETOS.length ? `\n## ${lang === 'pt' ? 'Projetos' : 'Projects'}\n\n${PROJETOS.map((p) => `- [${p.nome}](${p.url}): ${p.descricao[lang]}`).join('\n')}\n` : ''}`;
 }
 
 function lista(lang: Lang) {

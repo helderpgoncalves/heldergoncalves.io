@@ -99,7 +99,6 @@ export function Landing({ lang }: { lang: Lang }) {
           </a>
         </p>
         <nav aria-label={lang === 'pt' ? 'Perfis' : 'Profiles'} className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.72rem] text-nevoa/60">
-          <a href={SITE.instagram} rel="me noopener" target="_blank" className="transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">Instagram</a>
           <a href={SITE.github} rel="me noopener" target="_blank" className="transition-colors hover:text-nevoa focus-visible:text-nevoa focus-visible:outline-none">GitHub</a>
         </nav>
       </footer>
