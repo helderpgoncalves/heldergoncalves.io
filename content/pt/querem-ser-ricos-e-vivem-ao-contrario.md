@@ -6,7 +6,7 @@ parte: 1
 data: 2026-10-07
 etiquetas: [Vida, Dinheiro]
 notificar: false
-rascunho: false
+rascunho: true
 ---
 
 Pergunta a dez pessoas se gostavam de ser ricas. Nove dizem que sim, a décima diz que sim mas com outras palavras. Agora olha para o que essas pessoas fazem com a semana, com o ordenado e com a atenção. Não bate certo.
