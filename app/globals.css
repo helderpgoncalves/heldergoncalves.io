@@ -16,6 +16,9 @@
 }
 
 :root {
+  /* Realce de código (claro) */
+  --c-kw: #a1371b; --c-str: #2d6a4f; --c-num: #8a5a00; --c-tit: #1d4e89; --c-attr: #6b3fa0; --c-com: #8a8d96;
+  --c-add: #1f7a3d; --c-del: #b3261e;
   --p-fundo: #f6f3ee;
   --p-tinta: #15171d;
   --p-suave: #686b75;
@@ -24,6 +27,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
+    --c-kw: #f4b36a; --c-str: #9fd8a8; --c-num: #f0c987; --c-tit: #8fb8ff; --c-attr: #c9a7ff; --c-com: #6f7690;
+    --c-add: #7fd49a; --c-del: #ff9a94;
     --p-fundo: #0a1020;
     --p-tinta: #eef1f7;
     --p-suave: #99a0b2;
@@ -82,6 +87,64 @@ body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
 .leitura pre { overflow-x: auto; padding: 1.1em 1.3em; border-radius: .8em; background: color-mix(in srgb, var(--p-tinta) 6%, transparent); border: 1px solid var(--p-linha); font-size: .85em; line-height: 1.6; }
 .leitura pre code { background: none; padding: 0; font-size: 1em; }
 .leitura img { max-width: 100%; height: auto; border-radius: .8em; }
-.leitura table { width: 100%; border-collapse: collapse; font-size: .9em; }
+.leitura table { display: block; max-width: 100%; overflow-x: auto; }
+.leitura :is(h2, h3) { scroll-margin-top: 1.5rem; position: relative; }
+.leitura table { border-collapse: collapse; font-size: .9em; }
+.leitura th { font-family: var(--font-sans); font-weight: 600; font-size: .9em; }
 .leitura th, .leitura td { text-align: left; padding: .6em .8em; border-bottom: 1px solid var(--p-linha); }
 .leitura > p:first-of-type::first-letter { font-family: var(--font-serif); float: left; font-size: 4.6em; line-height: .82; padding: .06em .1em 0 0; color: var(--p-acento); }
+
+/* Âncora de cada título: só aparece ao passar o rato (ou ao focar com o teclado). */
+.leitura .ancora { margin-left: .4em; text-decoration: none; color: var(--p-suave); opacity: 0; transition: opacity .15s; font-family: var(--font-sans); font-weight: 400; font-size: .7em; }
+.leitura :is(h2, h3):hover .ancora, .leitura .ancora:focus-visible { opacity: 1; }
+@media (hover: none) { .leitura .ancora { display: none; } }
+
+/* ---------- Imagens ---------- */
+/* O marcador desfocado vem em `background-image`; a imagem tem width/height, por isso reserva o espaço e a página não salta. */
+.fig { margin: 0; }
+.fig img { display: block; width: 100%; height: auto; border-radius: .8em; background: var(--p-linha) center / cover no-repeat; }
+.fig figcaption { margin-top: .85em; font-family: var(--font-mono); font-size: .74rem; line-height: 1.55; color: var(--p-suave); text-wrap: pretty; }
+.fig .credito { display: block; margin-top: .15em; opacity: .75; }
+.leitura .fig { margin-block: 2.1em; }
+/* "Larga": sai da coluna do texto para os dois lados, sem passar do ecrã. */
+.fig.larga { position: relative; left: 50%; translate: -50% 0; width: min(52rem, calc(100vw - 3rem)); }
+.fig.miniatura { width: 100%; left: 0; translate: none; }
+.fig.miniatura img { aspect-ratio: 2 / 1; object-fit: cover; border-radius: .7em; }
+.miniatura { overflow: hidden; border-radius: .7em; }
+.miniatura .fig { margin: 0; }
+a:hover .fig.miniatura img { filter: brightness(1.04); }
+
+/* ---------- Código ---------- */
+.leitura .codigo { position: relative; }
+.leitura .codigo pre { margin: 0; padding-top: 2.6em; }
+.leitura .codigo::before { content: attr(data-lang); position: absolute; top: .75em; left: 1.3em; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--p-suave); }
+.leitura .codigo .copiar { position: absolute; top: .5em; right: .6em; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .04em; color: var(--p-suave); background: var(--p-fundo); border: 1px solid var(--p-linha); border-radius: 999px; padding: .3em .85em; cursor: pointer; transition: color .15s, border-color .15s; }
+.leitura .codigo .copiar:hover { color: var(--p-tinta); border-color: var(--p-suave); }
+.leitura .codigo .copiar[data-feito] { color: var(--c-add); }
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-doctag, .hljs-literal, .hljs-type { color: var(--c-kw); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-meta .hljs-string { color: var(--c-str); }
+.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-variable, .hljs-template-variable { color: var(--c-num); }
+.hljs-title, .hljs-section, .hljs-selector-id, .hljs-selector-class, .hljs-name { color: var(--c-tit); }
+.hljs-attr, .hljs-attribute, .hljs-property, .hljs-params, .hljs-tag { color: var(--c-attr); }
+.hljs-comment, .hljs-quote, .hljs-meta { color: var(--c-com); font-style: italic; }
+.hljs-addition { color: var(--c-add); } .hljs-deletion { color: var(--c-del); }
+.hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+/* ---------- Barra de leitura ---------- */
+/* Em CSS puro, ligada ao scroll da página. Onde o navegador não sabe, não aparece. */
+.progresso { display: none; }
+@supports (animation-timeline: scroll()) {
+  .progresso { display: block; position: fixed; inset: 0 0 auto 0; z-index: 50; height: 3px; background: var(--p-acento); transform-origin: 0 50%; transform: scaleX(0); animation: ler linear both; animation-timeline: scroll(root block); }
+  @keyframes ler { to { transform: scaleX(1); } }
+}
+
+/* ---------- Impressão: só o texto ---------- */
+@media print {
+  .papel > header, .papel > footer, .progresso, form, [data-indice], details, .copiar, nav, section[aria-label] { display: none !important; }
+  .papel, body:has(.papel) { background: #fff; color: #000; }
+  .leitura { font-size: 11.5pt; }
+  .leitura a { text-decoration: none; }
+  .leitura a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; color: #555; word-break: break-all; }
+  .fig.larga { width: 100%; left: 0; translate: none; }
+  .fig, pre { break-inside: avoid; }
+}

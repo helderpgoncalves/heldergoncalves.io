@@ -77,6 +77,24 @@ for (const e of entradas) {
   if (titulo.length > 70) aviso(`título com ${titulo.length} caracteres (o Google corta por volta dos 60)`);
   if (desc.length < 50 || desc.length > 180) aviso(`descrição com ${desc.length} caracteres (ideal 70–160)`);
   verifica(/<meta property="og:image" content="https:\/\/[^"]+"/.test(h) && /<meta name="twitter:card"/.test(h), 'falta og:image ou twitter:card');
+  // Imagens: todas com alt e dimensões (sem saltos de layout); as locais têm de existir.
+  const imgs = [...h.matchAll(/<img\s[^>]*>/g)].map((m) => m[0]).filter((t) => !/aria-hidden/.test(t));
+  verifica(imgs.every((t) => /\salt="/.test(t)), 'há <img> sem atributo alt');
+  verifica(imgs.every((t) => !/src="\/img\/blog\//.test(t) || (/\swidth="\d+"/.test(t) && /\sheight="\d+"/.test(t))), 'há imagens do blog sem width/height');
+  for (const src of new Set([...h.matchAll(/(?:src|srcSet|srcset)="(\/img\/blog\/[^"]+)"/g)].flatMap((m) => m[1].split(',').map((x) => x.trim().split(' ')[0])))) {
+    const rr = await get(base + src, { method: 'HEAD' });
+    verifica(rr.status === 200, `imagem em falta (${rr.status}): ${src}`);
+  }
+  const og = h.match(/<meta property="og:image" content="([^"]+)"/)?.[1];
+  if (og) { const rr = await get(local(og), { method: 'HEAD' }); verifica(rr.status === 200, `og:image não responde (${rr.status}): ${og}`); }
+  if (/\/blog\/[^/]+$/.test(e.loc) && !/\/(etiqueta|tag)\//.test(e.loc) && /^\/(en\/)?blog\/(?!confir)[^/]+$/.test(new URL(e.loc).pathname)) {
+    const ldArtigo = [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).flatMap((j) => j['@graph'] ?? [j]).find((n) => n['@type'] === 'BlogPosting');
+    if (ldArtigo) {
+      verifica(ldArtigo.headline && ldArtigo.image && ldArtigo.datePublished && ldArtigo.dateModified && ldArtigo.author, 'BlogPosting sem headline/image/datas/author');
+      verifica(ldArtigo.dateModified >= ldArtigo.datePublished, 'dateModified anterior a datePublished');
+    }
+    verifica(/<meta property="article:published_time"/.test(h), 'falta article:published_time');
+  }
   const ld = [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   verifica(ld.every((m) => { try { JSON.parse(m[1]); return true; } catch { return false; } }), 'JSON-LD inválido');
 }

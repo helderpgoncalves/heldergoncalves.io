@@ -37,6 +37,7 @@ COPY --from=build --chown=app:app /app/public ./public
 # para o standalone o que o servidor importa, e as páginas já vêm geradas: estes dois ficam de fora.
 COPY --from=build --chown=app:app /app/node_modules/yaml ./node_modules/yaml
 COPY --from=build --chown=app:app /app/node_modules/marked ./node_modules/marked
+COPY --from=build --chown=app:app /app/node_modules/highlight.js ./node_modules/highlight.js
 COPY --from=build --chown=app:app /app/content ./content
 COPY --from=build --chown=app:app /app/lib/md.mjs /app/lib/email.mjs ./lib/
 COPY --from=build --chown=app:app /app/scripts/notificar.mjs ./scripts/notificar.mjs

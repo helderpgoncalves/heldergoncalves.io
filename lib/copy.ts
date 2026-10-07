@@ -26,6 +26,23 @@ export type Copy = {
     feed: string;
     tradLabel: string;
     fonteLabel: string;
+    achado: string;          // etiqueta dos textos sobre algo que encontrei (têm `fonte`)
+    achadoEm: string;        // "Encontrei isto em"
+    indice: string;          // "Neste texto"
+    atualizado: string;
+    partilhar: string;
+    copiarLigacao: string;
+    ligacaoCopiada: string;
+    copiarCodigo: string;
+    codigoCopiado: string;
+    relacionados: string;
+    antes: string;
+    depois: string;
+    etiquetas: string;       // "Temas"
+    etiquetaTitulo: (nome: string) => string;
+    etiquetaDescricao: (nome: string, n: number) => string;
+    etiquetaCabeca: string;
+    textos: (n: number) => string;
   };
   form: {
     rotulo: string;
@@ -80,6 +97,23 @@ export const copy = {
       feed: 'RSS',
       tradLabel: 'Also in English',
       fonteLabel: 'Fonte',
+      achado: 'Achado',
+      achadoEm: 'Encontrei isto em',
+      indice: 'Neste texto',
+      atualizado: 'Atualizado a',
+      partilhar: 'Partilhar',
+      copiarLigacao: 'Copiar ligação',
+      ligacaoCopiada: 'Ligação copiada',
+      copiarCodigo: 'Copiar',
+      codigoCopiado: 'Copiado',
+      relacionados: 'Para continuar',
+      antes: 'Antes deste',
+      depois: 'Depois deste',
+      etiquetas: 'Temas',
+      etiquetaTitulo: (nome) => `${nome} · Blog`,
+      etiquetaDescricao: (nome, n) => `${n === 1 ? 'O texto' : `Os ${n} textos`} do blog de Hélder Gonçalves no tema «${nome}».`,
+      etiquetaCabeca: 'Tema',
+      textos: (n) => (n === 1 ? '1 texto' : `${n} textos`),
     },
     form: {
       rotulo: 'Recebe os próximos por e-mail',
@@ -139,6 +173,23 @@ export const copy = {
       feed: 'RSS',
       tradLabel: 'Também em português',
       fonteLabel: 'Source',
+      achado: 'Find',
+      achadoEm: 'I found this at',
+      indice: 'In this piece',
+      atualizado: 'Updated',
+      partilhar: 'Share',
+      copiarLigacao: 'Copy link',
+      ligacaoCopiada: 'Link copied',
+      copiarCodigo: 'Copy',
+      codigoCopiado: 'Copied',
+      relacionados: 'Keep reading',
+      antes: 'Before this one',
+      depois: 'After this one',
+      etiquetas: 'Topics',
+      etiquetaTitulo: (nome) => `${nome} · Blog`,
+      etiquetaDescricao: (nome, n) => `${n === 1 ? 'The piece' : `All ${n} pieces`} on Hélder Gonçalves’s blog under “${nome}”.`,
+      etiquetaCabeca: 'Topic',
+      textos: (n) => (n === 1 ? '1 piece' : `${n} pieces`),
     },
     form: {
       rotulo: 'Get the next ones by email',
@@ -178,6 +229,7 @@ export const rotas = {
     blog: '/blog',
     artigo: (slug: string) => `/blog/${slug}`,
     feed: '/blog/feed.xml',
+    etiqueta: (slug: string) => `/blog/etiqueta/${slug}`,
     confirmar: '/blog/confirmar',
   },
   en: {
@@ -185,6 +237,7 @@ export const rotas = {
     blog: '/en/blog',
     artigo: (slug: string) => `/en/blog/${slug}`,
     feed: '/en/blog/feed.xml',
+    etiqueta: (slug: string) => `/en/blog/tag/${slug}`,
     confirmar: '/en/blog/confirm',
   },
 } as const;

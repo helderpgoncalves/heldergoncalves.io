@@ -18,6 +18,7 @@ npm run dev                    # http://127.0.0.1:3100
 | `npm run build` | compila (modo `standalone`; em produção corre-se a imagem do `Dockerfile`) |
 | `npm run typecheck` | TypeScript |
 | `npm run imagens` | regenera as versões AVIF/WebP/JPEG a partir de `fonte/hero.png` |
+| `npm run imagens-blog` | prepara as imagens dos textos a partir de `fonte/blog/` (ver [`docs/blog.md`](docs/blog.md)) |
 | `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.helder.si` |
 | `npm run verificar [-- <url>]` | verifica o SEO de ponta a ponta a partir do sitemap (contra o dev, ou contra produção) |
 | `npm run enviar -- <slug> --lang pt` | cria o rascunho de um artigo como newsletter no Resend |
