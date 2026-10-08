@@ -1,7 +1,5 @@
 name: CI
 on:
-  push:
-    branches: [main]
   pull_request:
 
 permissions:
@@ -20,7 +18,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
       # Barra textos com marcadores por preencher, travessões, brasileirismos e cabeçalhos incompletos.
