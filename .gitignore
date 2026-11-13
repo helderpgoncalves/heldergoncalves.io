@@ -8,3 +8,4 @@ next-env.d.ts
 data
 .claude/settings.local.json
 .claude/worktrees
+**/.DS_Store
