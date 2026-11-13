@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { appDe, subDe } from '@/lib/apps';
 
-// Ficheiros que são do site todo e não de uma mini-app em particular.
+// Ficheiros do site todo, que a página de bio também usa.
 const PARTILHADO = ['/_next/', '/api/health', '/img/', '/icon.png', '/favicon.ico', '/apple-icon.png', '/icon-192.png', '/icon-512.png', '/.well-known/'];
+// bio.heldergoncalves.io (e bio.localhost em desenvolvimento) serve a pasta app/(bio)/s/bio/.
+const ehBio = (host: string) => ['bio.heldergoncalves.io', 'bio.localhost'].includes(host.split(':')[0].toLowerCase());
 const naoExiste = (req: NextRequest) => NextResponse.rewrite(new URL('/__nao-existe', req.url));
 
 // Só quando o Markdown é preferido ao HTML (o `q` mais alto), não quando aparece num */* qualquer.
@@ -14,10 +15,10 @@ function pedeMarkdown(req: NextRequest) {
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const sub = subDe(req.headers.get('host') ?? '');
+  const bio = ehBio(req.headers.get('host') ?? '');
 
-  // O apex nunca serve as pastas das mini-apps directamente.
-  if (!sub) {
+  // O domínio principal nunca serve a pasta da bio directamente.
+  if (!bio) {
     if (pathname === '/s' || pathname.startsWith('/s/')) return naoExiste(req);
     // Quem pede Markdown (agentes de IA) recebe a mesma página em Markdown.
     if (pedeMarkdown(req) && /^(\/(en)?|\/(en\/)?blog(\/[a-z0-9-]+)?)$/.test(pathname)) {
@@ -28,11 +29,10 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!appDe(sub)) return naoExiste(req);
   if (PARTILHADO.some((p) => pathname === p || pathname.startsWith(p))) return NextResponse.next();
 
   const url = req.nextUrl.clone();
-  url.pathname = `/s/${sub}${pathname === '/' ? '' : pathname}`;
+  url.pathname = `/s/bio${pathname === '/' ? '' : pathname}`;
   return NextResponse.rewrite(url);
 }
 

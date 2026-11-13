@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { fontes } from '@/lib/fontes';
 
-// Há várias raízes (uma por língua e uma por mini-app), por isso o 404 geral vive aqui,
+// Há várias raízes (uma por língua e uma para a bio), por isso o 404 geral vive aqui,
 // com as duas línguas. Os 404 dentro de uma língua usam as respostas normais do Next.
 export const metadata: Metadata = { title: '404', robots: { index: false, follow: false } };
 

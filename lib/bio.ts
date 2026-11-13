@@ -2,7 +2,7 @@ import { PROJETOS, SITE } from './site';
 
 // As ligações da página de bio (bio.heldergoncalves.io), pela ordem em que aparecem.
 // Para acrescentar uma ligação: uma linha aqui. `destaque` pinta o botão com a cor do pôr do sol.
-export type LigacaoBio = { rotulo: string; nota?: string; url: string; destaque?: boolean };
+type LigacaoBio = { rotulo: string; nota?: string; url: string; destaque?: boolean };
 
 export const LIGACOES_BIO: readonly LigacaoBio[] = [
   { rotulo: 'O blog', nota: 'Ideias, dinheiro, vida e software', url: `${SITE.canonico}/blog`, destaque: true },

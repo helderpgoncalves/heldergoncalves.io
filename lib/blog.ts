@@ -1,7 +1,7 @@
 import { artigos as todos, artigo as um, renderizar, indice as titulos, figura, imagemOg, imagemGrande, infoImagem, slugar } from './md.mjs';
 import type { Lang } from './copy';
 
-export type Capa = { imagem: string; alt: string; legenda: string | null; credito: string | null };
+type Capa = { imagem: string; alt: string; legenda: string | null; credito: string | null };
 
 export type Artigo = {
   slug: string;

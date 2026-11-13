@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { appDe, subDe } from './apps';
 import { SITE } from './site';
 
 export const json = (corpo: object, status = 200) =>
@@ -8,12 +7,10 @@ export const json = (corpo: object, status = 200) =>
 const hostsPermitidos = new Set([SITE.url, SITE.canonico, SITE.alias].map((u) => new URL(u).host));
 if (process.env.NODE_ENV !== 'production') ['localhost:3100', '127.0.0.1:3100'].forEach((h) => hostsPermitidos.add(h));
 
-/** Só aceitamos pedidos feitos pelas nossas páginas (e pelas mini-apps activas): os browsers enviam sempre o Origin num POST. */
+/** Só aceitamos pedidos feitos pelas nossas páginas: os browsers enviam sempre o Origin num POST. */
 export function origemPermitida(req: NextRequest): boolean {
   try {
-    const host = new URL(req.headers.get('origin') ?? '').host;
-    const sub = subDe(host);
-    return hostsPermitidos.has(host) || Boolean(sub && appDe(sub));
+    return hostsPermitidos.has(new URL(req.headers.get('origin') ?? '').host);
   } catch {
     return false;
   }

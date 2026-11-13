@@ -1,7 +1,7 @@
 # Deploy no Coolify
 
-Uma só aplicação serve tudo: a landing, o blog, a API da newsletter e todas as mini-apps
-(`<nome>.helder.si`). Um contentor, ~40 MB de RAM em repouso (medido: 37 MB parado, 47 MB
+Uma só aplicação serve tudo: a landing, o blog, a API da newsletter e a página de bio
+(`bio.heldergoncalves.io`). Um contentor, ~40 MB de RAM em repouso (medido: 37 MB parado, 47 MB
 depois de 300 pedidos em paralelo), imagem de ~280 MB.
 
 ## 1. DNS
@@ -12,7 +12,7 @@ Para **cada** domínio (`heldergoncalves.io` e `helder.si`), aponta para o IP do
 | --- | --- | --- |
 | A | `@` | IP do servidor |
 | A | `www` | IP do servidor |
-| A | `microsoft`, `lab` (uma por mini-app, só em `helder.si`) | IP do servidor |
+| A | `bio` (só em `heldergoncalves.io`) | IP do servidor |
 
 Se usas Cloudflare, deixa as linhas em **DNS only** (nuvem cinzenta): o Traefik do Coolify pede os
 certificados por HTTP-01 e precisa de chegar ao servidor directamente.
@@ -32,10 +32,10 @@ certificados por HTTP-01 e precisa de chegar ao servidor directamente.
 3. **Domains** (separados por vírgulas, com `https://`):
 
    ```
-   https://heldergoncalves.io,https://www.heldergoncalves.io,https://helder.si,https://www.helder.si
+   https://heldergoncalves.io,https://www.heldergoncalves.io,https://bio.heldergoncalves.io,https://helder.si,https://www.helder.si
    ```
 
-   O próprio site redireciona `helder.si`, `www.*` e `*.helder.si` para `heldergoncalves.io` (308), por isso
+   O próprio site redireciona `helder.si` e `www.*` para `heldergoncalves.io` (308), por isso
    o Google vê um só domínio. Em *Direction*, deixa **Allow www & non-www**: a decisão é do Next.
 4. **Environment Variables** — todas de `.env.example`:
 
@@ -96,48 +96,11 @@ Primeiro uso: deixa `NOTIFICAR=0`, publica um artigo e lê nos logs `avisaria: a
 À mão: `npm run notificar -- --dry` (ensaio local) e `npm run enviar -- <slug> --lang pt [--ver | --agora]`
 (sem opção, cria um rascunho no Resend para reveres no painel).
 
-## 5. Mini-apps em subdomínios (`<nome>.helder.si`)
+## 5. Página de bio (`bio.heldergoncalves.io`)
 
-```bash
-npm run nova-app -- lab "Experiências e mini-apps."
-```
-
-Cria `app/(lab)/s/lab/` (layout próprio, página, `robots.txt`) e regista-a em `lib/apps.ts` como **inactiva**.
-Em desenvolvimento vê-se em `http://lab.localhost:3100`. Para a pôr no ar:
-
-1. escreve a app; em `lib/apps.ts` põe `ativo: true`;
-2. cria o registo DNS `lab` em `helder.si` e acrescenta `https://lab.helder.si` aos **Domains** do Coolify;
-3. `git push`.
-
-Como funciona: `proxy.ts` lê o `Host`, e `lab.helder.si/x` passa a `/s/lab/x`. O apex nunca serve `/s/*`.
-Um subdomínio inactivo ou desconhecido responde 404 a tudo. Cada mini-app tem o seu próprio layout de raiz
-(outro aspecto, outra língua, o que quiseres) e partilha o mesmo processo, por isso não custa RAM.
-`<app>.heldergoncalves.io` redireciona (308) para `<app>.helder.si`; `helder.si` sozinho redireciona para `heldergoncalves.io`.
-
-**Wildcard (opcional):** só vale a pena com muitas mini-apps. Exige certificado por **DNS-01** (HTTP-01 não emite
-wildcards): configura o resolver `letsencrypt` do Traefik com o teu fornecedor de DNS e acrescenta em
-*Servers → Proxy → Dynamic Configurations* um router `HostRegexp(`[a-z0-9-]+\.helder\.si`)` com
-`tls.domains: [{ main: helder.si, sans: ['*.helder.si'] }]`
-(ver <https://coolify.io/docs/knowledge-base/proxy/traefik/wildcard-certs>).
-
-### microsoft.helder.si
-
-O preço da Microsoft em tempo real, até chegar aos 50% de lucro, com um chat. Código em `app/(microsoft)/`,
-`components/microsoft/` e `lib/microsoft/`.
-
-- **Preço:** Yahoo Finance, símbolo `MSF.F` (Microsoft em Frankfurt, em euros: é o que o portefólio tem, por isso é com
-  este preço, na mesma moeda, que se compara o custo médio). Um só pedido ao Yahoo serve todos os visitantes e só
-  se faz enquanto houver alguém a ver (a cada 4 s com a bolsa aberta, a cada 60 s fechada). Sem visitantes, não há pedidos.
-  O browser recebe as mudanças por Server-Sent Events. O gráfico é a sessão do dia, ponto a ponto, como o Yahoo a dá.
-- **Variáveis** (Runtime only): `MSFT_CUSTO_MEDIO` (euros: `soma(quantidade × preço) / soma(quantidade)` só das compras
-  de MSF.F), `MSFT_ADMIN_TOKEN` (moderação, ≥ 24 caracteres) e `DATA_DIR=/data`.
-- **Volume persistente:** monta um volume em `/data` (Coolify → *Storages*). É lá que ficam os comentários
-  (`comentarios.jsonl`, só de acrescentar). Sem volume, perdem-se a cada deploy.
-- **Moderação:** `https://microsoft.helder.si/moderar` com o `MSFT_ADMIN_TOKEN`. Cada pessoa também pode apagar as
-  suas próprias mensagens (recebe um segredo ao escrever, guardado no browser; no disco fica só o hash).
-- **O custo médio nunca sai do servidor**, mas o preço e a performance % que o site mostra permitem deduzi-lo.
-- Atraso: o Yahoo pode servir Frankfurt com atraso. A página mostra sempre a hora do último negócio, e avisa
-  quando a bolsa está aberta mas não há negócios há 15 minutos ou mais.
+`proxy.ts` lê o `Host` e `bio.heldergoncalves.io/x` passa a `/s/bio/x` (a pasta `app/(bio)/s/bio/`). O domínio
+principal nunca serve `/s/*`. Basta o registo DNS `bio` e acrescentar `https://bio.heldergoncalves.io` aos
+**Domains** do Coolify. Em desenvolvimento vê-se em `http://bio.localhost:3100`.
 
 ## 6. Verificar depois do deploy
 

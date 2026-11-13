@@ -2,14 +2,14 @@
 
 [![CI](https://github.com/helderpgoncalves/heldergoncalves.io/actions/workflows/ci.yml/badge.svg)](https://github.com/helderpgoncalves/heldergoncalves.io/actions/workflows/ci.yml)
 
-O site de Hélder Gonçalves: landing, blog, newsletter, comentários e a casa das mini-apps em subdomínios.
+O site de Hélder Gonçalves: landing, blog, newsletter e comentários, mais a página de bio.
 Next.js 16 (App Router) e Tailwind 4, em português e inglês, **sem base de dados**.
 
 | | |
 | --- | --- |
 | [heldergoncalves.io](https://heldergoncalves.io) | o site e o blog (domínio canónico) |
 | [bio.heldergoncalves.io](https://bio.heldergoncalves.io) | a página de ligações, leve e pensada para o telemóvel |
-| `helder.si` | redireciona (308) para o canónico; as mini-apps vivem em `<nome>.helder.si` |
+| `helder.si` | redireciona (308) para o canónico |
 
 ## Começar
 
@@ -29,6 +29,7 @@ npm run dev                  # http://127.0.0.1:3100
 | `npm run rascunhos` | o mesmo, mas mostra os textos com `rascunho: true` (nunca indexáveis, só em local) |
 | `npm run build` | compila em modo `standalone` (em produção corre-se a imagem do `Dockerfile`) |
 | `npm run typecheck` | TypeScript |
+| `npm run lixo` | procura ficheiros, exports, imagens e dependências sem uso |
 | `npm run texto [-- <slug>]` | revê os textos: português de Portugal, travessões, tiques de máquina, marcadores por preencher |
 | `npm run verificar [-- <url>]` | verifica o SEO de ponta a ponta a partir do sitemap (contra o dev ou contra produção) |
 | `npm run imagens` | gera as versões do hero a partir de `fonte/hero.png` |
@@ -36,7 +37,6 @@ npm run dev                  # http://127.0.0.1:3100
 | `npm run imagens-blog` | prepara as imagens dos textos a partir de `fonte/blog/` |
 | `npm run ascii` | gera as versões da imagem do blog a partir de `fonte/blog-ascii.png` |
 | `npm run icone` | gera os ícones |
-| `npm run nova-app -- <nome> ["<descrição>"]` | cria uma mini-app em `<nome>.helder.si` |
 | `npm run enviar -- <slug> --lang pt` | cria o rascunho de um texto como newsletter no Resend |
 | `npm run notificar -- --dry` | ensaio do aviso automático de textos novos |
 
@@ -47,13 +47,13 @@ Antes de publicar: `npm run typecheck && npm run texto && npm run build`. O CI f
 ```
 app/(pt)/  app/(en)/en/      landing, blog e confirmação, uma pasta por língua
 app/(bio)/s/bio/             a página de bio
-app/(<mini-app>)/s/<sub>/    cada mini-app, com layout próprio
 app/api/                     subscribe, confirm, comentarios, health
 components/  lib/            interface e lógica; lib/copy.ts tem todos os textos nas duas línguas
 content/pt|en/*.md           os textos do blog, em Markdown com cabeçalho YAML
-scripts/                     imagens, verificações, newsletter, nova-app
-proxy.ts                     subdomínio → pasta da mini-app
+scripts/                     imagens, verificações, newsletter
+proxy.ts                     bio.* → página de bio; Markdown para agentes de IA
 docs/                        blog.md (escrever) e deploy.md (publicar)
+.claude/                     agentes e skills para manter o site; CLAUDE.md tem as regras
 ```
 
 ## Como funciona
@@ -80,7 +80,20 @@ A imagem do `Dockerfile` corre num só contentor (cerca de 40 MB de RAM em repou
 de ambiente e verificação pós-deploy estão em [`docs/deploy.md`](docs/deploy.md); as variáveis, comentadas, em
 [`.env.example`](.env.example).
 
-## Escrever
+## Manter com o Claude Code
 
-O fluxo de escrita usa uma skill local do Claude Code (`/novo-post`) e agentes de redação, revisão e tradução.
-Ficam fora do repositório; o que interessa para quem escreve à mão está em [`docs/blog.md`](docs/blog.md).
+O repositório traz agentes e skills em `.claude/` (regras em `CLAUDE.md`):
+
+| | |
+| --- | --- |
+| `/novo-post` | escreve um texto novo na voz do blog, com pesquisa e revisão |
+| `/verificar` | typecheck, textos, lixo, build e audit |
+| `/limpar-repo` | remove tudo o que não é usado |
+| `/atualizar-dependencias` | npm audit e atualizações com validação |
+| `/lancar` | verifica, faz commit e push (o deploy é automático) |
+
+Agentes: `redator-blog`, `revisor-blog`, `tradutor-blog`, `pesquisador-blog`, `auditor-site`, `guardiao-seguranca`, `faxineiro`.
+Formato dos textos em [`docs/blog.md`](docs/blog.md).
+
+À mão: `npm run notificar -- --dry` (ensaio local) e `npm run enviar -- <slug> --lang pt [--ver | --agora]`
+(sem opção, cria um rascunho no Resend para reveres no painel).

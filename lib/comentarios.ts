@@ -4,7 +4,7 @@ import path from 'node:path';
 import type { Lang } from './copy';
 
 // Os comentários do blog. Sem base de dados: um ficheiro JSON por linha, só de acrescentar, no volume
-// do servidor (DATA_DIR), tal como o chat da mini-app. Cada linha é um comentário ou um «remover».
+// do servidor (DATA_DIR). Cada linha é um comentário ou um «remover».
 // Só guardamos um identificador anónimo de quem escreveu (HMAC do e-mail), nunca o endereço.
 
 const DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
@@ -83,7 +83,7 @@ export async function contar(lang: Lang, slug: string) {
 
 const PENDENTES = path.join(DIR, 'comentarios-pendentes.jsonl');
 const VALIDADE_PENDENTE = 48 * 3600_000;
-export type Pendente = { p: string; slug: string; lang: Lang; nome: string; texto: string; pai: string | null; h: string; criado: string };
+type Pendente = { p: string; slug: string; lang: Lang; nome: string; texto: string; pai: string | null; h: string; criado: string };
 type LinhaPendente = Pendente | { usado: string };
 
 const gp = globalThis as { __pendBlog?: { todos?: Promise<Map<string, Pendente>>; escritas: Promise<unknown> } };

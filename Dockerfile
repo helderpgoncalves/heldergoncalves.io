@@ -26,7 +26,7 @@ WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app \
  && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn* /usr/local/bin/corepack \
  && mkdir /data && chown app:app /data
-# Os dados das mini-apps (ex.: os comentários do chat da Microsoft) vivem aqui: no Coolify, este caminho
+# Os comentários do blog vivem aqui: no Coolify, este caminho
 # tem de ser um volume persistente, senão perdem-se a cada deploy.
 ENV DATA_DIR=/data
 

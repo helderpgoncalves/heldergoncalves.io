@@ -6,3 +6,5 @@ node_modules
 next-env.d.ts
 *.tsbuildinfo
 data
+.claude/settings.local.json
+.claude/worktrees
