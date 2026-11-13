@@ -38,6 +38,8 @@ export type Copy = {
     indice: string;          // "Neste texto"
     atualizado: string;
     partilhar: string;
+    partilharEm: string;     // «Partilhar em» + rede
+    porEmail: string;
     copiarLigacao: string;
     ligacaoCopiada: string;
     copiarCodigo: string;
@@ -77,36 +79,7 @@ export type Copy = {
     erro: [string, string];
     voltar: string;
   };
-  mail: { subscrever: Carta; publicar: Carta; subscreverPublicar: Carta; ignora: string; rodape: string; assinatura: string; sobre: string };
-  comentarios: {
-    titulo: string;
-    um: string;                 // «1 comentário»
-    varios: string;             // «{n} comentários»
-    vazio: string;
-    soSubscritores: string;     // explica a regra
-    entrarInvalido: string;
-    nome: string;
-    texto: string;
-    placeholder: string;
-    publicar: string;
-    aPublicar: string;
-    responder: string;
-    cancelar: string;
-    apagar: string;
-    apagarConfirma: string;
-    sair: string;
-    erro: string;
-    limite: string;
-    ligacoes: string;
-    regras: string;
-    respostaA: string;
-    sessaoOk: [string, string];  // título e texto da página de confirmação
-    email: string;               // rótulo do e-mail no formulário
-    emailNota: string;           // explica porque se pede o e-mail
-    pendenteEnviado: string;     // depois de escrever sem sessão
-    publicadoOk: [string, string];  // página de confirmação: comentário publicado
-    confirmarPublicar: { titulo: string; texto: string; botao: string };
-  };
+  mail: { subscrever: Carta; ignora: string; rodape: string; assinatura: string; sobre: string };
 };
 
 export const copy = {
@@ -151,6 +124,8 @@ export const copy = {
       indice: 'Neste texto',
       atualizado: 'Atualizado a',
       partilhar: 'Partilhar',
+      partilharEm: 'Partilhar no',
+      porEmail: 'Enviar por e-mail',
       copiarLigacao: 'Copiar ligação',
       ligacaoCopiada: 'Ligação copiada',
       copiarCodigo: 'Copiar',
@@ -199,55 +174,10 @@ export const copy = {
         botao: 'Confirmar a minha subscrição',
         fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
       },
-      publicar: {
-        assunto: 'O teu comentário está quase a sair',
-        preheader: 'Um clique para o teu comentário aparecer no texto.',
-        titulo: 'O teu comentário está quase a sair.',
-        texto: 'Obrigado por teres escrito. Ainda não o publiquei porque primeiro confirmo que o e-mail é teu, para a conversa continuar a ser entre pessoas de verdade.\n\nCarrega no botão e ele aparece logo no texto:',
-        botao: 'Publicar o meu comentário',
-        fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
-      },
-      subscreverPublicar: {
-        assunto: 'Confirma e o teu comentário sai',
-        preheader: 'Um clique: ficas nas cartas do blog e o teu comentário é publicado.',
-        titulo: 'Obrigado por teres escrito.',
-        texto: 'O teu comentário ficou guardado e está pronto a sair. Para comentar aqui basta subscreveres as cartas do blog, que é grátis, sem spam e podes sair com um clique, quando quiseres.\n\nAo confirmares, ficas subscrito e o comentário aparece no texto:',
-        botao: 'Subscrever e publicar',
-        fallback: 'Se o botão não abrir, copia esta ligação para o navegador:',
-      },
       ignora: 'Se não foste tu, ignora esta mensagem: não acontece nada.',
       rodape: 'A ligação vale 48 horas.',
       assinatura: 'Um abraço,',
       sobre: 'Hélder Gonçalves · heldergoncalves.io',
-    },
-    comentarios: {
-      titulo: 'Conversa',
-      um: '1 comentário',
-      varios: '{n} comentários',
-      vazio: 'Ainda ninguém disse nada. Podes ser a primeira pessoa.',
-      soSubscritores: 'Escreve já o que pensas. Para manter a conversa boa, o comentário só é publicado quando confirmas o e-mail, o que te subscreve às cartas do blog (grátis, sem spam, sais com um clique).',
-      entrarInvalido: 'Esse e-mail não parece válido.',
-      nome: 'O teu nome',
-      texto: 'O teu comentário',
-      placeholder: 'Diz o que pensas, com educação. Discordar é bem-vindo.',
-      publicar: 'Publicar',
-      aPublicar: 'A publicar…',
-      responder: 'Responder',
-      cancelar: 'Cancelar',
-      apagar: 'Apagar',
-      apagarConfirma: 'Apagar este comentário?',
-      sair: 'Sair',
-      erro: 'Não consegui publicar agora. Tenta daqui a pouco.',
-      limite: 'Calma: espera um pouco antes de comentares outra vez.',
-      ligacoes: 'Demasiadas ligações no comentário.',
-      regras: 'Sê simpático. Comentários ofensivos ou spam são apagados.',
-      respostaA: 'Em resposta a',
-      sessaoOk: ['Já podes comentar.', 'A sessão está aberta neste navegador. Volta ao texto e deixa o teu comentário.'],
-      email: 'O teu e-mail',
-      emailNota: 'Só para confirmar que és tu e te subscrever às cartas do blog. Não aparece junto ao comentário.',
-      pendenteEnviado: 'Quase! Enviei-te um e-mail: abre a ligação e o comentário fica publicado (e ficas subscrito).',
-      publicadoOk: ['Comentário publicado. Obrigado!', 'Ficas subscrito às cartas do blog e podes voltar a comentar neste navegador sem confirmar outra vez.'],
-      confirmarPublicar: { titulo: 'O teu comentário está quase a sair.', texto: 'Carrega no botão para confirmares o e-mail, ficares nas cartas do blog e publicares o comentário. É um clique.', botao: 'Publicar o meu comentário' },
     },
   },
   en: {
@@ -291,6 +221,8 @@ export const copy = {
       indice: 'In this piece',
       atualizado: 'Updated',
       partilhar: 'Share',
+      partilharEm: 'Share on',
+      porEmail: 'Share by email',
       copiarLigacao: 'Copy link',
       ligacaoCopiada: 'Link copied',
       copiarCodigo: 'Copy',
@@ -339,55 +271,10 @@ export const copy = {
         botao: 'Confirm my subscription',
         fallback: 'If the button does not open, copy this link into your browser:',
       },
-      publicar: {
-        assunto: 'Your comment is almost live',
-        preheader: 'One click and your comment appears under the post.',
-        titulo: 'Your comment is almost live.',
-        texto: 'Thank you for writing. I have not published it yet because I first confirm the email address is yours, so the conversation stays between real people.\n\nPress the button and it appears right under the post:',
-        botao: 'Publish my comment',
-        fallback: 'If the button does not open, copy this link into your browser:',
-      },
-      subscreverPublicar: {
-        assunto: 'Confirm and your comment goes live',
-        preheader: 'One click: you join the blog letters and your comment is published.',
-        titulo: 'Thank you for writing.',
-        texto: 'Your comment is saved and ready to go. To comment here you just subscribe to the blog letters, which is free, spam-free, and you can leave with one click whenever you like.\n\nWhen you confirm, you are subscribed and the comment appears under the post:',
-        botao: 'Subscribe and publish',
-        fallback: 'If the button does not open, copy this link into your browser:',
-      },
       ignora: 'If this was not you, ignore this message: nothing will happen.',
       rodape: 'The link is valid for 48 hours.',
       assinatura: 'Warmly,',
       sobre: 'Hélder Gonçalves · heldergoncalves.io',
-    },
-    comentarios: {
-      titulo: 'Conversation',
-      um: '1 comment',
-      varios: '{n} comments',
-      vazio: 'Nobody has said anything yet. You could be the first.',
-      soSubscritores: 'Write what you think right away. To keep the conversation good, the comment goes live once you confirm your email, which subscribes you to the blog letters (free, no spam, leave with one click).',
-      entrarInvalido: 'That email does not look valid.',
-      nome: 'Your name',
-      texto: 'Your comment',
-      placeholder: 'Say what you think, politely. Disagreeing is welcome.',
-      publicar: 'Post',
-      aPublicar: 'Posting…',
-      responder: 'Reply',
-      cancelar: 'Cancel',
-      apagar: 'Delete',
-      apagarConfirma: 'Delete this comment?',
-      sair: 'Sign out',
-      erro: 'I could not post right now. Try again soon.',
-      limite: 'Easy: wait a little before commenting again.',
-      ligacoes: 'Too many links in the comment.',
-      regras: 'Be kind. Offensive comments and spam are deleted.',
-      respostaA: 'In reply to',
-      sessaoOk: ['You can comment now.', 'Your session is open in this browser. Go back to the post and leave your comment.'],
-      email: 'Your email',
-      emailNota: 'Only to confirm it is you and subscribe you to the blog letters. It is not shown with the comment.',
-      pendenteEnviado: 'Almost! I sent you an email: open the link and the comment goes live (and you are subscribed).',
-      publicadoOk: ['Comment published. Thank you!', 'You are subscribed to the blog letters and can comment again in this browser without confirming.'],
-      confirmarPublicar: { titulo: 'Your comment is almost live.', texto: 'Press the button to confirm your email, join the blog letters and publish the comment. It takes one click.', botao: 'Publish my comment' },
     },
   },
 } satisfies Record<Lang, Copy>;

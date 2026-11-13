@@ -4,35 +4,30 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Copy } from '@/lib/copy';
 
-type Estado = 'parado' | 'a-confirmar' | 'ok' | 'ok-comentar' | 'invalido' | 'erro';
+type Estado = 'parado' | 'a-confirmar' | 'ok' | 'invalido' | 'erro';
 
 // A página para onde o botão do e-mail leva. Confirmar é um POST (nunca um GET): só uma pessoa a carregar no botão subscreve.
-export function Confirmar({ token, t, comentarios, destino, publicar, sugestao }: {
+export function Confirmar({ token, t, destino, sugestao }: {
   token: string;
   t: Copy['confirmar'];
-  comentarios: Copy['comentarios']['sessaoOk'];
   destino: string;
-  publicar?: { pre: Copy['comentarios']['confirmarPublicar']; ok: Copy['comentarios']['publicadoOk'] };
   sugestao?: { rotulo: string; titulo: string; href: string };
 }) {
   const [estado, setEstado] = useState<Estado>(token ? 'parado' : 'invalido');
-  const [volta, setVolta] = useState(destino);
 
   async function confirmar() {
     setEstado('a-confirmar');
     try {
       const r = await fetch('/api/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token }) });
-      const d = r.ok ? ((await r.json().catch(() => ({}))) as { comentar?: boolean; slug?: string; id?: string }) : {};
-      if (d.slug) setVolta(`${destino}/${d.slug}#c-${d.id}`);
-      setEstado(r.ok ? (d.comentar ? 'ok-comentar' : 'ok') : r.status === 400 ? 'invalido' : 'erro');
+      setEstado(r.ok ? 'ok' : r.status === 400 ? 'invalido' : 'erro');
     } catch {
       setEstado('erro');
     }
   }
 
   const antes = estado === 'parado' || estado === 'a-confirmar';
-  const feito = estado === 'ok' || estado === 'ok-comentar';
-  const [titulo, texto] = antes ? (publicar ? [publicar.pre.titulo, publicar.pre.texto] : [t.titulo, t.texto]) : estado === 'ok' && publicar ? publicar.ok : estado === 'ok-comentar' ? comentarios : t[estado];
+  const feito = estado === 'ok';
+  const [titulo, texto] = antes ? [t.titulo, t.texto] : t[estado];
 
   return (
     <div role="status" aria-live="polite" className="relative">
@@ -54,11 +49,11 @@ export function Confirmar({ token, t, comentarios, destino, publicar, sugestao }
             disabled={estado === 'a-confirmar'}
             className="group inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-tinta px-8 py-4 text-base font-medium text-fundo transition-[opacity,translate,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_-12px_color-mix(in_srgb,var(--p-tinta)_55%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acento active:translate-y-0 disabled:opacity-60 sm:w-auto"
           >
-            {estado === 'a-confirmar' ? t.aConfirmar : publicar ? publicar.pre.botao : t.botao}
+            {estado === 'a-confirmar' ? t.aConfirmar : t.botao}
             {estado !== 'a-confirmar' && <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>}
           </button>
         ) : (
-          <Link href={volta} className="inline-flex min-h-12 items-center text-base underline decoration-tinta/30 underline-offset-[6px] transition-colors hover:decoration-tinta">{t.voltar} →</Link>
+          <Link href={destino} className="inline-flex min-h-12 items-center text-base underline decoration-tinta/30 underline-offset-[6px] transition-colors hover:decoration-tinta">{t.voltar} →</Link>
         )}
       </div>
 

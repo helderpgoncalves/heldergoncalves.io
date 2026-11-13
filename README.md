@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/helderpgoncalves/heldergoncalves.io/actions/workflows/ci.yml/badge.svg)](https://github.com/helderpgoncalves/heldergoncalves.io/actions/workflows/ci.yml)
 
-O site de Hélder Gonçalves: landing, blog, newsletter e comentários, mais a página de bio.
+O site de Hélder Gonçalves: landing, blog, newsletter, mais a página de bio.
 Next.js 16 (App Router) e Tailwind 4, em português e inglês, **sem base de dados**.
 
 | | |
@@ -17,7 +17,7 @@ Precisas de Node 22 (`.nvmrc`).
 
 ```bash
 npm install
-cp .env.example .env.local   # só é preciso para testar newsletter e comentários
+cp .env.example .env.local   # só é preciso para testar a newsletter
 npm run dev                  # http://127.0.0.1:3100
 ```
 
@@ -47,7 +47,7 @@ Antes de publicar: `npm run typecheck && npm run texto && npm run build`. O CI f
 ```
 app/(pt)/  app/(en)/en/      landing, blog e confirmação, uma pasta por língua
 app/(bio)/s/bio/             a página de bio
-app/api/                     subscribe, confirm, comentarios, health
+app/api/                     subscribe, confirm, health
 components/  lib/            interface e lógica; lib/copy.ts tem todos os textos nas duas línguas
 content/pt|en/*.md           os textos do blog, em Markdown com cabeçalho YAML
 scripts/                     imagens, verificações, newsletter
@@ -65,9 +65,6 @@ docs/                        blog.md (escrever) e deploy.md (publicar)
   (`Person`, `WebSite`, `Blog`, `BlogPosting`, `BreadcrumbList`), Open Graph, `manifest` e `security.txt`.
 - **Newsletter:** dupla confirmação sem base de dados (token assinado com HMAC e botão `POST`, para que os antivírus que
   abrem ligações não subscrevam ninguém). Os contactos ficam no Resend, num segmento por língua.
-- **Comentários:** qualquer pessoa escreve, mas o comentário só é publicado quando confirma o e-mail, o que também a
-  subscreve. Depois fica com uma sessão de 60 dias neste navegador e comenta direto. Vivem num ficheiro no volume
-  `/data`; o e-mail nunca é guardado, só um identificador anónimo.
 - **Textos novos:** depois de cada deploy, `scripts/notificar.mjs` agenda o e-mail dos textos ainda não avisados
   (o Resend é o registo). Só com `NOTIFICAR=1`.
 - **Segurança:** CSP, HSTS, `X-Frame-Options` e `Permissions-Policy`; Markdown sem HTML cru nem `javascript:`;

@@ -1,6 +1,6 @@
 # heldergoncalves.io
 
-Site pessoal de Hélder Gonçalves: landing, blog bilingue (PT/EN), newsletter, comentários e a página de bio
+Site pessoal de Hélder Gonçalves: landing, blog bilingue (PT/EN), newsletter e a página de bio
 (`bio.heldergoncalves.io`). Next.js 16 (App Router), Tailwind 4, TypeScript, **sem base de dados**. Um só
 contentor Docker no Coolify. Visão geral em `README.md`, deploy em `docs/deploy.md`, escrita em `docs/blog.md`.
 
@@ -26,7 +26,7 @@ contentor Docker no Coolify. Visão geral em `README.md`, deploy em `docs/deploy
 ## Mapa
 
 - `app/(pt)`, `app/(en)/en`: landing e blog por língua · `app/(bio)/s/bio`: bio (servida por `proxy.ts` no host `bio.*`)
-- `app/api/*`: subscribe, confirm, comentarios, health · `app/md`, `llms.txt`, `openapi.json`, `.well-known`: descoberta para agentes
+- `app/api/*`: subscribe, confirm, health · `app/md`, `llms.txt`, `openapi.json`, `.well-known`: descoberta para agentes
 - `components/`, `lib/`: interface e lógica · `content/pt|en/*.md`: os textos · `content/imagens.json`: imagens dos textos
 - `scripts/`: ferramentas de linha de comandos · `fonte/`: originais das imagens (fora da imagem Docker)
 

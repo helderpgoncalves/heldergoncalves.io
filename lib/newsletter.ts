@@ -17,12 +17,12 @@ export const configurado = (lang: Lang) =>
 
 /* ---------- Token assinado: a confirmação não precisa de base de dados ---------- */
 
-type Carga = { e: string; l: Lang; x: number; k?: 's' | 'p'; p?: string }; // k: 's' subscrever (por omissão), 'p' subscrever e publicar o comentário pendente `p`
+type Carga = { e: string; l: Lang; x: number };
 const b64 = (b: Buffer | string) => Buffer.from(b).toString('base64url');
 const assinar = (dados: string) => createHmac('sha256', process.env.NEWSLETTER_SECRET!).update(dados).digest();
 
-function criarToken(email: string, lang: Lang, k: 's' | 'p' = 's', horas = HORAS, p?: string): string {
-  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + horas * 3600_000, k, ...(p && { p }) } satisfies Carga));
+function criarToken(email: string, lang: Lang): string {
+  const carga = b64(JSON.stringify({ e: email, l: lang, x: Date.now() + HORAS * 3600_000 } satisfies Carga));
   return `${carga}.${b64(assinar(carga))}`;
 }
 
@@ -35,7 +35,7 @@ export function lerToken(token: string): Carga | null {
   try {
     const c = JSON.parse(Buffer.from(carga, 'base64url').toString()) as Carga;
     if (typeof c.e !== 'string' || (c.l !== 'pt' && c.l !== 'en') || c.x < Date.now()) return null;
-    return { ...c, k: c.k === 'p' ? 'p' : 's', p: typeof c.p === 'string' ? c.p : undefined };
+    return c;
   } catch {
     return null;
   }
@@ -58,12 +58,10 @@ async function resend(caminho: string, metodo: 'POST' | 'PATCH' | 'GET', corpo?:
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
-type Tipo = 'subscrever' | 'publicar' | 'subscreverPublicar';
-
-/** A carta de confirmação: a mesma casa nos três casos (subscrever, publicar, subscrever e publicar). */
-function carta(lang: Lang, tipo: Tipo, link: string) {
+/** A carta de confirmação da subscrição. */
+function carta(lang: Lang, link: string) {
   const { mail } = copy[lang];
-  const m = mail[tipo];
+  const m = mail.subscrever;
   const paragrafos = m.texto.split('\n\n').map((p) => `<p class="t2" style="margin:0 0 18px;font-size:17px;line-height:1.65;color:#3a3f4b">${esc(p)}</p>`).join('');
   const sans = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
   const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${esc(m.assunto)}</title>
@@ -87,17 +85,17 @@ function carta(lang: Lang, tipo: Tipo, link: string) {
   return { assunto: m.assunto, html, text };
 }
 
-async function enviarCarta(email: string, lang: Lang, tipo: Tipo, token: string): Promise<boolean> {
+async function enviarCarta(email: string, lang: Lang, token: string): Promise<boolean> {
   // A ligação abre uma página com botão (POST), nunca confirma sozinha: os antivírus
   // e as pré-visualizações de e-mail abrem links, e não podem subscrever ninguém.
   const link = `${SITE.url}${rotas[lang].confirmar}?t=${encodeURIComponent(token)}`;
-  const { assunto, html, text } = carta(lang, tipo, link);
+  const { assunto, html, text } = carta(lang, link);
   const r = await resend('/emails', 'POST', { from: process.env.RESEND_FROM, to: [email], subject: assunto, html, text });
   if (!r.ok) console.error(`[newsletter] Resend /emails respondeu ${r.status}`);
   return r.ok;
 }
 
-export const enviarConfirmacao = (email: string, lang: Lang) => enviarCarta(email, lang, 'subscrever', criarToken(email, lang));
+export const enviarConfirmacao = (email: string, lang: Lang) => enviarCarta(email, lang, criarToken(email, lang));
 
 /** Cria o contacto no segmento; se já existir, garante que volta a estar subscrito. */
 export async function adicionarContacto(email: string, lang: Lang): Promise<boolean> {
@@ -109,50 +107,3 @@ export async function adicionarContacto(email: string, lang: Lang): Promise<bool
   await resend(`/contacts/${encodeURIComponent(email)}/segments/${id}`, 'POST', {}).catch(() => {});
   return true;
 }
-
-/* ---------- Comentários: publicar exige e-mail confirmado (e subscrito) ---------- */
-
-/** Está subscrito (existe no Resend e não cancelou)? Em caso de dúvida, não. */
-export async function eSubscritor(email: string): Promise<boolean> {
-  const r = await resend(`/contacts/${encodeURIComponent(email)}`, 'GET').catch(() => null);
-  if (!r?.ok) return false;
-  const c = (await r.json().catch(() => null)) as { unsubscribed?: boolean } | null;
-  return Boolean(c) && c!.unsubscribed !== true;
-}
-
-/* ---------- Sessão de quem comenta: um cookie assinado, sem guardar o e-mail ---------- */
-
-export const COOKIE = 'hg_c';
-const DIAS = 60;
-type Sessao = { h: string; x: number; n?: string };
-
-/** Identificador estável e anónimo de um e-mail (HMAC): serve para saber quem escreveu o quê sem guardar o endereço. */
-export const idDe = (email: string) => createHmac('sha256', `id:${process.env.NEWSLETTER_SECRET}`).update(email.trim().toLowerCase()).digest('hex').slice(0, 32);
-
-export function criarSessao(email: string, nome?: string): { valor: string; segundos: number } {
-  const carga = b64(JSON.stringify({ h: idDe(email), x: Date.now() + DIAS * 86_400_000, ...(nome && { n: nome }) } satisfies Sessao));
-  return { valor: `${carga}.${b64(assinar(carga))}`, segundos: DIAS * 86_400 };
-}
-
-export function lerSessao(valor: string | undefined): Sessao | null {
-  if (!valor) return null;
-  const [carga, sig] = valor.split('.');
-  if (!carga || !sig || !process.env.NEWSLETTER_SECRET) return null;
-  const esperado = assinar(carga);
-  const recebido = Buffer.from(sig, 'base64url');
-  if (recebido.length !== esperado.length || !timingSafeEqual(recebido, esperado)) return null;
-  try {
-    const s = JSON.parse(Buffer.from(carga, 'base64url').toString()) as Sessao;
-    return typeof s.h === 'string' && s.x > Date.now() ? s : null;
-  } catch { return null; }
-}
-
-/** A mesma sessão (mesmo identificador e mesma validade) com um nome guardado. */
-export function sessaoComNome(s: { h: string; x: number }, nome: string): { valor: string; segundos: number } {
-  const carga = b64(JSON.stringify({ h: s.h, x: s.x, n: nome } satisfies Sessao));
-  return { valor: `${carga}.${b64(assinar(carga))}`, segundos: Math.max(60, Math.floor((s.x - Date.now()) / 1000)) };
-}
-
-/** O e-mail «confirma e publica»: a ligação subscreve (se ainda não estiver) e publica o comentário pendente. */
-export const enviarPublicacao = (email: string, lang: Lang, pendente: string, jaSubscrito: boolean) =>
-  enviarCarta(email, lang, jaSubscrito ? 'publicar' : 'subscreverPublicar', criarToken(email, lang, 'p', HORAS, pendente));

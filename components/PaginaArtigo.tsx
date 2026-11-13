@@ -5,7 +5,6 @@ import { FormSubscrever } from './FormSubscrever';
 import { Json } from './Json';
 import { ExtrasArtigo } from './ExtrasArtigo';
 import { Partilhar } from './Partilhar';
-import { Comentarios } from './Comentarios';
 import { copy, htmlLang, rotas } from '@/lib/copy';
 import { artigos, dataLonga, figuraHtml, html, imagemDe, indice, modificado, relacionados, serieDe, slugEtiqueta, traducao, etiqueta, MIN_INDEXAVEL, type Artigo, type Titulo } from '@/lib/blog';
 import { abs } from '@/lib/seo';
@@ -120,14 +119,15 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
             {a.fonte && (
               <p className="mt-8 font-mono text-[0.78rem] text-acento">[{c.blog.achado.toLowerCase()}]</p>
             )}
-            <h1 className={`${a.fonte ? 'mt-5' : 'mt-8'} font-serif text-[clamp(2.7rem,7.2vw,4.9rem)] leading-[0.98] tracking-[-0.028em] text-balance`}>{a.titulo}</h1>
-            <p className="mt-6 font-leitura text-[clamp(1.25rem,1.8vw,1.5rem)] leading-[1.5] text-suave italic text-pretty">{a.resumo}</p>
+            <h1 className={`${a.fonte ? 'mt-5' : 'mt-8'} font-serif text-[clamp(2.5rem,5.6vw,3.9rem)] leading-[1.05] tracking-[-0.025em] text-balance`}>{a.titulo}</h1>
+            <p className="mt-5 font-leitura text-[clamp(1.2rem,1.4vw,1.4rem)] leading-[1.5] text-suave text-pretty">{a.resumo}</p>
             <p className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-1 border-y border-linha py-3.5 font-mono text-[0.76rem] text-suave">
               <span>{SITE.nome}</span>
               <time dateTime={a.data}>{dataLonga(a.data, lang)}</time>
               <span>{a.minutos} {c.blog.min}</span>
               {a.atualizado && a.atualizado !== a.data && <span>{c.blog.atualizado} <time dateTime={a.atualizado}>{dataLonga(a.atualizado, lang)}</time></span>}
             </p>
+            <div className="mt-5"><Partilhar url={url} titulo={a.titulo} rotulo={c.blog.partilhar} copiar={c.blog.copiarLigacao} copiado={c.blog.ligacaoCopiada} em={c.blog.partilharEm} porEmail={c.blog.porEmail} /></div>
           </header>
 
           {serie && (
@@ -195,7 +195,7 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
                 })}
               </p>
             )}
-            <Partilhar url={url} titulo={a.titulo} rotulo={c.blog.partilhar} copiar={c.blog.copiarLigacao} copiado={c.blog.ligacaoCopiada} />
+            <Partilhar url={url} titulo={a.titulo} rotulo={c.blog.partilhar} copiar={c.blog.copiarLigacao} copiado={c.blog.ligacaoCopiada} em={c.blog.partilharEm} porEmail={c.blog.porEmail} />
             {outra && (
               <p>
                 <Link href={rotas[outra.lang].artigo(outra.slug)} hrefLang={htmlLang[outra.lang]} className="underline decoration-linha underline-offset-4 hover:text-tinta">{c.blog.tradLabel} →</Link>
@@ -207,8 +207,6 @@ export function PaginaArtigo({ a }: { a: Artigo }) {
         <section id="subscrever" aria-label={c.form.rotulo} className="mt-14 scroll-mt-8 rounded-2xl border border-linha p-7 sm:p-9">
           <FormSubscrever lang={lang} t={c.form} />
         </section>
-
-        <Comentarios lang={lang} slug={a.slug} t={c.comentarios} />
 
         {parecidos.length > 0 && (
           <section aria-labelledby="relacionados" className="mt-16">

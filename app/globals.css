@@ -63,36 +63,41 @@ body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
 .leitura {
   font-family: var(--font-leitura);
   font-optical-sizing: auto;
-  font-size: clamp(1.14rem, 1.25vw + .8rem, 1.32rem);
-  line-height: 1.72;
-  hyphens: auto;
+  /* Ritmo de leitura estilo Medium: coluna de ~680 px, corpo de 19 a 21 px, entrelinha de 1,6. */
+  font-size: clamp(1.1875rem, .35vw + 1.1rem, 1.3125rem);
+  line-height: 1.62;
+  letter-spacing: -.003em;
   color: var(--p-tinta);
+  font-kerning: normal;
+  overflow-wrap: break-word;
 }
-.leitura > * + * { margin-top: 1.35em; }
+.leitura > * + * { margin-top: 1.55em; }
 .leitura p { text-wrap: pretty; }
-.leitura h2 { font-family: var(--font-serif); font-weight: 400; font-size: 2.1em; line-height: 1.08; letter-spacing: -.02em; margin-top: 2.2em; text-wrap: balance; }
-.leitura h3 { font-family: var(--font-sans); font-weight: 600; font-size: 1.02em; letter-spacing: -.005em; margin-top: 1.9em; }
-.leitura h2 + *, .leitura h3 + * { margin-top: .7em; }
-.leitura a { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--p-acento) 55%, transparent); text-underline-offset: .22em; text-decoration-thickness: 1px; transition: text-decoration-color .2s; }
-.leitura a:hover { text-decoration-color: var(--p-acento); }
-.leitura strong { font-weight: 600; }
-.leitura ul, .leitura ol { padding-left: 1.3em; }
+.leitura h2 { font-family: var(--font-sans); font-weight: 650; font-size: 1.62em; line-height: 1.2; letter-spacing: -.022em; margin-top: 2.7em; text-wrap: balance; }
+.leitura h3 { font-family: var(--font-sans); font-weight: 650; font-size: 1.2em; line-height: 1.3; letter-spacing: -.012em; margin-top: 2.1em; text-wrap: balance; }
+.leitura h2 + *, .leitura h3 + * { margin-top: .85em; }
+.leitura a { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--p-tinta) 40%, transparent); text-underline-offset: .2em; text-decoration-thickness: 1px; transition: text-decoration-color .2s, color .2s; }
+.leitura a:hover { text-decoration-color: var(--p-acento); color: var(--p-acento); }
+.leitura strong { font-weight: 650; }
+.leitura ul, .leitura ol { padding-left: 1.5em; }
 .leitura ul { list-style: disc; }
 .leitura ol { list-style: decimal; }
-.leitura li + li { margin-top: .45em; }
+.leitura li + li { margin-top: .6em; }
 .leitura li::marker { color: var(--p-suave); }
-.leitura blockquote { border-left: 2px solid var(--p-acento); padding-left: 1.2em; font-style: italic; color: var(--p-suave); }
-.leitura hr { border: 0; height: 1px; background: var(--p-linha); margin-block: 2.6em; }
-.leitura code { font-family: var(--font-mono); font-size: .82em; background: color-mix(in srgb, var(--p-tinta) 7%, transparent); padding: .12em .38em; border-radius: .35em; }
-.leitura pre { overflow-x: auto; padding: 1.1em 1.3em; border-radius: .8em; background: color-mix(in srgb, var(--p-tinta) 6%, transparent); border: 1px solid var(--p-linha); font-size: .85em; line-height: 1.6; }
+/* Citação em destaque, como numa revista: maior, em itálico, com a barra na cor do acento. */
+.leitura blockquote { border-left: 3px solid var(--p-acento); padding: .1em 0 .1em 1.1em; margin-inline: 0; font-size: 1.14em; line-height: 1.5; font-style: italic; color: var(--p-tinta); }
+.leitura blockquote > * + * { margin-top: .7em; }
+/* Separador: três pontos centrados. */
+.leitura hr { border: 0; height: auto; background: none; margin-block: 3em; text-align: center; overflow: visible; }
+.leitura hr::after { content: '···'; letter-spacing: .6em; padding-left: .6em; font-size: 1.6em; line-height: 1; color: var(--p-suave); }
+.leitura code { font-family: var(--font-mono); font-size: .8em; background: color-mix(in srgb, var(--p-tinta) 7%, transparent); padding: .12em .38em; border-radius: .35em; }
+.leitura pre { overflow-x: auto; padding: 1.1em 1.3em; border-radius: .8em; background: color-mix(in srgb, var(--p-tinta) 6%, transparent); border: 1px solid var(--p-linha); font-size: .78em; line-height: 1.6; }
 .leitura pre code { background: none; padding: 0; font-size: 1em; }
-.leitura img { max-width: 100%; height: auto; border-radius: .8em; }
-.leitura table { display: block; max-width: 100%; overflow-x: auto; }
+.leitura img { max-width: 100%; height: auto; border-radius: .6em; }
+.leitura table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: .82em; line-height: 1.5; }
 .leitura :is(h2, h3) { scroll-margin-top: 1.5rem; position: relative; }
-.leitura table { border-collapse: collapse; font-size: .9em; }
-.leitura th { font-family: var(--font-sans); font-weight: 600; font-size: .9em; }
+.leitura th { font-family: var(--font-sans); font-weight: 650; font-size: .9em; }
 .leitura th, .leitura td { text-align: left; padding: .6em .8em; border-bottom: 1px solid var(--p-linha); }
-.leitura > p:first-of-type::first-letter { font-family: var(--font-serif); float: left; font-size: 4.6em; line-height: .82; padding: .06em .1em 0 0; color: var(--p-acento); }
 
 /* Âncora de cada título: só aparece ao passar o rato (ou ao focar com o teclado). */
 .leitura .ancora { margin-left: .4em; text-decoration: none; color: var(--p-suave); opacity: 0; transition: opacity .15s; font-family: var(--font-sans); font-weight: 400; font-size: .7em; }
@@ -103,9 +108,9 @@ body:has(.papel) { background: var(--p-fundo); color: var(--p-tinta); }
 /* O marcador desfocado vem em `background-image`; a imagem tem width/height, por isso reserva o espaço e a página não salta. */
 .fig { margin: 0; }
 .fig img { display: block; width: 100%; height: auto; border-radius: .8em; background: var(--p-linha) center / cover no-repeat; }
-.fig figcaption { margin-top: .85em; font-family: var(--font-mono); font-size: .74rem; line-height: 1.55; color: var(--p-suave); text-wrap: pretty; }
+.fig figcaption { margin-top: .9em; font-family: var(--font-sans); font-size: .84rem; line-height: 1.5; color: var(--p-suave); text-align: center; text-wrap: balance; }
 .fig .credito { display: block; margin-top: .15em; opacity: .75; }
-.leitura .fig { margin-block: 2.1em; }
+.leitura .fig { margin-block: 2.4em; }
 /* "Larga": sai da coluna do texto para os dois lados, sem passar do ecrã. */
 .fig.larga { position: relative; left: 50%; translate: -50% 0; width: min(52rem, calc(100vw - 3rem)); }
 .fig.miniatura { width: 100%; left: 0; translate: none; }
