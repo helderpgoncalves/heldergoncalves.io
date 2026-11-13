@@ -8,7 +8,7 @@ Next.js 16 (App Router) e Tailwind 4, em português e inglês, **sem base de dad
 | | |
 | --- | --- |
 | [heldergoncalves.io](https://heldergoncalves.io) | o site e o blog (domínio canónico) |
-| [bio.heldergoncalves.io](https://bio.heldergoncalves.io) | a página de ligações, leve e pensada para o telemóvel |
+| [bio.heldergoncalves.io](https://bio.heldergoncalves.io) | a página de ligações (LinkedIn, WhatsApp, e-mail, blog, Novelo), leve e pensada para o telemóvel; o WhatsApp só se vê com e-mail e desafio |
 | `helder.si` | redireciona (308) para o canónico |
 
 ## Começar

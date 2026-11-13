@@ -47,6 +47,7 @@ certificados por HTTP-01 e precisa de chegar ao servidor directamente.
    | `RESEND_FROM` | `Hélder Gonçalves <newsletter@heldergoncalves.io>` |
    | `NEWSLETTER_SECRET` | o segredo (≥ 32 caracteres) |
    | `NOTIFICAR` | `0` até testares; depois `1` |
+   | `WHATSAPP_NUMERO` | só dígitos com indicativo (ex.: `351912345678`); sem isto o botão da bio diz «indisponível» |
 
    Marca-as como **Runtime only** (não precisam de existir no build).
 5. **Health check**: não configures nada. O `Dockerfile` já tem um `HEALTHCHECK` (`/api/health`) e o Coolify usa-o;
@@ -100,7 +101,7 @@ Primeiro uso: deixa `NOTIFICAR=0`, publica um artigo e lê nos logs `avisaria: a
 
 `proxy.ts` lê o `Host` e `bio.heldergoncalves.io/x` passa a `/s/bio/x` (a pasta `app/(bio)/s/bio/`). O domínio
 principal nunca serve `/s/*`. Basta o registo DNS `bio` e acrescentar `https://bio.heldergoncalves.io` aos
-**Domains** do Coolify. Em desenvolvimento vê-se em `http://bio.localhost:3100`.
+**Domains** do Coolify. O número de WhatsApp da bio nunca está no código nem no HTML: só a API `/api/contacto` o devolve, depois de e-mail válido e de um desafio assinado (`lib/contacto.ts`). Em desenvolvimento vê-se em `http://bio.localhost:3100`.
 
 ## 6. Verificar depois do deploy
 

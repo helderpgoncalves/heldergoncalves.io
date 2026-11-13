@@ -4,8 +4,8 @@ import { SITE } from './site';
 export const json = (corpo: object, status = 200) =>
   NextResponse.json(corpo, { status, headers: { 'Cache-Control': 'no-store' } });
 
-const hostsPermitidos = new Set([SITE.url, SITE.canonico, SITE.alias].map((u) => new URL(u).host));
-if (process.env.NODE_ENV !== 'production') ['localhost:3100', '127.0.0.1:3100'].forEach((h) => hostsPermitidos.add(h));
+const hostsPermitidos = new Set([SITE.url, SITE.canonico, SITE.alias, SITE.bio].map((u) => new URL(u).host));
+if (process.env.NODE_ENV !== 'production') ['localhost:3100', '127.0.0.1:3100', 'bio.localhost:3100'].forEach((h) => hostsPermitidos.add(h));
 
 /** Só aceitamos pedidos feitos pelas nossas páginas: os browsers enviam sempre o Origin num POST. */
 export function origemPermitida(req: NextRequest): boolean {

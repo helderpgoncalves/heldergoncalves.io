@@ -49,8 +49,8 @@ for (const f of codigo.filter((f) => /\.(tsx?|mjs)$/.test(f) && !entrada(f))) {
   }
 }
 
-// Imagens: o nome pode estar montado por template (hero-${w}), por isso procura-se o prefixo antes do primeiro número.
-for (const f of ficheiros.filter((f) => /^(public|fonte)\//.test(rel(f)) || /^app\/[^/]+\.(png|ico)$/.test(rel(f)))) {
+// Imagens (public/img/blog é gerado por imagens-blog e o manifesto cobre-o): o nome pode estar montado por template (hero-${w}), por isso procura-se o prefixo antes do primeiro número.
+for (const f of ficheiros.filter((f) => /^(public|fonte)\//.test(rel(f)) && !rel(f).startsWith('public/img/blog/') || /^app\/[^/]+\.(png|ico)$/.test(rel(f)))) {
   const nome = path.basename(f);
   const prefixo = nome.replace(/-?\d+\.\w+$/, '');
   if (!tudo.includes(nome) && !(prefixo !== nome && tudo.includes(prefixo))) achados.push(`ficheiro estático sem referência: ${rel(f)}`);

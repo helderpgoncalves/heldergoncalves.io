@@ -1,1 +1,5 @@
-{}
+{
+"novelo/hero": {"hash":"cde077253a7a","w":1600,"h":1304,"ext":"png","larguras":[480,800,1200,1600],"lqip":"data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAABwBACdASoYABQAPu1oqk+ppiOiKA1RMB2JZQAALqdsLHQGT7ksOfF7nrPx8AD+7W6DxK8BJ3MP8nWdeN++J8VRprVw2w0LlOZXDQQ+XCbgzsaXtpYeC2RhkyjkX6Zbn1LidkavHuE9r136alJ10T+V/Jy1wl/faX4+KnHZNUwAAA=="},
+"novelo/simulador": {"hash":"759662739b03","w":1600,"h":1987,"ext":"jpg","larguras":[480,800,1200,1600],"lqip":"data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAwCdASoYAB4APu1usFKppiSjqAgBMB2JaQDKABI1/z69C1+EJtAAAP7n7T64j0QjvAnxruCYAIunKnWRU7/gaMguMZ6/UnBGWSVTEEPEAA=="},
+"novelo/triagem": {"hash":"168775a73f3f","w":1600,"h":2004,"ext":"jpg","larguras":[480,800,1200,1600],"lqip":"data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAABwBACdASoYAB4APu1urVGppqQiqAqpMB2JZwDIXBmNxrm3vpslHd3jOHh6AAD+7/NmnSJneKnqxN0TowviMIGxgX9gW5USVIDFoYqLgZraGuTysf3/7IgJ2bwStW0HX2oJQ3bAdAAPmyS7istfUkztp9CFef45Kq47fqrlM+oHDfAAAAA="}
+}

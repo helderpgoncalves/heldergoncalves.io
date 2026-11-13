@@ -7,7 +7,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.bio),
   title: { absolute: `${SITE.nome} · Ligações` },
-  description: `Todas as ligações de ${SITE.nome} num só sítio: o blog, os projetos e como falar comigo.`,
+  description: `Todas as ligações de ${SITE.nome} num só sítio: o blog, os projetos, o LinkedIn, o WhatsApp e o e-mail.`,
   alternates: { canonical: '/' },
   authors: [{ name: SITE.nome, url: SITE.canonico }],
   creator: SITE.nome,

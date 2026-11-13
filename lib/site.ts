@@ -9,6 +9,7 @@ export const SITE = {
   github: 'https://github.com/helderpgoncalves',
   instagram: 'https://www.instagram.com/helder_goncalves16/',
   instagramNome: 'helder_goncalves16',
+  linkedin: 'https://www.linkedin.com/in/heldergoncalves16/',
   bio: 'https://bio.heldergoncalves.io',
 } as const;
 
@@ -16,6 +17,6 @@ export const SITE = {
 // Para acrescentar um, basta uma linha aqui.
 type Projeto = { nome: string; url: string; descricao: { pt: string; en: string } };
 export const PROJETOS: readonly Projeto[] = [
-  // Vazio de propósito. Para mostrar um projecto no rodapé, na bio e no llms.txt, acrescenta uma linha:
-  // { nome: 'Nome', url: 'https://…', descricao: { pt: '…', en: '…' } },
+  // Para mostrar um projecto no rodapé, na bio e no llms.txt, acrescenta uma linha.
+  { nome: 'Novelo', url: 'https://novelo.helder.si', descricao: { pt: 'Desenha a recolha de têxteis de Guimarães ao menor custo. Vencedor do Hack4Guimarães 2035.', en: 'Designs the textile collection network of Guimarães at the lowest cost. Winner of Hack4Guimarães 2035.' } },
 ];

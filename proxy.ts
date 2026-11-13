@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Ficheiros do site todo, que a página de bio também usa.
-const PARTILHADO = ['/_next/', '/api/health', '/img/', '/icon.png', '/favicon.ico', '/apple-icon.png', '/icon-192.png', '/icon-512.png', '/.well-known/'];
+const PARTILHADO = ['/_next/', '/api/health', '/api/contacto', '/img/', '/icon.png', '/favicon.ico', '/apple-icon.png', '/icon-192.png', '/icon-512.png', '/.well-known/'];
 // bio.heldergoncalves.io (e bio.localhost em desenvolvimento) serve a pasta app/(bio)/s/bio/.
 const ehBio = (host: string) => ['bio.heldergoncalves.io', 'bio.localhost'].includes(host.split(':')[0].toLowerCase());
 const naoExiste = (req: NextRequest) => NextResponse.rewrite(new URL('/__nao-existe', req.url));
