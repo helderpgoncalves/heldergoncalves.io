@@ -21,6 +21,11 @@ updates:
       # O Node da imagem acompanha o `.nvmrc` e o CI: muda-se à mão, de propósito, de LTS em LTS.
       - dependency-name: node
         update-types: ["version-update:semver-major"]
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: github-actions
     directory: /
